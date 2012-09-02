@@ -50,7 +50,7 @@ Flight
 data Volare = Volare
 
 mkYesod "Volare" [parseRoutes|
-/ HomeR GET
+/ RootR GET
 /flights FlightsR GET POST
 |]
 
@@ -60,8 +60,8 @@ instance RenderMessage Volare FormMessage where
     renderMessage _ _ = defaultFormMessage
 
 
-getHomeR :: Handler RepHtml
-getHomeR = defaultLayout $(whamletFile "templates/home.hamlet")
+getRootR :: Handler RepHtml
+getRootR = defaultLayout $(whamletFile "templates/root.hamlet")
 
 
 flightForm :: Html ->
