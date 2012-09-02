@@ -1,3 +1,5 @@
 $newline never
 
-Test2
+<p>
+  <a href="@{FlightsR}">Flights</a>
+
