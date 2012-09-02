@@ -4,3 +4,7 @@ $if not (null flights)
   <ol>
     $forall flight <- flights
       <li>#{name flight}
+
+<form method=POST action=@{FlightsR}>
+  ^{newFlightWidget}
+  <input type=submit>
