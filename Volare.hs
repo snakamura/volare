@@ -10,7 +10,7 @@ import Yesod (RepHtml,
               parseRoutes,
               renderRoute,
               warpDebug,
-              whamlet,
+              whamletFile,
               yesodDispatch)
 
 data Volare = Volare
@@ -23,8 +23,7 @@ instance Yesod Volare
 
 
 getHomeR :: Handler RepHtml
-getHomeR = defaultLayout [whamlet|$newline never
-Test|]
+getHomeR = defaultLayout $ $(whamletFile "templates/home.hamlet")
 
 
 main :: IO ()
