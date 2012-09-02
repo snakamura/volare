@@ -1,8 +1,10 @@
 {-# LANGUAGE MultiParamTypeClasses,
+             OverloadedStrings,
              QuasiQuotes,
              TemplateHaskell,
              TypeFamilies #-}
 
+import qualified Data.Text as T
 import Yesod (RepHtml,
               Yesod,
               defaultLayout,
@@ -27,8 +29,15 @@ getHomeR :: Handler RepHtml
 getHomeR = defaultLayout $(whamletFile "templates/home.hamlet")
 
 
+data Flight = Flight {
+  name :: T.Text
+} deriving Show
+
+
 getFlightsR :: Handler RepHtml
-getFlightsR = defaultLayout $(whamletFile "templates/flights/index.hamlet")
+getFlightsR = do
+  let flights = [Flight "<Test Flight>"]
+  defaultLayout $(whamletFile "templates/flights/index.hamlet")
 
 
 main :: IO ()
