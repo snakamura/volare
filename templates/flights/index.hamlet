@@ -3,7 +3,7 @@ $newline never
 $if not (null flights)
   <ol>
     $forall flight <- flights
-      <li>#{name flight}
+      <li>#{flightName flight}
 
 <form method=POST action=@{FlightsR}>
   ^{newFlightWidget}

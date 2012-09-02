@@ -1,4 +1,6 @@
-{-# LANGUAGE MultiParamTypeClasses,
+{-# LANGUAGE FlexibleContexts,
+             GADTs,
+             MultiParamTypeClasses,
              OverloadedStrings,
              QuasiQuotes,
              TemplateHaskell,
@@ -6,6 +8,14 @@
 
 import Control.Applicative ((<$>))
 import qualified Data.Text as T
+import Database.Persist (PersistEntity(..),
+                         PersistEntityBackend,
+                         PersistField(..))
+import Database.Persist.TH (mkMigrate,
+                            mkPersist,
+                            persist,
+                            share,
+                            sqlSettings)
 import Yesod (FormMessage,
               FormResult(FormSuccess),
               Html,
@@ -29,6 +39,14 @@ import Yesod (FormMessage,
               whamletFile,
               yesodDispatch)
 
+
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
+Flight
+  name T.Text
+  deriving Show
+|]
+
+
 data Volare = Volare
 
 mkYesod "Volare" [parseRoutes|
@@ -44,11 +62,6 @@ instance RenderMessage Volare FormMessage where
 
 getHomeR :: Handler RepHtml
 getHomeR = defaultLayout $(whamletFile "templates/home.hamlet")
-
-
-data Flight = Flight {
-      name :: T.Text
-    } deriving Show
 
 
 flightForm :: Html ->
