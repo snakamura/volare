@@ -116,6 +116,6 @@ getFlightR id = do
 
 
 main :: IO ()
-main = withSqlitePool "volare.sqlite" 10 $ \pool -> do
+main = withSqlitePool "data/volare.sqlite" 10 $ \pool -> do
          runSqlPool (runMigration migrateAll) pool
          warpDebug 3000 $ Volare pool
