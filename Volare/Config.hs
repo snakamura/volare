@@ -7,6 +7,7 @@ module Volare.Config (
 
 import Control.Applicative ((<$>),
                             (<*>))
+import Control.Monad ((>=>))
 import Data.Monoid (mempty)
 import Data.Yaml (FromJSON(parseJSON),
                   Value(Object),
@@ -29,8 +30,4 @@ instance FromJSON Config where
 
 loadConfig :: FilePath ->
               IO Config
-loadConfig path = do
-  config <- decodeFile path
-  case config of
-    Just config -> return config
-    Nothing -> error "Failed to parse a config file."
+loadConfig = decodeFile >=> maybe (error "Failed to parse a config file.") return
