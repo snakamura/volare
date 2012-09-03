@@ -2,8 +2,9 @@ $newline never
 
 $if not (null flights)
   <ol>
-    $forall Entity id flight <- flights
-      <li>#{flightName flight}
+    $forall Entity flightId flight <- flights
+      <li>
+        <a href=@{FlightR flightId}>#{flightName flight}
 
 <form method=POST action=@{FlightsR}>
   ^{newFlightWidget}

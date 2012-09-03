@@ -46,7 +46,8 @@ import Yesod.Form (FormMessage,
                    textField)
 import Yesod.Handler (getYesod,
                       redirect)
-import Yesod.Persist (YesodPersist(..))
+import Yesod.Persist (YesodPersist(..),
+                      get404)
 import Yesod.Widget (whamletFile)
 
 
@@ -63,6 +64,7 @@ data Volare = Volare ConnectionPool
 mkYesod "Volare" [parseRoutes|
 / RootR GET
 /flights FlightsR GET POST
+/flights/#FlightId FlightR GET
 |]
 
 
@@ -105,6 +107,12 @@ postFlightsR = do
                  runDB $ insert flight
                  redirect FlightsR
     _ -> redirect FlightsR
+
+
+getFlightR :: FlightId -> Handler RepHtml
+getFlightR id = do
+  flight <- runDB $ get404 id
+  defaultLayout $(whamletFile "templates/flights/show.hamlet")
 
 
 main :: IO ()
