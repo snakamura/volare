@@ -15,6 +15,7 @@ import Database.Persist (PersistEntity(..),
                          PersistField(..))
 import Database.Persist (Entity(Entity),
                          insert,
+                         replace,
                          selectList)
 import Database.Persist.GenericSql (ConnectionPool,
                                     SqlPersist,
@@ -39,7 +40,8 @@ import Yesod.Core (Yesod(..),
 import Yesod.Content (RepHtml)
 import Yesod.Dispatch (mkYesod,
                        parseRoutes)
-import Yesod.Form (FormMessage,
+import Yesod.Form (AForm,
+                   FormMessage,
                    FormResult(FormSuccess),
                    MForm,
                    areq,
@@ -74,6 +76,7 @@ mkYesod "Volare" [parseRoutes|
 / RootR GET
 /flights FlightsR GET POST
 /flights/#FlightId FlightR GET
+/flights/#FlightId/edit FlightEditR GET POST
 |]
 
 
@@ -99,21 +102,27 @@ getRootR :: Handler RepHtml
 getRootR = defaultLayout $(whamletFile "templates/root.hamlet")
 
 
-flightForm :: Html ->
+flightAForm :: Maybe Flight ->
+               AForm Volare Volare Flight
+flightAForm flight = Flight <$> areq textField "Name" (flightName <$> flight)
+
+
+flightForm :: Maybe Flight ->
+              Html ->
               MForm Volare Volare (FormResult Flight, Widget)
-flightForm = renderDivs $ Flight <$> areq textField "Name" Nothing
+flightForm = renderDivs . flightAForm
 
 
 getFlightsR :: Handler RepHtml
 getFlightsR = do
   flights <- runDB $ selectList [] []
-  (newFlightWidget, enctype) <- generateFormPost flightForm
+  (flightWidget, enctype) <- generateFormPost $ flightForm Nothing
   defaultLayout $(whamletFile "templates/flights/index.hamlet")
 
 
 postFlightsR :: Handler RepHtml
 postFlightsR = do
-  ((result, widget), enctype) <- runFormPost flightForm
+  ((result, widget), enctype) <- runFormPost $ flightForm Nothing
   case result of
     FormSuccess flight -> do
                  runDB $ insert flight
@@ -121,10 +130,30 @@ postFlightsR = do
     _ -> redirect FlightsR
 
 
-getFlightR :: FlightId -> Handler RepHtml
-getFlightR id = do
-  flight <- runDB $ get404 id
+getFlightR :: FlightId ->
+              Handler RepHtml
+getFlightR flightId = do
+  flight <- runDB $ get404 flightId
   defaultLayout $(whamletFile "templates/flights/show.hamlet")
+
+
+getFlightEditR :: FlightId ->
+                  Handler RepHtml
+getFlightEditR flightId = do
+  flight <- runDB $ get404 flightId
+  (flightWidget, enctype) <- generateFormPost $ flightForm $ Just flight
+  defaultLayout $(whamletFile "templates/flights/edit.hamlet")
+
+
+postFlightEditR :: FlightId ->
+                Handler RepHtml
+postFlightEditR flightId = do
+  ((result, flightWidget), enctype) <- runFormPost $ flightForm Nothing
+  case result of
+    FormSuccess flight -> do
+                runDB $ replace flightId flight
+                redirect $ FlightR flightId
+    _ -> defaultLayout $(whamletFile "templates/flights/edit.hamlet")
 
 
 main :: IO ()

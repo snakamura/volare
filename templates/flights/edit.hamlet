@@ -1,0 +1,5 @@
+$newline never
+
+<form method=POST action=@{FlightEditR flightId}>
+  ^{flightWidget}
+  <input type=submit>
