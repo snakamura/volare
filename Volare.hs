@@ -24,30 +24,30 @@ import Database.Persist.TH (mkMigrate,
                             persist,
                             share,
                             sqlSettings)
-import Yesod (FormMessage,
-              FormResult(FormSuccess),
-              Html,
-              MForm,
-              RenderMessage,
-              RepHtml,
-              Yesod,
-              YesodPersist(..),
-              areq,
-              defaultFormMessage,
-              defaultLayout,
-              generateFormPost,
-              getYesod,
-              mkYesod,
-              parseRoutes,
-              redirect,
-              renderDivs,
-              renderMessage,
-              renderRoute,
-              runFormPost,
-              textField,
-              warpDebug,
-              whamletFile,
-              yesodDispatch)
+import Text.Blaze.Html (Html)
+import Text.Shakespeare.I18N (RenderMessage,
+                              renderMessage)
+import Yesod (warpDebug)
+import Yesod.Core (Yesod,
+                   defaultLayout,
+                   renderRoute,
+                   yesodDispatch)
+import Yesod.Content (RepHtml)
+import Yesod.Dispatch (mkYesod,
+                       parseRoutes)
+import Yesod.Form (FormMessage,
+                   FormResult(FormSuccess),
+                   MForm,
+                   areq,
+                   defaultFormMessage,
+                   generateFormPost,
+                   renderDivs,
+                   runFormPost,
+                   textField)
+import Yesod.Handler (getYesod,
+                      redirect)
+import Yesod.Persist (YesodPersist(..))
+import Yesod.Widget (whamletFile)
 
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
