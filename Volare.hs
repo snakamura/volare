@@ -11,6 +11,14 @@ import qualified Data.Text as T
 import Database.Persist (PersistEntity(..),
                          PersistEntityBackend,
                          PersistField(..))
+import Database.Persist (Entity(Entity),
+                         insert,
+                         selectList)
+import Database.Persist.GenericSql (ConnectionPool,
+                                    SqlPersist,
+                                    runMigration,
+                                    runSqlPool)
+import Database.Persist.Sqlite (withSqlitePool)
 import Database.Persist.TH (mkMigrate,
                             mkPersist,
                             persist,
@@ -23,10 +31,12 @@ import Yesod (FormMessage,
               RenderMessage,
               RepHtml,
               Yesod,
+              YesodPersist(..),
               areq,
               defaultFormMessage,
               defaultLayout,
               generateFormPost,
+              getYesod,
               mkYesod,
               parseRoutes,
               redirect,
@@ -47,14 +57,25 @@ Flight
 |]
 
 
-data Volare = Volare
+data Volare = Volare ConnectionPool
+
 
 mkYesod "Volare" [parseRoutes|
 / RootR GET
 /flights FlightsR GET POST
 |]
 
+
 instance Yesod Volare
+
+
+instance YesodPersist Volare where
+    type YesodPersistBackend Volare = SqlPersist
+
+    runDB action = do
+      Volare pool <- getYesod
+      runSqlPool action pool
+
 
 instance RenderMessage Volare FormMessage where
     renderMessage _ _ = defaultFormMessage
@@ -71,7 +92,7 @@ flightForm = renderDivs $ Flight <$> areq textField "Name" Nothing
 
 getFlightsR :: Handler RepHtml
 getFlightsR = do
-  let flights = [Flight "<Test Flight>"]
+  flights <- runDB $ selectList [] []
   (newFlightWidget, enctype) <- generateFormPost flightForm
   defaultLayout $(whamletFile "templates/flights/index.hamlet")
 
@@ -80,9 +101,13 @@ postFlightsR :: Handler RepHtml
 postFlightsR = do
   ((result, widget), enctype) <- runFormPost flightForm
   case result of
-    FormSuccess flight -> redirect FlightsR
+    FormSuccess flight -> do
+                 runDB $ insert flight
+                 redirect FlightsR
     _ -> redirect FlightsR
 
 
 main :: IO ()
-main = warpDebug 3000 Volare
+main = withSqlitePool "volare.sqlite" 10 $ \pool -> do
+         runSqlPool (runMigration migrateAll) pool
+         warpDebug 3000 $ Volare pool
