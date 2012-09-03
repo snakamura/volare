@@ -115,19 +115,25 @@ flightForm = renderDivs . flightAForm
 
 getFlightsR :: Handler RepHtml
 getFlightsR = do
-  flights <- runDB $ selectList [] []
-  (flightWidget, enctype) <- generateFormPost $ flightForm Nothing
-  defaultLayout $(whamletFile "templates/flights/index.hamlet")
+  (flightWidget, _enctype) <- generateFormPost $ flightForm Nothing
+  listFlights flightWidget
 
 
 postFlightsR :: Handler RepHtml
 postFlightsR = do
-  ((result, widget), enctype) <- runFormPost $ flightForm Nothing
+  ((result, flightWidget), _enctype) <- runFormPost $ flightForm Nothing
   case result of
     FormSuccess flight -> do
-                 runDB $ insert flight
-                 redirect FlightsR
-    _ -> redirect FlightsR
+                 flightId <- runDB $ insert flight
+                 redirect $ FlightR flightId
+    _ -> listFlights flightWidget
+
+
+listFlights :: Widget ->
+               Handler RepHtml
+listFlights flightWidget = do
+  flights <- runDB $ selectList [] []
+  defaultLayout $(whamletFile "templates/flights/index.hamlet")
 
 
 getFlightR :: FlightId ->
@@ -141,19 +147,25 @@ getFlightEditR :: FlightId ->
                   Handler RepHtml
 getFlightEditR flightId = do
   flight <- runDB $ get404 flightId
-  (flightWidget, enctype) <- generateFormPost $ flightForm $ Just flight
-  defaultLayout $(whamletFile "templates/flights/edit.hamlet")
+  (flightWidget, _enctype) <- generateFormPost $ flightForm $ Just flight
+  editFlight flightId flightWidget
 
 
 postFlightEditR :: FlightId ->
-                Handler RepHtml
+                   Handler RepHtml
 postFlightEditR flightId = do
-  ((result, flightWidget), enctype) <- runFormPost $ flightForm Nothing
+  ((result, flightWidget), _enctype) <- runFormPost $ flightForm Nothing
   case result of
     FormSuccess flight -> do
                 runDB $ replace flightId flight
                 redirect $ FlightR flightId
-    _ -> defaultLayout $(whamletFile "templates/flights/edit.hamlet")
+    _ -> editFlight flightId flightWidget
+
+
+editFlight :: FlightId ->
+              Widget ->
+              Handler RepHtml
+editFlight flightId flightWidget = defaultLayout $(whamletFile "templates/flights/edit.hamlet")
 
 
 main :: IO ()
