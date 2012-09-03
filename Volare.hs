@@ -8,7 +8,9 @@
 
 module Main (main) where
 
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>),
+                            (<*>))
+import Control.Monad.Logger (LogLevel(LevelDebug))
 import qualified Data.Text as T
 import Database.Persist (PersistEntity(..),
                          PersistEntityBackend,
@@ -35,17 +37,20 @@ import Yesod (warpDebug)
 import Yesod.Core (Yesod(..),
                    clientSessionBackend,
                    defaultLayout,
+                   logDebug,
                    renderRoute,
                    yesodDispatch)
 import Yesod.Content (RepHtml)
 import Yesod.Dispatch (mkYesod,
                        parseRoutes)
 import Yesod.Form (AForm,
+                   Enctype,
                    FormMessage,
                    FormResult(FormSuccess),
                    MForm,
                    areq,
                    defaultFormMessage,
+                   fileAFormReq,
                    generateFormPost,
                    renderDivs,
                    runFormPost,
@@ -54,6 +59,8 @@ import Yesod.Handler (getYesod,
                       redirect)
 import Yesod.Persist (YesodPersist(..),
                       get404)
+import Yesod.Request (FileInfo,
+                      fileName)
 import Yesod.Widget (whamletFile)
 
 import Volare.Config (Config,
@@ -81,6 +88,8 @@ mkYesod "Volare" [parseRoutes|
 
 
 instance Yesod Volare where
+    logLevel _ = LevelDebug
+
     makeSessionBackend _ = do
       key <- getKey "config/client_session_key.aes"
       return $ Just $ clientSessionBackend key 120
@@ -113,25 +122,40 @@ flightForm :: Maybe Flight ->
 flightForm = renderDivs . flightAForm
 
 
+data NewFlight = NewFlight Flight FileInfo
+
+
+newFlightAForm :: AForm Volare Volare NewFlight
+newFlightAForm = NewFlight <$> (Flight <$> areq textField "Name" Nothing)
+                           <*> fileAFormReq "File"
+
+
+newFlightForm :: Html ->
+                 MForm Volare Volare (FormResult NewFlight, Widget)
+newFlightForm = renderDivs newFlightAForm
+
+
 getFlightsR :: Handler RepHtml
 getFlightsR = do
-  (flightWidget, _enctype) <- generateFormPost $ flightForm Nothing
-  listFlights flightWidget
+  (flightWidget, enctype) <- generateFormPost $ newFlightForm
+  listFlights flightWidget enctype
 
 
 postFlightsR :: Handler RepHtml
 postFlightsR = do
-  ((result, flightWidget), _enctype) <- runFormPost $ flightForm Nothing
+  ((result, flightWidget), enctype) <- runFormPost newFlightForm
   case result of
-    FormSuccess flight -> do
+    FormSuccess (NewFlight flight file) -> do
+                 $(logDebug) $ fileName file
                  flightId <- runDB $ insert flight
                  redirect $ FlightR flightId
-    _ -> listFlights flightWidget
+    _ -> listFlights flightWidget enctype
 
 
 listFlights :: Widget ->
+               Enctype ->
                Handler RepHtml
-listFlights flightWidget = do
+listFlights flightWidget enctype = do
   flights <- runDB $ selectList [] []
   defaultLayout $(whamletFile "templates/flights/index.hamlet")
 
@@ -147,25 +171,26 @@ getFlightEditR :: FlightId ->
                   Handler RepHtml
 getFlightEditR flightId = do
   flight <- runDB $ get404 flightId
-  (flightWidget, _enctype) <- generateFormPost $ flightForm $ Just flight
-  editFlight flightId flightWidget
+  (flightWidget, enctype) <- generateFormPost $ flightForm $ Just flight
+  editFlight flightId flightWidget enctype
 
 
 postFlightEditR :: FlightId ->
                    Handler RepHtml
 postFlightEditR flightId = do
-  ((result, flightWidget), _enctype) <- runFormPost $ flightForm Nothing
+  ((result, flightWidget), enctype) <- runFormPost $ flightForm Nothing
   case result of
     FormSuccess flight -> do
                 runDB $ replace flightId flight
                 redirect $ FlightR flightId
-    _ -> editFlight flightId flightWidget
+    _ -> editFlight flightId flightWidget enctype
 
 
 editFlight :: FlightId ->
               Widget ->
+              Enctype ->
               Handler RepHtml
-editFlight flightId flightWidget = defaultLayout $(whamletFile "templates/flights/edit.hamlet")
+editFlight flightId flightWidget enctype = defaultLayout $(whamletFile "templates/flights/edit.hamlet")
 
 
 main :: IO ()

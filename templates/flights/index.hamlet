@@ -6,6 +6,6 @@ $if not (null flights)
       <li>
         <a href=@{FlightR flightId}>#{flightName flight}
 
-<form method=POST action=@{FlightsR}>
+<form method=POST action=@{FlightsR} enctype=#{enctype}>
   ^{flightWidget}
   <input type=submit>
