@@ -6,6 +6,8 @@
              TemplateHaskell,
              TypeFamilies #-}
 
+module Main (main) where
+
 import Control.Applicative ((<$>))
 import qualified Data.Text as T
 import Database.Persist (PersistEntity(..),
@@ -49,6 +51,11 @@ import Yesod.Handler (getYesod,
 import Yesod.Persist (YesodPersist(..),
                       get404)
 import Yesod.Widget (whamletFile)
+
+import Volare.Config (Config,
+                      loadConfig,
+                      sqlitePath,
+                      sqliteConnectionPoolCount)
 
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
@@ -116,6 +123,8 @@ getFlightR id = do
 
 
 main :: IO ()
-main = withSqlitePool "data/volare.sqlite" 10 $ \pool -> do
+main = do
+  config <- loadConfig "config/config.yml"
+  withSqlitePool (sqlitePath config) (sqliteConnectionPoolCount config) $ \pool -> do
          runSqlPool (runMigration migrateAll) pool
          warpDebug 3000 $ Volare pool

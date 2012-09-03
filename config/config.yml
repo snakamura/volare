@@ -1,0 +1,2 @@
+sqlitePath: data/volare.sqlite
+sqliteConnectionPoolCount: 10
