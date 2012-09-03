@@ -29,8 +29,10 @@ import Database.Persist.TH (mkMigrate,
 import Text.Blaze.Html (Html)
 import Text.Shakespeare.I18N (RenderMessage,
                               renderMessage)
+import Web.ClientSession (getKey)
 import Yesod (warpDebug)
-import Yesod.Core (Yesod,
+import Yesod.Core (Yesod(..),
+                   clientSessionBackend,
                    defaultLayout,
                    renderRoute,
                    yesodDispatch)
@@ -75,7 +77,10 @@ mkYesod "Volare" [parseRoutes|
 |]
 
 
-instance Yesod Volare
+instance Yesod Volare where
+    makeSessionBackend _ = do
+      key <- getKey "config/client_session_key.aes"
+      return $ Just $ clientSessionBackend key 120
 
 
 instance YesodPersist Volare where
