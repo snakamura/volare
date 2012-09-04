@@ -16,6 +16,8 @@ $newline never
 
 <h1>#{flightName flight}
 
+<p>Date: #{show $ flightDate flight}
+
 <p>
   <a href=@{FlightEditR flightId}>Edit
 

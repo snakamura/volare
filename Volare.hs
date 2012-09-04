@@ -19,7 +19,8 @@ import Data.Conduit.Attoparsec (ParseError,
                                 sinkParser)
 import Data.Foldable (forM_)
 import qualified Data.Text as T
-import Data.Time (UTCTime(UTCTime),
+import Data.Time (Day,
+                  UTCTime(UTCTime),
                   formatTime)
 import Database.Persist (Entity(Entity),
                          PersistEntity(..),
@@ -87,6 +88,7 @@ import Volare.Config (Config,
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
 Flight
   name T.Text
+  date Day
   deriving Show
 Record
   flightId FlightId
@@ -167,7 +169,7 @@ postFlightsR = do
                  igc <- liftIO $ runResourceT $ fileSource file $$ sinkParser IGC.igc
                  $(logDebug) $ T.pack $ show igc
                  flightId <- runDB $ do
-                               flightId <- insert $ Flight name
+                               flightId <- insert $ Flight name (IGC.date igc)
                                forM_ (zip (IGC.records igc) [1..]) $ \(record, index) -> do
                                        let position = IGC.position record
                                        insert $ Record flightId
