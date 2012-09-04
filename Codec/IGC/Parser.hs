@@ -69,7 +69,7 @@ position = Position <$> latitude <*> longitude <*> altitude
 time :: Parser DiffTime
 time = toDiffTime <$> hour <*> minute <*> second
     where
-      toDiffTime h m s = toEnum $ h * 60 * 60 + m * 60 + s
+      toDiffTime h m s = fromIntegral $ h * 60 * 60 + m * 60 + s
 
 
 hour :: Parser Int
