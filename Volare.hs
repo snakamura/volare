@@ -160,7 +160,8 @@ postFlightsR = do
                  $(logDebug) $ T.pack $ show e
                  listFlights flightWidget enctype
         in handle handler $ do
-                 igc <- liftIO $ runResourceT $ fileSource file $$ sinkParser (IGC.igc $ fileName file)
+                 let name = fileName file
+                 igc <- liftIO $ runResourceT $ fileSource file $$ sinkParser IGC.igc
                  $(logDebug) $ T.pack $ show igc
                  flightId <- runDB $ insert flight
                  redirect $ FlightR flightId

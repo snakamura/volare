@@ -4,12 +4,10 @@ module Codec.IGC.Types (
     Position(..)
 ) where
 
-import qualified Data.Text as T
 import Data.Time (DiffTime)
 
 
 data IGC = IGC {
-      name    :: T.Text,
       records :: [Record]
     } deriving Show
 

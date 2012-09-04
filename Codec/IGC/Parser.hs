@@ -12,7 +12,6 @@ import Control.Applicative ((<*>),
                             many,
                             pure)
 import Data.Maybe (catMaybes)
-import qualified Data.Text as T
 import Data.Time (DiffTime)
 import Data.Attoparsec (Parser,
                         inClass,
@@ -25,9 +24,8 @@ import Codec.IGC.Types (IGC(IGC),
                         Record(Record))
 
 
-igc :: T.Text ->
-       Parser IGC
-igc name = IGC name <$> (a *> (catMaybes <$> many record) <* g)
+igc :: Parser IGC
+igc = IGC <$> (a *> (catMaybes <$> many record) <* g)
 
 
 record :: Parser (Maybe Record)
