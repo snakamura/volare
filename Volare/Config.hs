@@ -1,18 +1,14 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings,
+             TemplateHaskell #-}
 
 module Volare.Config (
     Config(..),
     loadConfig
 ) where
 
-import Control.Applicative ((<$>),
-                            (<*>))
 import Control.Monad ((>=>))
-import Data.Monoid (mempty)
-import Data.Yaml (FromJSON(parseJSON),
-                  Value(Object),
-                  (.:),
-                  decodeFile)
+import Data.Aeson.TH (deriveFromJSON)
+import Data.Yaml (decodeFile)
 import qualified Data.Text as T
 
 
@@ -21,11 +17,7 @@ data Config = Config {
       sqliteConnectionPoolCount :: Int
     } deriving Show
 
-
-instance FromJSON Config where
-    parseJSON (Object o) = Config <$> o .: "sqlitePath"
-                                  <*> o .: "sqliteConnectionPoolCount"
-    parseJSON _ = mempty
+deriveFromJSON id ''Config
 
 
 loadConfig :: FilePath ->
