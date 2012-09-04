@@ -1,10 +1,12 @@
 {-# LANGUAGE FlexibleContexts,
+             FlexibleInstances,
              GADTs,
              MultiParamTypeClasses,
              OverloadedStrings,
              QuasiQuotes,
              TemplateHaskell,
-             TypeFamilies #-}
+             TypeFamilies,
+             TypeSynonymInstances #-}
 
 module Main (main) where
 
@@ -13,6 +15,8 @@ import Control.Applicative ((<$>))
 import Control.Exception.Lifted (handle)
 import Control.Monad.Logger (LogLevel(LevelDebug))
 import Control.Monad.IO.Class (liftIO)
+import Data.Aeson ((.=))
+import qualified Data.Aeson as JSON
 import Data.Conduit (($$),
                      runResourceT)
 import Data.Conduit.Attoparsec (ParseError,
@@ -43,7 +47,8 @@ import Database.Persist.TH (mkMigrate,
                             share,
                             sqlSettings)
 import System.Locale (defaultTimeLocale)
-import Text.Blaze.Html (Html)
+import Text.Blaze.Html (Html,
+                        unsafeLazyByteString)
 import Text.Printf (printf)
 import Text.Shakespeare.I18N (RenderMessage,
                               renderMessage)
@@ -99,6 +104,14 @@ Record
   altitude Double
   deriving Show
 |]
+
+instance JSON.ToJSON Record where
+    toJSON record = JSON.object [
+                             "time" .= recordTime record,
+                             "latitude" .= recordLatitude record,
+                             "longitude" .= recordLongitude record,
+                             "altitude" .= recordAltitude record
+                            ]
 
 
 data Volare = Volare ConnectionPool
@@ -210,6 +223,7 @@ getFlightR :: FlightId ->
 getFlightR flightId = do
   flight <- runDB $ get404 flightId
   records <- runDB $ selectList [RecordFlightId ==. flightId] [Asc RecordIndex]
+  let bareRecords = map (\(Entity _ r) -> r) records
   defaultLayout $(whamletFile "templates/flights/show.hamlet")
 
 
