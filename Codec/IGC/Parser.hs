@@ -12,9 +12,8 @@ import Control.Applicative ((<*>),
                             many,
                             pure)
 import Data.Maybe (catMaybes)
-import Data.Monoid (mempty)
+import qualified Data.Text as T
 import Data.Time (DiffTime)
-import Data.Word (Word8)
 import Data.Attoparsec (Parser,
                         inClass,
                         satisfy,
@@ -26,8 +25,9 @@ import Codec.IGC.Types (IGC(IGC),
                         Record(Record))
 
 
-igc :: Parser IGC
-igc = IGC <$> (a *> (catMaybes <$> many record) <* g)
+igc :: T.Text ->
+       Parser IGC
+igc name = IGC name <$> (a *> (catMaybes <$> many record) <* g)
 
 
 record :: Parser (Maybe Record)
@@ -53,7 +53,7 @@ position = Position <$> latitude <*> longitude <*> altitude
 time :: Parser DiffTime
 time = makeDiffTime <$> hour <*> minute <*> second
     where
-      makeDiffTime hour minute second = toEnum $ hour * 60 * 60 + minute * 60 + second
+      makeDiffTime h m s = toEnum $ h * 60 * 60 + m * 60 + s
 
 
 hour :: Parser Int
@@ -104,10 +104,10 @@ digits n = digits' n 0
 digits' :: Int ->
            Int ->
            Parser Int
-digits' 0 a = pure a
-digits' n a = do
+digits' 0 r = pure r
+digits' n r = do
   m <- digit
-  digits' (n - 1) (a * 10 + m)
+  digits' (n - 1) (r * 10 + m)
 
 
 digit :: Parser Int
@@ -121,9 +121,10 @@ toDegree :: Int ->
             Int ->
             Char ->
             Float
-toDegree d m s u = fromIntegral d + (fromIntegral m / 60) + (fromIntegral s / 10 / 3600)
+toDegree d m s u = unit u * (fromIntegral d + (fromIntegral m / 60) + (fromIntegral s / 10 / 3600))
     where
       unit 'N' =  1
       unit 'S' = -1
       unit 'W' = -1
       unit 'E' =  1
+      unit _   = undefined
