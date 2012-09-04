@@ -8,9 +8,16 @@
 
 module Main (main) where
 
+import qualified Codec.IGC as IGC
 import Control.Applicative ((<$>),
                             (<*>))
+import Control.Exception.Lifted (handle)
 import Control.Monad.Logger (LogLevel(LevelDebug))
+import Control.Monad.IO.Class (liftIO)
+import Data.Conduit (($$),
+                     runResourceT)
+import Data.Conduit.Attoparsec (ParseError,
+                                sinkParser)
 import qualified Data.Text as T
 import Database.Persist (PersistEntity(..),
                          PersistEntityBackend,
@@ -60,7 +67,8 @@ import Yesod.Handler (getYesod,
 import Yesod.Persist (YesodPersist(..),
                       get404)
 import Yesod.Request (FileInfo,
-                      fileName)
+                      fileName,
+                      fileSource)
 import Yesod.Widget (whamletFile)
 
 import Volare.Config (Config,
@@ -145,8 +153,15 @@ postFlightsR :: Handler RepHtml
 postFlightsR = do
   ((result, flightWidget), enctype) <- runFormPost newFlightForm
   case result of
-    FormSuccess (NewFlight flight file) -> do
-                 $(logDebug) $ fileName file
+    FormSuccess (NewFlight flight file) ->
+        let handler :: ParseError ->
+                       Handler RepHtml
+            handler e = do
+                 $(logDebug) $ T.pack $ show e
+                 listFlights flightWidget enctype
+        in handle handler $ do
+                 igc <- liftIO $ runResourceT $ fileSource file $$ sinkParser (IGC.igc $ fileName file)
+                 $(logDebug) $ T.pack $ show igc
                  flightId <- runDB $ insert flight
                  redirect $ FlightR flightId
     _ -> listFlights flightWidget enctype
