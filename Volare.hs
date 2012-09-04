@@ -19,11 +19,14 @@ import Data.Conduit.Attoparsec (ParseError,
                                 sinkParser)
 import Data.Foldable (forM_)
 import qualified Data.Text as T
-import Data.Time (UTCTime(UTCTime))
-import Database.Persist (PersistEntity(..),
-                         PersistEntityBackend,
-                         PersistField(..))
+import Data.Time (UTCTime(UTCTime),
+                  formatTime)
 import Database.Persist (Entity(Entity),
+                         PersistEntity(..),
+                         PersistEntityBackend,
+                         PersistField(..),
+                         SelectOpt(Asc),
+                         (==.),
                          insert,
                          replace,
                          selectList)
@@ -37,7 +40,9 @@ import Database.Persist.TH (mkMigrate,
                             persist,
                             share,
                             sqlSettings)
+import System.Locale (defaultTimeLocale)
 import Text.Blaze.Html (Html)
+import Text.Printf (printf)
 import Text.Shakespeare.I18N (RenderMessage,
                               renderMessage)
 import Web.ClientSession (getKey)
@@ -198,6 +203,7 @@ getFlightR :: FlightId ->
               Handler RepHtml
 getFlightR flightId = do
   flight <- runDB $ get404 flightId
+  records <- runDB $ selectList [RecordFlightId ==. flightId] [Asc RecordIndex]
   defaultLayout $(whamletFile "templates/flights/show.hamlet")
 
 
@@ -225,6 +231,16 @@ editFlight :: FlightId ->
               Enctype ->
               Handler RepHtml
 editFlight flightId flightWidget enctype = defaultLayout $(whamletFile "templates/flights/edit.hamlet")
+
+
+formatPosition :: Double ->
+                  String
+formatPosition = printf "%.5f"
+
+
+formatLatitude :: Double ->
+                  String
+formatLatitude = printf "%.0f"
 
 
 main :: IO ()

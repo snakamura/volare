@@ -1,5 +1,34 @@
 $newline never
 
+<style>
+  table {
+    border-collapse: collapse;
+  }
+  th {
+    padding: 2px 5px;
+  }
+  td {
+    border: 1px solid gray;
+    padding: 2px 5px;
+    font-family: monospace;
+    text-align: right;
+  }
+
 <h1>#{flightName flight}
+
+<table>
+  <tr>
+    <th>Index
+    <th>Time
+    <th>Latitude
+    <th>Longitude
+    <th>Altitude
+  $forall Entity _ record <- records
+    <tr>
+      <td>#{recordIndex record}
+      <td>#{formatTime defaultTimeLocale "%H:%M:%S" $ recordTime record}
+      <td>#{formatPosition $ recordLatitude record}
+      <td>#{formatPosition $ recordLongitude record}
+      <td>#{formatLatitude $ recordAltitude record}
 
 <a href=@{FlightEditR flightId}>Edit
