@@ -17,7 +17,9 @@ import Data.Conduit (($$),
                      runResourceT)
 import Data.Conduit.Attoparsec (ParseError,
                                 sinkParser)
+import Data.Foldable (forM_)
 import qualified Data.Text as T
+import Data.Time (UTCTime(UTCTime))
 import Database.Persist (PersistEntity(..),
                          PersistEntityBackend,
                          PersistField(..))
@@ -79,6 +81,14 @@ import Volare.Config (Config,
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
 Flight
   name T.Text
+  deriving Show
+Record
+  flightId FlightId
+  index Int
+  time UTCTime
+  latitude Double
+  longitude Double
+  altitude Double
   deriving Show
 |]
 
@@ -161,7 +171,17 @@ postFlightsR = do
                  let name = fileName file
                  igc <- liftIO $ runResourceT $ fileSource file $$ sinkParser IGC.igc
                  $(logDebug) $ T.pack $ show igc
-                 flightId <- runDB $ insert $ Flight name
+                 flightId <- runDB $ do
+                               flightId <- insert $ Flight name
+                               forM_ (zip (IGC.records igc) [1..]) $ \(record, index) -> do
+                                       let position = IGC.position record
+                                       insert $ Record flightId
+                                                       index
+                                                       (UTCTime (IGC.date igc) (IGC.time record))
+                                                       (realToFrac $ IGC.latitude position)
+                                                       (realToFrac $ IGC.longitude position)
+                                                       (realToFrac $ IGC.altitude position)
+                               return flightId
                  redirect $ FlightR flightId
     _ -> listFlights flightWidget enctype
 
