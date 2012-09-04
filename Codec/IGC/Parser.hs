@@ -1,4 +1,5 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE NoMonomorphismRestriction,
+             OverloadedStrings #-}
 
 module Codec.IGC.Parser (
     igc
@@ -12,11 +13,14 @@ import Control.Applicative ((<*>),
                             many,
                             pure)
 import Data.Maybe (catMaybes)
-import Data.Time (DiffTime)
+import Data.Time (Day,
+                  DiffTime,
+                  fromGregorian)
 import Data.Attoparsec (Parser,
                         inClass,
                         satisfy,
                         skipWhile,
+                        string,
                         word8)
 
 import Codec.IGC.Types (IGC(IGC),
@@ -25,7 +29,11 @@ import Codec.IGC.Types (IGC(IGC),
 
 
 igc :: Parser IGC
-igc = IGC <$> (a *> (catMaybes <$> many record) <* g)
+igc = a *> (IGC <$> headers <*> (catMaybes <$> many record)) <* g
+
+
+headers :: Parser Day
+headers = hfdte <* many h
 
 
 record :: Parser (Maybe Record)
@@ -42,6 +50,16 @@ b = Just <$> (char 'B' *> (Record <$> time <*> position) <* line)
 
 g :: Parser ()
 g = char 'G' *> line
+
+
+h :: Parser ()
+h = char 'H' *> line
+
+
+hfdte :: Parser Day
+hfdte = string "HFDTE" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* newline
+    where
+      toDay d m y = fromGregorian (fromIntegral (2000 + y)) m d
 
 
 position :: Parser Position
@@ -86,7 +104,11 @@ other = const Nothing <$> (satisfy (inClass "CDEFHIJLMNOPQR") *> line)
 
 
 line :: Parser ()
-line = const (const (const ()))  <$> skipWhile (/= 0x0d) <*> word8 0x0d <*> word8 0x0a
+line = skipWhile (/= 0x0d) *> newline
+
+
+newline :: Parser ()
+newline = const (const ()) <$> word8 0x0d <*> word8 0x0a
 
 
 char :: Char ->

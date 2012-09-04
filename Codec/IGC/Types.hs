@@ -4,10 +4,12 @@ module Codec.IGC.Types (
     Position(..)
 ) where
 
-import Data.Time (DiffTime)
+import Data.Time (Day,
+                  DiffTime)
 
 
 data IGC = IGC {
+      date    :: Day,
       records :: [Record]
     } deriving Show
 
