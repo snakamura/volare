@@ -15,7 +15,8 @@ import Control.Applicative ((<*>),
 import Data.Maybe (catMaybes)
 import Data.Time (Day,
                   DiffTime,
-                  fromGregorian)
+                  fromGregorian,
+                  secondsToDiffTime)
 import Data.Attoparsec (Parser,
                         inClass,
                         satisfy,
@@ -69,7 +70,7 @@ position = Position <$> latitude <*> longitude <*> altitude
 time :: Parser DiffTime
 time = toDiffTime <$> hour <*> minute <*> second
     where
-      toDiffTime h m s = fromIntegral $ h * 60 * 60 + m * 60 + s
+      toDiffTime h m s = secondsToDiffTime $ fromIntegral $ h * 60 * 60 + m * 60 + s
 
 
 hour :: Parser Int
