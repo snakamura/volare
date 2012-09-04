@@ -16,6 +16,9 @@ $newline never
 
 <h1>#{flightName flight}
 
+<p>
+  <a href=@{FlightEditR flightId}>Edit
+
 <table>
   <tr>
     <th>Index
@@ -30,5 +33,3 @@ $newline never
       <td>#{formatPosition $ recordLatitude record}
       <td>#{formatPosition $ recordLongitude record}
       <td>#{formatLatitude $ recordAltitude record}
-
-<a href=@{FlightEditR flightId}>Edit

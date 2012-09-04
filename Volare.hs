@@ -26,9 +26,10 @@ import Database.Persist (Entity(Entity),
                          PersistEntityBackend,
                          PersistField(..),
                          SelectOpt(Asc),
+                         (=.),
                          (==.),
                          insert,
-                         replace,
+                         update,
                          selectList)
 import Database.Persist.GenericSql (ConnectionPool,
                                     SqlPersist,
@@ -133,17 +134,6 @@ getRootR :: Handler RepHtml
 getRootR = defaultLayout $(whamletFile "templates/root.hamlet")
 
 
-flightAForm :: Maybe Flight ->
-               AForm Volare Volare Flight
-flightAForm flight = Flight <$> areq textField "Name" (flightName <$> flight)
-
-
-flightForm :: Maybe Flight ->
-              Html ->
-              MForm Volare Volare (FormResult Flight, Widget)
-flightForm = renderDivs . flightAForm
-
-
 data NewFlight = NewFlight FileInfo
 
 
@@ -199,6 +189,20 @@ listFlights flightWidget enctype = do
   defaultLayout $(whamletFile "templates/flights/index.hamlet")
 
 
+data EditFlight = EditFlight T.Text
+
+
+editFlightAForm :: Maybe Flight ->
+                   AForm Volare Volare EditFlight
+editFlightAForm flight = EditFlight <$> areq textField "Name" (flightName <$> flight)
+
+
+editFlightForm :: Maybe Flight ->
+                  Html ->
+                  MForm Volare Volare (FormResult EditFlight, Widget)
+editFlightForm = renderDivs . editFlightAForm
+
+
 getFlightR :: FlightId ->
               Handler RepHtml
 getFlightR flightId = do
@@ -211,17 +215,17 @@ getFlightEditR :: FlightId ->
                   Handler RepHtml
 getFlightEditR flightId = do
   flight <- runDB $ get404 flightId
-  (flightWidget, enctype) <- generateFormPost $ flightForm $ Just flight
+  (flightWidget, enctype) <- generateFormPost $ editFlightForm $ Just flight
   editFlight flightId flightWidget enctype
 
 
 postFlightEditR :: FlightId ->
                    Handler RepHtml
 postFlightEditR flightId = do
-  ((result, flightWidget), enctype) <- runFormPost $ flightForm Nothing
+  ((result, flightWidget), enctype) <- runFormPost $ editFlightForm Nothing
   case result of
-    FormSuccess flight -> do
-                runDB $ replace flightId flight
+    FormSuccess (EditFlight name) -> do
+                runDB $ update flightId [FlightName =. name]
                 redirect $ FlightR flightId
     _ -> editFlight flightId flightWidget enctype
 
