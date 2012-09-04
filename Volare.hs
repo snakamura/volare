@@ -9,8 +9,7 @@
 module Main (main) where
 
 import qualified Codec.IGC as IGC
-import Control.Applicative ((<$>),
-                            (<*>))
+import Control.Applicative ((<$>))
 import Control.Exception.Lifted (handle)
 import Control.Monad.Logger (LogLevel(LevelDebug))
 import Control.Monad.IO.Class (liftIO)
@@ -130,12 +129,11 @@ flightForm :: Maybe Flight ->
 flightForm = renderDivs . flightAForm
 
 
-data NewFlight = NewFlight Flight FileInfo
+data NewFlight = NewFlight FileInfo
 
 
 newFlightAForm :: AForm Volare Volare NewFlight
-newFlightAForm = NewFlight <$> (Flight <$> areq textField "Name" Nothing)
-                           <*> fileAFormReq "File"
+newFlightAForm = NewFlight <$> fileAFormReq "File"
 
 
 newFlightForm :: Html ->
@@ -153,7 +151,7 @@ postFlightsR :: Handler RepHtml
 postFlightsR = do
   ((result, flightWidget), enctype) <- runFormPost newFlightForm
   case result of
-    FormSuccess (NewFlight flight file) ->
+    FormSuccess (NewFlight file) ->
         let handler :: ParseError ->
                        Handler RepHtml
             handler e = do
@@ -163,7 +161,7 @@ postFlightsR = do
                  let name = fileName file
                  igc <- liftIO $ runResourceT $ fileSource file $$ sinkParser IGC.igc
                  $(logDebug) $ T.pack $ show igc
-                 flightId <- runDB $ insert flight
+                 flightId <- runDB $ insert $ Flight name
                  redirect $ FlightR flightId
     _ -> listFlights flightWidget enctype
 
