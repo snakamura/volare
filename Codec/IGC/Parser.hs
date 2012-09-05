@@ -87,11 +87,11 @@ second = digits 2
 
 
 latitude :: Parser Float
-latitude = toDegree <$> digits 2 <*> digits 2 <*> digits 3 <*> (char 'N' <|> char 'S')
+latitude = toDegree <$> digits 2 <*> digits 5 <*> (char 'N' <|> char 'S')
 
 
 longitude :: Parser Float
-longitude = toDegree <$> digits 3 <*> digits 2 <*> digits 3 <*> (char 'W' <|> char 'E')
+longitude = toDegree <$> digits 3 <*> digits 5 <*> (char 'W' <|> char 'E')
 
 
 altitude :: Parser Float
@@ -140,10 +140,9 @@ digit = toInt <$> satisfy (inClass "0-9")
 
 toDegree :: Int ->
             Int ->
-            Int ->
             Char ->
             Float
-toDegree d m s u = unit u * (fromIntegral d + (fromIntegral m / 60) + (fromIntegral s / 10 / 3600))
+toDegree d m u = unit u * (fromIntegral d + (fromIntegral m / 60000))
     where
       unit 'N' =  1
       unit 'S' = -1
