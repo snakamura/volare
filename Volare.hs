@@ -82,20 +82,15 @@ import Yesod.Persist (YesodPersist(..),
 import Yesod.Request (FileInfo,
                       fileName,
                       fileSource)
-import Yesod.Static (Route(..),
-                     Static,
-                     StaticRoute,
-                     static,
-                     staticFiles)
+import Yesod.Static (Static)
 import Yesod.Widget (whamletFile)
 
 import Volare.Config (Config,
                       loadConfig,
                       sqlitePath,
                       sqliteConnectionPoolCount)
-
-
-staticFiles "static"
+import Volare.Static (staticSite)
+import qualified Volare.Static as S
 
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
@@ -280,5 +275,5 @@ main = do
   config <- loadConfig "config/config.yml"
   withSqlitePool (sqlitePath config) (sqliteConnectionPoolCount config) $ \pool -> do
          runSqlPool (runMigration migrateAll) pool
-         s <- static "static"
+         s <- staticSite
          warpDebug 3000 $ Volare pool s

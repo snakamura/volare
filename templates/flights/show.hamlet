@@ -39,4 +39,4 @@ $newline never
 <script>
   var records = #{unsafeLazyByteString $ JSON.encode bareRecords};
 
-<script src=@{StaticR js_flight_js}>
+<script src=@{StaticR S.js_flight_js}>
