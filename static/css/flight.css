@@ -2,6 +2,13 @@ div#map {
     height: 800px;
 }
 
+canvas#altitude {
+    width: 100%;
+    height: 300px;
+    border: 1px black solid;
+    margin: 10px 0;
+}
+
 table#records {
     border-collapse: collapse;
 }
