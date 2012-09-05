@@ -82,12 +82,20 @@ import Yesod.Persist (YesodPersist(..),
 import Yesod.Request (FileInfo,
                       fileName,
                       fileSource)
+import Yesod.Static (Route(..),
+                     Static,
+                     StaticRoute,
+                     static,
+                     staticFiles)
 import Yesod.Widget (whamletFile)
 
 import Volare.Config (Config,
                       loadConfig,
                       sqlitePath,
                       sqliteConnectionPoolCount)
+
+
+staticFiles "static"
 
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
@@ -114,7 +122,10 @@ instance JSON.ToJSON Record where
                             ]
 
 
-data Volare = Volare ConnectionPool
+data Volare = Volare {
+    volareConnectionPool :: ConnectionPool,
+    volareStatic         :: Static
+}
 
 
 mkYesod "Volare" [parseRoutes|
@@ -122,6 +133,7 @@ mkYesod "Volare" [parseRoutes|
 /flights FlightsR GET POST
 /flights/#FlightId FlightR GET
 /flights/#FlightId/edit FlightEditR GET POST
+/static StaticR Static volareStatic
 |]
 
 
@@ -137,7 +149,7 @@ instance YesodPersist Volare where
     type YesodPersistBackend Volare = SqlPersist
 
     runDB action = do
-      Volare pool <- getYesod
+      pool <- volareConnectionPool <$> getYesod
       runSqlPool action pool
 
 
@@ -268,4 +280,5 @@ main = do
   config <- loadConfig "config/config.yml"
   withSqlitePool (sqlitePath config) (sqliteConnectionPoolCount config) $ \pool -> do
          runSqlPool (runMigration migrateAll) pool
-         warpDebug 3000 $ Volare pool
+         s <- static "static"
+         warpDebug 3000 $ Volare pool s
