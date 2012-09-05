@@ -19,6 +19,7 @@ import Data.Time (Day,
                   secondsToDiffTime)
 import Data.Attoparsec (Parser,
                         inClass,
+                        option,
                         satisfy,
                         skipWhile,
                         string,
@@ -105,11 +106,11 @@ other = const Nothing <$> (satisfy (inClass "CDEFHIJLMNOPQR") *> line)
 
 
 line :: Parser ()
-line = skipWhile (/= 0x0d) *> newline
+line = skipWhile (\b -> b /= 0x0d && b /= 0x0a) *> newline
 
 
 newline :: Parser ()
-newline = const (const ()) <$> word8 0x0d <*> word8 0x0a
+newline = const (const ()) <$> (option 0x0d $ word8 0x0d) <*> word8 0x0a
 
 
 char :: Char ->
