@@ -1,22 +1,5 @@
 $newline never
 
-<style>
-  #map {
-    height: 800px;
-  }
-  table {
-    border-collapse: collapse;
-  }
-  th {
-    padding: 2px 5px;
-  }
-  td {
-    border: 1px solid gray;
-    padding: 2px 5px;
-    font-family: monospace;
-    text-align: right;
-  }
-
 <h1>#{flightName flight}
 
 <p>Date: #{show $ flightDate flight}
@@ -26,7 +9,7 @@ $newline never
 
 <div id=map></div>
 
-<table>
+<table id=records>
   <tr>
     <th>Index
     <th>Time
@@ -43,7 +26,3 @@ $newline never
 
 <script>
   var records = #{unsafeLazyByteString $ JSON.encode bareRecords};
-
-<script src=https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js>
-<script src=http://maps.googleapis.com/maps/api/js?key=AIzaSyCg2nRFdQ0BpuO_ep7h9b2sCA108wv-DhE&sensor=false></script>
-<script src=@{StaticR S.js_flight_js}>

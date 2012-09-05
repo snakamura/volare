@@ -1,0 +1,18 @@
+div#map {
+    height: 800px;
+}
+
+table#records {
+    border-collapse: collapse;
+}
+
+table#records th {
+    padding: 2px 5px;
+}
+
+table#records td {
+    border: 1px solid gray;
+    padding: 2px 5px;
+    font-family: monospace;
+    text-align: right;
+}

@@ -83,7 +83,11 @@ import Yesod.Request (FileInfo,
                       fileName,
                       fileSource)
 import Yesod.Static (Static)
-import Yesod.Widget (whamletFile)
+import Yesod.Widget (addScript,
+                     addScriptRemote,
+                     addStylesheet,
+                     setTitle,
+                     whamletFile)
 
 import Volare.Config (Config,
                       loadConfig,
@@ -153,7 +157,9 @@ instance RenderMessage Volare FormMessage where
 
 
 getRootR :: Handler RepHtml
-getRootR = defaultLayout $(whamletFile "templates/root.hamlet")
+getRootR = defaultLayout $
+           do setTitle "Volare"
+              $(whamletFile "templates/root.hamlet")
 
 
 data NewFlight = NewFlight FileInfo
@@ -208,7 +214,9 @@ listFlights :: Widget ->
                Handler RepHtml
 listFlights flightWidget enctype = do
   flights <- runDB $ selectList [] []
-  defaultLayout $(whamletFile "templates/flights/index.hamlet")
+  defaultLayout $ do
+    setTitle "Flights - Volare"
+    $(whamletFile "templates/flights/index.hamlet")
 
 
 data EditFlight = EditFlight T.Text
@@ -231,7 +239,13 @@ getFlightR flightId = do
   flight <- runDB $ get404 flightId
   records <- runDB $ selectList [RecordFlightId ==. flightId] [Asc RecordIndex]
   let bareRecords = map (\(Entity _ r) -> r) records
-  defaultLayout $(whamletFile "templates/flights/show.hamlet")
+  defaultLayout $ do
+    setTitle "Flight - Volare"
+    addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
+    addScriptRemote "http://maps.googleapis.com/maps/api/js?key=AIzaSyCg2nRFdQ0BpuO_ep7h9b2sCA108wv-DhE&sensor=false"
+    addScript $ StaticR S.js_flight_js
+    addStylesheet $ StaticR S.css_flight_css
+    $(whamletFile "templates/flights/show.hamlet")
 
 
 getFlightEditR :: FlightId ->
@@ -257,7 +271,10 @@ editFlight :: FlightId ->
               Widget ->
               Enctype ->
               Handler RepHtml
-editFlight flightId flightWidget enctype = defaultLayout $(whamletFile "templates/flights/edit.hamlet")
+editFlight flightId flightWidget enctype =
+    defaultLayout $ do
+      setTitle "Edit Flight - Volare"
+      $(whamletFile "templates/flights/edit.hamlet")
 
 
 formatPosition :: Double ->
