@@ -6,6 +6,34 @@ var volare = volare || {};
         this.color = color;
     }
 
+    Flight.prototype.getStart = function() {
+        return new Date(this.records[0].time);
+    };
+
+    Flight.prototype.getEnd = function() {
+        return new Date(this.records[this.records.length - 1].time);
+    };
+
+    Flight.prototype.getBounds = function() {
+        var minLatitude = this.records[0].latitude;
+        var maxLatitude = this.records[0].latitude;
+        var minLongitude = this.records[0].longitude;
+        var maxLongitude = this.records[0].longitude;
+        _.each(records, function(record) {
+            minLatitude = Math.min(minLatitude, record.latitude);
+            maxLatitude = Math.max(maxLatitude, record.latitude);
+            minLongitude = Math.min(minLongitude, record.longitude);
+            maxLongitude = Math.max(maxLongitude, record.longitude);
+        });
+        return new LatLngBounds(new LatLng(maxLatitude, minLongitude), new LatLng(minLatitude, maxLongitude));
+    };
+
+    Flight.prototype.getMaxAltitude = function() {
+        return _.max(this.records, function(record) {
+            return record.altitude;
+        }).altitude;
+    };
+
     Flight.prototype.drawAltitude = function(graph) {
         var context = graph.context;
 
@@ -44,13 +72,13 @@ var volare = volare || {};
     AltitudeGraph.prototype.addFlight = function(flight) {
         this.flights.push(flight);
 
-        var records = flight.records;
-        this.start = new Date(records[0].time);
-        this.end = new Date(records[records.length - 1].time);
+        var start = flight.getStart();
+        var end = flight.getEnd();
+
+        this.start = this.start == null || this.start > start ? start : this.start;
+        this.end = this.end == null || this.end < end ? end : this.end;
         this.duration = this.end - this.start;
-        this.maxAltitude = _.max(records, function(record) {
-            return record.altitude;
-        }).altitude + 100;
+        this.maxAltitude = Math.max(this.maxAltitude, flight.getMaxAltitude() + 100);
 
         this._drawGrid();
         this._drawFlights();
