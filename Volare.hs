@@ -243,6 +243,8 @@ getFlightR flightId = do
     setTitle "Flight - Volare"
     addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
     addScriptRemote "http://maps.googleapis.com/maps/api/js?key=AIzaSyCg2nRFdQ0BpuO_ep7h9b2sCA108wv-DhE&sensor=false"
+    addScript $ StaticR S.js_underscore_min_js
+    addScript $ StaticR S.js_underscore_string_min_js
     addScript $ StaticR S.js_flight_js
     addStylesheet $ StaticR S.css_flight_css
     $(whamletFile "templates/flights/show.hamlet")
