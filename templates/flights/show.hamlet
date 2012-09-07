@@ -11,6 +11,7 @@ $newline never
 
 <canvas id=altitude>
 
+<!--
 <table id=records>
   <tr>
     <th>Index
@@ -25,6 +26,7 @@ $newline never
       <td>#{formatPosition $ recordLatitude record}
       <td>#{formatPosition $ recordLongitude record}
       <td>#{formatLatitude $ recordAltitude record}
+-->
 
 <script>
   var records = #{unsafeLazyByteString $ JSON.encode bareRecords};
