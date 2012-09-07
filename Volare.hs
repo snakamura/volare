@@ -246,6 +246,7 @@ getFlightR flightId = do
     addScript $ StaticR S.js_underscore_min_js
     addScript $ StaticR S.js_underscore_string_min_js
     addScript $ StaticR S.js_flight_js
+    addScript $ StaticR S.js_volare_js
     addStylesheet $ StaticR S.css_flight_css
     $(whamletFile "templates/flights/show.hamlet")
 
