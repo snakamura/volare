@@ -33,8 +33,8 @@ $(function() {
     });
 
     var start = new Date(records[0].time);
-    var duration = new Date(records[records.length - 1].time) - start;
-
+    var end = new Date(records[records.length - 1].time);
+    var duration = end - start;
 
     function formatTime(time) {
         var date = new Date(time);
@@ -48,6 +48,18 @@ $(function() {
     var canvas = $('#altitude');
     var width = canvas.width();
     var height = canvas.height();
+    var margin = {
+        top: 0,
+        left: 50,
+        bottom: 15,
+        right: 0
+    };
+    function getX(time) {
+        return (time - start)/duration*(width - (margin.left + margin.right)) + margin.left;
+    }
+    function getY(altitude) {
+        return height - altitude/maxAltitude*(height - (margin.top + margin.bottom)) - margin.bottom;
+    }
 
     var canvasElem = canvas[0];
     canvasElem.width = width;
@@ -57,34 +69,47 @@ $(function() {
     context.strokeStyle = 'gray';
     context.lineWidth = 0.5;
 
+    var top = margin.top;
+    var bottom = height - margin.bottom;
+    var left = margin.left;
+    var right = width - margin.right;
+
     context.beginPath();
     var time = new Date(start);
     time.setMinutes(Math.floor(time.getMinutes()/10)*10);
     time.setSeconds(0);
     time = time.getTime() + 10*60*1000;
     var timeStep = 10*60*1000;
+    context.moveTo(left, top);
+    context.lineTo(left, bottom);
+    context.textAlign = 'center';
+    var lowestY = getY(0);
+    var highestY = getY(maxAltitude);
     for (; time < start.getTime() + duration; time += timeStep) {
-        var x = (time - start)/duration*width;
-        context.moveTo(x, 0);
-        context.lineTo(x, height);
-        context.fillText(formatTime(time), x, height - 2);
+        var x = getX(time);
+        context.moveTo(x, lowestY);
+        context.lineTo(x, highestY);
+        context.fillText(formatTime(time), x, height - margin.bottom + 12);
     }
 
     var altitudeStep = 200;
-    for (var a = 0; a < maxAltitude; a += altitudeStep) {
-        var y = height - a/maxAltitude*height;
-        context.moveTo(0, y);
-        context.lineTo(width, y);
-        context.fillText(formatAltitude(a), 2, y - 2);
+    context.textAlign = 'end';
+    var startX = getX(start);
+    var endX = getX(end);
+    for (var altitude = 0; altitude < maxAltitude; altitude += altitudeStep) {
+        var y = getY(altitude);
+        context.moveTo(startX, y);
+        context.lineTo(endX, y);
+        context.fillText(formatAltitude(altitude), margin.left - 4, y + 5);
     }
     context.stroke();
 
     context.strokeStyle = 'red';
     context.lineWidth = 2;
     context.beginPath();
-    context.moveTo(0, height - records[0].altitude/maxAltitude*height);
+    context.moveTo(getX(start), getY(records[0].altitude));
     _.each(records, function(record) {
-        context.lineTo((new Date(record.time) - start)/duration*width, height - record.altitude/maxAltitude*height);
+        context.lineTo(getX(new Date(record.time)), getY(record.altitude));
     });
     context.stroke();
 })
