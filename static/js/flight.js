@@ -2,6 +2,8 @@ var LatLng = google.maps.LatLng;
 var LatLngBounds = google.maps.LatLngBounds;
 
 $(function() {
+    _.mixin(_.str);
+
     var minLatitude = records[0].latitude;
     var maxLatitude = records[0].latitude;
     var minLongitude = records[0].longitude;
@@ -33,6 +35,16 @@ $(function() {
     var start = new Date(records[0].time);
     var duration = new Date(records[records.length - 1].time) - start;
 
+
+    function formatTime(time) {
+        var date = new Date(time);
+        return _.sprintf("%02d:%02d", date.getHours(), date.getMinutes());
+    }
+
+    function formatAltitude(altitude) {
+        return altitude + 'm';
+    }
+
     var canvas = $('#altitude');
     var width = canvas.width();
     var height = canvas.height();
@@ -52,15 +64,18 @@ $(function() {
     time = time.getTime() + 10*60*1000;
     var timeStep = 10*60*1000;
     for (; time < start.getTime() + duration; time += timeStep) {
-        context.moveTo((time - start)/duration*width, 0);
-        context.lineTo((time - start)/duration*width, height);
+        var x = (time - start)/duration*width;
+        context.moveTo(x, 0);
+        context.lineTo(x, height);
+        context.fillText(formatTime(time), x, height - 2);
     }
 
     var altitudeStep = 200;
-    for (var n = 0; n < maxAltitude; n += altitudeStep) {
-        context.moveTo(0, height - n/maxAltitude*height);
-        context.lineTo(width, height - n/maxAltitude*height);
-        context.fillText(n + 'm', 2, height - n/maxAltitude*height - 2);
+    for (var a = 0; a < maxAltitude; a += altitudeStep) {
+        var y = height - a/maxAltitude*height;
+        context.moveTo(0, y);
+        context.lineTo(width, y);
+        context.fillText(formatAltitude(a), 2, y - 2);
     }
     context.stroke();
 
