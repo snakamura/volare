@@ -1,6 +1,9 @@
 var volare = volare || {};
 
 (function() {
+    var LatLng = google.maps.LatLng;
+    var LatLngBounds = google.maps.LatLngBounds;
+
     function Flight(records, color) {
         this.records = records;
         this.color = color;
@@ -48,6 +51,26 @@ var volare = volare || {};
                            graph.getY(record.altitude));
         });
         context.stroke();
+    };
+
+
+    function Map(map) {
+        this.map = new google.maps.Map(map[0], {
+            mapTypeId: google.maps.MapTypeId.TERRAIN
+        });
+    }
+
+    Map.prototype.addFlight = function(flight) {
+        this.map.fitBounds(flight.getBounds());
+
+        var path = new google.maps.MVCArray(_.map(records, function(record) {
+            return new LatLng(record.latitude, record.longitude);
+        }));
+        var polyline = new google.maps.Polyline({
+            map: this.map,
+            path: path,
+            strokeColor: flight.color
+        });
     };
 
 
@@ -160,5 +183,6 @@ var volare = volare || {};
 
 
     volare.Flight = Flight;
+    volare.Map = Map;
     volare.AltitudeGraph = AltitudeGraph;
 })();
