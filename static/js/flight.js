@@ -9,7 +9,7 @@ $(function() {
     var minLongitude = records[0].longitude;
     var maxLongitude = records[0].longitude;
     var maxAltitude = records[0].altitude;
-    $.each(records, function(index, record) {
+    _.each(records, function(record) {
         minLatitude = Math.min(minLatitude, record.latitude);
         maxLatitude = Math.max(maxLatitude, record.latitude);
         minLongitude = Math.min(minLongitude, record.longitude);
@@ -23,7 +23,7 @@ $(function() {
     });
     map.fitBounds(new LatLngBounds(new LatLng(maxLatitude, minLongitude), new LatLng(minLatitude, maxLongitude)));
 
-    var path = new google.maps.MVCArray($.map(records, function(record) {
+    var path = new google.maps.MVCArray(_.map(records, function(record) {
         return new LatLng(record.latitude, record.longitude);
     }));
     var polyline = new google.maps.Polyline({
@@ -83,7 +83,7 @@ $(function() {
     context.lineWidth = 2;
     context.beginPath();
     context.moveTo(0, height - records[0].altitude/maxAltitude*height);
-    $.each(records, function(index, record) {
+    _.each(records, function(record) {
         context.lineTo((new Date(record.time) - start)/duration*width, height - record.altitude/maxAltitude*height);
     });
     context.stroke();
