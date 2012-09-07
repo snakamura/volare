@@ -44,6 +44,7 @@ $(function() {
     var context = canvasElem.getContext('2d');
     context.strokeStyle = 'gray';
     context.lineWidth = 0.5;
+
     context.beginPath();
     var time = new Date(start);
     time.setMinutes(Math.floor(time.getMinutes()/10)*10);
@@ -54,12 +55,15 @@ $(function() {
         context.moveTo((time - start)/duration*width, 0);
         context.lineTo((time - start)/duration*width, height);
     }
+
     var altitudeStep = 200;
     for (var n = 0; n < maxAltitude; n += altitudeStep) {
         context.moveTo(0, height - n/maxAltitude*height);
         context.lineTo(width, height - n/maxAltitude*height);
+        context.fillText(n + 'm', 2, height - n/maxAltitude*height - 2);
     }
     context.stroke();
+
     context.strokeStyle = 'red';
     context.lineWidth = 2;
     context.beginPath();
