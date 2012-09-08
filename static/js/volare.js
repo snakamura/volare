@@ -37,6 +37,16 @@ var volare = volare || {};
         }).altitude;
     };
 
+    Flight.prototype.getPolyline = function() {
+        var path = new google.maps.MVCArray(_.map(this.records, function(record) {
+            return new LatLng(record.latitude, record.longitude);
+        }));
+        return new google.maps.Polyline({
+            path: path,
+            strokeColor: this.color
+        });
+    };
+
     Flight.prototype.drawAltitude = function(graph) {
         var context = graph.context;
 
@@ -62,15 +72,7 @@ var volare = volare || {};
 
     Map.prototype.addFlight = function(flight) {
         this.map.fitBounds(flight.getBounds());
-
-        var path = new google.maps.MVCArray(_.map(records, function(record) {
-            return new LatLng(record.latitude, record.longitude);
-        }));
-        var polyline = new google.maps.Polyline({
-            map: this.map,
-            path: path,
-            strokeColor: flight.color
-        });
+        flight.getPolyline().setMap(this.map);
     };
 
 
