@@ -4,6 +4,20 @@ var volare = volare || {};
     var LatLng = google.maps.LatLng;
     var LatLngBounds = google.maps.LatLngBounds;
 
+    function Flights() {
+        this.flights = [];
+    }
+
+    Flights.prototype.getFlights = function() {
+        return this.flights;
+    };
+
+    Flights.prototype.addFlight = function(flight) {
+        this.flights.push(flight);
+        $(this).trigger('flight_added', flight);
+    };
+
+
     function Flight(flight, color) {
         this.flight = flight;
         this.color = color;
@@ -84,29 +98,30 @@ var volare = volare || {};
     };
 
 
-    function Map(map) {
+    function Map(flights, map) {
+        this.flights = flights;
         this.map = new google.maps.Map(map[0], {
             mapTypeId: google.maps.MapTypeId.TERRAIN
         });
-        this.flights = [];
+
+        var self = this;
+        $(this.flights).on('flight_added', function(event, flight) {
+            self.map.fitBounds(flight.getBounds());
+            flight.setPolyline(self.map);
+        });
     }
-
-    Map.prototype.addFlight = function(flight) {
-        this.flights.push(flight);
-
-        this.map.fitBounds(flight.getBounds());
-        flight.setPolyline(this.map);
-    };
 
     Map.prototype.setCurrentTime = function(time) {
         var self = this;
-        _.each(this.flights, function(flight) {
+        _.each(this.flights.getFlights(), function(flight) {
             flight.setPolyline(self.map, time);
         });
     };
 
 
-    function AltitudeGraph(canvas) {
+    function AltitudeGraph(flights, canvas) {
+        this.flights = flights;
+
         this.canvas = canvas;
         this.width = canvas.width();
         this.height = canvas.height();
@@ -117,28 +132,26 @@ var volare = volare || {};
 
         this.context = canvasElem.getContext('2d');
 
-        this.flights = [];
         this.start = null;
         this.end = null;
         this.duration = 0;
         this.maxAltitude = 0;
 
         this.currentTime = null;
+
+        var self = this;
+        $(this.flights).on('flight_added', function(event, flight) {
+            var start = flight.getStart();
+            var end = flight.getEnd();
+
+            self.start = self.start == null || self.start > start ? start : self.start;
+            self.end = self.end == null || self.end < end ? end : self.end;
+            self.duration = self.end - self.start;
+            self.maxAltitude = Math.max(self.maxAltitude, flight.getMaxAltitude() + 100);
+
+            self._refresh();
+        });
     }
-
-    AltitudeGraph.prototype.addFlight = function(flight) {
-        this.flights.push(flight);
-
-        var start = flight.getStart();
-        var end = flight.getEnd();
-
-        this.start = this.start == null || this.start > start ? start : this.start;
-        this.end = this.end == null || this.end < end ? end : this.end;
-        this.duration = this.end - this.start;
-        this.maxAltitude = Math.max(this.maxAltitude, flight.getMaxAltitude() + 100);
-
-        this._refresh();
-    };
 
     AltitudeGraph.prototype.getX = function(time) {
         return (time - this.start)/this.duration*(this.width - (AltitudeGraph.MARGIN.left + AltitudeGraph.MARGIN.right)) + AltitudeGraph.MARGIN.left;
@@ -203,7 +216,7 @@ var volare = volare || {};
 
     AltitudeGraph.prototype._drawFlights = function() {
         var self = this;
-        _.each(this.flights, function(flight) {
+        _.each(this.flights.getFlights(), function(flight) {
             flight.drawAltitude(self, self.currentTime);
         });
     }
@@ -227,6 +240,7 @@ var volare = volare || {};
     }
 
 
+    volare.Flights = Flights;
     volare.Flight = Flight;
     volare.Map = Map;
     volare.AltitudeGraph = AltitudeGraph;

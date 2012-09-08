@@ -4,8 +4,9 @@ var LatLngBounds = google.maps.LatLngBounds;
 $(function() {
     _.mixin(_.str);
 
-    var map = new volare.Map($('#map'));
-    var altitudeGraph = new volare.AltitudeGraph($('#altitude'));
+    var flights = new volare.Flights();
+    var map = new volare.Map(flights, $('#map'));
+    var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
 
     var play = $('#play');
     var timer = null;
@@ -24,15 +25,10 @@ $(function() {
         }, 100);
     });
 
-    function addFlight(flight) {
-        map.addFlight(flight);
-        altitudeGraph.addFlight(flight);
-    }
-
     $.getJSON('', function(flight) {
-        addFlight(new volare.Flight(flight, 'red'));
+        flights.addFlight(new volare.Flight(flight, 'red'));
     });
     $.getJSON('/flights/2', function(flight) {
-        addFlight(new volare.Flight(flight, 'blue'));
+        flights.addFlight(new volare.Flight(flight, 'blue'));
     });
 });
