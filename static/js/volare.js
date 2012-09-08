@@ -131,6 +131,7 @@ var volare = volare || {};
             if (time > self.flights.end) {
                 clearInterval(self.timer);
                 self.timer = null;
+                self.flights.setCurrentTime(null);
             }
             else {
                 self.flights.setCurrentTime(time);
