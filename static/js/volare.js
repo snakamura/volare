@@ -105,8 +105,7 @@ var volare = volare || {};
         this.duration = this.end - this.start;
         this.maxAltitude = Math.max(this.maxAltitude, flight.getMaxAltitude() + 100);
 
-        this._drawGrid();
-        this._drawFlights();
+        this._refresh();
     };
 
     AltitudeGraph.prototype.getX = function(time) {
@@ -115,6 +114,13 @@ var volare = volare || {};
 
     AltitudeGraph.prototype.getY = function(altitude) {
         return this.height - altitude/this.maxAltitude*(this.height - (AltitudeGraph.MARGIN.top + AltitudeGraph.MARGIN.bottom)) - AltitudeGraph.MARGIN.bottom;
+    };
+
+    AltitudeGraph.prototype._refresh = function() {
+        this.context.clearRect(0, 0, this.width, this.height);
+
+        this._drawGrid();
+        this._drawFlights();
     };
 
     AltitudeGraph.prototype._drawGrid = function() {
