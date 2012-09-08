@@ -4,8 +4,10 @@ var volare = volare || {};
     var LatLng = google.maps.LatLng;
     var LatLngBounds = google.maps.LatLngBounds;
 
-    function Flight(records, color) {
-        this.records = records;
+    function Flight(flight, color) {
+        this.id = flight.id;
+        this.name = flight.name;
+        this.records = flight.records;
         this.color = color;
     }
 

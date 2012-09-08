@@ -12,7 +12,10 @@ $(function() {
         altitudeGraph.addFlight(flight);
     }
 
-    $.getJSON('', function(records) {
-        addFlight(new volare.Flight(records, 'red'));
+    $.getJSON('', function(flight) {
+        addFlight(new volare.Flight(flight, 'red'));
+    });
+    $.getJSON('/flights/8', function(flight) {
+        addFlight(new volare.Flight(flight, 'blue'));
     });
 });

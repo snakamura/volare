@@ -221,6 +221,37 @@ listFlights flightWidget enctype = do
     $(whamletFile "templates/flights/index.hamlet")
 
 
+data ShowFlight = ShowFlight FlightId T.Text [Record]
+
+instance JSON.ToJSON ShowFlight where
+    toJSON (ShowFlight id name records) =
+        JSON.object [
+                 "id" .= id,
+                 "name" .= name,
+                 "records" .= records
+                ]
+
+
+getFlightR :: FlightId ->
+              Handler RepHtmlJson
+getFlightR flightId = do
+  flight <- runDB $ get404 flightId
+  records <- runDB $ selectList [RecordFlightId ==. flightId] [Asc RecordIndex]
+  googleApiKey <- (Config.googleApiKey . volareConfig) <$> getYesod
+  let html = do
+        setTitle "Flight - Volare"
+        addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
+        addScriptRemote $ "http://maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
+        addScript $ StaticR S.js_underscore_min_js
+        addScript $ StaticR S.js_underscore_string_min_js
+        addScript $ StaticR S.js_flight_js
+        addScript $ StaticR S.js_volare_js
+        addStylesheet $ StaticR S.css_flight_css
+        $(whamletFile "templates/flights/show.hamlet")
+      json = ShowFlight flightId (flightName flight) $ map (\(Entity _ r) -> r) records
+  defaultLayoutJson html json
+
+
 data EditFlight = EditFlight T.Text
 
 
@@ -233,26 +264,6 @@ editFlightForm :: Maybe Flight ->
                   Html ->
                   MForm Volare Volare (FormResult EditFlight, Widget)
 editFlightForm = renderDivs . editFlightAForm
-
-
-getFlightR :: FlightId ->
-              Handler RepHtmlJson
-getFlightR flightId = do
-  flight <- runDB $ get404 flightId
-  records <- runDB $ selectList [RecordFlightId ==. flightId] [Asc RecordIndex]
-  let bareRecords = map (\(Entity _ r) -> r) records
-  googleApiKey <- (Config.googleApiKey . volareConfig) <$> getYesod
-  let html = do
-        setTitle "Flight - Volare"
-        addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
-        addScriptRemote $ "http://maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
-        addScript $ StaticR S.js_underscore_min_js
-        addScript $ StaticR S.js_underscore_string_min_js
-        addScript $ StaticR S.js_flight_js
-        addScript $ StaticR S.js_volare_js
-        addStylesheet $ StaticR S.css_flight_css
-        $(whamletFile "templates/flights/show.hamlet")
-  defaultLayoutJson html bareRecords
 
 
 getFlightEditR :: FlightId ->
