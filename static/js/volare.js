@@ -7,6 +7,7 @@ var volare = volare || {};
     function Flight(flight, color) {
         this.flight = flight;
         this.color = color;
+        this.polyline = null;
     }
 
     Flight.prototype.getStart = function() {
@@ -26,11 +27,35 @@ var volare = volare || {};
         return this.flight.maxAltitude;
     };
 
-    Flight.prototype.getPolyline = function() {
-        var path = new google.maps.MVCArray(_.map(this.flight.records, function(record) {
+    Flight.prototype.setPolyline = function(map, currentTime) {
+        if (this.polyline) {
+            this.polyline.setMap(null);
+            this.polyline = null;
+        }
+
+        var records = this.flight.records;
+        if (currentTime) {
+            var startTime = new Date(currentTime.getTime() - 10*60*1000);
+            var start = -1;
+            var end = 0;
+            for (var n = 0; n < records.length; ++n) {
+                var record = records[n];
+                var time = new Date(record.time);
+                if (start == -1 && time > startTime)
+                    start = n;
+                if (time > currentTime) {
+                    end = n;
+                    break;
+                }
+            }
+            records = records.slice(start, end + 1);
+        }
+
+        var path = new google.maps.MVCArray(_.map(records, function(record) {
             return new LatLng(record.latitude, record.longitude);
         }));
-        return new google.maps.Polyline({
+        this.polyline = new google.maps.Polyline({
+            map: map,
             path: path,
             strokeColor: this.color
         });
@@ -63,11 +88,21 @@ var volare = volare || {};
         this.map = new google.maps.Map(map[0], {
             mapTypeId: google.maps.MapTypeId.TERRAIN
         });
+        this.flights = [];
     }
 
     Map.prototype.addFlight = function(flight) {
+        this.flights.push(flight);
+
         this.map.fitBounds(flight.getBounds());
-        flight.getPolyline().setMap(this.map);
+        flight.setPolyline(this.map);
+    };
+
+    Map.prototype.setCurrentTime = function(time) {
+        var self = this;
+        _.each(this.flights, function(flight) {
+            flight.setPolyline(self.map, time);
+        });
     };
 
 

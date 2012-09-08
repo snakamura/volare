@@ -17,6 +17,7 @@ $(function() {
                 timer = null;
             }
             else {
+                map.setCurrentTime(time);
                 altitudeGraph.setCurrentTime(time);
                 time = new Date(time.getTime() + 10*1000);
             }
