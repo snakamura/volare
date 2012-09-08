@@ -221,13 +221,13 @@ listFlights flightWidget enctype = do
     $(whamletFile "templates/flights/index.hamlet")
 
 
-data ShowFlight = ShowFlight FlightId T.Text [Record]
+data ShowFlight = ShowFlight FlightId Flight [Record]
 
 instance JSON.ToJSON ShowFlight where
-    toJSON (ShowFlight id name records) =
+    toJSON (ShowFlight id flight records) =
         JSON.object [
                  "id" .= id,
-                 "name" .= name,
+                 "name" .= flightName flight,
                  "records" .= records
                 ]
 
@@ -248,7 +248,7 @@ getFlightR flightId = do
         addScript $ StaticR S.js_volare_js
         addStylesheet $ StaticR S.css_flight_css
         $(whamletFile "templates/flights/show.hamlet")
-      json = ShowFlight flightId (flightName flight) $ map (\(Entity _ r) -> r) records
+      json = ShowFlight flightId flight $ map (\(Entity _ r) -> r) records
   defaultLayoutJson html json
 
 
