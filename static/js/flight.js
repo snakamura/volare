@@ -11,9 +11,9 @@ $(function() {
     var play = $('#play');
     var timer = null;
     play.on('click', function() {
-        var time = altitudeGraph.start;
+        var time = flights.start;
         timer = setInterval(function() {
-            if (time > altitudeGraph.end) {
+            if (time > flights.end) {
                 clearInterval(timer);
                 timer = null;
             }

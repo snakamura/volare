@@ -6,6 +6,11 @@ var volare = volare || {};
 
     function Flights() {
         this.flights = [];
+
+        this.start = null;
+        this.end = null;
+        this.duration = 0;
+        this.maxAltitude = 0;
     }
 
     Flights.prototype.getFlights = function() {
@@ -14,6 +19,15 @@ var volare = volare || {};
 
     Flights.prototype.addFlight = function(flight) {
         this.flights.push(flight);
+
+        var start = flight.getStart();
+        var end = flight.getEnd();
+
+        this.start = this.start == null || this.start > start ? start : this.start;
+        this.end = this.end == null || this.end < end ? end : this.end;
+        this.duration = this.end - this.start;
+        this.maxAltitude = Math.max(this.maxAltitude, flight.getMaxAltitude() + 100);
+
         $(this).trigger('flight_added', flight);
     };
 
@@ -132,33 +146,20 @@ var volare = volare || {};
 
         this.context = canvasElem.getContext('2d');
 
-        this.start = null;
-        this.end = null;
-        this.duration = 0;
-        this.maxAltitude = 0;
-
         this.currentTime = null;
 
         var self = this;
         $(this.flights).on('flight_added', function(event, flight) {
-            var start = flight.getStart();
-            var end = flight.getEnd();
-
-            self.start = self.start == null || self.start > start ? start : self.start;
-            self.end = self.end == null || self.end < end ? end : self.end;
-            self.duration = self.end - self.start;
-            self.maxAltitude = Math.max(self.maxAltitude, flight.getMaxAltitude() + 100);
-
             self._refresh();
         });
     }
 
     AltitudeGraph.prototype.getX = function(time) {
-        return (time - this.start)/this.duration*(this.width - (AltitudeGraph.MARGIN.left + AltitudeGraph.MARGIN.right)) + AltitudeGraph.MARGIN.left;
+        return (time - this.flights.start)/this.flights.duration*(this.width - (AltitudeGraph.MARGIN.left + AltitudeGraph.MARGIN.right)) + AltitudeGraph.MARGIN.left;
     };
 
     AltitudeGraph.prototype.getY = function(altitude) {
-        return this.height - altitude/this.maxAltitude*(this.height - (AltitudeGraph.MARGIN.top + AltitudeGraph.MARGIN.bottom)) - AltitudeGraph.MARGIN.bottom;
+        return this.height - altitude/this.flights.maxAltitude*(this.height - (AltitudeGraph.MARGIN.top + AltitudeGraph.MARGIN.bottom)) - AltitudeGraph.MARGIN.bottom;
     };
 
     AltitudeGraph.prototype.setCurrentTime = function(time) {
@@ -174,10 +175,10 @@ var volare = volare || {};
     };
 
     AltitudeGraph.prototype._drawGrid = function() {
-        var startX = this.getX(this.start);
-        var endX = this.getX(this.end);
+        var startX = this.getX(this.flights.start);
+        var endX = this.getX(this.flights.end);
         var lowestY = this.getY(0);
-        var highestY = this.getY(this.maxAltitude);
+        var highestY = this.getY(this.flights.maxAltitude);
 
         var context = this.context;
 
@@ -189,12 +190,12 @@ var volare = volare || {};
         context.moveTo(startX, lowestY);
         context.lineTo(startX, highestY);
 
-        var time = new Date(this.start);
+        var time = new Date(this.flights.start);
         time.setMinutes(Math.floor(time.getMinutes()/10)*10);
         time.setSeconds(0);
         time = time.getTime() + 10*60*1000;
         context.textAlign = 'center';
-        for (; time < this.start.getTime() + this.duration; time += AltitudeGraph.TIME_STEP) {
+        for (; time < this.flights.end.getTime(); time += AltitudeGraph.TIME_STEP) {
             var x = this.getX(time);
             context.moveTo(x, lowestY);
             context.lineTo(x, highestY);
@@ -203,7 +204,7 @@ var volare = volare || {};
         }
 
         context.textAlign = 'end';
-        for (var altitude = 0; altitude < this.maxAltitude; altitude += AltitudeGraph.ALTITUDE_STEP) {
+        for (var altitude = 0; altitude < this.flights.maxAltitude; altitude += AltitudeGraph.ALTITUDE_STEP) {
             var y = this.getY(altitude);
             context.moveTo(startX, y);
             context.lineTo(endX, y);
