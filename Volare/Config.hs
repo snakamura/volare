@@ -14,7 +14,8 @@ import qualified Data.Text as T
 
 data Config = Config {
       sqlitePath :: T.Text,
-      sqliteConnectionPoolCount :: Int
+      sqliteConnectionPoolCount :: Int,
+      googleApiKey :: T.Text
     } deriving Show
 
 deriveFromJSON id ''Config

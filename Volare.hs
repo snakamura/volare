@@ -22,6 +22,7 @@ import Data.Conduit (($$),
 import Data.Conduit.Attoparsec (ParseError,
                                 sinkParser)
 import Data.Foldable (forM_)
+import Data.Monoid ((<>))
 import qualified Data.Text as T
 import Data.Time (Day,
                   UTCTime(UTCTime),
@@ -91,9 +92,8 @@ import Yesod.Widget (addScript,
                      whamletFile)
 
 import Volare.Config (Config,
-                      loadConfig,
-                      sqlitePath,
-                      sqliteConnectionPoolCount)
+                      loadConfig)
+import qualified Volare.Config as Config
 import Volare.Static (staticSite)
 import qualified Volare.Static as S
 
@@ -123,6 +123,7 @@ instance JSON.ToJSON Record where
 
 
 data Volare = Volare {
+    volareConfig         :: Config,
     volareConnectionPool :: ConnectionPool,
     volareStatic         :: Static
 }
@@ -240,10 +241,11 @@ getFlightR flightId = do
   flight <- runDB $ get404 flightId
   records <- runDB $ selectList [RecordFlightId ==. flightId] [Asc RecordIndex]
   let bareRecords = map (\(Entity _ r) -> r) records
+  googleApiKey <- (Config.googleApiKey . volareConfig) <$> getYesod
   let html = do
         setTitle "Flight - Volare"
         addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
-        addScriptRemote "http://maps.googleapis.com/maps/api/js?key=AIzaSyCg2nRFdQ0BpuO_ep7h9b2sCA108wv-DhE&sensor=false"
+        addScriptRemote $ "http://maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
         addScript $ StaticR S.js_underscore_min_js
         addScript $ StaticR S.js_underscore_string_min_js
         addScript $ StaticR S.js_flight_js
@@ -295,7 +297,7 @@ formatLatitude = printf "%.0f"
 main :: IO ()
 main = do
   config <- loadConfig "config/config.yml"
-  withSqlitePool (sqlitePath config) (sqliteConnectionPoolCount config) $ \pool -> do
+  withSqlitePool (Config.sqlitePath config) (Config.sqliteConnectionPoolCount config) $ \pool -> do
          runSqlPool (runMigration migrateAll) pool
          s <- staticSite
-         warpDebug 3000 $ Volare pool s
+         warpDebug 3000 $ Volare config pool s

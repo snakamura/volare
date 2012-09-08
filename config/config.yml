@@ -1,2 +1,4 @@
 sqlitePath: data/volare.sqlite
 sqliteConnectionPoolCount: 10
+
+googleApiKey: AIzaSyCg2nRFdQ0BpuO_ep7h9b2sCA108wv-DhE
