@@ -22,7 +22,7 @@ var volare = volare || {};
         var maxLatitude = this.records[0].latitude;
         var minLongitude = this.records[0].longitude;
         var maxLongitude = this.records[0].longitude;
-        _.each(records, function(record) {
+        _.each(this.records, function(record) {
             minLatitude = Math.min(minLatitude, record.latitude);
             maxLatitude = Math.max(maxLatitude, record.latitude);
             minLongitude = Math.min(minLongitude, record.longitude);
@@ -54,8 +54,8 @@ var volare = volare || {};
         context.lineWidth = 2;
 
         context.beginPath();
-        context.moveTo(graph.getX(new Date(records[0].time)),
-                       graph.getY(records[0].altitude));
+        context.moveTo(graph.getX(new Date(this.records[0].time)),
+                       graph.getY(this.records[0].altitude));
         _.each(this.records, function(record) {
             context.lineTo(graph.getX(new Date(record.time)),
                            graph.getY(record.altitude));
