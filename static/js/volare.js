@@ -36,7 +36,7 @@ var volare = volare || {};
         });
     };
 
-    Flight.prototype.drawAltitude = function(graph) {
+    Flight.prototype.drawAltitude = function(graph, currentTime) {
         var context = graph.context;
 
         context.strokeStyle = this.color;
@@ -45,9 +45,15 @@ var volare = volare || {};
         context.beginPath();
         context.moveTo(graph.getX(new Date(this.flight.records[0].time)),
                        graph.getY(this.flight.records[0].altitude));
-        _.each(this.flight.records, function(record) {
-            context.lineTo(graph.getX(new Date(record.time)),
+        _.every(this.flight.records, function(record) {
+            var time = new Date(record.time);
+            if (currentTime != null && time > currentTime)
+                return false;
+
+            context.lineTo(graph.getX(time),
                            graph.getY(record.altitude));
+
+            return true;
         });
         context.stroke();
     };
@@ -81,6 +87,8 @@ var volare = volare || {};
         this.end = null;
         this.duration = 0;
         this.maxAltitude = 0;
+
+        this.currentTime = null;
     }
 
     AltitudeGraph.prototype.addFlight = function(flight) {
@@ -103,6 +111,11 @@ var volare = volare || {};
 
     AltitudeGraph.prototype.getY = function(altitude) {
         return this.height - altitude/this.maxAltitude*(this.height - (AltitudeGraph.MARGIN.top + AltitudeGraph.MARGIN.bottom)) - AltitudeGraph.MARGIN.bottom;
+    };
+
+    AltitudeGraph.prototype.setCurrentTime = function(time) {
+        this.currentTime = time;
+        this._refresh();
     };
 
     AltitudeGraph.prototype._refresh = function() {
@@ -156,7 +169,7 @@ var volare = volare || {};
     AltitudeGraph.prototype._drawFlights = function() {
         var self = this;
         _.each(this.flights, function(flight) {
-            flight.drawAltitude(self);
+            flight.drawAltitude(self, self.currentTime);
         });
     }
 

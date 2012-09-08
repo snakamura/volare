@@ -9,6 +9,12 @@ canvas#altitude {
     margin: 10px 0;
 }
 
+#play {
+    cursor: pointer;
+    text-decoration: underline;
+    color: blue;
+}
+
 table#records {
     border-collapse: collapse;
 }

@@ -7,6 +7,9 @@ $newline never
 <p>
   <a href=@{FlightEditR flightId}>Edit
 
+<p>
+  <span id=play>Play
+
 <div id=map>
 
 <canvas id=altitude>
