@@ -11,6 +11,8 @@ var volare = volare || {};
         this.end = null;
         this.duration = 0;
         this.maxAltitude = 0;
+
+        this.currentTime = null;
     }
 
     Flights.prototype.getFlights = function() {
@@ -29,6 +31,11 @@ var volare = volare || {};
         this.maxAltitude = Math.max(this.maxAltitude, flight.getMaxAltitude() + 100);
 
         $(this).trigger('flight_added', flight);
+    };
+
+    Flights.prototype.setCurrentTime = function(time) {
+        this.currentTime = time;
+        $(this).trigger('currenttime_changed', time);
     };
 
 
@@ -123,14 +130,12 @@ var volare = volare || {};
             self.map.fitBounds(flight.getBounds());
             flight.setPolyline(self.map);
         });
-    }
-
-    Map.prototype.setCurrentTime = function(time) {
-        var self = this;
-        _.each(this.flights.getFlights(), function(flight) {
-            flight.setPolyline(self.map, time);
+        $(this.flights).on('currenttime_changed', function(event, time) {
+            _.each(self.flights.getFlights(), function(flight) {
+                flight.setPolyline(self.map, time);
+            });
         });
-    };
+    }
 
 
     function AltitudeGraph(flights, canvas) {
@@ -146,10 +151,11 @@ var volare = volare || {};
 
         this.context = canvasElem.getContext('2d');
 
-        this.currentTime = null;
-
         var self = this;
         $(this.flights).on('flight_added', function(event, flight) {
+            self._refresh();
+        });
+        $(this.flights).on('currenttime_changed', function(event, time) {
             self._refresh();
         });
     }
@@ -160,11 +166,6 @@ var volare = volare || {};
 
     AltitudeGraph.prototype.getY = function(altitude) {
         return this.height - altitude/this.flights.maxAltitude*(this.height - (AltitudeGraph.MARGIN.top + AltitudeGraph.MARGIN.bottom)) - AltitudeGraph.MARGIN.bottom;
-    };
-
-    AltitudeGraph.prototype.setCurrentTime = function(time) {
-        this.currentTime = time;
-        this._refresh();
     };
 
     AltitudeGraph.prototype._refresh = function() {
@@ -218,7 +219,7 @@ var volare = volare || {};
     AltitudeGraph.prototype._drawFlights = function() {
         var self = this;
         _.each(this.flights.getFlights(), function(flight) {
-            flight.drawAltitude(self, self.currentTime);
+            flight.drawAltitude(self, self.flights.currentTime);
         });
     }
 
