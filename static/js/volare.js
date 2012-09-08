@@ -5,42 +5,29 @@ var volare = volare || {};
     var LatLngBounds = google.maps.LatLngBounds;
 
     function Flight(flight, color) {
-        this.id = flight.id;
-        this.name = flight.name;
-        this.records = flight.records;
+        this.flight = flight;
         this.color = color;
     }
 
     Flight.prototype.getStart = function() {
-        return new Date(this.records[0].time);
+        return new Date(this.flight.records[0].time);
     };
 
     Flight.prototype.getEnd = function() {
-        return new Date(this.records[this.records.length - 1].time);
+        return new Date(this.flight.records[this.flight.records.length - 1].time);
     };
 
     Flight.prototype.getBounds = function() {
-        var minLatitude = this.records[0].latitude;
-        var maxLatitude = this.records[0].latitude;
-        var minLongitude = this.records[0].longitude;
-        var maxLongitude = this.records[0].longitude;
-        _.each(this.records, function(record) {
-            minLatitude = Math.min(minLatitude, record.latitude);
-            maxLatitude = Math.max(maxLatitude, record.latitude);
-            minLongitude = Math.min(minLongitude, record.longitude);
-            maxLongitude = Math.max(maxLongitude, record.longitude);
-        });
-        return new LatLngBounds(new LatLng(maxLatitude, minLongitude), new LatLng(minLatitude, maxLongitude));
+        return new LatLngBounds(new LatLng(this.flight.maxLatitude, this.flight.minLongitude),
+                                new LatLng(this.flight.minLatitude, this.flight.maxLongitude));
     };
 
     Flight.prototype.getMaxAltitude = function() {
-        return _.max(this.records, function(record) {
-            return record.altitude;
-        }).altitude;
+        return this.flight.maxAltitude;
     };
 
     Flight.prototype.getPolyline = function() {
-        var path = new google.maps.MVCArray(_.map(this.records, function(record) {
+        var path = new google.maps.MVCArray(_.map(this.flight.records, function(record) {
             return new LatLng(record.latitude, record.longitude);
         }));
         return new google.maps.Polyline({
@@ -56,9 +43,9 @@ var volare = volare || {};
         context.lineWidth = 2;
 
         context.beginPath();
-        context.moveTo(graph.getX(new Date(this.records[0].time)),
-                       graph.getY(this.records[0].altitude));
-        _.each(this.records, function(record) {
+        context.moveTo(graph.getX(new Date(this.flight.records[0].time)),
+                       graph.getY(this.flight.records[0].altitude));
+        _.each(this.flight.records, function(record) {
             context.lineTo(graph.getX(new Date(record.time)),
                            graph.getY(record.altitude));
         });

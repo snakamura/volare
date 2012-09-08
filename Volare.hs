@@ -22,7 +22,10 @@ import Data.Conduit (($$),
 import Data.Conduit.Attoparsec (ParseError,
                                 sinkParser)
 import Data.Foldable (forM_)
+import Data.List (maximumBy,
+                  minimumBy)
 import Data.Monoid ((<>))
+import Data.Ord (comparing)
 import qualified Data.Text as T
 import Data.Time (Day,
                   UTCTime(UTCTime),
@@ -102,6 +105,12 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
 Flight
   name T.Text
   date Day
+  minLatitude Double
+  maxLatitude Double
+  minLongitude Double
+  maxLongitude Double
+  minAltitude Double
+  maxAltitude Double
   deriving Show
 Record
   flightId FlightId
@@ -196,9 +205,18 @@ postFlightsR = do
                  let name = fileName file
                  igc <- liftIO $ runResourceT $ fileSource file $$ sinkParser IGC.igc
                  $(logDebug) $ T.pack $ show igc
+                 let records = IGC.records igc
+                     v c p = realToFrac $ p $ IGC.position $ c (comparing (p . IGC.position)) records
                  flightId <- runDB $ do
-                               flightId <- insert $ Flight name (IGC.date igc)
-                               forM_ (zip (IGC.records igc) [1..]) $ \(record, index) -> do
+                               flightId <- insert $ Flight name
+                                                           (IGC.date igc)
+                                                           (v minimumBy IGC.latitude)
+                                                           (v maximumBy IGC.latitude)
+                                                           (v minimumBy IGC.longitude)
+                                                           (v maximumBy IGC.longitude)
+                                                           (v minimumBy IGC.altitude)
+                                                           (v maximumBy IGC.altitude)
+                               forM_ (zip records [1..]) $ \(record, index) -> do
                                        let position = IGC.position record
                                        insert $ Record flightId
                                                        index
@@ -228,6 +246,12 @@ instance JSON.ToJSON ShowFlight where
         JSON.object [
                  "id" .= id,
                  "name" .= flightName flight,
+                 "minLatitude" .= flightMinLatitude flight,
+                 "maxLatitude" .= flightMaxLatitude flight,
+                 "minLongitude" .= flightMinLongitude flight,
+                 "maxLongitude" .= flightMaxLongitude flight,
+                 "minAltitude" .= flightMinAltitude flight,
+                 "maxAltitude" .= flightMaxAltitude flight,
                  "records" .= records
                 ]
 
