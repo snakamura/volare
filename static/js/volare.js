@@ -33,6 +33,10 @@ var volare = volare || {};
         $(this).trigger('flight_added', flight);
     };
 
+    Flights.prototype.getCurrentTime = function() {
+        return this.currentTime;
+    };
+
     Flights.prototype.setCurrentTime = function(time) {
         this.currentTime = time;
         $(this).trigger('currenttime_changed', time);
@@ -118,26 +122,62 @@ var volare = volare || {};
         context.stroke();
     };
 
-    function Player(flights) {
+    function Player(flights, player) {
         this.flights = flights;
+        this.player = player;
 
         this.timer = null;
+
+        var self = this;
+
+        this.player.html('<span class="button play">Play</span><span class="button stop disabled">Stop</span>');
+
+        var playButton = this.player.find('.play');
+        playButton.on('click', function() {
+            self.play();
+        });
+
+        var stopButton = this.player.find('.stop');
+        stopButton.on('click', function() {
+            self.stop();
+        });
+
+        $(this.flights).on('currenttime_changed', function(event, time) {
+            if (time) {
+                playButton.addClass('disabled');
+                stopButton.removeClass('disabled');
+            }
+            else {
+                playButton.removeClass('disabled');
+                stopButton.addClass('disabled');
+            }
+        });
     }
 
     Player.prototype.play = function() {
+        if (this.timer)
+            return;
+
         var self = this;
         var time = this.flights.start;
         this.timer = setInterval(function() {
             if (time > self.flights.end) {
-                clearInterval(self.timer);
-                self.timer = null;
-                self.flights.setCurrentTime(null);
+                self.stop();
             }
             else {
                 self.flights.setCurrentTime(time);
                 time = new Date(time.getTime() + 10*1000);
             }
         }, 100);
+    };
+
+    Player.prototype.stop = function() {
+        if (!this.timer)
+            return;
+
+        clearInterval(this.timer);
+        this.timer = null;
+        this.flights.setCurrentTime(null);
     };
 
 

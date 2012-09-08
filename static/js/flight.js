@@ -5,14 +5,9 @@ $(function() {
     _.mixin(_.str);
 
     var flights = new volare.Flights();
-    var player = new volare.Player(flights);
+    var player = new volare.Player(flights, $('#player'));
     var map = new volare.Map(flights, $('#map'));
     var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
-
-    var play = $('#play');
-    play.on('click', function() {
-        player.play();
-    });
 
     $.getJSON('', function(flight) {
         flights.addFlight(new volare.Flight(flight, 'red'));
