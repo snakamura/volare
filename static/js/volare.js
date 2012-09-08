@@ -118,6 +118,27 @@ var volare = volare || {};
         context.stroke();
     };
 
+    function Player(flights) {
+        this.flights = flights;
+
+        this.timer = null;
+    }
+
+    Player.prototype.play = function() {
+        var self = this;
+        var time = this.flights.start;
+        this.timer = setInterval(function() {
+            if (time > self.flights.end) {
+                clearInterval(self.timer);
+                self.timer = null;
+            }
+            else {
+                self.flights.setCurrentTime(time);
+                time = new Date(time.getTime() + 10*1000);
+            }
+        }, 100);
+    };
+
 
     function Map(flights, map) {
         this.flights = flights;
@@ -244,6 +265,7 @@ var volare = volare || {};
 
     volare.Flights = Flights;
     volare.Flight = Flight;
+    volare.Player = Player;
     volare.Map = Map;
     volare.AltitudeGraph = AltitudeGraph;
 })();
