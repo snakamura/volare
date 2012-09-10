@@ -2,7 +2,7 @@ var LatLng = google.maps.LatLng;
 var LatLngBounds = google.maps.LatLngBounds;
 
 $(function() {
-    _.mixin(_.str);
+    _.mixin(_.string.exports());
 
     var flights = new volare.Flights();
     var player = new volare.Player(flights, $('#player'));
