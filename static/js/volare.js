@@ -89,6 +89,8 @@ var volare = volare || {};
 
         var start = this._getRecordIndexAt(new Date(time.getTime() - 10*1000));
         var end = this._getRecordIndexAt(new Date(time.getTime() + 10*1000));
+        if (end >= records.length)
+            end = records.length - 1;
         if (start === end) {
             start = index - 1;
             end = index;
