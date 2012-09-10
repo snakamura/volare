@@ -13,6 +13,8 @@ $newline never
 
 <canvas id=altitude>
 
+<canvas id=speed>
+
 <div id=chart>
 
 <!--

@@ -131,7 +131,7 @@ var volare = volare || {};
         context.lineWidth = 2;
 
         context.beginPath();
-        var startTime = new Date(this.flight.records[0].time);
+        var startTime = this.getStart();
         var startAltitude = this.flight.records[0].altitude;
         context.moveTo(graph.getX(startTime), graph.getY(startAltitude));
         var lastAltitude = startAltitude;
@@ -140,14 +140,30 @@ var volare = volare || {};
             if (currentTime != null && time > currentTime)
                 return false;
 
-            context.lineTo(graph.getX(time),
-                           graph.getY(record.altitude));
+            context.lineTo(graph.getX(time), graph.getY(record.altitude));
             lastAltitude = record.altitude;
 
             return true;
         });
         if (startTime <= currentTime)
             context.lineTo(graph.getX(currentTime), graph.getY(lastAltitude));
+        context.stroke();
+    };
+
+    Flight.prototype.drawGroundSpeed = function(graph, currentTime) {
+        var context = graph.context;
+
+        context.strokeStyle = this.color;
+        context.lineWidth = 2;
+
+        context.beginPath();
+        var startTime = this.getStart();
+        var endTime = this.getEnd();
+        context.moveTo(graph.getX(startTime), graph.getY(0));
+        for (var time = startTime.getTime(); time < (currentTime || endTime).getTime(); time += 20*1000) {
+            var t = new Date(time);
+            context.lineTo(graph.getX(t), graph.getY(this.getGroundSpeedAt(t)*3600/1000));
+        }
         context.stroke();
     };
 
@@ -481,6 +497,37 @@ var volare = volare || {};
     AltitudeGraph.ALTITUDE_STEP = 200;
 
 
+    function SpeedGraph(flights, canvas) {
+        Graph.call(this, flights, canvas);
+    }
+    inherit(SpeedGraph, Graph);
+
+    SpeedGraph.prototype._drawFlights = function() {
+        var self = this;
+        _.each(this.flights.getFlights(), function(flight) {
+            flight.drawGroundSpeed(self, self.flights.currentTime);
+        });
+    }
+
+    SpeedGraph.prototype._getMax = function() {
+        return 100;
+    };
+
+    SpeedGraph.prototype._isPrimaryValue = function(value) {
+        return value % 50 === 0;
+    };
+
+    SpeedGraph.prototype._getValueStep = function() {
+        return SpeedGraph.SPEED_STEP;
+    };
+
+    SpeedGraph.prototype._formatValue = function(value) {
+        return value + 'km/h';
+    };
+
+    SpeedGraph.SPEED_STEP = 10;
+
+
     function Chart(flights, chart) {
         this.flights = flights;
         this.chart = chart;
@@ -549,5 +596,6 @@ var volare = volare || {};
     volare.Player = Player;
     volare.Map = Map;
     volare.AltitudeGraph = AltitudeGraph;
+    volare.SpeedGraph = SpeedGraph;
     volare.Chart = Chart;
 })();

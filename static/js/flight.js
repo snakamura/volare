@@ -8,6 +8,7 @@ $(function() {
     var player = new volare.Player(flights, $('#player'));
     var map = new volare.Map(flights, $('#map'));
     var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
+    var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
     var chart = new volare.Chart(flights, $('#chart'));
 
     $.getJSON('', function(flight) {
