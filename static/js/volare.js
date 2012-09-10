@@ -359,13 +359,12 @@ var volare = volare || {};
 
         var context = this.context;
 
-        context.strokeStyle = 'gray';
-        context.lineWidth = 0.5;
-
+        context.lineWidth = 0.1;
+        context.strokeStyle = 'black';
         context.beginPath();
-
         context.moveTo(startX, lowestY);
         context.lineTo(startX, highestY);
+        context.stroke();
 
         var time = new Date(this.flights.start);
         time.setMinutes(Math.floor(time.getMinutes()/10)*10);
@@ -373,18 +372,32 @@ var volare = volare || {};
         time = time.getTime() + 10*60*1000;
         context.textAlign = 'center';
         for (; time < this.flights.end.getTime(); time += AltitudeGraph.TIME_STEP) {
+            var t = new Date(time);
+
+            var b = t.getMinutes() == 0 || t.getMinutes() == 30;
+            context.strokeStyle = b ? 'black' : 'gray';
+
             var x = this.getX(time);
+            context.beginPath();
             context.moveTo(x, lowestY);
             context.lineTo(x, highestY);
-            context.fillText(AltitudeGraph.formatTime(time), x,
-                             this.height - AltitudeGraph.MARGIN.bottom + 12);
+            context.stroke();
+            if (b)
+                context.fillText(AltitudeGraph.formatTime(t), x,
+                                 this.height - AltitudeGraph.MARGIN.bottom + 12);
         }
 
         context.textAlign = 'end';
         for (var altitude = 0; altitude < this.flights.maxAltitude; altitude += AltitudeGraph.ALTITUDE_STEP) {
+            var b = altitude % 1000 === 0;
+            context.strokeStyle = b ? 'black' : 'gray';
+
             var y = this.getY(altitude);
+            context.beginPath();
             context.moveTo(startX, y);
             context.lineTo(endX, y);
+            context.stroke();
+
             context.fillText(AltitudeGraph.formatAltitude(altitude),
                              AltitudeGraph.MARGIN.left - 4, y + 5);
         }
@@ -409,8 +422,7 @@ var volare = volare || {};
     AltitudeGraph.ALTITUDE_STEP = 200;
 
     AltitudeGraph.formatTime = function(time) {
-        var date = new Date(time);
-        return _.sprintf("%02d:%02d", date.getHours(), date.getMinutes());
+        return _.sprintf("%02d:%02d", time.getHours(), time.getMinutes());
     }
 
     AltitudeGraph.formatAltitude = function(altitude) {
