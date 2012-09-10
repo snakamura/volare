@@ -79,29 +79,15 @@ var volare = volare || {};
     };
 
     Flight.prototype.getGroundSpeedAt = function(time) {
-        if (!time)
-            return 0;
-
-        var records = this.flight.records;
-        var index = this._getRecordIndexAt(time);
-        if (index <= 0 || records.length <= index)
-            return 0;
-
-        var duration = Flight.SPEED_SAMPLING_DURATION*1000;
-        var start = this._getRecordIndexAt(new Date(time.getTime() - duration));
-        var end = this._getRecordIndexAt(new Date(time.getTime() + duration));
-        if (end >= records.length)
-            end = records.length - 1;
-        if (start === end) {
-            start = index - 1;
-            end = index;
-        }
-        var speeds = _.map(_.range(start, end), function(n) {
-            var s = records[n];
-            var e = records[n + 1];
+        return this._getSpeedAt(time, Flight.GROUND_SPEED_SAMPLING_DURATION, function(s, e) {
             return Flight.distance(s, e)/((new Date(e.time) - new Date(s.time))/1000);
         });
-        return _.reduce(speeds, function(a, n) { return a + n; }, 0)/speeds.length;
+    };
+
+    Flight.prototype.getVerticalSpeedAt = function(time) {
+        return this._getSpeedAt(time, Flight.VERTICAL_SPEED_SAMPLING_DURATION, function(s, e) {
+            return (e.altitude - s.altitude)/((new Date(e.time) - new Date(s.time))/1000);
+        });
     };
 
     Flight.prototype.setPolyline = function(map, currentTime) {
@@ -160,6 +146,29 @@ var volare = volare || {};
         });
     };
 
+    Flight.prototype._getSpeedAt = function(time, duration, f) {
+        if (!time)
+            return 0;
+
+        var records = this.flight.records;
+        var index = this._getRecordIndexAt(time);
+        if (index <= 0 || records.length <= index)
+            return 0;
+
+        var start = this._getRecordIndexAt(new Date(time.getTime() - duration*1000));
+        var end = this._getRecordIndexAt(new Date(time.getTime() + duration*1000));
+        if (end >= records.length)
+            end = records.length - 1;
+        if (start === end) {
+            start = index - 1;
+            end = index;
+        }
+        var speeds = _.map(_.range(start, end), function(n) {
+            return f(records[n], records[n + 1]);
+        });
+        return _.reduce(speeds, function(a, n) { return a + n; }, 0)/speeds.length;
+    };
+
     Flight.distance = function(p1, p2) {
         var r = 6378137;
         var dx = (p1.longitude - p2.longitude)/180*Math.PI;
@@ -169,7 +178,8 @@ var volare = volare || {};
     };
 
     Flight.TRACK_DURATION = 10*60;
-    Flight.SPEED_SAMPLING_DURATION = 10;
+    Flight.GROUND_SPEED_SAMPLING_DURATION = 10;
+    Flight.VERTICAL_SPEED_SAMPLING_DURATION = 5;
 
 
     function Player(flights, player) {
@@ -419,6 +429,7 @@ var volare = volare || {};
                         '<th>Longitude</th>' +
                         '<th>Altitude</th>' +
                         '<th>Ground Speed</th>' +
+                        '<th>Vertical Speed</th>' +
                         '</tr>' +
                         '</tbody></table>');
 
@@ -429,6 +440,7 @@ var volare = volare || {};
                              '<td class="longitude"></td>' +
                              '<td class="altitude"></td>' +
                              '<td class="ground_speed"></td>' +
+                             '<td class="vertical_speed"></td>' +
                              '</tr>');
         $(this.flights).on('flight_added', function(event, flight) {
             var tbody = self.chart.find('tbody');
@@ -448,6 +460,7 @@ var volare = volare || {};
             tr.find('td.longitude').text(Chart.formatPosition(position.longitude));
             tr.find('td.altitude').text(Chart.formatAltitude(position.altitude));
             tr.find('td.ground_speed').text(Chart.formatSpeed(flight.getGroundSpeedAt(time)));
+            tr.find('td.vertical_speed').text(Chart.formatVerticalSpeed(flight.getVerticalSpeedAt(time)));
         });
     };
 
@@ -461,6 +474,10 @@ var volare = volare || {};
 
     Chart.formatSpeed = function(s) {
         return _.sprintf('%.1fkm/h', s*3600/1000);
+    };
+
+    Chart.formatVerticalSpeed = function(s) {
+        return _.sprintf('%.1fm/s', s);
     };
 
 
