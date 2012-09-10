@@ -1,3 +1,7 @@
+div#player .slider {
+    margin: 10px;
+}
+
 div#map {
     height: 800px;
 }

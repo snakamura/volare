@@ -7,7 +7,7 @@ $newline never
 <p>
   <a href=@{FlightEditR flightId}>Edit
 
-<p id=player>
+<div id=player>
 
 <div id=map>
 

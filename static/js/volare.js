@@ -30,6 +30,7 @@ var volare = volare || {};
         this.duration = this.end - this.start;
         this.maxAltitude = Math.max(this.maxAltitude, flight.getMaxAltitude() + 100);
 
+        $(this).trigger('properties_changed');
         $(this).trigger('flight_added', flight);
     };
 
@@ -127,19 +128,35 @@ var volare = volare || {};
         this.player = player;
 
         this.timer = null;
-        this.pauseTime = null;
 
         var self = this;
 
-        this.player.html('<button class="play">Play</button>' +
+        this.player.html('<div>' +
+                         '<button class="play">Play</button>' +
                          '<button class="pause">Pause</button>' +
-                         '<button class="stop">Stop</button>');
+                         '<button class="stop">Stop</button>' +
+                         '</div>' +
+                         '<div class="slider"></div>');
 
         this.player.find('.play').button().on('click', _.bind(this.play, this));
         this.player.find('.pause').button().on('click', _.bind(this.pause, this));
         this.player.find('.stop').button().on('click', _.bind(this.stop, this));
+        this.player.find('.slider').slider({
+            range: 'min',
+            min: 0,
+            max: 100
+        }).on('slide', function(event, slider) {
+            self.flights.setCurrentTime(new Date(slider.value));
+        });
 
-        this._updateState();
+        $(this.flights).on('currenttime_changed', function() {
+            self._updateButtons();
+            self._updateSliderValue();
+        });
+        $(this.flights).on('properties_changed', _.bind(this._updateSliderRange, this));
+
+        this._updateButtons();
+        this._updateSliderRange();
     }
 
     Player.prototype.play = function() {
@@ -147,20 +164,16 @@ var volare = volare || {};
             return;
 
         var self = this;
-        var time = this.pauseTime || this.flights.start;
-        self.flights.setCurrentTime(time);
+        self.flights.setCurrentTime(this.flights.getCurrentTime() || this.flights.start);
         this.timer = setInterval(function() {
-            if (time > self.flights.end) {
+            var time = new Date(self.flights.getCurrentTime().getTime() + 10*1000);
+            if (time > self.flights.end)
                 self.stop();
-            }
-            else {
+            else
                 self.flights.setCurrentTime(time);
-                time = new Date(time.getTime() + 10*1000);
-            }
         }, 100);
-        this.pauseTime = null;
 
-        this._updateState();
+        this._updateButtons();
     };
 
     Player.prototype.pause = function() {
@@ -170,9 +183,7 @@ var volare = volare || {};
         clearInterval(this.timer);
         this.timer = null;
 
-        this.pauseTime = this.flights.getCurrentTime();
-
-        this._updateState();
+        this._updateButtons();
     };
 
     Player.prototype.stop = function() {
@@ -180,25 +191,24 @@ var volare = volare || {};
             clearInterval(this.timer);
             this.timer = null;
         }
-        this.pauseTime = null;
         this.flights.setCurrentTime(null);
 
-        this._updateState();
+        this._updateButtons();
     };
 
-    Player.prototype._updateState = function() {
+    Player.prototype._updateButtons = function() {
         var buttons = {
             play: false,
             pause: false,
             stop: false
         };
 
-        var time = this.flights.getCurrentTime();
-        if (time) {
-            if (this.pauseTime)
-                buttons.play = true;
-            else
-                buttons.pause = true;
+        if (this.timer) {
+            buttons.pause = true;
+            buttons.stop = true;
+        }
+        else if (this.flights.getCurrentTime()) {
+            buttons.play = true;
             buttons.stop = true;
         }
         else {
@@ -209,6 +219,20 @@ var volare = volare || {};
         _.each(buttons, function(v, k) {
             self.player.find('.' + k).button(v ? 'enable' : 'disable');
         });
+    };
+
+    Player.prototype._updateSliderRange = function() {
+        var slider = this.player.find('.slider');
+        slider.slider('option', 'min', this.flights.start ? this.flights.start.getTime() : 0);
+        slider.slider('option', 'max', this.flights.end ? this.flights.end.getTime() : 0);
+
+        this._updateSliderValue();
+    };
+
+    Player.prototype._updateSliderValue = function() {
+        var slider = this.player.find('.slider');
+        var time = this.flights.getCurrentTime();
+        slider.slider('value', time ? time.getTime() : slider.slider('option', 'min'));
     };
 
 
