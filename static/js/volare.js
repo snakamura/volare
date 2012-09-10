@@ -87,8 +87,9 @@ var volare = volare || {};
         if (index <= 0 || records.length <= index)
             return 0;
 
-        var start = this._getRecordIndexAt(new Date(time.getTime() - 10*1000));
-        var end = this._getRecordIndexAt(new Date(time.getTime() + 10*1000));
+        var duration = Flight.SPEED_SAMPLING_DURATION*1000;
+        var start = this._getRecordIndexAt(new Date(time.getTime() - duration));
+        var end = this._getRecordIndexAt(new Date(time.getTime() + duration));
         if (end >= records.length)
             end = records.length - 1;
         if (start === end) {
@@ -111,7 +112,7 @@ var volare = volare || {};
 
         var records = this.flight.records;
         if (currentTime) {
-            var start = this._getRecordIndexAt(new Date(currentTime.getTime() - 10*60*1000));
+            var start = this._getRecordIndexAt(new Date(currentTime.getTime() - Flight.TRACK_DURATION*1000));
             var end = this._getRecordIndexAt(currentTime);
             records = records.slice(start, end + 1);
         }
@@ -166,6 +167,9 @@ var volare = volare || {};
         var y2 = p2.latitude/180*Math.PI;
         return r*Math.acos(Math.sin(y1)*Math.sin(y2) + Math.cos(y1)*Math.cos(y2)*Math.cos(dx));
     };
+
+    Flight.TRACK_DURATION = 10*60;
+    Flight.SPEED_SAMPLING_DURATION = 10;
 
 
     function Player(flights, player) {
