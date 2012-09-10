@@ -131,8 +131,10 @@ var volare = volare || {};
         context.lineWidth = 2;
 
         context.beginPath();
-        context.moveTo(graph.getX(new Date(this.flight.records[0].time)),
-                       graph.getY(this.flight.records[0].altitude));
+        var startTime = new Date(this.flight.records[0].time);
+        var startAltitude = this.flight.records[0].altitude;
+        context.moveTo(graph.getX(startTime), graph.getY(startAltitude));
+        var lastAltitude = startAltitude;
         _.every(this.flight.records, function(record) {
             var time = new Date(record.time);
             if (currentTime != null && time > currentTime)
@@ -140,9 +142,12 @@ var volare = volare || {};
 
             context.lineTo(graph.getX(time),
                            graph.getY(record.altitude));
+            lastAltitude = record.altitude;
 
             return true;
         });
+        if (startTime <= currentTime)
+            context.lineTo(graph.getX(currentTime), graph.getY(lastAltitude));
         context.stroke();
     };
 
