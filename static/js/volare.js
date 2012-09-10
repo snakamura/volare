@@ -4,6 +4,17 @@ var volare = volare || {};
     var LatLng = google.maps.LatLng;
     var LatLngBounds = google.maps.LatLngBounds;
 
+    var inherit = (function() {
+        var Proxy = function() {
+        };
+        return function(clazz, parent) {
+            Proxy.prototype = parent.prototype;
+            clazz.prototype = new Proxy();
+            clazz.super_ = parent.prototype;
+            clazz.prototype.constructor = clazz;
+        };
+    })();
+
     function Flights() {
         this.flights = [];
 
@@ -314,9 +325,8 @@ var volare = volare || {};
     }
 
 
-    function AltitudeGraph(flights, canvas) {
+    function Graph(flights, canvas) {
         this.flights = flights;
-
         this.canvas = canvas;
         this.width = canvas.width();
         this.height = canvas.height();
@@ -336,26 +346,26 @@ var volare = volare || {};
         });
     }
 
-    AltitudeGraph.prototype.getX = function(time) {
-        return (time - this.flights.start)/this.flights.duration*(this.width - (AltitudeGraph.MARGIN.left + AltitudeGraph.MARGIN.right)) + AltitudeGraph.MARGIN.left;
+    Graph.prototype.getX = function(time) {
+        return (time - this.flights.start)/this.flights.duration*(this.width - (Graph.MARGIN.left + Graph.MARGIN.right)) + Graph.MARGIN.left;
     };
 
-    AltitudeGraph.prototype.getY = function(altitude) {
-        return this.height - altitude/this.flights.maxAltitude*(this.height - (AltitudeGraph.MARGIN.top + AltitudeGraph.MARGIN.bottom)) - AltitudeGraph.MARGIN.bottom;
+    Graph.prototype.getY = function(value) {
+        return this.height - (value - this._getMin())/this._getMax()*(this.height - (Graph.MARGIN.top + Graph.MARGIN.bottom)) - Graph.MARGIN.bottom;
     };
 
-    AltitudeGraph.prototype._refresh = function() {
+    Graph.prototype._refresh = function() {
         this.context.clearRect(0, 0, this.width, this.height);
 
         this._drawGrid();
         this._drawFlights();
     };
 
-    AltitudeGraph.prototype._drawGrid = function() {
+    Graph.prototype._drawGrid = function() {
         var startX = this.getX(this.flights.start);
         var endX = this.getX(this.flights.end);
-        var lowestY = this.getY(0);
-        var highestY = this.getY(this.flights.maxAltitude);
+        var lowestY = this.getY(this._getMin());
+        var highestY = this.getY(this._getMax());
 
         var context = this.context;
 
@@ -371,7 +381,7 @@ var volare = volare || {};
         time.setSeconds(0);
         time = time.getTime() + 10*60*1000;
         context.textAlign = 'center';
-        for (; time < this.flights.end.getTime(); time += AltitudeGraph.TIME_STEP) {
+        for (; time < this.flights.end.getTime(); time += Graph.TIME_STEP) {
             var t = new Date(time);
 
             var b = t.getMinutes() == 0 || t.getMinutes() == 30;
@@ -383,27 +393,67 @@ var volare = volare || {};
             context.lineTo(x, highestY);
             context.stroke();
             if (b)
-                context.fillText(AltitudeGraph.formatTime(t), x,
-                                 this.height - AltitudeGraph.MARGIN.bottom + 12);
+                context.fillText(Graph.formatTime(t), x, this.height - Graph.MARGIN.bottom + 12);
         }
 
         context.textAlign = 'end';
-        for (var altitude = 0; altitude < this.flights.maxAltitude; altitude += AltitudeGraph.ALTITUDE_STEP) {
-            var b = altitude % 1000 === 0;
+        var step = this._getValueStep();
+        for (var value = this._getMin(); value < this._getMax(); value += step) {
+            var b = this._isPrimaryValue(value);
             context.strokeStyle = b ? 'black' : 'gray';
 
-            var y = this.getY(altitude);
+            var y = this.getY(value);
             context.beginPath();
             context.moveTo(startX, y);
             context.lineTo(endX, y);
             context.stroke();
 
-            context.fillText(AltitudeGraph.formatAltitude(altitude),
-                             AltitudeGraph.MARGIN.left - 4, y + 5);
+            context.fillText(this._formatValue(value), Graph.MARGIN.left - 4, y + 5);
         }
 
         context.stroke();
     };
+
+    Graph.prototype._drawFlights = function() {
+    };
+
+    Graph.prototype._getMin = function() {
+        return 0;
+    };
+
+    Graph.prototype._getMax = function() {
+        return 1000;
+    };
+
+    Graph.prototype._isPrimaryValue = function(value) {
+        return false;
+    };
+
+    Graph.prototype._getValueStep = function() {
+        return (this._getMax() - this._getMin())/10;
+    };
+
+    Graph.prototype._formatValue = function(value) {
+        return value;
+    };
+
+    Graph.MARGIN = {
+        top: 0,
+        left: 50,
+        bottom: 15,
+        right: 0
+    };
+    Graph.TIME_STEP = 10*60*1000;
+
+    Graph.formatTime = function(time) {
+        return _.sprintf("%02d:%02d", time.getHours(), time.getMinutes());
+    }
+
+
+    function AltitudeGraph(flights, canvas) {
+        Graph.call(this, flights, canvas);
+    }
+    inherit(AltitudeGraph, Graph);
 
     AltitudeGraph.prototype._drawFlights = function() {
         var self = this;
@@ -412,22 +462,23 @@ var volare = volare || {};
         });
     }
 
-    AltitudeGraph.MARGIN = {
-        top: 0,
-        left: 50,
-        bottom: 15,
-        right: 0
+    AltitudeGraph.prototype._getMax = function() {
+        return this.flights.maxAltitude;
     };
-    AltitudeGraph.TIME_STEP = 10*60*1000;
+
+    AltitudeGraph.prototype._isPrimaryValue = function(value) {
+        return value % 1000 === 0;
+    };
+
+    AltitudeGraph.prototype._getValueStep = function() {
+        return AltitudeGraph.ALTITUDE_STEP;
+    };
+
+    AltitudeGraph.prototype._formatValue = function(value) {
+        return value + 'm';
+    };
+
     AltitudeGraph.ALTITUDE_STEP = 200;
-
-    AltitudeGraph.formatTime = function(time) {
-        return _.sprintf("%02d:%02d", time.getHours(), time.getMinutes());
-    }
-
-    AltitudeGraph.formatAltitude = function(altitude) {
-        return altitude + 'm';
-    }
 
 
     function Chart(flights, chart) {
