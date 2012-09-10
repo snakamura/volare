@@ -13,6 +13,23 @@ canvas#altitude {
     margin: 10px 0;
 }
 
+div#chart table {
+    border-collapse: collapse;
+}
+
+div#chart table th, div#chart table td {
+    border: 1px solid gray;
+    padding: 2px 5px;
+}
+
+div#chart table td {
+    font-family: monospace;
+}
+
+div#chart table td.name {
+    font-family: sans-self;
+}
+
 table#records {
     border-collapse: collapse;
 }

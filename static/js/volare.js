@@ -359,9 +359,35 @@ var volare = volare || {};
     }
 
 
+    function Chart(flights, chart) {
+        this.flights = flights;
+        this.chart = chart;
+
+        this.chart.html('<table><tbody>' +
+                        '<tr>' +
+                        '<th>Name</th>' +
+                        '<th>Latitude</th>' +
+                        '<th>Longitude</th>' +
+                        '</tr>' +
+                        '</tbody></table>');
+
+        var self = this;
+        var t = _.template('<tr>' +
+                           '<td class="name"><%- flight.name %></td>' +
+                           '<td class="latitude"><%- _.sprintf("%.5f", flight.records[0].latitude) %></td>' +
+                           '<td class="longitude"><%- _.sprintf("%.5f", flight.records[0].longitude) %></td>' +
+                           '</tr>');
+        $(this.flights).on('flight_added', function(event, flight) {
+            var tbody = self.chart.find('tbody');
+            tbody.append(t(flight));
+        });
+    }
+
+
     volare.Flights = Flights;
     volare.Flight = Flight;
     volare.Player = Player;
     volare.Map = Map;
     volare.AltitudeGraph = AltitudeGraph;
+    volare.Chart = Chart;
 })();
