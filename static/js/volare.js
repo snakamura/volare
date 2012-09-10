@@ -204,8 +204,8 @@ var volare = volare || {};
             range: 'min',
             min: 0,
             max: 100
-        }).on('slide', function(event, slider) {
-            self.flights.setCurrentTime(new Date(slider.value));
+        }).on('slide', function(event, ui) {
+            self.flights.setCurrentTime(new Date(ui.value));
         });
 
         $(this.flights).on('currenttime_changed', function() {
