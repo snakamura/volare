@@ -14,7 +14,7 @@ $(function() {
     $.getJSON('', function(flight) {
         flights.addFlight(new volare.Flight(flight, 'red'));
     });
-    $.getJSON('/flights/2', function(flight) {
+    $.getJSON('/flights/1', function(flight) {
         flights.addFlight(new volare.Flight(flight, 'blue'));
     });
 });

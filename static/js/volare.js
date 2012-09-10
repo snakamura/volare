@@ -58,6 +58,7 @@ var volare = volare || {};
     function Flight(flight, color) {
         this.flight = flight;
         this.color = color;
+        this.distances = [];
         this.polyline = null;
     }
 
@@ -90,13 +91,19 @@ var volare = volare || {};
     };
 
     Flight.prototype.getGroundSpeedAt = function(time) {
-        return this._getSpeedAt(time, Flight.GROUND_SPEED_SAMPLING_DURATION, function(s, e) {
-            return Flight.distance(s, e)/((new Date(e.time) - new Date(s.time))/1000);
+        var self = this;
+        return this._getSpeedAt(time, Flight.GROUND_SPEED_SAMPLING_DURATION, function(n) {
+            var s = self.flight.records[n];
+            var e = self.flight.records[n + 1];
+            return self._getDistance(n)/((new Date(e.time) - new Date(s.time))/1000);
         });
     };
 
     Flight.prototype.getVerticalSpeedAt = function(time) {
-        return this._getSpeedAt(time, Flight.VERTICAL_SPEED_SAMPLING_DURATION, function(s, e) {
+        var self = this;
+        return this._getSpeedAt(time, Flight.VERTICAL_SPEED_SAMPLING_DURATION, function(n) {
+            var s = self.flight.records[n];
+            var e = self.flight.records[n + 1];
             return (e.altitude - s.altitude)/((new Date(e.time) - new Date(s.time))/1000);
         });
     };
@@ -191,9 +198,18 @@ var volare = volare || {};
             end = index;
         }
         var speeds = _.map(_.range(start, end), function(n) {
-            return f(records[n], records[n + 1]);
+            return f(n);
         });
         return _.reduce(speeds, function(a, n) { return a + n; }, 0)/speeds.length;
+    };
+
+    Flight.prototype._getDistance = function(index) {
+        var distance = this.distances[index];
+        if (_.isUndefined(distance)) {
+            distance = Flight.distance(this.flight.records[index], this.flight.records[index + 1]);
+            this.distances[index] = distance;
+        }
+        return distance;
     };
 
     Flight.distance = function(p1, p2) {
@@ -510,7 +526,7 @@ var volare = volare || {};
     }
 
     SpeedGraph.prototype._getMax = function() {
-        return 100;
+        return 120;
     };
 
     SpeedGraph.prototype._isPrimaryValue = function(value) {
