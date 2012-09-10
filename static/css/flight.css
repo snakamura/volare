@@ -24,10 +24,12 @@ div#chart table th, div#chart table td {
 
 div#chart table td {
     font-family: monospace;
+    text-align: right;
 }
 
 div#chart table td.name {
     font-family: sans-self;
+    text-align: left;
 }
 
 table#records {

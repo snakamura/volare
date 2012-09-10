@@ -67,6 +67,16 @@ var volare = volare || {};
         return this.flight.maxAltitude;
     };
 
+    Flight.prototype.getRecordAt = function(time) {
+        var records = this.flight.records;
+        var index = _.sortedIndex(records, { time: time }, function(record) {
+            return new Date(record.time);
+        });
+        if (index >= records.length)
+            index = records.length - 1;
+        return records[index];
+    };
+
     Flight.prototype.setPolyline = function(map, currentTime) {
         if (this.polyline) {
             this.polyline.setMap(null);
@@ -368,20 +378,36 @@ var volare = volare || {};
                         '<th>Name</th>' +
                         '<th>Latitude</th>' +
                         '<th>Longitude</th>' +
+                        '<th>Altitude</th>' +
                         '</tr>' +
                         '</tbody></table>');
 
         var self = this;
-        var t = _.template('<tr>' +
-                           '<td class="name"><%- flight.name %></td>' +
-                           '<td class="latitude"><%- _.sprintf("%.5f", flight.records[0].latitude) %></td>' +
-                           '<td class="longitude"><%- _.sprintf("%.5f", flight.records[0].longitude) %></td>' +
-                           '</tr>');
+        var row = _.template('<tr class="flight_<%- flight.id %>">' +
+                             '<td class="name"><%- flight.name %></td>' +
+                             '<td class="latitude"></td>' +
+                             '<td class="longitude"></td>' +
+                             '<td class="altitude"></td>' +
+                             '</tr>');
         $(this.flights).on('flight_added', function(event, flight) {
             var tbody = self.chart.find('tbody');
-            tbody.append(t(flight));
+            tbody.append(row(flight));
+            self._update();
         });
+        $(this.flights).on('currenttime_changed', _.bind(this._update, this));
     }
+
+    Chart.prototype._update = function() {
+        var time = this.flights.getCurrentTime();
+        var self = this;
+        _.each(this.flights.getFlights(), function(flight) {
+            var record = time ? flight.getRecordAt(time) : flight.flight.records[0];
+            var tr = self.chart.find('.flight_' + flight.flight.id);
+            tr.find('td.latitude').text(_.sprintf("%.5f", record.latitude));
+            tr.find('td.longitude').text(_.sprintf("%.5f", record.longitude));
+            tr.find('td.altitude').text(record.altitude);
+        });
+    };
 
 
     volare.Flights = Flights;
