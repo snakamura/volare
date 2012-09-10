@@ -72,9 +72,7 @@ var volare = volare || {};
         if (!time)
             return records[0];
 
-        var index = _.sortedIndex(records, { time: time }, function(record) {
-            return new Date(record.time);
-        });
+        var index = this._getRecordIndexAt(time);
         if (index >= records.length)
             index = records.length - 1;
         return records[index];
@@ -85,9 +83,7 @@ var volare = volare || {};
             return 0;
 
         var records = this.flight.records;
-        var index = _.sortedIndex(records, { time: time }, function(record) {
-            return new Date(record.time);
-        });
+        var index = this._getRecordIndexAt(time);
         if (index <= 0 || records.length <= index)
             return 0;
 
@@ -104,19 +100,8 @@ var volare = volare || {};
 
         var records = this.flight.records;
         if (currentTime) {
-            var startTime = new Date(currentTime.getTime() - 10*60*1000);
-            var start = -1;
-            var end = 0;
-            for (var n = 0; n < records.length; ++n) {
-                var record = records[n];
-                var time = new Date(record.time);
-                if (start == -1 && time > startTime)
-                    start = n;
-                if (time > currentTime) {
-                    end = n;
-                    break;
-                }
-            }
+            var start = this._getRecordIndexAt(new Date(currentTime.getTime() - 10*60*1000));
+            var end = this._getRecordIndexAt(currentTime);
             records = records.slice(start, end + 1);
         }
 
@@ -150,6 +135,12 @@ var volare = volare || {};
             return true;
         });
         context.stroke();
+    };
+
+    Flight.prototype._getRecordIndexAt = function(time) {
+        return _.sortedIndex(this.flight.records, { time: time }, function(record) {
+            return new Date(record.time);
+        });
     };
 
     Flight.distance = function(p1, p2) {
