@@ -127,31 +127,15 @@ var volare = volare || {};
         this.player = player;
 
         this.timer = null;
+        this.pauseTime = null;
 
         var self = this;
 
-        this.player.html('<span class="button play">Play</span><span class="button stop disabled">Stop</span>');
+        this.player.html('<span class="button play">Play</span><span class="button pause disabled">Pause</span><span class="button stop disabled">Stop</span>');
 
-        var playButton = this.player.find('.play');
-        playButton.on('click', function() {
-            self.play();
-        });
-
-        var stopButton = this.player.find('.stop');
-        stopButton.on('click', function() {
-            self.stop();
-        });
-
-        $(this.flights).on('currenttime_changed', function(event, time) {
-            if (time) {
-                playButton.addClass('disabled');
-                stopButton.removeClass('disabled');
-            }
-            else {
-                playButton.removeClass('disabled');
-                stopButton.addClass('disabled');
-            }
-        });
+        this.player.find('.play').on('click', _.bind(this.play, this));
+        this.player.find('.pause').on('click', _.bind(this.pause, this));
+        this.player.find('.stop').on('click', _.bind(this.stop, this));
     }
 
     Player.prototype.play = function() {
@@ -159,7 +143,7 @@ var volare = volare || {};
             return;
 
         var self = this;
-        var time = this.flights.start;
+        var time = this.pauseTime || this.flights.start;
         this.timer = setInterval(function() {
             if (time > self.flights.end) {
                 self.stop();
@@ -169,15 +153,56 @@ var volare = volare || {};
                 time = new Date(time.getTime() + 10*1000);
             }
         }, 100);
+        this.pauseTime = null;
+
+        this._updateState();
     };
 
-    Player.prototype.stop = function() {
+    Player.prototype.pause = function() {
         if (!this.timer)
             return;
 
         clearInterval(this.timer);
         this.timer = null;
+
+        this.pauseTime = this.flights.getCurrentTime();
+
+        this._updateState();
+    };
+
+    Player.prototype.stop = function() {
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        this.pauseTime = null;
         this.flights.setCurrentTime(null);
+
+        this._updateState();
+    };
+
+    Player.prototype._updateState = function() {
+        var playButton = this.player.find('.play');
+        var pauseButton = this.player.find('.pause');
+        var stopButton = this.player.find('.stop');
+
+        var time = this.flights.getCurrentTime();
+        if (time) {
+            if (this.pauseTime) {
+                playButton.removeClass('disabled');
+                pauseButton.addClass('disabled');
+            }
+            else {
+                playButton.addClass('disabled');
+                pauseButton.removeClass('disabled');
+            }
+            stopButton.removeClass('disabled');
+        }
+        else {
+            playButton.removeClass('disabled');
+            pauseButton.removeClass('disabled');
+            stopButton.addClass('disabled');
+        }
     };
 
 
