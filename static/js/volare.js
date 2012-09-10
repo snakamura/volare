@@ -49,9 +49,9 @@ var volare = volare || {};
         return this.currentTime;
     };
 
-    Flights.prototype.setCurrentTime = function(time) {
+    Flights.prototype.setCurrentTime = function(time, play) {
         this.currentTime = time;
-        $(this).trigger('currenttime_changed', time);
+        $(this).trigger('currenttime_changed', [time, play]);
     };
 
 
@@ -157,21 +157,37 @@ var volare = volare || {};
         context.stroke();
     };
 
-    Flight.prototype.drawGroundSpeed = function(graph, currentTime) {
+    Flight.prototype.drawGroundSpeed = function(graph, currentTime, partial) {
         var context = graph.context;
 
         context.strokeStyle = this.color;
         context.lineWidth = 2;
 
-        context.beginPath();
-        var startTime = this.getStart();
-        var endTime = this.getEnd();
-        context.moveTo(graph.getX(startTime), graph.getY(0));
-        for (var time = startTime.getTime(); time < (currentTime || endTime).getTime(); time += 20*1000) {
-            var t = new Date(time);
-            context.lineTo(graph.getX(t), graph.getY(this.getGroundSpeedAt(t)*3600/1000));
+        var step = 20*1000;
+        var startTime = null;
+        var endTime = null;
+        if (partial) {
+            if (currentTime.getTime() >= this.lastDrawnGroundSpeedTime + step) {
+                startTime = new Date(this.lastDrawnGroundSpeedTime);
+                endTime = currentTime || this.getEnd();
+            }
         }
-        context.stroke();
+        else {
+            startTime = this.getStart();
+            endTime = currentTime || this.getEnd();
+        }
+        if (startTime) {
+            context.beginPath();
+            context.moveTo(graph.getX(startTime), graph.getY(this.getGroundSpeedAt(startTime)*3600/1000));
+            var time = startTime.getTime() + step;
+            for (; time < endTime.getTime(); time += step) {
+                var t = new Date(time);
+                context.lineTo(graph.getX(t), graph.getY(this.getGroundSpeedAt(t)*3600/1000));
+            }
+            context.stroke();
+
+            this.lastDrawnGroundSpeedTime = time - step;
+        }
     };
 
     Flight.prototype._getRecordIndexAt = function(time) {
@@ -272,7 +288,7 @@ var volare = volare || {};
             if (time > self.flights.end)
                 self.stop();
             else
-                self.flights.setCurrentTime(time);
+                self.flights.setCurrentTime(time, true);
         }, 100);
 
         this._updateButtons();
@@ -373,8 +389,11 @@ var volare = volare || {};
         $(this.flights).on('flight_added', function(event, flight) {
             self._refresh();
         });
-        $(this.flights).on('currenttime_changed', function(event, time) {
-            self._refresh();
+        $(this.flights).on('currenttime_changed', function(event, time, play) {
+            if (play && self._drawFlights.length === 1)
+                self._drawFlights(true);
+            else
+                self._refresh();
         });
     }
 
@@ -518,10 +537,10 @@ var volare = volare || {};
     }
     inherit(SpeedGraph, Graph);
 
-    SpeedGraph.prototype._drawFlights = function() {
+    SpeedGraph.prototype._drawFlights = function(partial) {
         var self = this;
         _.each(this.flights.getFlights(), function(flight) {
-            flight.drawGroundSpeed(self, self.flights.currentTime);
+            flight.drawGroundSpeed(self, self.flights.currentTime, partial);
         });
     }
 
