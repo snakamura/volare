@@ -91,6 +91,7 @@ import Yesod.Static (Static)
 import Yesod.Widget (addScript,
                      addScriptRemote,
                      addStylesheet,
+                     addStylesheetRemote,
                      setTitle,
                      whamletFile)
 
@@ -264,8 +265,10 @@ getFlightR flightId = do
   googleApiKey <- (Config.googleApiKey . volareConfig) <$> getYesod
   let html = do
         setTitle "Flight - Volare"
-        addScriptRemote "https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
-        addScriptRemote $ "http://maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
+        addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
+        addScriptRemote "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"
+        addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
+        addStylesheetRemote $ "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css"
         addScript $ StaticR S.js_underscore_min_js
         addScript $ StaticR S.js_underscore_string_min_js
         addScript $ StaticR S.js_flight_js

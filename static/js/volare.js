@@ -131,11 +131,15 @@ var volare = volare || {};
 
         var self = this;
 
-        this.player.html('<span class="button play">Play</span><span class="button pause disabled">Pause</span><span class="button stop disabled">Stop</span>');
+        this.player.html('<button class="play">Play</button>' +
+                         '<button class="pause">Pause</button>' +
+                         '<button class="stop">Stop</button>');
 
-        this.player.find('.play').on('click', _.bind(this.play, this));
-        this.player.find('.pause').on('click', _.bind(this.pause, this));
-        this.player.find('.stop').on('click', _.bind(this.stop, this));
+        this.player.find('.play').button().on('click', _.bind(this.play, this));
+        this.player.find('.pause').button().on('click', _.bind(this.pause, this));
+        this.player.find('.stop').button().on('click', _.bind(this.stop, this));
+
+        this._updateState();
     }
 
     Player.prototype.play = function() {
@@ -144,6 +148,7 @@ var volare = volare || {};
 
         var self = this;
         var time = this.pauseTime || this.flights.start;
+        self.flights.setCurrentTime(time);
         this.timer = setInterval(function() {
             if (time > self.flights.end) {
                 self.stop();
@@ -182,27 +187,28 @@ var volare = volare || {};
     };
 
     Player.prototype._updateState = function() {
-        var playButton = this.player.find('.play');
-        var pauseButton = this.player.find('.pause');
-        var stopButton = this.player.find('.stop');
+        var buttons = {
+            play: false,
+            pause: false,
+            stop: false
+        };
 
         var time = this.flights.getCurrentTime();
         if (time) {
-            if (this.pauseTime) {
-                playButton.removeClass('disabled');
-                pauseButton.addClass('disabled');
-            }
-            else {
-                playButton.addClass('disabled');
-                pauseButton.removeClass('disabled');
-            }
-            stopButton.removeClass('disabled');
+            if (this.pauseTime)
+                buttons.play = true;
+            else
+                buttons.pause = true;
+            buttons.stop = true;
         }
         else {
-            playButton.removeClass('disabled');
-            pauseButton.removeClass('disabled');
-            stopButton.addClass('disabled');
+            buttons.play = true;
         }
+
+        var self = this;
+        _.each(buttons, function(v, k) {
+            self.player.find('.' + k).button(v ? 'enable' : 'disable');
+        });
     };
 
 

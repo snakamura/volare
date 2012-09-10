@@ -9,20 +9,6 @@ canvas#altitude {
     margin: 10px 0;
 }
 
-#player .button {
-    cursor: pointer;
-    margin: 0px 5px;
-    padding: 2px 5px;
-    border: 1px solid black;
-}
-
-#player .button.disabled {
-    cursor: auto;
-    background: lightgray;
-    color: gray;
-}
-
-
 table#records {
     border-collapse: collapse;
 }
