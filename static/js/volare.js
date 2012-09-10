@@ -87,9 +87,18 @@ var volare = volare || {};
         if (index <= 0 || records.length <= index)
             return 0;
 
-        var previousRecord = records[index - 1];
-        var record = records[index];
-        return Flight.distance(previousRecord, record)/((new Date(record.time) - new Date(previousRecord.time))/1000);
+        var start = this._getRecordIndexAt(new Date(time.getTime() - 10*1000));
+        var end = this._getRecordIndexAt(new Date(time.getTime() + 10*1000));
+        if (start === end) {
+            start = index - 1;
+            end = index;
+        }
+        var speeds = _.map(_.range(start, end), function(n) {
+            var s = records[n];
+            var e = records[n + 1];
+            return Flight.distance(s, e)/((new Date(e.time) - new Date(s.time))/1000);
+        });
+        return _.reduce(speeds, function(a, n) { return a + n; }, 0)/speeds.length;
     };
 
     Flight.prototype.setPolyline = function(map, currentTime) {
