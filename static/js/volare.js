@@ -67,14 +67,33 @@ var volare = volare || {};
         return this.flight.maxAltitude;
     };
 
-    Flight.prototype.getRecordAt = function(time) {
+    Flight.prototype.getPositionAt = function(time) {
         var records = this.flight.records;
+        if (!time)
+            return records[0];
+
         var index = _.sortedIndex(records, { time: time }, function(record) {
             return new Date(record.time);
         });
         if (index >= records.length)
             index = records.length - 1;
         return records[index];
+    };
+
+    Flight.prototype.getGroundSpeedAt = function(time) {
+        if (!time)
+            return 0;
+
+        var records = this.flight.records;
+        var index = _.sortedIndex(records, { time: time }, function(record) {
+            return new Date(record.time);
+        });
+        if (index <= 0 || records.length <= index)
+            return 0;
+
+        var previousRecord = records[index - 1];
+        var record = records[index];
+        return Flight.distance(previousRecord, record)/((new Date(record.time) - new Date(previousRecord.time))/1000);
     };
 
     Flight.prototype.setPolyline = function(map, currentTime) {
@@ -132,6 +151,15 @@ var volare = volare || {};
         });
         context.stroke();
     };
+
+    Flight.distance = function(p1, p2) {
+        var r = 6378137;
+        var dx = (p1.longitude - p2.longitude)/180*Math.PI;
+        var y1 = p1.latitude/180*Math.PI;
+        var y2 = p2.latitude/180*Math.PI;
+        return r*Math.acos(Math.sin(y1)*Math.sin(y2) + Math.cos(y1)*Math.cos(y2)*Math.cos(dx));
+    };
+
 
     function Player(flights, player) {
         this.flights = flights;
@@ -379,6 +407,7 @@ var volare = volare || {};
                         '<th>Latitude</th>' +
                         '<th>Longitude</th>' +
                         '<th>Altitude</th>' +
+                        '<th>Ground Speed</th>' +
                         '</tr>' +
                         '</tbody></table>');
 
@@ -388,6 +417,7 @@ var volare = volare || {};
                              '<td class="latitude"></td>' +
                              '<td class="longitude"></td>' +
                              '<td class="altitude"></td>' +
+                             '<td class="ground_speed"></td>' +
                              '</tr>');
         $(this.flights).on('flight_added', function(event, flight) {
             var tbody = self.chart.find('tbody');
@@ -401,12 +431,25 @@ var volare = volare || {};
         var time = this.flights.getCurrentTime();
         var self = this;
         _.each(this.flights.getFlights(), function(flight) {
-            var record = time ? flight.getRecordAt(time) : flight.flight.records[0];
+            var position = flight.getPositionAt(time);
             var tr = self.chart.find('.flight_' + flight.flight.id);
-            tr.find('td.latitude').text(_.sprintf("%.5f", record.latitude));
-            tr.find('td.longitude').text(_.sprintf("%.5f", record.longitude));
-            tr.find('td.altitude').text(record.altitude);
+            tr.find('td.latitude').text(Chart.formatPosition(position.latitude));
+            tr.find('td.longitude').text(Chart.formatPosition(position.longitude));
+            tr.find('td.altitude').text(Chart.formatAltitude(position.altitude));
+            tr.find('td.ground_speed').text(Chart.formatSpeed(flight.getGroundSpeedAt(time)));
         });
+    };
+
+    Chart.formatPosition = function(p) {
+        return _.sprintf('%.5f', p);
+    };
+
+    Chart.formatAltitude = function(a) {
+        return a + 'm';
+    };
+
+    Chart.formatSpeed = function(s) {
+        return _.sprintf('%.1fkm/h', s*3600/1000);
     };
 
 
