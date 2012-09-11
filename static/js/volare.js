@@ -137,26 +137,31 @@ var volare = volare || {};
     };
 
     Flight.prototype.setPolyline = function(map, currentTime) {
-        if (this._polyline) {
-            this._polyline.setMap(null);
-            this._polyline = null;
-        }
-
         var records = this._records;
         if (currentTime) {
             var start = this._getRecordIndexAt(new Date(currentTime.getTime() - Flight.TRACK_DURATION*1000));
             var end = this._getRecordIndexAt(currentTime);
-            records = records.slice(start, end + 1);
+            records = records.slice(start, end);
         }
 
-        var path = new google.maps.MVCArray(_.map(records, function(record) {
-            return new LatLng(record.latitude, record.longitude);
-        }));
-        this._polyline = new google.maps.Polyline({
-            map: map,
-            path: path,
-            strokeColor: this._color
-        });
+        if (this._polyline) {
+            var path = this._polyline.getPath();
+            path.clear();
+            _.each(records, function(record) {
+                path.push(new LatLng(record.latitude, record.longitude));
+            });
+        }
+        else {
+            var path = new google.maps.MVCArray(_.map(records, function(record) {
+                return new LatLng(record.latitude, record.longitude);
+            }));
+            this._polyline = new google.maps.Polyline({
+                map: map,
+                path: path,
+                strokeColor: this._color
+            });
+        }
+
     };
 
     Flight.prototype.drawAltitude = function(graph, currentTime, partial) {
