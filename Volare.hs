@@ -51,6 +51,7 @@ import Database.Persist.TH (mkMigrate,
                             share,
                             sqlSettings)
 import Network.Wai (Application)
+import Network.Wai.Middleware.RequestLogger (logStdout)
 import System.Locale (defaultTimeLocale)
 import Text.Blaze.Html (Html)
 import Text.Printf (printf)
@@ -63,12 +64,12 @@ import Yesod.Core (Yesod(..),
                    defaultLayout,
                    logDebug,
                    renderRoute,
-                   toWaiApp,
                    yesodDispatch)
 import Yesod.Content (RepHtml,
                       RepHtmlJson)
 import Yesod.Dispatch (mkYesod,
-                       parseRoutes)
+                       parseRoutes,
+                       toWaiApp)
 import Yesod.Form (AForm,
                    Enctype,
                    FormMessage,
@@ -341,4 +342,4 @@ withVolare f = do
          runSqlPool (runMigration migrateAll) pool
          s <- staticSite
          app <- toWaiApp $ Volare config pool s
-         f app
+         f $ logStdout $ app
