@@ -8,7 +8,7 @@
              TypeFamilies,
              TypeSynonymInstances #-}
 
-module Main (main) where
+module Volare (withVolare) where
 
 import qualified Codec.IGC as IGC
 import Control.Applicative ((<$>))
@@ -50,6 +50,7 @@ import Database.Persist.TH (mkMigrate,
                             persist,
                             share,
                             sqlSettings)
+import Network.Wai (Application)
 import System.Locale (defaultTimeLocale)
 import Text.Blaze.Html (Html)
 import Text.Printf (printf)
@@ -62,6 +63,7 @@ import Yesod.Core (Yesod(..),
                    defaultLayout,
                    logDebug,
                    renderRoute,
+                   toWaiApp,
                    yesodDispatch)
 import Yesod.Content (RepHtml,
                       RepHtmlJson)
@@ -332,10 +334,11 @@ formatLatitude :: Double ->
 formatLatitude = printf "%.0f"
 
 
-main :: IO ()
-main = do
+withVolare :: (Application -> IO ()) -> IO ()
+withVolare f = do
   config <- loadConfig "config/config.yml"
   withSqlitePool (Config.sqlitePath config) (Config.sqliteConnectionPoolCount config) $ \pool -> do
          runSqlPool (runMigration migrateAll) pool
          s <- staticSite
-         warpDebug 3000 $ Volare config pool s
+         app <- toWaiApp $ Volare config pool s
+         f app
