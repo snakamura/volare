@@ -16,7 +16,7 @@ var volare = volare || {};
     })();
 
     function Flights() {
-        this.flights = [];
+        this._flights = [];
 
         this._start = null;
         this._end = null;
@@ -25,8 +25,8 @@ var volare = volare || {};
         this._currentTime = null;
     }
 
-    Flights.prototype.getFlights = function() {
-        return this.flights;
+    Flights.prototype.eachFlights = function(iterator, context) {
+        _.each(this._flights, iterator, context);
     };
 
     Flights.prototype.getStartTime = function() {
@@ -46,7 +46,7 @@ var volare = volare || {};
     };
 
     Flights.prototype.addFlight = function(flight) {
-        this.flights.push(flight);
+        this._flights.push(flight);
 
         var start = flight.getStartTime();
         var end = flight.getEndTime();
@@ -70,35 +70,45 @@ var volare = volare || {};
 
 
     function Flight(flight, color) {
-        _.extend(this, flight);
-        _.each(this.records, function(record) {
+        var self = this;
+        _.each(flight, function(value, key) {
+            self['_' + key] = value;
+        });
+        _.each(this._records, function(record) {
             record.time = new Date(record.time);
         });
 
-        this.color = color;
-        this.distances = [];
-        this.polyline = null;
+        this._color = color;
+        this._polyline = null;
     }
 
+    Flight.prototype.getId = function() {
+        return this._id;
+    };
+
+    Flight.prototype.getName = function() {
+        return this._name;
+    };
+
     Flight.prototype.getStartTime = function() {
-        return this.records[0].time;
+        return _.head(this._records).time;
     };
 
     Flight.prototype.getEndTime = function() {
-        return this.records[this.records.length - 1].time;
+        return _.last(this._records).time;
     };
 
     Flight.prototype.getBounds = function() {
-        return new LatLngBounds(new LatLng(this.maxLatitude, this.minLongitude),
-                                new LatLng(this.minLatitude, this.maxLongitude));
+        return new LatLngBounds(new LatLng(this._maxLatitude, this._minLongitude),
+                                new LatLng(this._minLatitude, this._maxLongitude));
     };
 
     Flight.prototype.getMaxAltitude = function() {
-        return this.maxAltitude;
+        return this._maxAltitude;
     };
 
     Flight.prototype.getPositionAt = function(time) {
-        var records = this.records;
+        var records = this._records;
         if (!time)
             return records[0];
 
@@ -111,8 +121,8 @@ var volare = volare || {};
     Flight.prototype.getGroundSpeedAt = function(time) {
         var self = this;
         return this._getSpeedAt(time, Flight.GROUND_SPEED_SAMPLING_DURATION, function(n) {
-            var s = self.records[n];
-            var e = self.records[n + 1];
+            var s = self._records[n];
+            var e = self._records[n + 1];
             return self._getDistance(n)/((e.time - s.time)/1000);
         });
     };
@@ -120,19 +130,19 @@ var volare = volare || {};
     Flight.prototype.getVerticalSpeedAt = function(time) {
         var self = this;
         return this._getSpeedAt(time, Flight.VERTICAL_SPEED_SAMPLING_DURATION, function(n) {
-            var s = self.records[n];
-            var e = self.records[n + 1];
+            var s = self._records[n];
+            var e = self._records[n + 1];
             return (e.altitude - s.altitude)/((e.time - s.time)/1000);
         });
     };
 
     Flight.prototype.setPolyline = function(map, currentTime) {
-        if (this.polyline) {
-            this.polyline.setMap(null);
-            this.polyline = null;
+        if (this._polyline) {
+            this._polyline.setMap(null);
+            this._polyline = null;
         }
 
-        var records = this.records;
+        var records = this._records;
         if (currentTime) {
             var start = this._getRecordIndexAt(new Date(currentTime.getTime() - Flight.TRACK_DURATION*1000));
             var end = this._getRecordIndexAt(currentTime);
@@ -142,17 +152,17 @@ var volare = volare || {};
         var path = new google.maps.MVCArray(_.map(records, function(record) {
             return new LatLng(record.latitude, record.longitude);
         }));
-        this.polyline = new google.maps.Polyline({
+        this._polyline = new google.maps.Polyline({
             map: map,
             path: path,
-            strokeColor: this.color
+            strokeColor: this._color
         });
     };
 
     Flight.prototype.drawAltitude = function(graph, currentTime, partial) {
-        var context = graph.context;
+        var context = graph.getContext();
 
-        context.strokeStyle = this.color;
+        context.strokeStyle = this._color;
         context.lineWidth = 2;
 
         var startIndex = 0;
@@ -165,7 +175,7 @@ var volare = volare || {};
         }
         else {
             startTime = this.getStartTime();
-            startAltitude = this.records[0].altitude;
+            startAltitude = this._records[0].altitude;
         }
 
         context.beginPath();
@@ -174,8 +184,8 @@ var volare = volare || {};
         var lastTime = startTime;
         var lastAltitude = startAltitude;
         var n = startIndex;
-        for (; n < this.records.length; ++n) {
-            var record = this.records[n];
+        for (; n < this._records.length; ++n) {
+            var record = this._records[n];
             var time = record.time;
             if (currentTime && time > currentTime)
                 break;
@@ -195,9 +205,9 @@ var volare = volare || {};
     };
 
     Flight.prototype.drawGroundSpeed = function(graph, currentTime, partial) {
-        var context = graph.context;
+        var context = graph.getContext();
 
-        context.strokeStyle = this.color;
+        context.strokeStyle = this._color;
         context.lineWidth = 2;
 
         var step = 20*1000;
@@ -228,7 +238,7 @@ var volare = volare || {};
     };
 
     Flight.prototype._getRecordIndexAt = function(time) {
-        return _.sortedIndex(this.records, { time: time }, function(record) {
+        return _.sortedIndex(this._records, { time: time }, function(record) {
             return record.time;
         });
     };
@@ -237,7 +247,7 @@ var volare = volare || {};
         if (!time)
             return 0;
 
-        var records = this.records;
+        var records = this._records;
         var index = this._getRecordIndexAt(time);
         if (index <= 0 || records.length <= index)
             return 0;
@@ -257,10 +267,10 @@ var volare = volare || {};
     };
 
     Flight.prototype._getDistance = function(index) {
-        var distance = this.distances[index];
+        var distance = this._records[index].distance;
         if (_.isUndefined(distance)) {
-            distance = Flight.distance(this.records[index], this.records[index + 1]);
-            this.distances[index] = distance;
+            distance = Flight.distance(this._records[index], this._records[index + 1]);
+            this._records[index].distance = distance;
         }
         return distance;
     };
@@ -279,74 +289,74 @@ var volare = volare || {};
 
 
     function Player(flights, player) {
-        this.flights = flights;
-        this.player = player;
+        this._flights = flights;
+        this._player = player;
 
-        this.timer = null;
+        this._timer = null;
 
         var self = this;
 
-        this.player.html('<div>' +
-                         '<button class="play">Play</button>' +
-                         '<button class="pause">Pause</button>' +
-                         '<button class="stop">Stop</button>' +
-                         '</div>' +
-                         '<div class="slider"></div>');
+        this._player.html('<div>' +
+                          '<button class="play">Play</button>' +
+                          '<button class="pause">Pause</button>' +
+                          '<button class="stop">Stop</button>' +
+                          '</div>' +
+                          '<div class="slider"></div>');
 
-        this.player.find('.play').button().on('click', _.bind(this.play, this));
-        this.player.find('.pause').button().on('click', _.bind(this.pause, this));
-        this.player.find('.stop').button().on('click', _.bind(this.stop, this));
-        this.player.find('.slider').slider({
+        this._player.find('.play').button().on('click', _.bind(this.play, this));
+        this._player.find('.pause').button().on('click', _.bind(this.pause, this));
+        this._player.find('.stop').button().on('click', _.bind(this.stop, this));
+        this._player.find('.slider').slider({
             range: 'min',
             min: 0,
             max: 100
         }).on('slide', function(event, ui) {
-            self.flights.setCurrentTime(new Date(ui.value));
+            self._flights.setCurrentTime(new Date(ui.value));
         });
 
-        $(this.flights).on('currenttime_changed', function() {
+        $(this._flights).on('currenttime_changed', function() {
             self._updateButtons();
             self._updateSliderValue();
         });
-        $(this.flights).on('properties_changed', _.bind(this._updateSliderRange, this));
+        $(this._flights).on('properties_changed', _.bind(this._updateSliderRange, this));
 
         this._updateButtons();
         this._updateSliderRange();
     }
 
     Player.prototype.play = function() {
-        if (this.timer)
+        if (this._timer)
             return;
 
         var self = this;
-        self.flights.setCurrentTime(this.flights.getCurrentTime() || this.flights.getStartTime());
-        this.timer = setInterval(function() {
-            var time = new Date(self.flights.getCurrentTime().getTime() + 10*1000);
-            if (time > self.flights.getEndTime())
+        self._flights.setCurrentTime(this._flights.getCurrentTime() || this._flights.getStartTime());
+        this._timer = setInterval(function() {
+            var time = new Date(self._flights.getCurrentTime().getTime() + 10*1000);
+            if (time > self._flights.getEndTime())
                 self.stop();
             else
-                self.flights.setCurrentTime(time, true);
+                self._flights.setCurrentTime(time, true);
         }, 100);
 
         this._updateButtons();
     };
 
     Player.prototype.pause = function() {
-        if (!this.timer)
+        if (!this._timer)
             return;
 
-        clearInterval(this.timer);
-        this.timer = null;
+        clearInterval(this._timer);
+        this._timer = null;
 
         this._updateButtons();
     };
 
     Player.prototype.stop = function() {
-        if (this.timer) {
-            clearInterval(this.timer);
-            this.timer = null;
+        if (this._timer) {
+            clearInterval(this._timer);
+            this._timer = null;
         }
-        this.flights.setCurrentTime(null);
+        this._flights.setCurrentTime(null);
 
         this._updateButtons();
     };
@@ -358,11 +368,11 @@ var volare = volare || {};
             stop: false
         };
 
-        if (this.timer) {
+        if (this._timer) {
             buttons.pause = true;
             buttons.stop = true;
         }
-        else if (this.flights.getCurrentTime()) {
+        else if (this._flights.getCurrentTime()) {
             buttons.play = true;
             buttons.stop = true;
         }
@@ -372,61 +382,61 @@ var volare = volare || {};
 
         var self = this;
         _.each(buttons, function(v, k) {
-            self.player.find('.' + k).button(v ? 'enable' : 'disable');
+            self._player.find('.' + k).button(v ? 'enable' : 'disable');
         });
     };
 
     Player.prototype._updateSliderRange = function() {
-        var slider = this.player.find('.slider');
-        slider.slider('option', 'min', this.flights.getStartTime() ? this.flights.getStartTime().getTime() : 0);
-        slider.slider('option', 'max', this.flights.getEndTime() ? this.flights.getEndTime().getTime() : 0);
+        var slider = this._player.find('.slider');
+        slider.slider('option', 'min', this._flights.getStartTime() ? this._flights.getStartTime().getTime() : 0);
+        slider.slider('option', 'max', this._flights.getEndTime() ? this._flights.getEndTime().getTime() : 0);
 
         this._updateSliderValue();
     };
 
     Player.prototype._updateSliderValue = function() {
-        var slider = this.player.find('.slider');
-        var time = this.flights.getCurrentTime();
+        var slider = this._player.find('.slider');
+        var time = this._flights.getCurrentTime();
         slider.slider('value', time ? time.getTime() : slider.slider('option', 'min'));
     };
 
 
     function Map(flights, map) {
-        this.flights = flights;
-        this.map = new google.maps.Map(map[0], {
+        this._flights = flights;
+        this._map = new google.maps.Map(map[0], {
             mapTypeId: google.maps.MapTypeId.TERRAIN
         });
 
         var self = this;
-        $(this.flights).on('flight_added', function(event, flight) {
-            self.map.fitBounds(flight.getBounds());
-            flight.setPolyline(self.map);
+        $(this._flights).on('flight_added', function(event, flight) {
+            self._map.fitBounds(flight.getBounds());
+            flight.setPolyline(self._map);
         });
-        $(this.flights).on('currenttime_changed', function(event, time) {
-            _.each(self.flights.getFlights(), function(flight) {
-                flight.setPolyline(self.map, time);
+        $(this._flights).on('currenttime_changed', function(event, time) {
+            self._flights.eachFlights(function(flight) {
+                flight.setPolyline(self._map, time);
             });
         });
     }
 
 
     function Graph(flights, canvas) {
-        this.flights = flights;
-        this.canvas = canvas;
-        this.width = canvas.width();
-        this.height = canvas.height();
+        this._flights = flights;
+        this._canvas = canvas;
+        this._width = canvas.width();
+        this._height = canvas.height();
 
-        var canvasElem = canvas[0];
-        canvasElem.width = this.width;
-        canvasElem.height = this.height;
+        var canvasElem = this._canvas[0];
+        canvasElem.width = this._width;
+        canvasElem.height = this._height;
 
-        this.context = canvasElem.getContext('2d');
+        this._context = canvasElem.getContext('2d');
 
         var self = this;
-        $(this.flights).on('flight_added', function(event, flight) {
+        $(this._flights).on('flight_added', function(event, flight) {
             self._refresh();
         });
-        $(this.flights).on('currenttime_changed', function(event, time, play) {
+        $(this._flights).on('currenttime_changed', function(event, time, play) {
             if (play)
                 self._drawFlights(true);
             else
@@ -434,28 +444,32 @@ var volare = volare || {};
         });
     }
 
+    Graph.prototype.getContext = function() {
+        return this._context;
+    };
+
     Graph.prototype.getX = function(time) {
-        return (time - this.flights.getStartTime())/this.flights.getDuration()*(this.width - (Graph.MARGIN.left + Graph.MARGIN.right)) + Graph.MARGIN.left;
+        return (time - this._flights.getStartTime())/this._flights.getDuration()*(this._width - (Graph.MARGIN.left + Graph.MARGIN.right)) + Graph.MARGIN.left;
     };
 
     Graph.prototype.getY = function(value) {
-        return this.height - (value - this._getMin())/this._getMax()*(this.height - (Graph.MARGIN.top + Graph.MARGIN.bottom)) - Graph.MARGIN.bottom;
+        return this._height - (value - this._getMin())/this._getMax()*(this._height - (Graph.MARGIN.top + Graph.MARGIN.bottom)) - Graph.MARGIN.bottom;
     };
 
     Graph.prototype._refresh = function() {
-        this.context.clearRect(0, 0, this.width, this.height);
+        this._context.clearRect(0, 0, this._width, this._height);
 
         this._drawGrid();
         this._drawFlights();
     };
 
     Graph.prototype._drawGrid = function() {
-        var startX = this.getX(this.flights.getStartTime());
-        var endX = this.getX(this.flights.getEndTime());
+        var startX = this.getX(this._flights.getStartTime());
+        var endX = this.getX(this._flights.getEndTime());
         var lowestY = this.getY(this._getMin());
         var highestY = this.getY(this._getMax());
 
-        var context = this.context;
+        var context = this._context;
 
         context.lineWidth = 0.1;
         context.strokeStyle = 'black';
@@ -464,12 +478,12 @@ var volare = volare || {};
         context.lineTo(startX, highestY);
         context.stroke();
 
-        var time = new Date(this.flights.getStartTime());
+        var time = new Date(this._flights.getStartTime());
         time.setMinutes(Math.floor(time.getMinutes()/10)*10);
         time.setSeconds(0);
         time = time.getTime() + 10*60*1000;
         context.textAlign = 'center';
-        for (; time < this.flights.getEndTime().getTime(); time += Graph.TIME_STEP) {
+        for (; time < this._flights.getEndTime().getTime(); time += Graph.TIME_STEP) {
             var t = new Date(time);
 
             var b = t.getMinutes() == 0 || t.getMinutes() == 30;
@@ -481,7 +495,7 @@ var volare = volare || {};
             context.lineTo(x, highestY);
             context.stroke();
             if (b)
-                context.fillText(Graph.formatTime(t), x, this.height - Graph.MARGIN.bottom + 12);
+                context.fillText(Graph.formatTime(t), x, this._height - Graph.MARGIN.bottom + 12);
         }
 
         context.textAlign = 'end';
@@ -545,13 +559,13 @@ var volare = volare || {};
 
     AltitudeGraph.prototype._drawFlights = function(partial) {
         var self = this;
-        _.each(this.flights.getFlights(), function(flight) {
-            flight.drawAltitude(self, self.flights.getCurrentTime(), partial);
+        this._flights.eachFlights(function(flight) {
+            flight.drawAltitude(self, self._flights.getCurrentTime(), partial);
         });
     }
 
     AltitudeGraph.prototype._getMax = function() {
-        return this.flights.getMaxAltitude();
+        return this._flights.getMaxAltitude();
     };
 
     AltitudeGraph.prototype._isPrimaryValue = function(value) {
@@ -576,8 +590,8 @@ var volare = volare || {};
 
     SpeedGraph.prototype._drawFlights = function(partial) {
         var self = this;
-        _.each(this.flights.getFlights(), function(flight) {
-            flight.drawGroundSpeed(self, self.flights.getCurrentTime(), partial);
+        this._flights.eachFlights(function(flight) {
+            flight.drawGroundSpeed(self, self._flights.getCurrentTime(), partial);
         });
     }
 
@@ -601,43 +615,43 @@ var volare = volare || {};
 
 
     function Chart(flights, chart) {
-        this.flights = flights;
-        this.chart = chart;
+        this._flights = flights;
+        this._chart = chart;
 
-        this.chart.html('<table><tbody>' +
-                        '<tr>' +
-                        '<th>Name</th>' +
-                        '<th>Latitude</th>' +
-                        '<th>Longitude</th>' +
-                        '<th>Altitude</th>' +
-                        '<th>Ground Speed</th>' +
-                        '<th>Vertical Speed</th>' +
-                        '</tr>' +
-                        '</tbody></table>');
+        this._chart.html('<table><tbody>' +
+                         '<tr>' +
+                         '<th>Name</th>' +
+                         '<th>Latitude</th>' +
+                         '<th>Longitude</th>' +
+                         '<th>Altitude</th>' +
+                         '<th>Ground Speed</th>' +
+                         '<th>Vertical Speed</th>' +
+                         '</tr>' +
+                         '</tbody></table>');
 
         var self = this;
-        var row = _.template('<tr class="flight_<%- id %>">' +
-                             '<td class="name"><%- name %></td>' +
+        var row = _.template('<tr class="flight_<%- getId() %>">' +
+                             '<td class="name"><%- getName() %></td>' +
                              '<td class="latitude"></td>' +
                              '<td class="longitude"></td>' +
                              '<td class="altitude"></td>' +
                              '<td class="ground_speed"></td>' +
                              '<td class="vertical_speed"></td>' +
                              '</tr>');
-        $(this.flights).on('flight_added', function(event, flight) {
-            var tbody = self.chart.find('tbody');
+        $(this._flights).on('flight_added', function(event, flight) {
+            var tbody = self._chart.find('tbody');
             tbody.append(row(flight));
             self._update();
         });
-        $(this.flights).on('currenttime_changed', _.bind(this._update, this));
+        $(this._flights).on('currenttime_changed', _.bind(this._update, this));
     }
 
     Chart.prototype._update = function() {
-        var time = this.flights.getCurrentTime();
+        var time = this._flights.getCurrentTime();
         var self = this;
-        _.each(this.flights.getFlights(), function(flight) {
+        this._flights.eachFlights(function(flight) {
             var position = flight.getPositionAt(time);
-            var tr = self.chart.find('.flight_' + flight.id);
+            var tr = self._chart.find('.flight_' + flight.getId());
             tr.find('td.latitude').text(Chart.formatPosition(position.latitude));
             tr.find('td.longitude').text(Chart.formatPosition(position.longitude));
             tr.find('td.altitude').text(Chart.formatAltitude(position.altitude));
