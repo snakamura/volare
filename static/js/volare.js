@@ -33,8 +33,8 @@ var volare = volare || {};
     Flights.prototype.addFlight = function(flight) {
         this.flights.push(flight);
 
-        var start = flight.getStart();
-        var end = flight.getEnd();
+        var start = flight.getStartTime();
+        var end = flight.getEndTime();
 
         this.start = this.start == null || this.start > start ? start : this.start;
         this.end = this.end == null || this.end < end ? end : this.end;
@@ -56,31 +56,35 @@ var volare = volare || {};
 
 
     function Flight(flight, color) {
-        this.flight = flight;
+        _.extend(this, flight);
+        _.each(this.records, function(record) {
+            record.time = new Date(record.time);
+        });
+
         this.color = color;
         this.distances = [];
         this.polyline = null;
     }
 
-    Flight.prototype.getStart = function() {
-        return new Date(this.flight.records[0].time);
+    Flight.prototype.getStartTime = function() {
+        return this.records[0].time;
     };
 
-    Flight.prototype.getEnd = function() {
-        return new Date(this.flight.records[this.flight.records.length - 1].time);
+    Flight.prototype.getEndTime = function() {
+        return this.records[this.records.length - 1].time;
     };
 
     Flight.prototype.getBounds = function() {
-        return new LatLngBounds(new LatLng(this.flight.maxLatitude, this.flight.minLongitude),
-                                new LatLng(this.flight.minLatitude, this.flight.maxLongitude));
+        return new LatLngBounds(new LatLng(this.maxLatitude, this.minLongitude),
+                                new LatLng(this.minLatitude, this.maxLongitude));
     };
 
     Flight.prototype.getMaxAltitude = function() {
-        return this.flight.maxAltitude;
+        return this.maxAltitude;
     };
 
     Flight.prototype.getPositionAt = function(time) {
-        var records = this.flight.records;
+        var records = this.records;
         if (!time)
             return records[0];
 
@@ -93,8 +97,8 @@ var volare = volare || {};
     Flight.prototype.getGroundSpeedAt = function(time) {
         var self = this;
         return this._getSpeedAt(time, Flight.GROUND_SPEED_SAMPLING_DURATION, function(n) {
-            var s = self.flight.records[n];
-            var e = self.flight.records[n + 1];
+            var s = self.records[n];
+            var e = self.records[n + 1];
             return self._getDistance(n)/((new Date(e.time) - new Date(s.time))/1000);
         });
     };
@@ -102,8 +106,8 @@ var volare = volare || {};
     Flight.prototype.getVerticalSpeedAt = function(time) {
         var self = this;
         return this._getSpeedAt(time, Flight.VERTICAL_SPEED_SAMPLING_DURATION, function(n) {
-            var s = self.flight.records[n];
-            var e = self.flight.records[n + 1];
+            var s = self.records[n];
+            var e = self.records[n + 1];
             return (e.altitude - s.altitude)/((new Date(e.time) - new Date(s.time))/1000);
         });
     };
@@ -114,7 +118,7 @@ var volare = volare || {};
             this.polyline = null;
         }
 
-        var records = this.flight.records;
+        var records = this.records;
         if (currentTime) {
             var start = this._getRecordIndexAt(new Date(currentTime.getTime() - Flight.TRACK_DURATION*1000));
             var end = this._getRecordIndexAt(currentTime);
@@ -146,8 +150,8 @@ var volare = volare || {};
             startAltitude = this.lastDrawnAltitude;
         }
         else {
-            startTime = this.getStart();
-            startAltitude = this.flight.records[0].altitude;
+            startTime = this.getStartTime();
+            startAltitude = this.records[0].altitude;
         }
 
         context.beginPath();
@@ -156,8 +160,8 @@ var volare = volare || {};
         var lastTime = startTime;
         var lastAltitude = startAltitude;
         var n = startIndex;
-        for (; n < this.flight.records.length; ++n) {
-            var record = this.flight.records[n];
+        for (; n < this.records.length; ++n) {
+            var record = this.records[n];
             var time = new Date(record.time);
             if (currentTime && time > currentTime)
                 break;
@@ -167,7 +171,7 @@ var volare = volare || {};
             lastTime = time;
             lastAltitude = record.altitude;
         }
-        if (currentTime && this.getStart() <= currentTime)
+        if (currentTime && this.getStartTime() <= currentTime)
             context.lineTo(graph.getX(currentTime), graph.getY(lastAltitude));
         context.stroke();
 
@@ -188,12 +192,12 @@ var volare = volare || {};
         if (partial) {
             if (currentTime.getTime() >= this.lastDrawnGroundSpeedTime + step) {
                 startTime = new Date(this.lastDrawnGroundSpeedTime);
-                endTime = currentTime || this.getEnd();
+                endTime = currentTime || this.getEndTime();
             }
         }
         else {
-            startTime = this.getStart();
-            endTime = currentTime || this.getEnd();
+            startTime = this.getStartTime();
+            endTime = currentTime || this.getEndTime();
         }
         if (startTime) {
             context.beginPath();
@@ -210,7 +214,7 @@ var volare = volare || {};
     };
 
     Flight.prototype._getRecordIndexAt = function(time) {
-        return _.sortedIndex(this.flight.records, { time: time }, function(record) {
+        return _.sortedIndex(this.records, { time: time }, function(record) {
             return new Date(record.time);
         });
     };
@@ -219,7 +223,7 @@ var volare = volare || {};
         if (!time)
             return 0;
 
-        var records = this.flight.records;
+        var records = this.records;
         var index = this._getRecordIndexAt(time);
         if (index <= 0 || records.length <= index)
             return 0;
@@ -241,7 +245,7 @@ var volare = volare || {};
     Flight.prototype._getDistance = function(index) {
         var distance = this.distances[index];
         if (_.isUndefined(distance)) {
-            distance = Flight.distance(this.flight.records[index], this.flight.records[index + 1]);
+            distance = Flight.distance(this.records[index], this.records[index + 1]);
             this.distances[index] = distance;
         }
         return distance;
@@ -598,8 +602,8 @@ var volare = volare || {};
                         '</tbody></table>');
 
         var self = this;
-        var row = _.template('<tr class="flight_<%- flight.id %>">' +
-                             '<td class="name"><%- flight.name %></td>' +
+        var row = _.template('<tr class="flight_<%- id %>">' +
+                             '<td class="name"><%- name %></td>' +
                              '<td class="latitude"></td>' +
                              '<td class="longitude"></td>' +
                              '<td class="altitude"></td>' +
@@ -619,7 +623,7 @@ var volare = volare || {};
         var self = this;
         _.each(this.flights.getFlights(), function(flight) {
             var position = flight.getPositionAt(time);
-            var tr = self.chart.find('.flight_' + flight.flight.id);
+            var tr = self.chart.find('.flight_' + flight.id);
             tr.find('td.latitude').text(Chart.formatPosition(position.latitude));
             tr.find('td.longitude').text(Chart.formatPosition(position.longitude));
             tr.find('td.altitude').text(Chart.formatAltitude(position.altitude));
