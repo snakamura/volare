@@ -49,6 +49,12 @@ div#chart table td.name {
     text-align: left;
 }
 
+div#chart table td.color div {
+    width: 40px;
+    height: 5px;
+    margin: 0 auto;
+}
+
 table#records {
     border-collapse: collapse;
 }

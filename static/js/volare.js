@@ -90,6 +90,10 @@ var volare = volare || {};
         return this._name;
     };
 
+    Flight.prototype.getColor = function() {
+        return this._color;
+    };
+
     Flight.prototype.getStartTime = function() {
         return _.head(this._records).time;
     };
@@ -626,6 +630,7 @@ var volare = volare || {};
         this._chart.html('<table><tbody>' +
                          '<tr>' +
                          '<th>Name</th>' +
+                         '<th>Color</th>' +
                          '<th>Latitude</th>' +
                          '<th>Longitude</th>' +
                          '<th>Altitude</th>' +
@@ -637,6 +642,7 @@ var volare = volare || {};
         var self = this;
         var row = _.template('<tr class="flight_<%- getId() %>">' +
                              '<td class="name"><%- getName() %></td>' +
+                             '<td class="color"><div style="background:<%- getColor() %>"></div></td>' +
                              '<td class="latitude"></td>' +
                              '<td class="longitude"></td>' +
                              '<td class="altitude"></td>' +
