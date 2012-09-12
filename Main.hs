@@ -1,9 +1,11 @@
 module Main (main) where
 
-import Network.Wai.Handler.Warp (run)
+import Yesod.Default.Config (fromArgs)
+import Yesod.Default.Main   (defaultMain)
 
-import Volare (withVolare)
+import Volare (makeVolare)
+import Volare.Config (parseConfig)
 
 
 main :: IO ()
-main = withVolare (run 3000)
+main = defaultMain (fromArgs $ const parseConfig) makeVolare

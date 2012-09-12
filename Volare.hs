@@ -8,7 +8,10 @@
              TypeFamilies,
              TypeSynonymInstances #-}
 
-module Volare (withVolare) where
+module Volare (
+    makeVolare,
+    withVolare
+) where
 
 import qualified Codec.IGC as IGC
 import Control.Applicative ((<$>))
@@ -349,12 +352,18 @@ formatLatitude :: Double ->
 formatLatitude = printf "%.0f"
 
 
-withVolare :: (Application -> IO ()) -> IO ()
-withVolare f = do
-  config <- fromArgs (const parseConfig)
+makeVolare :: AppConfig DefaultEnv Config ->
+              IO Application
+makeVolare config = do
   persistConfig <- withYamlEnvironment "config/persist.yml" (appEnv config) loadConfig >>= applyEnv
   pool <- createPoolConfig persistConfig
   runPool persistConfig (runMigration migrateAll) pool
   s <- staticSite
-  app <- toWaiApp $ Volare config persistConfig pool s
+  toWaiApp $ Volare config persistConfig pool s
+
+
+withVolare :: (Application -> IO ()) -> IO ()
+withVolare f = do
+  config <- fromArgs $ const parseConfig
+  app <- makeVolare config
   f $ logStdout $ app
