@@ -20,13 +20,9 @@ import Data.List (maximumBy,
 import Data.Monoid ((<>))
 import Data.Ord (comparing)
 import qualified Data.Text as T
-import Data.Time (Day,
-                  UTCTime(UTCTime),
+import Data.Time (UTCTime(UTCTime),
                   formatTime)
 import Database.Persist (Entity(Entity),
-                         PersistEntity(..),
-                         PersistEntityBackend,
-                         PersistField(..),
                          SelectOpt(Asc),
                          (=.),
                          (==.),
@@ -40,11 +36,6 @@ import Database.Persist.Store (PersistConfigPool,
                                createPoolConfig,
                                loadConfig,
                                runPool)
-import Database.Persist.TH (mkMigrate,
-                            mkPersist,
-                            persist,
-                            share,
-                            sqlSettings)
 import Network.Wai (Application)
 import Network.Wai.Middleware.RequestLogger (logStdout)
 import System.Locale (defaultTimeLocale)
@@ -100,40 +91,11 @@ import Yesod.Widget (addScript,
 import Volare.Config (Config,
                       parseConfig)
 import qualified Volare.Config as Config
+import qualified Volare.Model as M
 import Volare.Settings (PersistConfig,
                         widgetFile)
 import Volare.Static (staticSite)
 import qualified Volare.Static as S
-
-
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
-Flight
-  name T.Text
-  date Day
-  minLatitude Double
-  maxLatitude Double
-  minLongitude Double
-  maxLongitude Double
-  minAltitude Double
-  maxAltitude Double
-  deriving Show
-Record
-  flightId FlightId
-  index Int
-  time UTCTime
-  latitude Double
-  longitude Double
-  altitude Double
-  deriving Show
-|]
-
-instance JSON.ToJSON Record where
-    toJSON record = JSON.object [
-                             "time" .= recordTime record,
-                             "latitude" .= recordLatitude record,
-                             "longitude" .= recordLongitude record,
-                             "altitude" .= recordAltitude record
-                            ]
 
 
 data Volare = Volare {
@@ -147,8 +109,8 @@ data Volare = Volare {
 mkYesod "Volare" [parseRoutes|
 / RootR GET
 /flights FlightsR GET POST
-/flights/#FlightId FlightR GET
-/flights/#FlightId/edit FlightEditR GET POST
+/flights/#M.FlightId FlightR GET
+/flights/#M.FlightId/edit FlightEditR GET POST
 /static StaticR Static volareStatic
 |]
 
@@ -215,22 +177,22 @@ postFlightsR = do
                  let records = IGC.records igc
                      v c p = realToFrac $ p $ IGC.position $ c (comparing (p . IGC.position)) records
                  flightId <- runDB $ do
-                               flightId <- insert $ Flight name
-                                                           (IGC.date igc)
-                                                           (v minimumBy IGC.latitude)
-                                                           (v maximumBy IGC.latitude)
-                                                           (v minimumBy IGC.longitude)
-                                                           (v maximumBy IGC.longitude)
-                                                           (v minimumBy IGC.altitude)
-                                                           (v maximumBy IGC.altitude)
+                               flightId <- insert $ M.Flight name
+                                                             (IGC.date igc)
+                                                             (v minimumBy IGC.latitude)
+                                                             (v maximumBy IGC.latitude)
+                                                             (v minimumBy IGC.longitude)
+                                                             (v maximumBy IGC.longitude)
+                                                             (v minimumBy IGC.altitude)
+                                                             (v maximumBy IGC.altitude)
                                forM_ (zip records [1..]) $ \(record, index) -> do
                                        let position = IGC.position record
-                                       insert $ Record flightId
-                                                       index
-                                                       (UTCTime (IGC.date igc) (IGC.time record))
-                                                       (realToFrac $ IGC.latitude position)
-                                                       (realToFrac $ IGC.longitude position)
-                                                       (realToFrac $ IGC.altitude position)
+                                       insert $ M.Record flightId
+                                                         index
+                                                         (UTCTime (IGC.date igc) (IGC.time record))
+                                                         (realToFrac $ IGC.latitude position)
+                                                         (realToFrac $ IGC.longitude position)
+                                                         (realToFrac $ IGC.altitude position)
                                return flightId
                  redirect $ FlightR flightId
     _ -> listFlights flightWidget enctype
@@ -246,28 +208,28 @@ listFlights flightWidget enctype = do
     $(widgetFile "flights/index")
 
 
-data ShowFlight = ShowFlight FlightId Flight [Record]
+data ShowFlight = ShowFlight M.FlightId M.Flight [M.Record]
 
 instance JSON.ToJSON ShowFlight where
     toJSON (ShowFlight id flight records) =
         JSON.object [
                  "id" .= id,
-                 "name" .= flightName flight,
-                 "minLatitude" .= flightMinLatitude flight,
-                 "maxLatitude" .= flightMaxLatitude flight,
-                 "minLongitude" .= flightMinLongitude flight,
-                 "maxLongitude" .= flightMaxLongitude flight,
-                 "minAltitude" .= flightMinAltitude flight,
-                 "maxAltitude" .= flightMaxAltitude flight,
+                 "name" .= M.flightName flight,
+                 "minLatitude" .= M.flightMinLatitude flight,
+                 "maxLatitude" .= M.flightMaxLatitude flight,
+                 "minLongitude" .= M.flightMinLongitude flight,
+                 "maxLongitude" .= M.flightMaxLongitude flight,
+                 "minAltitude" .= M.flightMinAltitude flight,
+                 "maxAltitude" .= M.flightMaxAltitude flight,
                  "records" .= records
                 ]
 
 
-getFlightR :: FlightId ->
+getFlightR :: M.FlightId ->
               Handler RepHtmlJson
 getFlightR flightId = do
   flight <- runDB $ get404 flightId
-  records <- runDB $ selectList [RecordFlightId ==. flightId] [Asc RecordIndex]
+  records <- runDB $ selectList [M.RecordFlightId ==. flightId] [Asc M.RecordIndex]
   googleApiKey <- Config.googleApiKey <$> getConfig
   let html = do
         setTitle "Flight - Volare"
@@ -288,18 +250,18 @@ getFlightR flightId = do
 data EditFlight = EditFlight T.Text
 
 
-editFlightAForm :: Maybe Flight ->
+editFlightAForm :: Maybe M.Flight ->
                    AForm Volare Volare EditFlight
-editFlightAForm flight = EditFlight <$> areq textField "Name" (flightName <$> flight)
+editFlightAForm flight = EditFlight <$> areq textField "Name" (M.flightName <$> flight)
 
 
-editFlightForm :: Maybe Flight ->
+editFlightForm :: Maybe M.Flight ->
                   Html ->
                   MForm Volare Volare (FormResult EditFlight, Widget)
 editFlightForm = renderDivs . editFlightAForm
 
 
-getFlightEditR :: FlightId ->
+getFlightEditR :: M.FlightId ->
                   Handler RepHtml
 getFlightEditR flightId = do
   flight <- runDB $ get404 flightId
@@ -307,18 +269,18 @@ getFlightEditR flightId = do
   editFlight flightId flightWidget enctype
 
 
-postFlightEditR :: FlightId ->
+postFlightEditR :: M.FlightId ->
                    Handler RepHtml
 postFlightEditR flightId = do
   ((result, flightWidget), enctype) <- runFormPost $ editFlightForm Nothing
   case result of
     FormSuccess (EditFlight name) -> do
-                runDB $ update flightId [FlightName =. name]
+                runDB $ update flightId [M.FlightName =. name]
                 redirect $ FlightR flightId
     _ -> editFlight flightId flightWidget enctype
 
 
-editFlight :: FlightId ->
+editFlight :: M.FlightId ->
               Widget ->
               Enctype ->
               Handler RepHtml
@@ -347,7 +309,7 @@ makeVolare :: AppConfig DefaultEnv Config ->
 makeVolare config = do
   persistConfig <- withYamlEnvironment "config/persist.yml" (appEnv config) loadConfig >>= applyEnv
   pool <- createPoolConfig persistConfig
-  runPool persistConfig (runMigration migrateAll) pool
+  runPool persistConfig (runMigration M.migrateAll) pool
   s <- staticSite
   toWaiApp $ Volare config persistConfig pool s
 

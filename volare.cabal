@@ -22,6 +22,7 @@ library
     other-modules: Codec.IGC
                    Codec.IGC.Parser
                    Codec.IGC.Types
+                   Volare.Model
                    Volare.Settings
                    Volare.Static
 

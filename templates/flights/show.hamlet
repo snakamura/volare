@@ -1,6 +1,6 @@
-<h1>#{flightName flight}
+<h1>#{M.flightName flight}
 
-<p>Date: #{show $ flightDate flight}
+<p>Date: #{show $ M.flightDate flight}
 
 <p>
   <a href=@{FlightEditR flightId}>Edit
@@ -25,9 +25,9 @@
     <th>Altitude
   $forall Entity _ record <- records
     <tr>
-      <td>#{recordIndex record}
-      <td>#{formatTime defaultTimeLocale "%H:%M:%S" $ recordTime record}
-      <td>#{formatPosition $ recordLatitude record}
-      <td>#{formatPosition $ recordLongitude record}
-      <td>#{formatLatitude $ recordAltitude record}
+      <td>#{M.recordIndex record}
+      <td>#{formatTime defaultTimeLocale "%H:%M:%S" $ M.recordTime record}
+      <td>#{formatPosition $ M.recordLatitude record}
+      <td>#{formatPosition $ M.recordLongitude record}
+      <td>#{formatLatitude $ M.recordAltitude record}
 -->
