@@ -58,7 +58,6 @@ import Text.Printf (printf)
 import Text.Shakespeare.I18N (RenderMessage,
                               renderMessage)
 import Web.ClientSession (getKey)
-import Yesod (warpDebug)
 import Yesod.Core (Yesod(..),
                    clientSessionBackend,
                    defaultLayout,
@@ -95,12 +94,12 @@ import Yesod.Widget (addScript,
                      addScriptRemote,
                      addStylesheet,
                      addStylesheetRemote,
-                     setTitle,
-                     whamletFile)
+                     setTitle)
 
 import Volare.Config (Config,
                       loadConfig)
 import qualified Volare.Config as Config
+import Volare.Settings (widgetFile)
 import Volare.Static (staticSite)
 import qualified Volare.Static as S
 
@@ -174,7 +173,7 @@ instance RenderMessage Volare FormMessage where
 getRootR :: Handler RepHtml
 getRootR = defaultLayout $
            do setTitle "Volare"
-              $(whamletFile "templates/root.hamlet")
+              $(widgetFile "root")
 
 
 data NewFlight = NewFlight FileInfo
@@ -240,7 +239,7 @@ listFlights flightWidget enctype = do
   flights <- runDB $ selectList [] []
   defaultLayout $ do
     setTitle "Flights - Volare"
-    $(whamletFile "templates/flights/index.hamlet")
+    $(widgetFile "flights/index")
 
 
 data ShowFlight = ShowFlight FlightId Flight [Record]
@@ -277,7 +276,7 @@ getFlightR flightId = do
         addScript $ StaticR S.js_flight_js
         addScript $ StaticR S.js_volare_js
         addStylesheet $ StaticR S.css_flight_css
-        $(whamletFile "templates/flights/show.hamlet")
+        $(widgetFile "flights/show")
       json = ShowFlight flightId flight $ map (\(Entity _ r) -> r) records
   defaultLayoutJson html json
 
@@ -322,7 +321,7 @@ editFlight :: FlightId ->
 editFlight flightId flightWidget enctype =
     defaultLayout $ do
       setTitle "Edit Flight - Volare"
-      $(whamletFile "templates/flights/edit.hamlet")
+      $(widgetFile "flights/edit")
 
 
 formatPosition :: Double ->

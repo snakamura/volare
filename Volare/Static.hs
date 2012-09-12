@@ -7,13 +7,20 @@ import Yesod.Static (Route(..),
                      Static,
                      StaticRoute,
                      static,
+                     staticDevel,
                      staticFiles)
 
-import Volare.Static.Dir (staticDir)
+import Volare.Settings (development,
+                        staticDir)
 
 
 staticSite :: IO Static
-staticSite = static staticDir
+staticSite = static' staticDir
+    where
+      static' = if development then
+                    staticDevel
+                else
+                    static
 
 
 staticFiles staticDir

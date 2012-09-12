@@ -1,5 +1,3 @@
-$newline never
-
 $if not (null flights)
   <ol>
     $forall Entity flightId flight <- flights
