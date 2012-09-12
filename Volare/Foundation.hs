@@ -13,7 +13,8 @@ import Yesod.Core (Yesod(..),
                    clientSessionBackend,
                    renderRoute)
 import Yesod.Default.Config (AppConfig,
-                             DefaultEnv)
+                             DefaultEnv,
+                             appExtra)
 import Yesod.Dispatch (mkYesodData,
                        parseRoutesFile)
 import Yesod.Form (FormMessage,
@@ -63,3 +64,7 @@ instance RenderMessage Volare FormMessage where
 
 type Form a = Html ->
               MForm Volare Volare (FormResult a, Widget)
+
+
+getConfig :: Handler Config
+getConfig = (appExtra . volareConfig) <$> getYesod

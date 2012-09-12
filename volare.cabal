@@ -24,6 +24,8 @@ library
                    Codec.IGC.Types
                    Volare.Foundation
                    Volare.Model
+                   Volare.Handler.Flight
+                   Volare.Handler.Root
                    Volare.Settings
                    Volare.Static
 
