@@ -141,7 +141,7 @@ flightsWidget flights flightWidget enctype = do
   $(widgetFile "flights/index")
 
 
-data ShowFlight = ShowFlight M.FlightId M.Flight [M.Record]
+data ShowFlight = ShowFlight M.FlightId M.Flight [Entity M.Record]
 
 instance JSON.ToJSON ShowFlight where
     toJSON (ShowFlight id flight records) =
@@ -176,7 +176,7 @@ getFlightR flightId = do
         addScript $ StaticR S.js_volare_js
         addStylesheet $ StaticR S.css_flight_css
         $(widgetFile "flights/show")
-      json = ShowFlight flightId flight $ map (\(Entity _ r) -> r) records
+      json = ShowFlight flightId flight records
   defaultLayoutJson html json
 
 
