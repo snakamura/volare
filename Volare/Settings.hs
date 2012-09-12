@@ -22,7 +22,11 @@ type PersistConfig = SqliteConf
 
 
 development :: Bool
+#if DEVELOPMENT
 development = True
+#else
+development = False
+#endif
 
 
 staticDir :: FilePath
