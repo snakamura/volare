@@ -17,7 +17,7 @@ Flag library-only
     Default: False
 
 library
-    exposed-modules: Volare
+    exposed-modules: Volare.Application
                      Volare.Config
     other-modules: Codec.IGC
                    Codec.IGC.Parser

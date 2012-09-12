@@ -16,7 +16,7 @@ import Yesod.Default.Config (DefaultEnv(Development),
                              loadConfig)
 import Yesod.Default.Main (defaultDevelApp)
 
-import "volare" Volare (makeVolare)
+import "volare" Volare.Application (makeVolare)
 import "volare" Volare.Config (parseConfig)
 
 

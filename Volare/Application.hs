@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Volare (
+module Volare.Application (
     makeVolare,
     withVolare
 ) where
