@@ -1,0 +1,9 @@
+$if not (null workspaces)
+  <ol>
+    $forall Entity workspaceId workspace <- workspaces
+      <li>
+        <a href=@{WorkspaceR workspaceId}>#{M.workspaceName workspace}
+
+<form method=POST action=@{WorkspacesR} enctype=#{enctype}>
+  ^{workspaceWidget}
+  <input type=submit>

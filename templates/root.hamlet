@@ -1,3 +1,4 @@
 <p>
   <a href="@{FlightsR}">Flights</a>
-
+<p>
+  <a href="@{WorkspacesR}">Workspaces</a>

@@ -16,3 +16,6 @@ Record
   longitude Double
   altitude Double
   deriving Show
+Workspace
+  name T.Text
+  deriving Show

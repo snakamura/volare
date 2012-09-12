@@ -26,6 +26,7 @@ library
                    Volare.Model
                    Volare.Handler.Flight
                    Volare.Handler.Root
+                   Volare.Handler.Workspace
                    Volare.Settings
                    Volare.Static
 

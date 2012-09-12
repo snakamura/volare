@@ -26,6 +26,7 @@ import Volare.Config (Config,
 import Volare.Foundation
 import Volare.Handler.Flight
 import Volare.Handler.Root
+import Volare.Handler.Workspace
 import Volare.Model (migrateAll)
 import Volare.Static (staticSite)
 
