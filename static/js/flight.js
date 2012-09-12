@@ -1,6 +1,3 @@
-var LatLng = google.maps.LatLng;
-var LatLngBounds = google.maps.LatLngBounds;
-
 $(function() {
     _.mixin(_.string.exports());
 
