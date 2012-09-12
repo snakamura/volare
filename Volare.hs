@@ -136,6 +136,10 @@ instance RenderMessage Volare FormMessage where
     renderMessage _ _ = defaultFormMessage
 
 
+type Form a = Html ->
+              MForm Volare Volare (FormResult a, Widget)
+
+
 getRootR :: Handler RepHtml
 getRootR = defaultLayout $
            do setTitle "Volare"
@@ -149,8 +153,7 @@ newFlightAForm :: AForm Volare Volare NewFlight
 newFlightAForm = NewFlight <$> fileAFormReq "File"
 
 
-newFlightForm :: Html ->
-                 MForm Volare Volare (FormResult NewFlight, Widget)
+newFlightForm :: Form NewFlight
 newFlightForm = renderDivs newFlightAForm
 
 
@@ -256,8 +259,7 @@ editFlightAForm flight = EditFlight <$> areq textField "Name" (M.flightName <$> 
 
 
 editFlightForm :: Maybe M.Flight ->
-                  Html ->
-                  MForm Volare Volare (FormResult EditFlight, Widget)
+                  Form EditFlight
 editFlightForm = renderDivs . editFlightAForm
 
 
