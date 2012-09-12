@@ -40,11 +40,13 @@ import Database.Persist (Entity(Entity),
                          insert,
                          update,
                          selectList)
-import Database.Persist.GenericSql (ConnectionPool,
-                                    SqlPersist,
-                                    runMigration,
-                                    runSqlPool)
-import Database.Persist.Sqlite (withSqlitePool)
+import Database.Persist.GenericSql (SqlPersist,
+                                    runMigration)
+import Database.Persist.Store (PersistConfigPool,
+                               applyEnv,
+                               createPoolConfig,
+                               loadConfig,
+                               runPool)
 import Database.Persist.TH (mkMigrate,
                             mkPersist,
                             persist,
@@ -66,6 +68,12 @@ import Yesod.Core (Yesod(..),
                    yesodDispatch)
 import Yesod.Content (RepHtml,
                       RepHtmlJson)
+import Yesod.Default.Config (AppConfig,
+                             DefaultEnv,
+                             appEnv,
+                             appExtra,
+                             fromArgs,
+                             withYamlEnvironment)
 import Yesod.Dispatch (mkYesod,
                        parseRoutes,
                        toWaiApp)
@@ -97,9 +105,10 @@ import Yesod.Widget (addScript,
                      setTitle)
 
 import Volare.Config (Config,
-                      loadConfig)
+                      parseConfig)
 import qualified Volare.Config as Config
-import Volare.Settings (widgetFile)
+import Volare.Settings (PersistConfig,
+                        widgetFile)
 import Volare.Static (staticSite)
 import qualified Volare.Static as S
 
@@ -135,8 +144,9 @@ instance JSON.ToJSON Record where
 
 
 data Volare = Volare {
-    volareConfig         :: Config,
-    volareConnectionPool :: ConnectionPool,
+    volareConfig         :: AppConfig DefaultEnv Config,
+    volarePersistConfig  :: PersistConfig,
+    volareConnectionPool :: PersistConfigPool PersistConfig,
     volareStatic         :: Static
 }
 
@@ -162,8 +172,9 @@ instance YesodPersist Volare where
     type YesodPersistBackend Volare = SqlPersist
 
     runDB action = do
+      persistConfig <- volarePersistConfig <$> getYesod
       pool <- volareConnectionPool <$> getYesod
-      runSqlPool action pool
+      runPool persistConfig action pool
 
 
 instance RenderMessage Volare FormMessage where
@@ -264,7 +275,7 @@ getFlightR :: FlightId ->
 getFlightR flightId = do
   flight <- runDB $ get404 flightId
   records <- runDB $ selectList [RecordFlightId ==. flightId] [Asc RecordIndex]
-  googleApiKey <- (Config.googleApiKey . volareConfig) <$> getYesod
+  googleApiKey <- Config.googleApiKey <$> getConfig
   let html = do
         setTitle "Flight - Volare"
         addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
@@ -324,6 +335,10 @@ editFlight flightId flightWidget enctype =
       $(widgetFile "flights/edit")
 
 
+getConfig :: Handler Config
+getConfig = (appExtra . volareConfig) <$> getYesod
+
+
 formatPosition :: Double ->
                   String
 formatPosition = printf "%.5f"
@@ -336,9 +351,10 @@ formatLatitude = printf "%.0f"
 
 withVolare :: (Application -> IO ()) -> IO ()
 withVolare f = do
-  config <- loadConfig "config/config.yml"
-  withSqlitePool (Config.sqlitePath config) (Config.sqliteConnectionPoolCount config) $ \pool -> do
-         runSqlPool (runMigration migrateAll) pool
-         s <- staticSite
-         app <- toWaiApp $ Volare config pool s
-         f $ logStdout $ app
+  config <- fromArgs (const parseConfig)
+  persistConfig <- withYamlEnvironment "config/persist.yml" (appEnv config) loadConfig >>= applyEnv
+  pool <- createPoolConfig persistConfig
+  runPool persistConfig (runMigration migrateAll) pool
+  s <- staticSite
+  app <- toWaiApp $ Volare config persistConfig pool s
+  f $ logStdout $ app

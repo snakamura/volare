@@ -1,0 +1,20 @@
+Default: &defaults
+  poolsize: 10
+
+Development:
+  database: data/volare_development.sqlite
+  <<: *defaults
+
+Testing:
+  database: data/volare_test.sqlite
+  <<: *defaults
+
+Staging:
+  database: data/volare_staging.sqlite
+  poolsize: 100
+  <<: *defaults
+
+Production:
+  database: data/volare.sqlite
+  poolsize: 100
+  <<: *defaults
