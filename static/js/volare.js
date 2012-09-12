@@ -45,6 +45,13 @@ var volare = volare || {};
         return this._maxAltitude;
     };
 
+    Flights.prototype.getBounds = function() {
+        return _.reduce(this._flights, function(bounds, flight) {
+            var b = flight.getBounds();
+            return bounds ? bounds.union(b) : b;
+        }, null);
+    };
+
     Flights.prototype.addFlight = function(flight) {
         this._flights.push(flight);
 
@@ -103,8 +110,8 @@ var volare = volare || {};
     };
 
     Flight.prototype.getBounds = function() {
-        return new LatLngBounds(new LatLng(this._maxLatitude, this._minLongitude),
-                                new LatLng(this._minLatitude, this._maxLongitude));
+        return new LatLngBounds(new LatLng(this._minLatitude, this._minLongitude),
+                                new LatLng(this._maxLatitude, this._maxLongitude));
     };
 
     Flight.prototype.getMaxAltitude = function() {
@@ -418,7 +425,7 @@ var volare = volare || {};
 
         var self = this;
         $(this._flights).on('flight_added', function(event, flight) {
-            self._map.fitBounds(flight.getBounds());
+            self._map.fitBounds(self._flights.getBounds());
             flight.setPolyline(self._map);
         });
         $(this._flights).on('currenttime_changed', function(event, time) {
