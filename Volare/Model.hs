@@ -8,33 +8,15 @@ import Data.Time (Day,
 import Database.Persist (PersistEntity(..),
                          PersistEntityBackend,
                          PersistField(..))
+import Database.Persist.Quasi (lowerCaseSettings)
 import Database.Persist.TH (mkMigrate,
                             mkPersist,
-                            persist,
+                            persistFileWith,
                             share,
                             sqlSettings)
 
 
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persist|
-Flight
-  name T.Text
-  date Day
-  minLatitude Double
-  maxLatitude Double
-  minLongitude Double
-  maxLongitude Double
-  minAltitude Double
-  maxAltitude Double
-  deriving Show
-Record
-  flightId FlightId
-  index Int
-  time UTCTime
-  latitude Double
-  longitude Double
-  altitude Double
-  deriving Show
-|]
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFileWith lowerCaseSettings "config/models")
 
 instance JSON.ToJSON Record where
     toJSON record = JSON.object [

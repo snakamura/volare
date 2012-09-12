@@ -1,0 +1,18 @@
+Flight
+  name T.Text
+  date Day
+  minLatitude Double
+  maxLatitude Double
+  minLongitude Double
+  maxLongitude Double
+  minAltitude Double
+  maxAltitude Double
+  deriving Show
+Record
+  flightId FlightId
+  index Int
+  time UTCTime
+  latitude Double
+  longitude Double
+  altitude Double
+  deriving Show
