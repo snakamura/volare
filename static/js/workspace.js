@@ -36,6 +36,7 @@ $(function() {
                     });
                 }
                 else {
+                    flights.removeFlight(flight.id);
                 }
             });
             f.append(e);

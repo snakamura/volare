@@ -34,18 +34,35 @@ var volare = volare || {};
     };
 
     Flights.prototype.getStartTime = function() {
+        if (!this._start) {
+            this._start = _.reduce(this._flights, function(time, flight) {
+                var start = flight.getStartTime();
+                return time && time < start ? time : start;
+            }, null);
+        }
         return this._start;
     };
 
     Flights.prototype.getEndTime = function() {
+        if (!this._end) {
+            this._end = _.reduce(this._flights, function(time, flight) {
+                var end = flight.getEndTime();
+                return time && time > end ? time : end;
+            }, null);
+        }
         return this._end;
     };
 
     Flights.prototype.getDuration = function() {
-        return this._end - this._start;
+        return this.getEndTime() - this.getStartTime();
     };
 
     Flights.prototype.getMaxAltitude = function() {
+        if (this._maxAltitude === 0) {
+            this._maxAltitude = _.reduce(this._flights, function(altitude, flight) {
+                return Math.max(altitude, flight.getMaxAltitude());
+            }, 0) + 100;
+        }
         return this._maxAltitude;
     };
 
@@ -58,16 +75,20 @@ var volare = volare || {};
 
     Flights.prototype.addFlight = function(flight) {
         this._flights.push(flight);
-
-        var start = flight.getStartTime();
-        var end = flight.getEndTime();
-
-        this._start = this._start == null || this._start > start ? start : this._start;
-        this._end = this._end == null || this._end < end ? end : this._end;
-        this._maxAltitude = Math.max(this._maxAltitude, flight.getMaxAltitude() + 100);
-
-        $(this).trigger('properties_changed');
+        this._clearProperties();
         $(this).trigger('flight_added', flight);
+    };
+
+    Flights.prototype.removeFlight = function(id) {
+        var flight = _.find(this._flights, function(flight) {
+            return flight.getId() === id;
+        });
+        if (!flight)
+            return;
+
+        this._flights = _.without(this._flights, flight);
+        this._clearProperties();
+        $(this).trigger('flight_removed', flight);
     };
 
     Flights.prototype.getCurrentTime = function() {
@@ -77,6 +98,14 @@ var volare = volare || {};
     Flights.prototype.setCurrentTime = function(time, play) {
         this._currentTime = time;
         $(this).trigger('currenttime_changed', [time, play]);
+    };
+
+    Flights.prototype._clearProperties = function() {
+        this._start = null;
+        this._end = null;
+        this._maxAltitude = 0;
+
+        $(this).trigger('properties_changed');
     };
 
 
@@ -177,6 +206,13 @@ var volare = volare || {};
             });
         }
 
+    };
+
+    Flight.prototype.removePolyline = function() {
+        if (this._polyline) {
+            this._polyline.setMap(null);
+            this._polyline = null;
+        }
     };
 
     Flight.prototype.drawAltitude = function(graph, currentTime, partial) {
@@ -432,6 +468,9 @@ var volare = volare || {};
             self._map.fitBounds(self._flights.getBounds());
             flight.setPolyline(self._map);
         });
+        $(this._flights).on('flight_removed', function(event, flight) {
+            flight.removePolyline();
+        });
         $(this._flights).on('currenttime_changed', function(event, time) {
             self._flights.eachFlights(function(flight) {
                 flight.setPolyline(self._map, time);
@@ -454,6 +493,9 @@ var volare = volare || {};
 
         var self = this;
         $(this._flights).on('flight_added', function(event, flight) {
+            self._refresh();
+        });
+        $(this._flights).on('flight_removed', function(event, flight) {
             self._refresh();
         });
         $(this._flights).on('currenttime_changed', function(event, time, play) {
@@ -479,8 +521,10 @@ var volare = volare || {};
     Graph.prototype._refresh = function() {
         this._context.clearRect(0, 0, this._width, this._height);
 
-        this._drawGrid();
-        this._drawFlights();
+        if (this._flights.getCount() > 0) {
+            this._drawGrid();
+            this._drawFlights();
+        }
     };
 
     Graph.prototype._drawGrid = function() {
@@ -664,6 +708,10 @@ var volare = volare || {};
             var tbody = self._chart.find('tbody');
             tbody.append(row(flight));
             self._update();
+        });
+        $(this._flights).on('flight_removed', function(event, flight) {
+            var tr = self._chart.find('.flight_' + flight.getId());
+            tr.remove();
         });
         $(this._flights).on('currenttime_changed', _.bind(this._update, this));
     }
