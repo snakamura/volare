@@ -1,0 +1,5 @@
+/ RootR GET
+/flights FlightsR GET POST
+/flights/#M.FlightId FlightR GET
+/flights/#M.FlightId/edit FlightEditR GET POST
+/static StaticR Static volareStatic

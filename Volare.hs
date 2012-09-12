@@ -59,7 +59,7 @@ import Yesod.Default.Config (AppConfig,
                              fromArgs,
                              withYamlEnvironment)
 import Yesod.Dispatch (mkYesod,
-                       parseRoutes,
+                       parseRoutesFile,
                        toWaiApp)
 import Yesod.Form (AForm,
                    Enctype,
@@ -106,13 +106,7 @@ data Volare = Volare {
 }
 
 
-mkYesod "Volare" [parseRoutes|
-/ RootR GET
-/flights FlightsR GET POST
-/flights/#M.FlightId FlightR GET
-/flights/#M.FlightId/edit FlightEditR GET POST
-/static StaticR Static volareStatic
-|]
+mkYesod "Volare" $(parseRoutesFile "config/routes")
 
 
 instance Yesod Volare where
