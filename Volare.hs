@@ -1,13 +1,3 @@
-{-# LANGUAGE FlexibleContexts,
-             FlexibleInstances,
-             GADTs,
-             MultiParamTypeClasses,
-             OverloadedStrings,
-             QuasiQuotes,
-             TemplateHaskell,
-             TypeFamilies,
-             TypeSynonymInstances #-}
-
 module Volare (
     makeVolare,
     withVolare

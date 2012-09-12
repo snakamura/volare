@@ -1,6 +1,3 @@
-{-# LANGUAGE NoMonomorphismRestriction,
-             OverloadedStrings #-}
-
 module Codec.IGC.Parser (
     igc
 ) where

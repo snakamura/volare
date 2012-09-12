@@ -1,6 +1,3 @@
-{-# LANGUAGE OverloadedStrings,
-             TemplateHaskell #-}
-
 module Volare.Static where
 
 import Yesod.Static (Route(..),

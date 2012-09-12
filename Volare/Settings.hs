@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Volare.Settings (
     PersistConfig,
     development,

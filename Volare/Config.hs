@@ -1,6 +1,3 @@
-{-# LANGUAGE OverloadedStrings,
-             TemplateHaskell #-}
-
 module Volare.Config (
     Config(..),
     parseConfig
