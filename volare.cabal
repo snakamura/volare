@@ -79,7 +79,7 @@ executable volare
     if flag(library-only)
         Buildable: False
 
-    main-is: ../Main.hs
+    main-is: ../main.hs
     hs-source-dirs: dist
     build-depends: base >= 4 && < 5,
                    yesod-default >= 1.1 && < 1.2,
