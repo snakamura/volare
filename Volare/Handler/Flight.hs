@@ -77,10 +77,13 @@ newFlightForm :: Form NewFlight
 newFlightForm = renderDivs newFlightAForm
 
 
-getFlightsR :: Handler RepHtml
+getFlightsR :: Handler RepHtmlJson
 getFlightsR = do
+  flights <- runDB $ selectList [] []
   (flightWidget, enctype) <- generateFormPost $ newFlightForm
-  listFlights flightWidget enctype
+  let html = flightsWidget flights flightWidget enctype
+      json = flights
+  defaultLayoutJson html json
 
 
 postFlightsR :: Handler RepHtml
@@ -126,9 +129,16 @@ listFlights :: Widget ->
                Handler RepHtml
 listFlights flightWidget enctype = do
   flights <- runDB $ selectList [] []
-  defaultLayout $ do
-    setTitle "Flights - Volare"
-    $(widgetFile "flights/index")
+  defaultLayout $ flightsWidget flights flightWidget enctype
+
+
+flightsWidget :: [Entity M.Flight] ->
+                 Widget ->
+                 Enctype ->
+                 Widget
+flightsWidget flights flightWidget enctype = do
+  setTitle "Flights - Volare"
+  $(widgetFile "flights/index")
 
 
 data ShowFlight = ShowFlight M.FlightId M.Flight [M.Record]

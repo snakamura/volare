@@ -25,6 +25,10 @@ var volare = volare || {};
         this._currentTime = null;
     }
 
+    Flights.prototype.getCount = function() {
+        return this._flights.length;
+    };
+
     Flights.prototype.eachFlights = function(iterator, context) {
         _.each(this._flights, iterator, context);
     };

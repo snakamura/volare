@@ -85,5 +85,6 @@ getWorkspaceR workspaceId = do
     addScript $ StaticR S.js_underscore_min_js
     addScript $ StaticR S.js_underscore_string_min_js
     addScript $ StaticR S.js_volare_js
+    addScript $ StaticR S.js_workspace_js
     addStylesheet $ StaticR S.css_flight_css
     $(widgetFile "workspaces/show")

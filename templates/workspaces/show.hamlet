@@ -1,1 +1,13 @@
 <h1>#{M.workspaceName workspace}
+
+<div id=flights>
+
+<div id=player>
+
+<div id=map>
+
+<canvas id=altitude>
+
+<canvas id=speed>
+
+<div id=chart>
