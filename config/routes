@@ -4,4 +4,5 @@
 /flights/#M.FlightId/edit FlightEditR GET POST
 /workspaces WorkspacesR GET POST
 /workspaces/#M.WorkspaceId WorkspaceR GET
+/workspaces/#M.WorkspaceId/flights WorkspaceFlightsR GET POST
 /static StaticR Static volareStatic

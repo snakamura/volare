@@ -174,6 +174,8 @@ getFlightR flightId = do
         addScript $ StaticR S.js_underscore_string_min_js
         addScript $ StaticR S.js_flight_js
         addScript $ StaticR S.js_volare_js
+        addStylesheet $ StaticR S.css_common_css
+        addStylesheet $ StaticR S.css_volare_css
         addStylesheet $ StaticR S.css_flight_css
         $(widgetFile "flights/show")
       json = ShowFlight flightId flight records

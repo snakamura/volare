@@ -1,6 +1,10 @@
 var volare = volare || {};
 
 (function() {
+    $.ajaxSetup({
+        accept: 'application/json; charset=utf-8'
+    });
+
     var LatLng = google.maps.LatLng;
     var LatLngBounds = google.maps.LatLngBounds;
 

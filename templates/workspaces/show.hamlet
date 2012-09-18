@@ -1,6 +1,8 @@
 <h1>#{M.workspaceName workspace}
 
 <div id=flights>
+  <div>
+  <input id=add_flight type=button value=Add>
 
 <div id=player>
 
@@ -11,3 +13,7 @@
 <canvas id=speed>
 
 <div id=chart>
+
+<script>
+  var workspaceId = #{unsafeLazyByteString $ JSON.encode workspaceId};
+  var token = '#{fromMaybe "" token}';

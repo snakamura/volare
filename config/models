@@ -19,3 +19,7 @@ Record
 Workspace
   name T.Text
   deriving Show
+WorkspaceFlight
+  workspaceId WorkspaceId
+  flightId FlightId
+  UniqueWorkspaceFlight workspaceId flightId
