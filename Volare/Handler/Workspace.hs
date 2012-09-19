@@ -22,6 +22,7 @@ import Data.Traversable (mapM)
 import Database.Persist (Entity(Entity),
                          Key,
                          PersistQuery,
+                         SelectOpt(Asc),
                          (==.),
                          entityVal,
                          insert,
@@ -167,4 +168,4 @@ flightsInWorkspace workspaceId = do
 candidatesInWorkspace :: PersistQuery backend m =>
                          Key backend (M.WorkspaceGeneric backend) ->
                          backend m [Entity (M.FlightGeneric backend)]
-candidatesInWorkspace _ = selectList [] []
+candidatesInWorkspace _ = selectList [] [Asc M.FlightName]
