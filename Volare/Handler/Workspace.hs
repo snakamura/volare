@@ -9,6 +9,7 @@ module Volare.Handler.Workspace (
 
 import Control.Applicative ((<$>),
                             pure)
+import Control.Arrow (first)
 import Control.Monad (join)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Logger (MonadLogger)
@@ -19,7 +20,9 @@ import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Data.List (sortBy)
+import Data.List (minimumBy,
+                  sortBy)
+import qualified Data.Map as Map
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Ord (comparing)
@@ -161,11 +164,11 @@ postWorkspaceFlightsR workspaceId = do
   ((result, workspaceFlightWidget), enctype) <- runFormPost $ newWorkspaceFlightForm workspaceId
   case result of
     FormSuccess (NewWorkspaceFlight flightIds) ->
-        do workspaceFlights <- runDB $ forM flightIds $ \flightId ->
-               do let color = "red" :: T.Text
+        do newWorkspaceFlights <- runDB $ forM flightIds $ \flightId ->
+               do color <- nextColor workspaceId
                   id <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
                   mapM selectWorkspaceFlight id
-           jsonToRepJson $ catMaybes workspaceFlights
+           jsonToRepJson $ catMaybes newWorkspaceFlights
     _ -> invalidArgs ["flights"]
 
 
@@ -207,3 +210,28 @@ selectCandidateFlights :: PersistQuery backend m =>
                           Key backend (M.WorkspaceGeneric backend) ->
                           backend m [Entity (M.FlightGeneric backend)]
 selectCandidateFlights _ = selectList [] [Asc M.FlightName]
+
+
+nextColor :: (MonadIO m, MonadBaseControl IO m, MonadLogger m, MonadUnsafeIO m, MonadThrow m) =>
+             M.WorkspaceId ->
+             SqlPersist m T.Text
+nextColor workspaceId = do
+  let colors = ["red",
+                "blue",
+                "green",
+                "yellow",
+                "aqua",
+                "fuchsia",
+                "lime",
+                "maroon",
+                "navy",
+                "olive",
+                "purple",
+                "silver",
+                "teal"]
+  usedColors <- map color <$> selectWorkspaceFlights workspaceId
+  let initialColorMap = Map.fromList $ zip colors $ zip (repeat (0 :: Int)) [0 :: Int ..]
+      colorMap = foldr (Map.update (Just . first (+ 1))) initialColorMap usedColors
+  return $ fst $ minimumBy (comparing snd) $ Map.assocs colorMap
+    where
+      color (WorkspaceFlight _ _ c) = c
