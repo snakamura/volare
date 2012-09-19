@@ -6,12 +6,10 @@ module Volare.Handler.Workspace (
     postWorkspaceFlightsR
 ) where
 
-import qualified Data.Aeson as JSON
 import Control.Applicative ((<$>),
                             pure)
 import Data.Foldable (forM_)
-import Data.Maybe (catMaybes,
-                   fromMaybe)
+import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import qualified Data.Text as T
 import Data.Traversable (mapM)
@@ -24,7 +22,6 @@ import Database.Persist (Entity(Entity),
                          selectFirst,
                          selectList)
 import Prelude hiding (mapM)
-import Text.Blaze.Html (unsafeLazyByteString)
 import Yesod.Core (defaultLayout)
 import Yesod.Content (RepHtml,
                       RepJson)

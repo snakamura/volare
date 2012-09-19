@@ -1,11 +1,19 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Volare.Foundation where
 
 import Control.Applicative ((<$>))
 import Control.Monad.Logger (LogLevel(LevelDebug))
+import qualified Data.Aeson as JSON
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BL
+import qualified Data.Text.Encoding as T
+import qualified Data.Text.Lazy.Builder as T
 import Database.Persist.GenericSql (SqlPersist)
 import Database.Persist.Store (PersistConfigPool,
                                runPool)
 import Text.Blaze.Html (Html)
+import Text.Julius (ToJavascript(..))
 import Text.Shakespeare.I18N (RenderMessage,
                               renderMessage)
 import Web.ClientSession (getKey)
@@ -64,6 +72,10 @@ instance RenderMessage Volare FormMessage where
 
 type Form a = Html ->
               MForm Volare Volare (FormResult a, Widget)
+
+
+instance JSON.ToJSON a => ToJavascript a where
+    toJavascript = T.fromText . T.decodeUtf8 . B.concat . BL.toChunks . JSON.encode
 
 
 getConfig :: Handler Config

@@ -13,7 +13,3 @@
 <canvas id=speed>
 
 <div id=chart>
-
-<script>
-  var workspaceId = #{unsafeLazyByteString $ JSON.encode workspaceId};
-  var token = '#{fromMaybe "" token}';
