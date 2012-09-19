@@ -3,7 +3,8 @@ module Volare.Handler.Workspace (
     postWorkspacesR,
     getWorkspaceR,
     getWorkspaceFlightsR,
-    postWorkspaceFlightsR
+    postWorkspaceFlightsR,
+    getWorkspaceCandidatesR
 ) where
 
 import Control.Applicative ((<$>),
@@ -118,8 +119,8 @@ data WorkspaceFlight = WorkspaceFlight [M.FlightId] deriving Show
 
 workspaceFlightForm :: M.WorkspaceId ->
                        Form WorkspaceFlight
-workspaceFlightForm _ =
-    let options = runDB $ (mkOptionList . map option) <$> selectList [] []
+workspaceFlightForm workspaceId =
+    let options = runDB $ (mkOptionList . map option) <$> candidatesInWorkspace workspaceId
         option (Entity id flight) = Option (M.flightName flight) id (T.decodeUtf8 $ B.concat $ BL.toChunks $ JSON.encode id)
     in renderDivs $ WorkspaceFlight <$> areq (multiSelectField options) ("Flights" { fsName = Just "flights" }) Nothing
 
@@ -143,6 +144,13 @@ postWorkspaceFlightsR workspaceId = do
     _ -> invalidArgs ["flights"]
 
 
+getWorkspaceCandidatesR :: M.WorkspaceId ->
+                        Handler RepJson
+getWorkspaceCandidatesR workspaceId = do
+  flights <- runDB $ candidatesInWorkspace workspaceId
+  jsonToRepJson flights
+
+
 flightsInWorkspace :: PersistQuery backend m =>
                       Key backend (M.WorkspaceGeneric backend) ->
                       backend m [Entity (M.FlightGeneric backend)]
@@ -151,3 +159,9 @@ flightsInWorkspace workspaceId = do
   catMaybes <$> mapM getFlight workspaceFlights
     where
       getFlight (Entity _ (M.WorkspaceFlight _ flightId)) = selectFirst [M.FlightId ==. flightId] []
+
+
+candidatesInWorkspace :: PersistQuery backend m =>
+                         Key backend (M.WorkspaceGeneric backend) ->
+                         backend m [Entity (M.FlightGeneric backend)]
+candidatesInWorkspace _ = selectList [] []

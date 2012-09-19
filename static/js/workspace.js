@@ -53,7 +53,7 @@ $(function() {
                 dialog.remove();
             }
         });
-        $.getJSON('/flights', function(flights) {
+        $.getJSON('/workspaces/' + workspaceId + '/candidates', function(flights) {
             _.each(flights, function(flight) {
                 var e = $('<div><label><input type="checkbox" name="flights"><span></span></label></div>');
                 e.find('input').prop('value', flight.id);

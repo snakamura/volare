@@ -5,4 +5,5 @@
 /workspaces WorkspacesR GET POST
 /workspaces/#M.WorkspaceId WorkspaceR GET
 /workspaces/#M.WorkspaceId/flights WorkspaceFlightsR GET POST
+/workspaces/#M.WorkspaceId/candidates WorkspaceCandidatesR GET
 /static StaticR Static volareStatic
