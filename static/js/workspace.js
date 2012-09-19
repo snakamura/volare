@@ -19,8 +19,10 @@ $(function() {
                 {
                     text: 'OK',
                     click: function() {
-                        $.post('/workspaces/' + workspaceId + '/flights', form.serialize(), function(flightIds) {
-                            _.each(flightIds, addFlight);
+                        $.post('/workspaces/' + workspaceId + '/flights', form.serialize(), function(flights) {
+                            _.each(flights, function(flight) {
+                                addFlight(flight.id, flight.color);
+                            });
                             dialog.dialog('close');
                         }, 'json');
                     }
@@ -48,15 +50,15 @@ $(function() {
         });
     });
 
-    function addFlight(flightId) {
+    function addFlight(flightId, color) {
         $.getJSON('/flights/' + flightId, function(flight) {
-            flights.addFlight(new volare.Flight(flight));
+            flights.addFlight(new volare.Flight(flight, color));
         });
     }
 
     $.getJSON('/workspaces/' + workspaceId + '/flights', function(fs) {
         _.each(fs, function(flight) {
-            addFlight(flight.id);
+            addFlight(flight.id, flight.color);
         });
     });
 });

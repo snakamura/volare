@@ -22,4 +22,5 @@ Workspace
 WorkspaceFlight
   workspaceId WorkspaceId
   flightId FlightId
+  color T.Text
   UniqueWorkspaceFlight workspaceId flightId

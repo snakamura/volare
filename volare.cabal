@@ -46,6 +46,7 @@ library
                 OverloadedStrings
                 QuasiQuotes
                 TemplateHaskell
+                TupleSections
                 TypeFamilies
                 TypeSynonymInstances
                 UndecidableInstances
@@ -61,11 +62,13 @@ library
                    data-default >= 0.5 && < 0.6,
                    hamlet >= 1.1 && < 1.2,
                    lifted-base >= 0.1 && < 0.2,
+                   monad-control >= 0.3 && < 0.4,
                    monad-logger >= 0.2 && < 0.3,
                    old-locale >= 1.0 && < 1.1,
                    persistent >= 1.0 && < 1.1,
                    persistent-sqlite >= 1.0 && < 1.1,
                    persistent-template >= 1.0 && < 1.1,
+                   resourcet >= 0.4 && < 0.5,
                    shakespeare-i18n >= 1.0 && < 1.1,
                    shakespeare-js >= 1.0 && < 1.1,
                    template-haskell >= 2.7 && < 2.8,

@@ -9,6 +9,13 @@ module Volare.Handler.Workspace (
 
 import Control.Applicative ((<$>),
                             pure)
+import Control.Monad (join)
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Logger (MonadLogger)
+import Control.Monad.Trans.Control (MonadBaseControl)
+import Control.Monad.Trans.Resource (MonadThrow,
+                                     MonadUnsafeIO)
+import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
@@ -16,6 +23,7 @@ import Data.List (sortBy)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Ord (comparing)
+import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Data.Traversable (forM,
                          mapM)
@@ -24,11 +32,11 @@ import Database.Persist (Entity(Entity),
                          PersistQuery,
                          SelectOpt(Asc),
                          (==.),
-                         entityVal,
                          insert,
                          insertUnique,
                          selectFirst,
                          selectList)
+import Database.Persist.GenericSql (SqlPersist)
 import Prelude hiding (mapM)
 import Yesod.Core (defaultLayout)
 import Yesod.Content (RepHtml,
@@ -118,55 +126,84 @@ getWorkspaceR workspaceId = do
     $(widgetFile "workspaces/show")
 
 
-data WorkspaceFlight = WorkspaceFlight [M.FlightId] deriving Show
+data NewWorkspaceFlight = NewWorkspaceFlight [M.FlightId]
 
 
-workspaceFlightForm :: M.WorkspaceId ->
-                       Form WorkspaceFlight
-workspaceFlightForm workspaceId =
-    let options = runDB $ (mkOptionList . map option) <$> candidatesInWorkspace workspaceId
+newWorkspaceFlightForm :: M.WorkspaceId ->
+                          Form NewWorkspaceFlight
+newWorkspaceFlightForm workspaceId =
+    let options = runDB $ (mkOptionList . map option) <$> selectCandidateFlights workspaceId
         option (Entity id flight) = Option (M.flightName flight) id (T.decodeUtf8 $ B.concat $ BL.toChunks $ JSON.encode id)
-    in renderDivs $ WorkspaceFlight <$> areq (multiSelectField options) ("Flights" { fsName = Just "flights" }) Nothing
+    in renderDivs $ NewWorkspaceFlight <$> areq (multiSelectField options) ("Flights" { fsName = Just "flights" }) Nothing
+
+
+data WorkspaceFlight = WorkspaceFlight M.FlightId M.Flight T.Text
+
+instance JSON.ToJSON WorkspaceFlight where
+    toJSON (WorkspaceFlight id flight color) =
+        JSON.object [
+                 "id" .= id,
+                 "name" .= M.flightName flight,
+                 "color" .= color
+                ]
 
 
 getWorkspaceFlightsR :: M.WorkspaceId ->
                         Handler RepJson
 getWorkspaceFlightsR workspaceId = do
-  flights <- runDB $ flightsInWorkspace workspaceId
+  flights <- runDB $ selectWorkspaceFlights workspaceId
   jsonToRepJson flights
 
 
 postWorkspaceFlightsR :: M.WorkspaceId ->
                          Handler RepJson
 postWorkspaceFlightsR workspaceId = do
-  ((result, workspaceFlightWidget), enctype) <- runFormPost $ workspaceFlightForm workspaceId
+  ((result, workspaceFlightWidget), enctype) <- runFormPost $ newWorkspaceFlightForm workspaceId
   case result of
-    FormSuccess (WorkspaceFlight flightIds) ->
+    FormSuccess (NewWorkspaceFlight flightIds) ->
         do workspaceFlights <- runDB $ forM flightIds $ \flightId ->
-               do id <- insertUnique $ M.WorkspaceFlight workspaceId flightId
-                  return $ const flightId <$> id
+               do let color = "red" :: T.Text
+                  id <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
+                  mapM selectWorkspaceFlight id
            jsonToRepJson $ catMaybes workspaceFlights
     _ -> invalidArgs ["flights"]
 
 
 getWorkspaceCandidatesR :: M.WorkspaceId ->
-                        Handler RepJson
+                           Handler RepJson
 getWorkspaceCandidatesR workspaceId = do
-  flights <- runDB $ candidatesInWorkspace workspaceId
+  flights <- runDB $ selectCandidateFlights workspaceId
   jsonToRepJson flights
 
 
-flightsInWorkspace :: PersistQuery backend m =>
-                      Key backend (M.WorkspaceGeneric backend) ->
-                      backend m [Entity (M.FlightGeneric backend)]
-flightsInWorkspace workspaceId = do
+selectWorkspaceFlight :: (MonadIO m, MonadBaseControl IO m, MonadLogger m, MonadUnsafeIO m, MonadThrow m) =>
+                         M.WorkspaceFlightId ->
+                         SqlPersist m (Maybe WorkspaceFlight)
+selectWorkspaceFlight workspaceFlightId = do
+    workspaceFlight <- selectFirst [M.WorkspaceFlightId ==. workspaceFlightId] []
+    join <$> mapM selectWorkspaceFlight' workspaceFlight
+
+
+selectWorkspaceFlights :: (MonadIO m, MonadBaseControl IO m, MonadLogger m, MonadUnsafeIO m, MonadThrow m) =>
+                          M.WorkspaceId ->
+                          SqlPersist m [WorkspaceFlight]
+selectWorkspaceFlights workspaceId = do
   workspaceFlights <- selectList [M.WorkspaceFlightWorkspaceId ==. workspaceId] []
-  (sortBy (comparing (M.flightName . entityVal)) . catMaybes) <$> mapM getFlight workspaceFlights
+  (sortBy (comparing name) . catMaybes) <$> mapM selectWorkspaceFlight' workspaceFlights
     where
-      getFlight (Entity _ (M.WorkspaceFlight _ flightId)) = selectFirst [M.FlightId ==. flightId] []
+      name (WorkspaceFlight _ flight _) = M.flightName flight
 
 
-candidatesInWorkspace :: PersistQuery backend m =>
-                         Key backend (M.WorkspaceGeneric backend) ->
-                         backend m [Entity (M.FlightGeneric backend)]
-candidatesInWorkspace _ = selectList [] [Asc M.FlightName]
+selectWorkspaceFlight' :: (MonadIO m, MonadBaseControl IO m, MonadLogger m, MonadUnsafeIO m, MonadThrow m) =>
+                          Entity M.WorkspaceFlight ->
+                          SqlPersist m (Maybe WorkspaceFlight)
+selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight workspaceFlight
+    where
+      getFlight (Entity _ (M.WorkspaceFlight _ flightId color)) = fmap (, color) <$> selectFirst [M.FlightId ==. flightId] []
+      makeWorkspaceFlight (Entity id flight, color) = WorkspaceFlight id flight color
+
+
+selectCandidateFlights :: PersistQuery backend m =>
+                          Key backend (M.WorkspaceGeneric backend) ->
+                          backend m [Entity (M.FlightGeneric backend)]
+selectCandidateFlights _ = selectList [] [Asc M.FlightName]
