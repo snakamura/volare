@@ -25,6 +25,8 @@ import qualified Data.Text as T
 import Data.Time (UTCTime(UTCTime),
                   formatTime)
 import Database.Persist (Entity(Entity),
+                         Key,
+                         PersistStore,
                          SelectOpt(Asc),
                          (=.),
                          (==.),
@@ -92,29 +94,9 @@ postFlightsR = do
                  $(logDebug) $ T.pack $ show e
                  listFlights flightWidget enctype
         in handle handler $ do
-                 let name = fileName file
                  igc <- liftIO $ runResourceT $ fileSource file $$ sinkParser IGC.igc
                  $(logDebug) $ T.pack $ show igc
-                 let records = IGC.records igc
-                     v c p = realToFrac $ p $ IGC.position $ c (comparing (p . IGC.position)) records
-                 flightId <- runDB $ do
-                               flightId <- insert $ M.Flight name
-                                                             (IGC.date igc)
-                                                             (v minimumBy IGC.latitude)
-                                                             (v maximumBy IGC.latitude)
-                                                             (v minimumBy IGC.longitude)
-                                                             (v maximumBy IGC.longitude)
-                                                             (v minimumBy IGC.altitude)
-                                                             (v maximumBy IGC.altitude)
-                               forM_ (zip records [1..]) $ \(record, index) -> do
-                                       let position = IGC.position record
-                                       insert $ M.Record flightId
-                                                         index
-                                                         (UTCTime (IGC.date igc) (IGC.time record))
-                                                         (realToFrac $ IGC.latitude position)
-                                                         (realToFrac $ IGC.longitude position)
-                                                         (realToFrac $ IGC.altitude position)
-                               return flightId
+                 flightId <- runDB $ addFlight (fileName file) igc
                  redirect $ FlightR flightId
     _ -> listFlights flightWidget enctype
 
@@ -212,6 +194,33 @@ editFlight flightId flightWidget enctype =
     defaultLayout $ do
       setTitle "Edit Flight - Volare"
       $(widgetFile "flights/edit")
+
+
+addFlight :: PersistStore backend m =>
+             T.Text ->
+             IGC.IGC ->
+             backend m (Key backend (M.FlightGeneric backend))
+addFlight name igc =
+    let records = IGC.records igc
+        v c p = realToFrac $ p $ IGC.position $ c (comparing (p . IGC.position)) records
+    in do
+      flightId <- insert $ M.Flight name
+                                    (IGC.date igc)
+                                    (v minimumBy IGC.latitude)
+                                    (v maximumBy IGC.latitude)
+                                    (v minimumBy IGC.longitude)
+                                    (v maximumBy IGC.longitude)
+                                    (v minimumBy IGC.altitude)
+                                    (v maximumBy IGC.altitude)
+      forM_ (zip records [1..]) $ \(record, index) -> do
+         let position = IGC.position record
+         insert $ M.Record flightId
+                           index
+                           (UTCTime (IGC.date igc) (IGC.time record))
+                           (realToFrac $ IGC.latitude position)
+                           (realToFrac $ IGC.longitude position)
+                           (realToFrac $ IGC.altitude position)
+      return flightId
 
 
 formatPosition :: Double ->
