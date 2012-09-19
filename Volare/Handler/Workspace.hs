@@ -25,8 +25,7 @@ import Prelude hiding (mapM)
 import Yesod.Core (defaultLayout)
 import Yesod.Content (RepHtml,
                       RepJson)
-import Yesod.Form (AForm,
-                   Enctype,
+import Yesod.Form (Enctype,
                    FormResult(FormSuccess),
                    areq,
                    fsName,
@@ -57,12 +56,8 @@ import qualified Volare.Static as S
 data NewWorkspace = NewWorkspace
 
 
-newWorkspaceAForm :: AForm Volare Volare NewWorkspace
-newWorkspaceAForm = pure NewWorkspace
-
-
 newWorkspaceForm :: Form NewWorkspace
-newWorkspaceForm = renderDivs newWorkspaceAForm
+newWorkspaceForm = renderDivs $ pure NewWorkspace
 
 
 getWorkspacesR :: Handler RepHtml
@@ -116,14 +111,9 @@ getWorkspaceR workspaceId = do
 data WorkspaceFlight = WorkspaceFlight [M.FlightId] deriving Show
 
 
-workspaceFlightAForm :: [(T.Text, M.FlightId)] ->
-                        AForm Volare Volare WorkspaceFlight
-workspaceFlightAForm options = WorkspaceFlight <$> areq (multiSelectFieldList options) ("Flights" { fsName = Just "flights" }) Nothing
-
-
 workspaceFlightForm :: [(T.Text, M.FlightId)] ->
                        Form WorkspaceFlight
-workspaceFlightForm = renderDivs . workspaceFlightAForm
+workspaceFlightForm options = renderDivs $ WorkspaceFlight <$> areq (multiSelectFieldList options) ("Flights" { fsName = Just "flights" }) Nothing
 
 
 getWorkspaceFlightsR :: M.WorkspaceId ->

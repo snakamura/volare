@@ -37,8 +37,7 @@ import Yesod.Core (defaultLayout,
                    logDebug)
 import Yesod.Content (RepHtml,
                       RepHtmlJson)
-import Yesod.Form (AForm,
-                   Enctype,
+import Yesod.Form (Enctype,
                    FormResult(FormSuccess),
                    areq,
                    fileAFormReq,
@@ -69,12 +68,8 @@ import qualified Volare.Static as S
 data NewFlight = NewFlight FileInfo
 
 
-newFlightAForm :: AForm Volare Volare NewFlight
-newFlightAForm = NewFlight <$> fileAFormReq "File"
-
-
 newFlightForm :: Form NewFlight
-newFlightForm = renderDivs newFlightAForm
+newFlightForm = renderDivs $ NewFlight <$> fileAFormReq "File"
 
 
 getFlightsR :: Handler RepHtmlJson
@@ -185,14 +180,9 @@ getFlightR flightId = do
 data EditFlight = EditFlight T.Text
 
 
-editFlightAForm :: Maybe M.Flight ->
-                   AForm Volare Volare EditFlight
-editFlightAForm flight = EditFlight <$> areq textField "Name" (M.flightName <$> flight)
-
-
 editFlightForm :: Maybe M.Flight ->
                   Form EditFlight
-editFlightForm = renderDivs . editFlightAForm
+editFlightForm flight = renderDivs $ EditFlight <$> areq textField "Name" (M.flightName <$> flight)
 
 
 getFlightEditR :: M.FlightId ->
