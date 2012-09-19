@@ -8,22 +8,6 @@ $(function() {
     var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
     var chart = new volare.Chart(flights, $('#chart'));
 
-    var colors = [
-        'red',
-        'blue',
-        'green',
-        'yellow',
-        'aqua',
-        'fuchsia',
-        'lime',
-        'maroon',
-        'navy',
-        'olive',
-        'purple',
-        'silver',
-        'teal'
-    ];
-
     $('#add_flight').button().on('click', function() {
         var dialog = $('<div><div class="loading">Loading...</div><form><input type="hidden" name="_token"></form></div>');
         var form = dialog.find('form');
@@ -76,7 +60,7 @@ $(function() {
                     if (event.target.checked) {
                         event.target.disabled = true;
                         $.getJSON('/flights/' + flight.id, function(flight) {
-                            flights.addFlight(new volare.Flight(flight, colors[flights.getCount() % colors.length]));
+                            flights.addFlight(new volare.Flight(flight));
                         }).always(function() {
                             event.target.disabled = false;
                         });

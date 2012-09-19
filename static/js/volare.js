@@ -78,6 +78,9 @@ var volare = volare || {};
     };
 
     Flights.prototype.addFlight = function(flight) {
+        if (!flight.getColor())
+            flight.setColor(this._getNextAvailableColor());
+
         this._flights.push(flight);
         this._clearProperties();
         $(this).trigger('flight_added', flight);
@@ -112,6 +115,40 @@ var volare = volare || {};
         $(this).trigger('properties_changed');
     };
 
+    Flights.prototype._getNextAvailableColor = function() {
+        var colors = {};
+        _.each(Flights.COLORS, function(color) {
+            colors[color] = 0;
+        });
+        _.each(this._flights, function(flight) {
+            var color = flight.getColor();
+            colors[color] = (colors[color] || 0) + 1;
+        });
+        var u = [];
+        _.each(colors, function(n, color) {
+            u[n] = (u[n] || []).concat([color]);
+        });
+        return _.head(_.find(u, function(a) {
+            return true;
+        }));
+    };
+
+    Flights.COLORS = [
+        'red',
+        'blue',
+        'green',
+        'yellow',
+        'aqua',
+        'fuchsia',
+        'lime',
+        'maroon',
+        'navy',
+        'olive',
+        'purple',
+        'silver',
+        'teal'
+    ];
+
 
     function Flight(flight, color) {
         var self = this;
@@ -136,6 +173,10 @@ var volare = volare || {};
 
     Flight.prototype.getColor = function() {
         return this._color;
+    };
+
+    Flight.prototype.setColor = function(color) {
+        this._color = color;
     };
 
     Flight.prototype.getStartTime = function() {
