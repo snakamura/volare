@@ -8,10 +8,13 @@ module Volare.Handler.Workspace (
 
 import Control.Applicative ((<$>),
                             pure)
+import qualified Data.Aeson as JSON
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BL
 import Data.Foldable (forM_)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
-import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import Data.Traversable (mapM)
 import Database.Persist (Entity(Entity),
                          Key,
@@ -27,10 +30,12 @@ import Yesod.Content (RepHtml,
                       RepJson)
 import Yesod.Form (Enctype,
                    FormResult(FormSuccess),
+                   Option(Option),
                    areq,
                    fsName,
                    generateFormPost,
-                   multiSelectFieldList,
+                   mkOptionList,
+                   multiSelectField,
                    renderDivs,
                    runFormPost)
 import Yesod.Handler (getRequest,
@@ -111,9 +116,12 @@ getWorkspaceR workspaceId = do
 data WorkspaceFlight = WorkspaceFlight [M.FlightId] deriving Show
 
 
-workspaceFlightForm :: [(T.Text, M.FlightId)] ->
+workspaceFlightForm :: M.WorkspaceId ->
                        Form WorkspaceFlight
-workspaceFlightForm options = renderDivs $ WorkspaceFlight <$> areq (multiSelectFieldList options) ("Flights" { fsName = Just "flights" }) Nothing
+workspaceFlightForm _ =
+    let options = runDB $ (mkOptionList . map option) <$> selectList [] []
+        option (Entity id flight) = Option (M.flightName flight) id (T.decodeUtf8 $ B.concat $ BL.toChunks $ JSON.encode id)
+    in renderDivs $ WorkspaceFlight <$> areq (multiSelectField options) ("Flights" { fsName = Just "flights" }) Nothing
 
 
 getWorkspaceFlightsR :: M.WorkspaceId ->
@@ -126,8 +134,7 @@ getWorkspaceFlightsR workspaceId = do
 postWorkspaceFlightsR :: M.WorkspaceId ->
                          Handler RepJson
 postWorkspaceFlightsR workspaceId = do
-  flights <- runDB $ selectList [] []
-  ((result, workspaceFlightWidget), enctype) <- runFormPost $ workspaceFlightForm $ map (\(Entity id flight) -> (M.flightName flight, id)) flights
+  ((result, workspaceFlightWidget), enctype) <- runFormPost $ workspaceFlightForm workspaceId
   case result of
     FormSuccess (WorkspaceFlight flightIds) ->
         do runDB $ forM_ flightIds $ \flightId ->
