@@ -19,8 +19,8 @@ $(function() {
                 {
                     text: 'OK',
                     click: function() {
-                        $.post('/workspaces/' + workspaceId + '/flights', form.serialize(), function() {
-                            updateFlights();
+                        $.post('/workspaces/' + workspaceId + '/flights', form.serialize(), function(flightIds) {
+                            _.each(flightIds, addFlight);
                             dialog.dialog('close');
                         }, 'json');
                     }
@@ -43,36 +43,20 @@ $(function() {
                 e.find('input').prop('value', flight.id);
                 e.find('span').text(flight.name);
                 form.append(e);
-
             });
             dialog.find('div.loading').remove();
         });
     });
 
-    function updateFlights() {
-        var f = $('#flights div');
-        f.html('');
-        $.getJSON('/workspaces/' + workspaceId + '/flights', function(fs) {
-            _.each(fs, function(flight) {
-                var e = $('<div><label><input type="checkbox"><span></span></label></div>');
-                e.find('span').text(flight.name);
-                e.find('input').on('change', function(event) {
-                    if (event.target.checked) {
-                        event.target.disabled = true;
-                        $.getJSON('/flights/' + flight.id, function(flight) {
-                            flights.addFlight(new volare.Flight(flight));
-                        }).always(function() {
-                            event.target.disabled = false;
-                        });
-                    }
-                    else {
-                        flights.removeFlight(flight.id);
-                    }
-                });
-                f.append(e);
-            });
+    function addFlight(flightId) {
+        $.getJSON('/flights/' + flightId, function(flight) {
+            flights.addFlight(new volare.Flight(flight));
         });
     }
 
-    updateFlights();
+    $.getJSON('/workspaces/' + workspaceId + '/flights', function(fs) {
+        _.each(fs, function(flight) {
+            addFlight(flight.id);
+        });
+    });
 });

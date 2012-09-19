@@ -12,13 +12,13 @@ import Control.Applicative ((<$>),
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Data.Foldable (forM_)
 import Data.List (sortBy)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Ord (comparing)
 import qualified Data.Text.Encoding as T
-import Data.Traversable (mapM)
+import Data.Traversable (forM,
+                         mapM)
 import Database.Persist (Entity(Entity),
                          Key,
                          PersistQuery,
@@ -142,9 +142,10 @@ postWorkspaceFlightsR workspaceId = do
   ((result, workspaceFlightWidget), enctype) <- runFormPost $ workspaceFlightForm workspaceId
   case result of
     FormSuccess (WorkspaceFlight flightIds) ->
-        do runDB $ forM_ flightIds $ \flightId ->
-               insertUnique $ M.WorkspaceFlight workspaceId flightId
-           jsonToRepJson flightIds
+        do workspaceFlights <- runDB $ forM flightIds $ \flightId ->
+               do id <- insertUnique $ M.WorkspaceFlight workspaceId flightId
+                  return $ const flightId <$> id
+           jsonToRepJson $ catMaybes workspaceFlights
     _ -> invalidArgs ["flights"]
 
 
