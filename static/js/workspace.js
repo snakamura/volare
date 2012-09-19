@@ -74,8 +74,11 @@ $(function() {
                 e.find('span').text(flight.name);
                 e.find('input').on('change', function(event) {
                     if (event.target.checked) {
+                        event.target.disabled = true;
                         $.getJSON('/flights/' + flight.id, function(flight) {
                             flights.addFlight(new volare.Flight(flight, colors[flights.getCount() % colors.length]));
+                        }).always(function() {
+                            event.target.disabled = false;
                         });
                     }
                     else {
