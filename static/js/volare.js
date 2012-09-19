@@ -160,6 +160,7 @@ var volare = volare || {};
         });
 
         this._color = color;
+        this._visible = true;
         this._polyline = null;
     }
 
@@ -177,6 +178,15 @@ var volare = volare || {};
 
     Flight.prototype.setColor = function(color) {
         this._color = color;
+    };
+
+    Flight.prototype.isVisible = function() {
+        return this._visible;
+    };
+
+    Flight.prototype.setVisible = function(visible) {
+        this._visible = visible;
+        $(this).trigger('visible_changed', visible);
     };
 
     Flight.prototype.getStartTime = function() {
@@ -226,31 +236,35 @@ var volare = volare || {};
     };
 
     Flight.prototype.setPolyline = function(map, currentTime) {
-        var records = this._records;
-        if (currentTime) {
-            var start = this._getRecordIndexAt(new Date(currentTime.getTime() - Flight.TRACK_DURATION*1000));
-            var end = this._getRecordIndexAt(currentTime);
-            records = records.slice(start, end);
-        }
+        if (this._visible) {
+            var records = this._records;
+            if (currentTime) {
+                var start = this._getRecordIndexAt(new Date(currentTime.getTime() - Flight.TRACK_DURATION*1000));
+                var end = this._getRecordIndexAt(currentTime);
+                records = records.slice(start, end);
+            }
 
-        if (this._polyline) {
-            var path = this._polyline.getPath();
-            path.clear();
-            _.each(records, function(record) {
-                path.push(new LatLng(record.latitude, record.longitude));
-            });
+            if (this._polyline) {
+                var path = this._polyline.getPath();
+                path.clear();
+                _.each(records, function(record) {
+                    path.push(new LatLng(record.latitude, record.longitude));
+                });
+            }
+            else {
+                var path = new google.maps.MVCArray(_.map(records, function(record) {
+                    return new LatLng(record.latitude, record.longitude);
+                }));
+                this._polyline = new google.maps.Polyline({
+                    map: map,
+                    path: path,
+                    strokeColor: this._color
+                });
+            }
         }
         else {
-            var path = new google.maps.MVCArray(_.map(records, function(record) {
-                return new LatLng(record.latitude, record.longitude);
-            }));
-            this._polyline = new google.maps.Polyline({
-                map: map,
-                path: path,
-                strokeColor: this._color
-            });
+            this.removePolyline();
         }
-
     };
 
     Flight.prototype.removePolyline = function() {
@@ -261,80 +275,84 @@ var volare = volare || {};
     };
 
     Flight.prototype.drawAltitude = function(graph, currentTime, partial) {
-        var context = graph.getContext();
+        if (this._visible) {
+            var context = graph.getContext();
 
-        context.strokeStyle = this._color;
-        context.lineWidth = 2;
+            context.strokeStyle = this._color;
+            context.lineWidth = 2;
 
-        var startIndex = 0;
-        var startTime = null;
-        var startAltitude = 0;
-        if (partial) {
-            startIndex = this.lastDrawnAltitudeIndex;
-            startTime = new Date(this.lastDrawnAltitudeTime);
-            startAltitude = this.lastDrawnAltitude;
+            var startIndex = 0;
+            var startTime = null;
+            var startAltitude = 0;
+            if (partial) {
+                startIndex = this.lastDrawnAltitudeIndex;
+                startTime = new Date(this.lastDrawnAltitudeTime);
+                startAltitude = this.lastDrawnAltitude;
+            }
+            else {
+                startTime = this.getStartTime();
+                startAltitude = this._records[0].altitude;
+            }
+
+            context.beginPath();
+            context.moveTo(graph.getX(startTime), graph.getY(startAltitude));
+
+            var lastTime = startTime;
+            var lastAltitude = startAltitude;
+            var n = startIndex;
+            for (; n < this._records.length; ++n) {
+                var record = this._records[n];
+                var time = record.time;
+                if (currentTime && time > currentTime)
+                    break;
+
+                context.lineTo(graph.getX(time), graph.getY(record.altitude));
+
+                lastTime = time;
+                lastAltitude = record.altitude;
+            }
+            if (currentTime && this.getStartTime() <= currentTime)
+                context.lineTo(graph.getX(currentTime), graph.getY(lastAltitude));
+            context.stroke();
+
+            this.lastDrawnAltitude = lastAltitude;
+            this.lastDrawnAltitudeIndex = n > 0 ? n - 1 : n;
+            this.lastDrawnAltitudeTime = lastTime.getTime();
         }
-        else {
-            startTime = this.getStartTime();
-            startAltitude = this._records[0].altitude;
-        }
-
-        context.beginPath();
-        context.moveTo(graph.getX(startTime), graph.getY(startAltitude));
-
-        var lastTime = startTime;
-        var lastAltitude = startAltitude;
-        var n = startIndex;
-        for (; n < this._records.length; ++n) {
-            var record = this._records[n];
-            var time = record.time;
-            if (currentTime && time > currentTime)
-                break;
-
-            context.lineTo(graph.getX(time), graph.getY(record.altitude));
-
-            lastTime = time;
-            lastAltitude = record.altitude;
-        }
-        if (currentTime && this.getStartTime() <= currentTime)
-            context.lineTo(graph.getX(currentTime), graph.getY(lastAltitude));
-        context.stroke();
-
-        this.lastDrawnAltitude = lastAltitude;
-        this.lastDrawnAltitudeIndex = n > 0 ? n - 1 : n;
-        this.lastDrawnAltitudeTime = lastTime.getTime();
     };
 
     Flight.prototype.drawGroundSpeed = function(graph, currentTime, partial) {
-        var context = graph.getContext();
+        if (this._visible) {
+            var context = graph.getContext();
 
-        context.strokeStyle = this._color;
-        context.lineWidth = 2;
+            context.strokeStyle = this._color;
+            context.lineWidth = 2;
 
-        var step = 20*1000;
-        var startTime = null;
-        var endTime = null;
-        if (partial) {
-            if (currentTime.getTime() >= this.lastDrawnGroundSpeedTime + step) {
-                startTime = new Date(this.lastDrawnGroundSpeedTime);
+            var step = 20*1000;
+            var startTime = null;
+            var endTime = null;
+            if (partial) {
+                if (currentTime.getTime() >= this.lastDrawnGroundSpeedTime + step) {
+                    startTime = new Date(this.lastDrawnGroundSpeedTime);
+                    endTime = currentTime || this.getEndTime();
+                }
+            }
+            else {
+                startTime = this.getStartTime();
                 endTime = currentTime || this.getEndTime();
             }
-        }
-        else {
-            startTime = this.getStartTime();
-            endTime = currentTime || this.getEndTime();
-        }
-        if (startTime) {
-            context.beginPath();
-            context.moveTo(graph.getX(startTime), graph.getY(this.getGroundSpeedAt(startTime)*3600/1000));
-            var time = startTime.getTime() + step;
-            for (; time < endTime.getTime(); time += step) {
-                var t = new Date(time);
-                context.lineTo(graph.getX(t), graph.getY(this.getGroundSpeedAt(t)*3600/1000));
-            }
-            context.stroke();
+            if (startTime) {
+                context.beginPath();
+                context.moveTo(graph.getX(startTime), graph.getY(this.getGroundSpeedAt(startTime)*3600/1000));
+                var time = startTime.getTime() + step;
+                for (; time < endTime.getTime(); time += step) {
+                    var t = new Date(time);
+                    context.lineTo(graph.getX(t), graph.getY(this.getGroundSpeedAt(t)*3600/1000));
+                }
+                context.stroke();
 
-            this.lastDrawnGroundSpeedTime = time - step;
+                this.lastDrawnGroundSpeedTime = time - step;
+            }
         }
     };
 
@@ -512,6 +530,9 @@ var volare = volare || {};
         $(this._flights).on('flight_added', function(event, flight) {
             self._map.fitBounds(self._flights.getBounds());
             flight.setPolyline(self._map);
+            $(flight).on('visible_changed', function() {
+                flight.setPolyline(self._map, self._flights.getCurrentTime());
+            });
         });
         $(this._flights).on('flight_removed', function(event, flight) {
             flight.removePolyline();
@@ -539,6 +560,9 @@ var volare = volare || {};
         var self = this;
         $(this._flights).on('flight_added', function(event, flight) {
             self._refresh();
+            $(flight).on('visible_changed', function() {
+                self._refresh();
+            });
         });
         $(this._flights).on('flight_removed', function(event, flight) {
             self._refresh();
@@ -728,30 +752,36 @@ var volare = volare || {};
         this._chart = chart;
 
         this._chart.html('<table><tbody>' +
-                         '<tr>' +
-                         '<th>Name</th>' +
-                         '<th>Color</th>' +
-                         '<th>Latitude</th>' +
-                         '<th>Longitude</th>' +
-                         '<th>Altitude</th>' +
-                         '<th>Ground Speed</th>' +
-                         '<th>Vertical Speed</th>' +
-                         '</tr>' +
+                           '<tr>' +
+                             '<th></th>' +
+                             '<th>Name</th>' +
+                             '<th>Color</th>' +
+                             '<th>Latitude</th>' +
+                             '<th>Longitude</th>' +
+                             '<th>Altitude</th>' +
+                             '<th>Ground Speed</th>' +
+                             '<th>Vertical Speed</th>' +
+                           '</tr>' +
                          '</tbody></table>');
 
         var self = this;
         var row = _.template('<tr class="flight_<%- getId() %>">' +
-                             '<td class="name"><%- getName() %></td>' +
-                             '<td class="color"><div style="background:<%- getColor() %>"></div></td>' +
-                             '<td class="latitude"></td>' +
-                             '<td class="longitude"></td>' +
-                             '<td class="altitude"></td>' +
-                             '<td class="ground_speed"></td>' +
-                             '<td class="vertical_speed"></td>' +
+                               '<td><input type="checkbox"></td>' +
+                               '<td class="name"><%- getName() %></td>' +
+                               '<td class="color"><div style="background:<%- getColor() %>"></div></td>' +
+                               '<td class="latitude"></td>' +
+                               '<td class="longitude"></td>' +
+                               '<td class="altitude"></td>' +
+                               '<td class="ground_speed"></td>' +
+                               '<td class="vertical_speed"></td>' +
                              '</tr>');
         $(this._flights).on('flight_added', function(event, flight) {
             var tbody = self._chart.find('tbody');
-            tbody.append(row(flight));
+            var tr = $(row(flight));
+            tr.find('input').on('change', function(event) {
+                flight.setVisible(event.target.checked);
+            });
+            tbody.append(tr);
             self._update();
         });
         $(this._flights).on('flight_removed', function(event, flight) {
@@ -767,6 +797,7 @@ var volare = volare || {};
         this._flights.eachFlights(function(flight) {
             var position = flight.getPositionAt(time);
             var tr = self._chart.find('.flight_' + flight.getId());
+            tr.find('input').prop('checked', flight.isVisible());
             tr.find('td.latitude').text(Chart.formatPosition(position.latitude));
             tr.find('td.longitude').text(Chart.formatPosition(position.longitude));
             tr.find('td.altitude').text(Chart.formatAltitude(position.altitude));
