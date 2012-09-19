@@ -81,9 +81,12 @@ var volare = volare || {};
         if (!flight.getColor())
             flight.setColor(this._getNextAvailableColor());
 
-        this._flights.push(flight);
+        var n = _.sortedIndex(this._flights, flight, function(flight) {
+            return flight.getName();
+        });
+        this._flights.splice(n, 0, flight);
         this._clearProperties();
-        $(this).trigger('flight_added', flight);
+        $(this).trigger('flight_added', [flight, n]);
     };
 
     Flights.prototype.removeFlight = function(id) {
@@ -775,13 +778,12 @@ var volare = volare || {};
                                '<td class="ground_speed"></td>' +
                                '<td class="vertical_speed"></td>' +
                              '</tr>');
-        $(this._flights).on('flight_added', function(event, flight) {
-            var tbody = self._chart.find('tbody');
+        $(this._flights).on('flight_added', function(event, flight, index) {
             var tr = $(row(flight));
             tr.find('input').on('change', function(event) {
                 flight.setVisible(event.target.checked);
             });
-            tbody.append(tr);
+            $(self._chart.find('tbody tr')[index]).after(tr);
             self._update();
         });
         $(this._flights).on('flight_removed', function(event, flight) {
