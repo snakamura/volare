@@ -13,14 +13,17 @@ import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Foldable (forM_)
+import Data.List (sortBy)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
+import Data.Ord (comparing)
 import qualified Data.Text.Encoding as T
 import Data.Traversable (mapM)
 import Database.Persist (Entity(Entity),
                          Key,
                          PersistQuery,
                          (==.),
+                         entityVal,
                          insert,
                          insertUnique,
                          selectFirst,
@@ -156,7 +159,7 @@ flightsInWorkspace :: PersistQuery backend m =>
                       backend m [Entity (M.FlightGeneric backend)]
 flightsInWorkspace workspaceId = do
   workspaceFlights <- selectList [M.WorkspaceFlightWorkspaceId ==. workspaceId] []
-  catMaybes <$> mapM getFlight workspaceFlights
+  (sortBy (comparing (M.flightName . entityVal)) . catMaybes) <$> mapM getFlight workspaceFlights
     where
       getFlight (Entity _ (M.WorkspaceFlight _ flightId)) = selectFirst [M.FlightId ==. flightId] []
 
