@@ -1,6 +1,5 @@
 $(function() {
     var addFlight = $('#add_flight');
-    addFlight.button();
     addFlight.on('change', function(event) {
         _.each(event.target.files, function(file) {
             var reader = new FileReader();

@@ -82,6 +82,7 @@ getFlightsR = do
         setTitle "Flights - Volare"
         addCommonLibraries
         addScript $ StaticR S.js_flights_js
+        addStylesheet $ StaticR S.css_common_css
         $(widgetFile "flights/index")
       json = flights
   defaultLayoutJson html json

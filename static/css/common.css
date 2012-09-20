@@ -2,3 +2,36 @@ body, div {
     margin: 0;
     padding: 0;
 }
+
+
+div.file_selector {
+    position: relative;
+}
+
+div.file_selector input[type=file] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 150px;
+    height: 30px;
+    opacity: 0;
+    z-index: 2;
+    cursor: pointer;
+    font-size: 50px;
+}
+
+div.file_selector div {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border: solid 1px black;
+}
+
+div.file_selector div span {
+    display: inline-block;
+    margin: 0 auto;
+    width: 150px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+}
