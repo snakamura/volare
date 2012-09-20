@@ -139,8 +139,10 @@ putFlightR :: M.FlightId ->
               Handler RepJson
 putFlightR flightId = do
     EditFlight name <- parseJsonBody_
-    runDB $ update flightId [M.FlightName =. name]
-    jsonToRepJson flightId
+    flight <- runDB $ do
+        update flightId [M.FlightName =. name]
+        selectFirst [M.FlightId ==. flightId] []
+    jsonToRepJson flight
 
 
 addFlight :: PersistStore backend m =>
