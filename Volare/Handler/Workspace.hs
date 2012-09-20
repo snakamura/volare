@@ -64,11 +64,11 @@ import Yesod.Request (reqToken)
 import Yesod.Widget (addScript,
                      addScriptRemote,
                      addStylesheet,
-                     addStylesheetRemote,
                      setTitle)
 
 import qualified Volare.Config as Config
 import Volare.Foundation
+import Volare.Handler.Utils (addCommonLibraries)
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
@@ -115,12 +115,8 @@ getWorkspaceR workspaceId = do
   googleApiKey <- Config.googleApiKey <$> getConfig
   defaultLayout $ do
     setTitle "Workspace - Volare"
-    addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
-    addScriptRemote "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"
+    addCommonLibraries
     addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
-    addStylesheetRemote $ "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/ui-lightness/jquery-ui.css"
-    addScript $ StaticR S.js_underscore_min_js
-    addScript $ StaticR S.js_underscore_string_min_js
     addScript $ StaticR S.js_volare_js
     addScript $ StaticR S.js_workspace_js
     addStylesheet $ StaticR S.css_common_css

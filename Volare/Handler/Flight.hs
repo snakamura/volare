@@ -7,19 +7,22 @@ module Volare.Handler.Flight (
 ) where
 
 import qualified Codec.IGC as IGC
-import Control.Applicative ((<$>))
-import Control.Exception.Lifted (handle)
+import Control.Applicative ((<$>),
+                            (<*>))
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson ((.=))
+import Data.Aeson ((.=),
+                   (.:))
 import qualified Data.Aeson as JSON
+import Data.Attoparsec (parseOnly)
+import qualified Data.ByteString as B
 import Data.Conduit (($$),
                      runResourceT)
-import Data.Conduit.Attoparsec (ParseError,
-                                sinkParser)
+import Data.Conduit.Attoparsec (sinkParser)
 import Data.Foldable (forM_)
 import Data.List (maximumBy,
                   minimumBy)
-import Data.Monoid ((<>))
+import Data.Monoid ((<>),
+                    mempty)
 import Data.Ord (comparing)
 import qualified Data.Text as T
 import Data.Time (UTCTime(UTCTime),
@@ -32,90 +35,77 @@ import Database.Persist (Entity(Entity),
                          (==.),
                          insert,
                          update,
+                         selectFirst,
                          selectList)
+import Network.Wai (requestBody)
 import System.Locale (defaultTimeLocale)
 import Text.Printf (printf)
 import Yesod.Core (defaultLayout,
                    logDebug)
 import Yesod.Content (RepHtml,
-                      RepHtmlJson)
+                      RepHtmlJson,
+                      RepJson)
 import Yesod.Form (Enctype,
                    FormResult(FormSuccess),
                    areq,
-                   fileAFormReq,
                    generateFormPost,
                    renderDivs,
                    runFormPost,
                    textField)
-import Yesod.Handler (redirect)
-import Yesod.Json (defaultLayoutJson)
+import Yesod.Handler (invalidArgs,
+                      redirect,
+                      waiRequest)
+import Yesod.Json (defaultLayoutJson,
+                   jsonToRepJson)
 import Yesod.Persist (get404,
                       runDB)
-import Yesod.Request (FileInfo,
-                      fileName,
-                      fileSource)
 import Yesod.Widget (addScript,
                      addScriptRemote,
                      addStylesheet,
-                     addStylesheetRemote,
                      setTitle)
 
 import qualified Volare.Config as Config
 import Volare.Foundation
+import Volare.Handler.Utils (addCommonLibraries)
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
 
 
-data NewFlight = NewFlight FileInfo
+data NewFlight = NewFlight T.Text B.ByteString
 
-
-newFlightForm :: Form NewFlight
-newFlightForm = renderDivs $ NewFlight <$> fileAFormReq "File"
+instance JSON.FromJSON NewFlight where
+    parseJSON (JSON.Object o) = NewFlight <$> o .: "name"
+                                          <*> (o .: "igc")
+    parseJSON _ = mempty
 
 
 getFlightsR :: Handler RepHtmlJson
 getFlightsR = do
   flights <- runDB $ selectList [] []
-  (flightWidget, enctype) <- generateFormPost $ newFlightForm
-  let html = flightsWidget flights flightWidget enctype
+  let html = do
+        setTitle "Flights - Volare"
+        addCommonLibraries
+        addScript $ StaticR S.js_flights_js
+        $(widgetFile "flights/index")
       json = flights
   defaultLayoutJson html json
 
 
-postFlightsR :: Handler RepHtml
+postFlightsR :: Handler RepJson
 postFlightsR = do
-  ((result, flightWidget), enctype) <- runFormPost newFlightForm
-  case result of
-    FormSuccess (NewFlight file) ->
-        let handler :: ParseError ->
-                       Handler RepHtml
-            handler e = do
-                 $(logDebug) $ T.pack $ show e
-                 listFlights flightWidget enctype
-        in handle handler $ do
-                 igc <- liftIO $ runResourceT $ fileSource file $$ sinkParser IGC.igc
-                 $(logDebug) $ T.pack $ show igc
-                 flightId <- runDB $ addFlight (fileName file) igc
-                 redirect $ FlightR flightId
-    _ -> listFlights flightWidget enctype
-
-
-listFlights :: Widget ->
-               Enctype ->
-               Handler RepHtml
-listFlights flightWidget enctype = do
-  flights <- runDB $ selectList [] []
-  defaultLayout $ flightsWidget flights flightWidget enctype
-
-
-flightsWidget :: [Entity M.Flight] ->
-                 Widget ->
-                 Enctype ->
-                 Widget
-flightsWidget flights flightWidget enctype = do
-  setTitle "Flights - Volare"
-  $(widgetFile "flights/index")
+  req <- waiRequest
+  value <- liftIO $ runResourceT $ requestBody req $$ sinkParser JSON.json
+  case JSON.fromJSON value of
+    JSON.Error _ -> invalidArgs ["json"]
+    JSON.Success (NewFlight name igc) ->
+        case parseOnly IGC.igc igc of
+          Left _ -> invalidArgs ["igc"]
+          Right igc -> do
+            flight <- runDB $ do
+              flightId <- addFlight name igc
+              selectFirst [M.FlightId ==. flightId] []
+            jsonToRepJson flight
 
 
 data Flight = Flight M.FlightId M.Flight [Entity M.Record]
@@ -143,14 +133,10 @@ getFlightR flightId = do
   googleApiKey <- Config.googleApiKey <$> getConfig
   let html = do
         setTitle "Flight - Volare"
-        addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"
-        addScriptRemote "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"
+        addCommonLibraries
         addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
-        addStylesheetRemote $ "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/ui-lightness/jquery-ui.css"
-        addScript $ StaticR S.js_underscore_min_js
-        addScript $ StaticR S.js_underscore_string_min_js
-        addScript $ StaticR S.js_flight_js
         addScript $ StaticR S.js_volare_js
+        addScript $ StaticR S.js_flight_js
         addStylesheet $ StaticR S.css_common_css
         addStylesheet $ StaticR S.css_volare_css
         addStylesheet $ StaticR S.css_flight_css

@@ -1,9 +1,7 @@
 $if not (null flights)
-  <ol>
+  <ol id=flights>
     $forall Entity flightId flight <- flights
       <li>
         <a href=@{FlightR flightId}>#{M.flightName flight}
 
-<form method=POST action=@{FlightsR} enctype=#{enctype}>
-  ^{flightWidget}
-  <input type=submit>
+<input id=add_flight type=file multiple>

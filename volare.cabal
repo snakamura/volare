@@ -26,6 +26,7 @@ library
                    Volare.Model
                    Volare.Handler.Flight
                    Volare.Handler.Root
+                   Volare.Handler.Utils
                    Volare.Handler.Workspace
                    Volare.Settings
                    Volare.Static
@@ -37,6 +38,7 @@ library
         ghc-options: -Wall -O2
 
     extensions: CPP
+                DoAndIfThenElse
                 EmptyDataDecls
                 FlexibleContexts
                 FlexibleInstances
@@ -62,6 +64,7 @@ library
                    conduit >= 0.5 && < 0.6,
                    data-default >= 0.5 && < 0.6,
                    hamlet >= 1.1 && < 1.2,
+                   http-types >= 0.7 && < 0.8,
                    lifted-base >= 0.1 && < 0.2,
                    monad-control >= 0.3 && < 0.4,
                    monad-logger >= 0.2 && < 0.3,
