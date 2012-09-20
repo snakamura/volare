@@ -4,11 +4,11 @@ $(function() {
         _.each(event.target.files, function(file) {
             var reader = new FileReader();
             $(reader).on('loadend', function(event) {
-                var req = {
+                var data = {
                     name: file.name,
                     igc: reader.result
                 };
-                $.postJSON('/flights', req, function(flight) {
+                $.postJSON('/flights', data, function(flight) {
                     var li = $('<li><a></a></li>');
                     li.find('a').attr('href', '/flights/' + flight.id).text(flight.name);
                     $('#flights').append(li);

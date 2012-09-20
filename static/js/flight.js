@@ -16,6 +16,36 @@ $(function() {
         flights.addFlight(f);
     });
 
+    var showName = $('#show_name');
+    var editName = $('#edit_name');
+    var inputName = $('#edit_name input');
+    function startEditingName() {
+        showName.hide();
+        editName.show();
+        inputName.focus();
+    }
+    function finishEditingName() {
+        var name = inputName.val();
+        $('#name').text(name);
+        editName.hide();
+        showName.show();
+
+        var data = {
+            name: name
+        };
+        $.putJSON('', data, function(flight) {
+        });
+    }
+    $('#show_name a').on('click', function(event) {
+        event.preventDefault();
+        startEditingName();
+    });
+    $('#edit_name button').on('click', finishEditingName);
+    inputName.on('keyup', function(event) {
+        if (event.keyCode == 0x0d)
+            finishEditingName();
+    });
+
     function formatTime(time) {
         return _.sprintf('%04d-%02d-%02d %02d:%02d:%02d', time.getFullYear(),
                          time.getMonth() + 1, time.getDate(), time.getHours(),

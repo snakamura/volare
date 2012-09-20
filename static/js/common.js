@@ -3,13 +3,21 @@ $(function() {
         accept: 'application/json; charset=utf-8'
     });
 
-    $.postJSON = function(url, data, success) {
+    $.ajaxJSON = function(method, url, data, success) {
         $.ajax({
-            type: 'POST',
+            type: method,
             url: url,
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(data),
             dataType: 'json'
         }).done(success);
+    };
+
+    $.postJSON = function(url, data, success) {
+        return $.ajaxJSON('POST', url, data, success);
+    };
+
+    $.putJSON = function(url, data, success) {
+        return $.ajaxJSON('PUT', url, data, success);
     };
 });

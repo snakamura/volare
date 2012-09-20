@@ -25,10 +25,10 @@ $(function() {
                             return;
                         }
 
-                        var req = {
+                        var data = {
                             flightIds: flightIds
                         };
-                        $.postJSON('/workspaces/' + workspaceId + '/flights', req, function(flights) {
+                        $.postJSON('/workspaces/' + workspaceId + '/flights', data, function(flights) {
                             _.each(flights, function(flight) {
                                 addFlight(flight.id, flight.color);
                             });

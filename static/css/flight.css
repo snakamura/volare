@@ -1,9 +1,21 @@
-h1#name {
+h1 {
     margin: 10px;
 }
 
-h1#name a {
+h1 a {
     font-size: 60%;
+}
+
+#show_name a {
+    margin-left: 1em;
+}
+
+#edit_name {
+    display: none;
+}
+
+#edit_name input {
+    font-size: 100%;
 }
 
 table#properties {

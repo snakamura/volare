@@ -2,6 +2,7 @@ module Volare.Handler.Flight (
     getFlightsR,
     postFlightsR,
     getFlightR,
+    putFlightR,
     getFlightEditR,
     postFlightEditR
 ) where
@@ -138,6 +139,21 @@ getFlightR flightId = do
             $(widgetFile "flights/show")
         json = Flight flightId flight records
     defaultLayoutJson html json
+
+
+data EditFlightJSON = EditFlightJSON T.Text
+
+instance JSON.FromJSON EditFlightJSON where
+    parseJSON (JSON.Object o) = EditFlightJSON <$> o .: "name"
+    parseJSON _ = mempty
+
+
+putFlightR :: M.FlightId ->
+              Handler RepJson
+putFlightR flightId = do
+    EditFlightJSON name <- parseJsonBody_
+    runDB $ update flightId [M.FlightName =. name]
+    jsonToRepJson flightId
 
 
 data EditFlight = EditFlight T.Text
