@@ -180,16 +180,16 @@ addFlight :: PersistStore backend m =>
              backend m (Key backend (M.FlightGeneric backend))
 addFlight name igc =
     let records = IGC.records igc
-        v c p = realToFrac $ p $ IGC.position $ c (comparing (p . IGC.position)) records
+        value selector property = realToFrac $ property $ IGC.position $ selector (comparing (property . IGC.position)) records
     in do
       flightId <- insert $ M.Flight name
                                     (IGC.date igc)
-                                    (v minimumBy IGC.latitude)
-                                    (v maximumBy IGC.latitude)
-                                    (v minimumBy IGC.longitude)
-                                    (v maximumBy IGC.longitude)
-                                    (v minimumBy IGC.altitude)
-                                    (v maximumBy IGC.altitude)
+                                    (value minimumBy IGC.latitude)
+                                    (value maximumBy IGC.latitude)
+                                    (value minimumBy IGC.longitude)
+                                    (value maximumBy IGC.longitude)
+                                    (value minimumBy IGC.altitude)
+                                    (value maximumBy IGC.altitude)
       forM_ (zip records [1..]) $ \(record, index) -> do
          let position = IGC.position record
          insert $ M.Record flightId
