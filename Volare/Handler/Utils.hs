@@ -25,12 +25,12 @@ addJQueryUI = do
 
 addUnderscore :: Widget
 addUnderscore = do
-  addScript $ StaticR S.js_underscore_min_js
-  addScript $ StaticR S.js_underscore_string_min_js
+    addScript $ StaticR S.js_underscore_min_js
+    addScript $ StaticR S.js_underscore_string_min_js
 
 
 addCommonLibraries :: Widget
 addCommonLibraries = do
-  addJQuery
-  addJQueryUI
-  addUnderscore
+    addJQuery
+    addJQueryUI
+    addUnderscore

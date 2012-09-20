@@ -11,8 +11,8 @@ import Data.Yaml (Object,
 
 
 data Config = Config {
-      googleApiKey :: T.Text
-    } deriving Show
+    googleApiKey :: T.Text
+} deriving Show
 
 
 parseConfig :: Object ->

@@ -36,16 +36,16 @@ staticDir = "static"
 widgetFile :: String ->
               Q Exp
 widgetFile = widgetFile' widgetFileSettings
-    where
-      widgetFile' = if development then
-                        widgetFileReload
-                    else
-                        widgetFileNoReload
+  where
+    widgetFile' = if development then
+                      widgetFileReload
+                  else
+                      widgetFileNoReload
 
 
 widgetFileSettings :: WidgetFileSettings
 widgetFileSettings = def {
-                       wfsHamletSettings = defaultHamletSettings {
-                                             hamletNewlines = NoNewlines
-                                           }
+                         wfsHamletSettings = defaultHamletSettings {
+                             hamletNewlines = NoNewlines
+                         }
                      }

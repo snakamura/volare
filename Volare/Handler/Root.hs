@@ -11,6 +11,7 @@ import Volare.Settings (widgetFile)
 
 
 getRootR :: Handler RepHtml
-getRootR = defaultLayout $
-           do setTitle "Volare"
-              $(widgetFile "root")
+getRootR =
+    defaultLayout $ do
+        setTitle "Volare"
+        $(widgetFile "root")

@@ -22,25 +22,26 @@ import "volare" Volare.Config (parseConfig)
 
 main :: IO ()
 main = do
-  putStrLn "Starting devel application"
-  (port, app) <- defaultDevelApp loader makeVolare
-  forkIO $ runSettings defaultSettings {
-               settingsPort = port
-             } app
-  loop
-    where
-      loader = loadConfig (configSettings Development) {
+    putStrLn "Starting devel application"
+    (port, app) <- defaultDevelApp loader makeVolare
+    forkIO $ runSettings defaultSettings {
+        settingsPort = port
+    } app
+    loop
+  where
+    loader = loadConfig (configSettings Development) {
                  csParseExtra = const parseConfig
-               }
+             }
+
 
 loop :: IO ()
 loop = do
-  threadDelay 100000
-  e <- doesFileExist "dist/devel-terminate"
-  if e then
-      terminateDevel
-  else
-      loop
+    threadDelay 100000
+    e <- doesFileExist "dist/devel-terminate"
+    if e then
+        terminateDevel
+    else
+        loop
 
 
 terminateDevel :: IO ()

@@ -53,17 +53,17 @@ instance Yesod Volare where
     logLevel _ = LevelDebug
 
     makeSessionBackend _ = do
-      key <- getKey "config/client_session_key.aes"
-      return $ Just $ clientSessionBackend key 120
+        key <- getKey "config/client_session_key.aes"
+        return $ Just $ clientSessionBackend key 120
 
 
 instance YesodPersist Volare where
     type YesodPersistBackend Volare = SqlPersist
 
     runDB action = do
-      persistConfig <- volarePersistConfig <$> getYesod
-      pool <- volareConnectionPool <$> getYesod
-      runPool persistConfig action pool
+        persistConfig <- volarePersistConfig <$> getYesod
+        pool <- volareConnectionPool <$> getYesod
+        runPool persistConfig action pool
 
 
 instance RenderMessage Volare FormMessage where

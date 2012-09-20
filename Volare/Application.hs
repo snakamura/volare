@@ -37,15 +37,15 @@ mkYesodDispatch "Volare" resourcesVolare
 makeVolare :: AppConfig DefaultEnv Config ->
               IO Application
 makeVolare config = do
-  persistConfig <- withYamlEnvironment "config/persist.yml" (appEnv config) loadConfig >>= applyEnv
-  pool <- createPoolConfig persistConfig
-  runPool persistConfig (runMigration migrateAll) pool
-  s <- staticSite
-  toWaiApp $ Volare config persistConfig pool s
+    persistConfig <- withYamlEnvironment "config/persist.yml" (appEnv config) loadConfig >>= applyEnv
+    pool <- createPoolConfig persistConfig
+    runPool persistConfig (runMigration migrateAll) pool
+    s <- staticSite
+    toWaiApp $ Volare config persistConfig pool s
 
 
 withVolare :: (Application -> IO ()) -> IO ()
 withVolare f = do
-  config <- fromArgs $ const parseConfig
-  app <- makeVolare config
-  f $ logStdout $ app
+    config <- fromArgs $ const parseConfig
+    app <- makeVolare config
+    f $ logStdout $ app
