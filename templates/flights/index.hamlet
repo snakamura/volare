@@ -1,8 +1,7 @@
-$if not (null flights)
-  <ol id=flights>
-    $forall Entity flightId flight <- flights
-      <li>
-        <a href=@{FlightR flightId}>#{M.flightName flight}
+<ol id=flights>
+  $forall Entity flightId flight <- flights
+    <li>
+      <a href=@{FlightR flightId}>#{M.flightName flight}
 
 <div class=file_selector>
   <div>
