@@ -1,6 +1,6 @@
 <h1>#{M.flightName flight}
 
-<p>Date: #{show $ M.flightDate flight}
+<p>Time: #{show $ M.flightTime flight}
 
 <p>
   <a href=@{FlightEditR flightId}>Edit

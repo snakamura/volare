@@ -183,7 +183,7 @@ addFlight name igc =
         value selector property = realToFrac $ property $ IGC.position $ selector (comparing (property . IGC.position)) records
     in do
       flightId <- insert $ M.Flight name
-                                    (IGC.date igc)
+                                    (UTCTime (IGC.date igc) (IGC.time $ head records))
                                     (value minimumBy IGC.latitude)
                                     (value maximumBy IGC.latitude)
                                     (value minimumBy IGC.longitude)

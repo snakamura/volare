@@ -1,6 +1,6 @@
 Flight
   name T.Text
-  date Day
+  time UTCTime
   minLatitude Double
   maxLatitude Double
   minLongitude Double
