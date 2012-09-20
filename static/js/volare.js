@@ -158,6 +158,7 @@ var volare = volare || {};
         _.each(flight, function(value, key) {
             self['_' + key] = value;
         });
+        self._time = new Date(self._time);
         _.each(this._records, function(record) {
             record.time = new Date(record.time);
         });
@@ -173,6 +174,10 @@ var volare = volare || {};
 
     Flight.prototype.getName = function() {
         return this._name;
+    };
+
+    Flight.prototype.getTime = function() {
+        return this._time;
     };
 
     Flight.prototype.getColor = function() {

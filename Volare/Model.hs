@@ -22,7 +22,8 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFileWith lowerCas
 instance JSON.ToJSON (Entity Flight) where
     toJSON (Entity id flight) = JSON.object [
                                  "id" .= id,
-                                 "name" .= flightName flight
+                                 "name" .= flightName flight,
+                                 "time" .= flightTime flight
                                 ]
 
 instance JSON.ToJSON (Entity Record) where

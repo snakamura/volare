@@ -107,6 +107,7 @@ instance JSON.ToJSON Flight where
         JSON.object [
                  "id" .= id,
                  "name" .= M.flightName flight,
+                 "time" .= M.flightTime flight,
                  "minLatitude" .= M.flightMinLatitude flight,
                  "maxLatitude" .= M.flightMaxLatitude flight,
                  "minLongitude" .= M.flightMinLongitude flight,
