@@ -1,14 +1,21 @@
-table#records {
+h1#name {
+    margin: 10px;
+}
+
+h1#name a {
+    font-size: 60%;
+}
+
+table#properties {
+    margin: 10px;
     border-collapse: collapse;
 }
 
-table#records th {
+table#properties th, table#properties td {
+    border: 1px solid gray;
     padding: 2px 5px;
 }
 
-table#records td {
-    border: 1px solid gray;
-    padding: 2px 5px;
-    font-family: monospace;
+table#properties th {
     text-align: right;
 }

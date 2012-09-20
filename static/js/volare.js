@@ -205,6 +205,10 @@ var volare = volare || {};
         return _.last(this._records).time;
     };
 
+    Flight.prototype.getDuration = function() {
+        return this.getEndTime() - this.getStartTime();
+    };
+
     Flight.prototype.getBounds = function() {
         return new LatLngBounds(new LatLng(this._minLatitude, this._minLongitude),
                                 new LatLng(this._maxLatitude, this._maxLongitude));

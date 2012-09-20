@@ -1,9 +1,15 @@
-<h1>#{M.flightName flight}
+<h1 id=name>#{M.flightName flight} <a href=@{FlightEditR flightId}>Edit</a>
 
-<p>Time: #{show $ M.flightTime flight}
-
-<p>
-  <a href=@{FlightEditR flightId}>Edit
+<table id=properties>
+  <tr>
+    <th>Time
+    <td id=time>
+  <tr>
+    <th>Duration
+    <td id=duration>
+  <tr>
+    <th>Max Altitude
+    <td id=max_altitude>
 
 <div id=player>
 
@@ -14,20 +20,3 @@
 <canvas id=speed>
 
 <div id=chart>
-
-<!--
-<table id=records>
-  <tr>
-    <th>Index
-    <th>Time
-    <th>Latitude
-    <th>Longitude
-    <th>Altitude
-  $forall Entity _ record <- records
-    <tr>
-      <td>#{M.recordIndex record}
-      <td>#{formatTime defaultTimeLocale "%H:%M:%S" $ M.recordTime record}
-      <td>#{formatPosition $ M.recordLatitude record}
-      <td>#{formatPosition $ M.recordLongitude record}
-      <td>#{formatLatitude $ M.recordAltitude record}
--->
