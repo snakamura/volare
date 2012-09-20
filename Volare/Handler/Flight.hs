@@ -9,15 +9,11 @@ module Volare.Handler.Flight (
 import qualified Codec.IGC as IGC
 import Control.Applicative ((<$>),
                             (<*>))
-import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=),
                    (.:))
 import qualified Data.Aeson as JSON
 import Data.Attoparsec (parseOnly)
 import qualified Data.ByteString as B
-import Data.Conduit (($$),
-                     runResourceT)
-import Data.Conduit.Attoparsec (sinkParser)
 import Data.Foldable (forM_)
 import Data.List (maximumBy,
                   minimumBy)
@@ -37,7 +33,6 @@ import Database.Persist (Entity(Entity),
                          update,
                          selectFirst,
                          selectList)
-import Network.Wai (requestBody)
 import System.Locale (defaultTimeLocale)
 import Text.Printf (printf)
 import Yesod.Core (defaultLayout,
@@ -53,10 +48,10 @@ import Yesod.Form (Enctype,
                    runFormPost,
                    textField)
 import Yesod.Handler (invalidArgs,
-                      redirect,
-                      waiRequest)
+                      redirect)
 import Yesod.Json (defaultLayoutJson,
-                   jsonToRepJson)
+                   jsonToRepJson,
+                   parseJsonBody_)
 import Yesod.Persist (get404,
                       runDB)
 import Yesod.Widget (addScript,
@@ -94,18 +89,14 @@ getFlightsR = do
 
 postFlightsR :: Handler RepJson
 postFlightsR = do
-  req <- waiRequest
-  value <- liftIO $ runResourceT $ requestBody req $$ sinkParser JSON.json
-  case JSON.fromJSON value of
-    JSON.Error _ -> invalidArgs ["json"]
-    JSON.Success (NewFlight name igc) ->
-        case parseOnly IGC.igc igc of
-          Left _ -> invalidArgs ["igc"]
-          Right igc -> do
-            flight <- runDB $ do
-              flightId <- addFlight name igc
-              selectFirst [M.FlightId ==. flightId] []
-            jsonToRepJson flight
+  NewFlight name igc <- parseJsonBody_
+  case parseOnly IGC.igc igc of
+    Left _ -> invalidArgs ["igc"]
+    Right igc -> do
+      flight <- runDB $ do
+        flightId <- addFlight name igc
+        selectFirst [M.FlightId ==. flightId] []
+      jsonToRepJson flight
 
 
 data Flight = Flight M.FlightId M.Flight [Entity M.Record]
