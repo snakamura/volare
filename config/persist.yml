@@ -3,6 +3,7 @@ Default: &defaults
 
 Development:
   database: data/volare_development.sqlite
+  poolsize: 1
   <<: *defaults
 
 Testing:
