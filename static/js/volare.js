@@ -722,7 +722,7 @@ var volare = volare || {};
     };
 
     AltitudeGraph.prototype._formatValue = function(value) {
-        return value + 'm';
+        return _.numberFormat(value) + 'm';
     };
 
     AltitudeGraph.ALTITUDE_STEP = 200;
@@ -822,7 +822,7 @@ var volare = volare || {};
     };
 
     Chart.formatAltitude = function(a) {
-        return a + 'm';
+        return _.numberFormat(a) + 'm';
     };
 
     Chart.formatSpeed = function(s) {

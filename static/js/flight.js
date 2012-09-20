@@ -27,6 +27,6 @@ $(function() {
     }
 
     function formatAltitude(altitude) {
-        return altitude + 'm';
+        return _.numberFormat(altitude) + 'm';
     }
 });
