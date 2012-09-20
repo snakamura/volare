@@ -2,9 +2,7 @@ module Volare.Handler.Flight (
     getFlightsR,
     postFlightsR,
     getFlightR,
-    putFlightR,
-    getFlightEditR,
-    postFlightEditR
+    putFlightR
 ) where
 
 import qualified Codec.IGC as IGC
@@ -36,20 +34,9 @@ import Database.Persist (Entity(Entity),
                          selectList)
 import System.Locale (defaultTimeLocale)
 import Text.Printf (printf)
-import Yesod.Core (defaultLayout,
-                   logDebug)
-import Yesod.Content (RepHtml,
-                      RepHtmlJson,
+import Yesod.Content (RepHtmlJson,
                       RepJson)
-import Yesod.Form (Enctype,
-                   FormResult(FormSuccess),
-                   areq,
-                   generateFormPost,
-                   renderDivs,
-                   runFormPost,
-                   textField)
-import Yesod.Handler (invalidArgs,
-                      redirect)
+import Yesod.Handler (invalidArgs)
 import Yesod.Json (defaultLayoutJson,
                    jsonToRepJson,
                    parseJsonBody_)
@@ -141,56 +128,19 @@ getFlightR flightId = do
     defaultLayoutJson html json
 
 
-data EditFlightJSON = EditFlightJSON T.Text
+data EditFlight = EditFlight T.Text
 
-instance JSON.FromJSON EditFlightJSON where
-    parseJSON (JSON.Object o) = EditFlightJSON <$> o .: "name"
+instance JSON.FromJSON EditFlight where
+    parseJSON (JSON.Object o) = EditFlight <$> o .: "name"
     parseJSON _ = mempty
 
 
 putFlightR :: M.FlightId ->
               Handler RepJson
 putFlightR flightId = do
-    EditFlightJSON name <- parseJsonBody_
+    EditFlight name <- parseJsonBody_
     runDB $ update flightId [M.FlightName =. name]
     jsonToRepJson flightId
-
-
-data EditFlight = EditFlight T.Text
-
-
-editFlightForm :: Maybe M.Flight ->
-                  Form EditFlight
-editFlightForm flight = renderDivs $ EditFlight <$> areq textField "Name" (M.flightName <$> flight)
-
-
-getFlightEditR :: M.FlightId ->
-                  Handler RepHtml
-getFlightEditR flightId = do
-    flight <- runDB $ get404 flightId
-    (flightWidget, enctype) <- generateFormPost $ editFlightForm $ Just flight
-    editFlight flightId flightWidget enctype
-
-
-postFlightEditR :: M.FlightId ->
-                   Handler RepHtml
-postFlightEditR flightId = do
-    ((result, flightWidget), enctype) <- runFormPost $ editFlightForm Nothing
-    case result of
-      FormSuccess (EditFlight name) -> do
-          runDB $ update flightId [M.FlightName =. name]
-          redirect $ FlightR flightId
-      _ -> editFlight flightId flightWidget enctype
-
-
-editFlight :: M.FlightId ->
-              Widget ->
-              Enctype ->
-              Handler RepHtml
-editFlight flightId flightWidget enctype =
-    defaultLayout $ do
-        setTitle "Edit Flight - Volare"
-        $(widgetFile "flights/edit")
 
 
 addFlight :: PersistStore backend m =>

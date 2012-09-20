@@ -1,3 +1,0 @@
-<form method=POST action=@{FlightEditR flightId} enctype=#{enctype}>
-  ^{flightWidget}
-  <input type=submit>

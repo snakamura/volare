@@ -1,7 +1,7 @@
 <h1>
   <span id=show_name>
     <span id=name>#{M.flightName flight}
-    <a href=@{FlightEditR flightId}>Edit
+    <a href=#>Edit
   <span id=edit_name>
     <input type=text name=name value=#{M.flightName flight}>
     <button>Save</button>
