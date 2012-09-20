@@ -111,6 +111,7 @@ getWorkspaceR workspaceId = do
     setTitle "Workspace - Volare"
     addCommonLibraries
     addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
+    addScript $ StaticR S.js_common_js
     addScript $ StaticR S.js_volare_js
     addScript $ StaticR S.js_workspace_js
     addStylesheet $ StaticR S.css_common_css

@@ -8,13 +8,7 @@ $(function() {
                     name: file.name,
                     igc: reader.result
                 };
-                $.ajax({
-                    type: 'POST',
-                    url: '/flights',
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify(req),
-                    dataType: 'json'
-                }).done(function(flight) {
+                $.postJSON('/flights', req, function(flight) {
                     var li = $('<li><a></a></li>');
                     li.find('a').attr('href', '/flights/' + flight.id).text(flight.name);
                     $('#flights').append(li);

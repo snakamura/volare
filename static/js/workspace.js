@@ -28,13 +28,7 @@ $(function() {
                         var req = {
                             flightIds: flightIds
                         };
-                        $.ajax({
-                            type: 'POST',
-                            url: '/workspaces/' + workspaceId + '/flights',
-                            contentType: 'application/json; charset=utf-8',
-                            data: JSON.stringify(req),
-                            dataType: 'json'
-                        }).done(function(flights) {
+                        $.postJSON('/workspaces/' + workspaceId + '/flights', req, function(flights) {
                             _.each(flights, function(flight) {
                                 addFlight(flight.id, flight.color);
                             });

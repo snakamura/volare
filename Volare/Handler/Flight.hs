@@ -81,6 +81,7 @@ getFlightsR = do
   let html = do
         setTitle "Flights - Volare"
         addCommonLibraries
+        addScript $ StaticR S.js_common_js
         addScript $ StaticR S.js_flights_js
         addStylesheet $ StaticR S.css_common_css
         $(widgetFile "flights/index")
@@ -128,6 +129,7 @@ getFlightR flightId = do
         setTitle "Flight - Volare"
         addCommonLibraries
         addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
+        addScript $ StaticR S.js_common_js
         addScript $ StaticR S.js_volare_js
         addScript $ StaticR S.js_flight_js
         addStylesheet $ StaticR S.css_common_css
