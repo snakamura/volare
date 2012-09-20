@@ -9,9 +9,7 @@ $(function() {
     var chart = new volare.Chart(flights, $('#chart'));
 
     $('#add_flight').button().on('click', function() {
-        var dialog = $('<div><div class="loading">Loading...</div><form><input type="hidden" name="_token"></form></div>');
-        var form = dialog.find('form');
-        form.find('input').prop('value', token);
+        var dialog = $('<div><div class="loading">Loading...</div></div>');
         dialog.dialog({
             title: 'Flights',
             modal: true,
@@ -19,12 +17,29 @@ $(function() {
                 {
                     text: 'OK',
                     click: function() {
-                        $.post('/workspaces/' + workspaceId + '/flights', form.serialize(), function(flights) {
+                        var flightIds = _.map(dialog.find('input:checked[type=checkbox]'), function(checkbox) {
+                            return parseInt(checkbox.value, 10);
+                        });
+                        if (flightIds.length === 0) {
+                            dialog.dialog('close');
+                            return;
+                        }
+
+                        var req = {
+                            flightIds: flightIds
+                        };
+                        $.ajax({
+                            type: 'POST',
+                            url: '/workspaces/' + workspaceId + '/flights',
+                            contentType: 'application/json; charset=utf-8',
+                            data: JSON.stringify(req),
+                            dataType: 'json'
+                        }).done(function(flights) {
                             _.each(flights, function(flight) {
                                 addFlight(flight.id, flight.color);
                             });
                             dialog.dialog('close');
-                        }, 'json');
+                        });
                     }
                 },
                 {
@@ -44,7 +59,7 @@ $(function() {
                 var e = $('<div><label><input type="checkbox" name="flights"><span></span></label></div>');
                 e.find('input').prop('value', flight.id);
                 e.find('span').text(flight.name);
-                form.append(e);
+                dialog.append(e);
             });
             dialog.find('div.loading').remove();
         });

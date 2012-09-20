@@ -16,18 +16,17 @@ import Control.Monad.Logger (MonadLogger)
 import Control.Monad.Trans.Control (MonadBaseControl)
 import Control.Monad.Trans.Resource (MonadThrow,
                                      MonadUnsafeIO)
-import Data.Aeson ((.=))
+import Data.Aeson ((.=),
+                   (.:))
 import qualified Data.Aeson as JSON
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as BL
 import Data.List (minimumBy,
                   sortBy)
 import qualified Data.Map as Map
 import Data.Maybe (catMaybes)
-import Data.Monoid ((<>))
+import Data.Monoid ((<>),
+                    mempty)
 import Data.Ord (comparing)
 import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
 import Data.Traversable (forM,
                          mapM)
 import Database.Persist (Entity(Entity),
@@ -46,18 +45,13 @@ import Yesod.Content (RepHtml,
                       RepJson)
 import Yesod.Form (Enctype,
                    FormResult(FormSuccess),
-                   Option(Option),
-                   areq,
-                   fsName,
                    generateFormPost,
-                   mkOptionList,
-                   multiSelectField,
                    renderDivs,
                    runFormPost)
 import Yesod.Handler (getRequest,
-                      invalidArgs,
                       redirect)
-import Yesod.Json (jsonToRepJson)
+import Yesod.Json (jsonToRepJson,
+                   parseJsonBody_)
 import Yesod.Persist (get404,
                       runDB)
 import Yesod.Request (reqToken)
@@ -127,13 +121,9 @@ getWorkspaceR workspaceId = do
 
 data NewWorkspaceFlight = NewWorkspaceFlight [M.FlightId]
 
-
-newWorkspaceFlightForm :: M.WorkspaceId ->
-                          Form NewWorkspaceFlight
-newWorkspaceFlightForm workspaceId =
-    let options = runDB $ (mkOptionList . map option) <$> selectCandidateFlights workspaceId
-        option (Entity id flight) = Option (M.flightName flight) id (T.decodeUtf8 $ B.concat $ BL.toChunks $ JSON.encode id)
-    in renderDivs $ NewWorkspaceFlight <$> areq (multiSelectField options) ("Flights" { fsName = Just "flights" }) Nothing
+instance JSON.FromJSON NewWorkspaceFlight where
+    parseJSON (JSON.Object o) = NewWorkspaceFlight <$> o .: "flightIds"
+    parseJSON _ = mempty
 
 
 data WorkspaceFlight = WorkspaceFlight M.FlightId M.Flight T.Text
@@ -157,15 +147,12 @@ getWorkspaceFlightsR workspaceId = do
 postWorkspaceFlightsR :: M.WorkspaceId ->
                          Handler RepJson
 postWorkspaceFlightsR workspaceId = do
-  ((result, workspaceFlightWidget), enctype) <- runFormPost $ newWorkspaceFlightForm workspaceId
-  case result of
-    FormSuccess (NewWorkspaceFlight flightIds) ->
-        do newWorkspaceFlights <- runDB $ forM flightIds $ \flightId ->
-               do color <- nextColor workspaceId
-                  id <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
-                  mapM selectWorkspaceFlight id
-           jsonToRepJson $ catMaybes newWorkspaceFlights
-    _ -> invalidArgs ["flights"]
+  NewWorkspaceFlight flightIds <- parseJsonBody_
+  newWorkspaceFlights <- runDB $ forM flightIds $ \flightId -> do
+    color <- nextColor workspaceId
+    id <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
+    mapM selectWorkspaceFlight id
+  jsonToRepJson $ catMaybes newWorkspaceFlights
 
 
 getWorkspaceCandidatesR :: M.WorkspaceId ->
