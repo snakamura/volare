@@ -33,6 +33,10 @@ var volare = volare || {};
         _.each(this._flights, iterator, context);
     };
 
+    Flights.prototype.getPrimaryFlight = function() {
+        return this._flights.length > 0 ? this._flights[0] : null;
+    };
+
     Flights.prototype.getStartTime = function() {
         if (!this._start) {
             this._start = _.reduce(this._flights, function(time, flight) {
@@ -549,6 +553,14 @@ var volare = volare || {};
             self._flights.eachFlights(function(flight) {
                 flight.setPolyline(self._map, time);
             });
+            var primaryFlight = self._flights.getPrimaryFlight();
+            if (primaryFlight) {
+                var position = primaryFlight.getPositionAt(time);
+                var span = self._map.getBounds().toSpan();
+                var bounds = new LatLngBounds(new LatLng(position.latitude - span.lat()/10, position.longitude - span.lng()/10),
+                                              new LatLng(position.latitude + span.lat()/10, position.longitude + span.lng()/10));
+                self._map.panToBounds(bounds);
+            }
         });
     }
 
