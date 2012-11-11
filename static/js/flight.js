@@ -46,6 +46,14 @@ $(function() {
             finishEditingName();
     });
 
+    $('#show_name button').on('click', function(event) {
+        if (confirm('Are you sure to delete this flight?')) {
+            $.deleteJSON('', {}, function() {
+                document.location.href = '/flights';
+            });
+        }
+    });
+
     function formatTime(time) {
         return _.sprintf('%04d-%02d-%02d %02d:%02d:%02d', time.getFullYear(),
                          time.getMonth() + 1, time.getDate(), time.getHours(),

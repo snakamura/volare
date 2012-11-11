@@ -1,6 +1,6 @@
 / RootR GET
 /flights FlightsR GET POST
-/flights/#M.FlightId FlightR GET PUT
+/flights/#M.FlightId FlightR GET PUT DELETE
 /workspaces WorkspacesR GET POST
 /workspaces/#M.WorkspaceId WorkspaceR GET
 /workspaces/#M.WorkspaceId/flights WorkspaceFlightsR GET POST

@@ -20,4 +20,8 @@ $(function() {
     $.putJSON = function(url, data, success) {
         return $.ajaxJSON('PUT', url, data, success);
     };
+
+    $.deleteJSON = function(url, data, success) {
+        return $.ajaxJSON('DELETE', url, data, success);
+    };
 });

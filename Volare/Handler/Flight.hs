@@ -2,7 +2,8 @@ module Volare.Handler.Flight (
     getFlightsR,
     postFlightsR,
     getFlightR,
-    putFlightR
+    putFlightR,
+    deleteFlightR
 ) where
 
 import qualified Codec.IGC as IGC
@@ -28,6 +29,7 @@ import Database.Persist (Entity(Entity),
                          SelectOpt(Asc),
                          (=.),
                          (==.),
+                         delete,
                          insert,
                          update,
                          selectFirst,
@@ -143,6 +145,13 @@ putFlightR flightId = do
         update flightId [M.FlightName =. name]
         selectFirst [M.FlightId ==. flightId] []
     jsonToRepJson flight
+
+
+deleteFlightR :: M.FlightId ->
+                 Handler RepJson
+deleteFlightR flightId = do
+    runDB $ delete flightId
+    jsonToRepJson ()
 
 
 addFlight :: PersistStore backend m =>

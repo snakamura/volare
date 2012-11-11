@@ -2,6 +2,7 @@
   <span id=show_name>
     <span id=name>#{M.flightName flight}
     <a href=#>Edit
+    <button>Delete
   <span id=edit_name>
     <input type=text name=name value=#{M.flightName flight}>
     <button>Save</button>
