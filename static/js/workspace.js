@@ -8,6 +8,44 @@ $(function() {
     var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
     var chart = new volare.Chart(flights, $('#chart'));
 
+    var showName = $('#show_name');
+    var editName = $('#edit_name');
+    var inputName = $('#edit_name input');
+    function startEditingName() {
+        showName.hide();
+        editName.show();
+        inputName.focus();
+    }
+    function finishEditingName() {
+        var name = inputName.val();
+        $('#name').text(name);
+        editName.hide();
+        showName.show();
+
+        var data = {
+            name: name
+        };
+        $.putJSON('', data, function(workspace) {
+        });
+    }
+    $('#show_name a').on('click', function(event) {
+        event.preventDefault();
+        startEditingName();
+    });
+    $('#edit_name button').on('click', finishEditingName);
+    inputName.on('keyup', function(event) {
+        if (event.keyCode == 0x0d)
+            finishEditingName();
+    });
+
+    $('#show_name button').on('click', function(event) {
+        if (confirm('Are you sure to delete this workspace?')) {
+            $.deleteJSON('', {}, function() {
+                document.location.href = '/workspaces';
+            });
+        }
+    });
+
     $('#add_flight').button().on('click', function() {
         var dialog = $('<div><div class="loading">Loading...</div></div>');
         dialog.dialog({

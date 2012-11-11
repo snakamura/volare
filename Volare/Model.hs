@@ -34,3 +34,9 @@ instance JSON.ToJSON (Entity Record) where
                                     "longitude" .= recordLongitude record,
                                     "altitude" .= recordAltitude record
                                   ]
+
+instance JSON.ToJSON (Entity Workspace) where
+    toJSON (Entity id workspace) = JSON.object [
+                                       "id" .= id,
+                                       "name" .= workspaceName workspace
+                                     ]

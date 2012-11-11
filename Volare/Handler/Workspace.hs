@@ -2,6 +2,8 @@ module Volare.Handler.Workspace (
     getWorkspacesR,
     postWorkspacesR,
     getWorkspaceR,
+    putWorkspaceR,
+    deleteWorkspaceR,
     getWorkspaceFlightsR,
     postWorkspaceFlightsR,
     getWorkspaceCandidatesR
@@ -33,11 +35,15 @@ import Database.Persist (Entity(Entity),
                          Key,
                          PersistQuery,
                          SelectOpt(Asc),
+                         (=.),
                          (==.),
+                         delete,
+                         deleteWhere,
                          insert,
                          insertUnique,
                          selectFirst,
-                         selectList)
+                         selectList,
+                         update)
 import Database.Persist.GenericSql (SqlPersist)
 import Prelude hiding (mapM)
 import Yesod.Core (defaultLayout)
@@ -118,6 +124,32 @@ getWorkspaceR workspaceId = do
         addStylesheet $ StaticR S.css_volare_css
         addStylesheet $ StaticR S.css_workspace_css
         $(widgetFile "workspaces/show")
+
+
+data EditWorkspace = EditWorkspace T.Text
+
+instance JSON.FromJSON EditWorkspace where
+    parseJSON (JSON.Object o) = EditWorkspace <$> o .: "name"
+    parseJSON _ = mempty
+
+
+putWorkspaceR :: M.WorkspaceId ->
+                 Handler RepJson
+putWorkspaceR workspaceId = do
+    EditWorkspace name <- parseJsonBody_
+    workspace <- runDB $ do
+        update workspaceId [M.WorkspaceName =. name]
+        selectFirst [M.WorkspaceId ==. workspaceId] []
+    jsonToRepJson workspace
+
+
+deleteWorkspaceR :: M.WorkspaceId ->
+                    Handler RepJson
+deleteWorkspaceR workspaceId = do
+    runDB $ do
+        delete workspaceId
+        deleteWhere [M.WorkspaceFlightWorkspaceId ==. workspaceId]
+    jsonToRepJson ()
 
 
 data WorkspaceFlight = WorkspaceFlight M.FlightId M.Flight T.Text

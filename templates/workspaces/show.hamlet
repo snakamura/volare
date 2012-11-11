@@ -3,7 +3,14 @@
   >
   <a href=@{WorkspacesR}>Workspaces
 
-<h1>#{M.workspaceName workspace}
+<h1>
+  <span id=show_name>
+    <span id=name>#{M.workspaceName workspace}
+    <a href=#>Edit
+    <button>Delete
+  <span id=edit_name>
+    <input type=text name=name value=#{M.workspaceName workspace}>
+    <button>Save</button>
 
 <div id=player>
 

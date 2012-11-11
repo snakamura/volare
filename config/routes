@@ -2,7 +2,7 @@
 /flights FlightsR GET POST
 /flights/#M.FlightId FlightR GET PUT DELETE
 /workspaces WorkspacesR GET POST
-/workspaces/#M.WorkspaceId WorkspaceR GET
+/workspaces/#M.WorkspaceId WorkspaceR GET PUT DELETE
 /workspaces/#M.WorkspaceId/flights WorkspaceFlightsR GET POST
 /workspaces/#M.WorkspaceId/candidates WorkspaceCandidatesR GET
 /static StaticR Static volareStatic
