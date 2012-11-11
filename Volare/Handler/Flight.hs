@@ -30,6 +30,7 @@ import Database.Persist (Entity(Entity),
                          (=.),
                          (==.),
                          delete,
+                         deleteWhere,
                          insert,
                          update,
                          selectFirst,
@@ -150,7 +151,9 @@ putFlightR flightId = do
 deleteFlightR :: M.FlightId ->
                  Handler RepJson
 deleteFlightR flightId = do
-    runDB $ delete flightId
+    runDB $ do
+        delete flightId
+        deleteWhere [M.WorkspaceFlightFlightId ==. flightId]
     jsonToRepJson ()
 
 
