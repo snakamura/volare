@@ -4,6 +4,15 @@ body, div {
 }
 
 
+div#navigation {
+    margin: 10px;
+}
+
+div#navigation a {
+    margin: 0 10px;
+}
+
+
 div.file_selector {
     position: relative;
 }

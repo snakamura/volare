@@ -1,3 +1,6 @@
+<div id=navigation>
+  <a href=@{RootR}>/
+
 <ol id=flights>
   $forall Entity flightId flight <- flights
     <li>

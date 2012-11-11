@@ -1,3 +1,8 @@
+<div id=navigation>
+  <a href=@{RootR}>/
+  >
+  <a href=@{WorkspacesR}>Workspaces
+
 <h1>#{M.workspaceName workspace}
 
 <div id=player>
