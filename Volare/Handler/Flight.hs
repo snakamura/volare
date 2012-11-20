@@ -153,6 +153,7 @@ deleteFlightR :: M.FlightId ->
 deleteFlightR flightId = do
     runDB $ do
         delete flightId
+        deleteWhere [M.RecordFlightId ==. flightId]
         deleteWhere [M.WorkspaceFlightFlightId ==. flightId]
     jsonToRepJson ()
 
