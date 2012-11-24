@@ -1,6 +1,4 @@
 $(function() {
-    _.mixin(_.string.exports());
-
     var flights = new volare.Flights();
     var player = new volare.Player(flights, $('#player'));
     var map = new volare.Map(flights, $('#map'));

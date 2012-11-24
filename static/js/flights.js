@@ -1,6 +1,4 @@
 $(function() {
-    _.mixin(_.string.exports());
-
     var flights = new Flights();
     $(flights).on('flight_added', function(event, flight, index) {
         var tr = $('<tr>' +

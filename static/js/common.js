@@ -1,6 +1,8 @@
 var common = common || {};
 
 $(function() {
+    _.mixin(_.string.exports());
+
     $.ajaxSetup({
         accept: 'application/json; charset=utf-8'
     });
