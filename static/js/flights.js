@@ -9,7 +9,12 @@ $(function() {
         tr.find('.name a').attr('href', '/flights/' + flight.id).text(flight.name);
         tr.find('.time').text(common.formatTime(new Date(flight.time)));
         tr.find('.duration').text(common.formatDuration(flight.duration));
-        $($('#flights tr')[index]).after(tr);
+
+        var rows = $('#flights tbody tr');
+        if (rows.length > index)
+            $(rows[index]).before(tr);
+        else
+            $('#flights tbody').append(tr);
     });
 
     $.getJSON('/flights', function(fs) {

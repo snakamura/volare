@@ -2,10 +2,12 @@
   <a href=@{RootR}>/
 
 <table id=flights>
-  <tr>
-    <th>Name
-    <th>Time
-    <th>Duration
+  <thead>
+    <tr>
+      <th>Name
+      <th>Time
+      <th>Duration
+  <tbody>
 
 <div class=file_selector>
   <div>
