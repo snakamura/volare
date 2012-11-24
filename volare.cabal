@@ -47,6 +47,7 @@ library
                 NoMonomorphismRestriction
                 OverloadedStrings
                 QuasiQuotes
+                ScopedTypeVariables
                 TemplateHaskell
                 TupleSections
                 TypeFamilies

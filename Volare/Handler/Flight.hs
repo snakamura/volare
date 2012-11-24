@@ -60,7 +60,7 @@ import qualified Volare.Static as S
 
 getFlightsR :: Handler RepHtmlJson
 getFlightsR = do
-    flights <- runDB $ selectList [] []
+    flights :: [Entity M.Flight] <- runDB $ selectList [] []
     let html = do
             setTitle "Flights - Volare"
             addCommonLibraries

@@ -2,9 +2,6 @@
   <a href=@{RootR}>/
 
 <ol id=flights>
-  $forall Entity flightId flight <- flights
-    <li>
-      #{show $ M.flightTime flight} <a href=@{FlightR flightId}>#{M.flightName flight}</a>
 
 <div class=file_selector>
   <div>
