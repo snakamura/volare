@@ -1,3 +1,5 @@
+var common = common || {};
+
 $(function() {
     $.ajaxSetup({
         accept: 'application/json; charset=utf-8'
@@ -23,5 +25,19 @@ $(function() {
 
     $.deleteJSON = function(url, data, success) {
         return $.ajaxJSON('DELETE', url, data, success);
+    };
+
+    common.formatTime = function(time) {
+        return _.sprintf('%04d-%02d-%02d %02d:%02d:%02d', time.getFullYear(),
+                         time.getMonth() + 1, time.getDate(), time.getHours(),
+                         time.getMinutes(), time.getSeconds());
+    };
+
+    common.formatDuration = function(duration) {
+        return _.sprintf('%02d:%02d:%02d', Math.floor(duration/(60*60)), (duration/60)%60, duration%60);
+    };
+
+    common.formatAltitude = function(altitude) {
+        return _.numberFormat(altitude) + 'm';
     };
 });
