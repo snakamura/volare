@@ -1,7 +1,10 @@
 <div id=navigation>
   <a href=@{RootR}>/
 
-<ol id=flights>
+<table id=flights>
+  <tr>
+    <th>Time
+    <th>Name
 
 <div class=file_selector>
   <div>

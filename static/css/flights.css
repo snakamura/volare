@@ -1,0 +1,13 @@
+table#flights {
+    margin: 10px;
+    border-collapse: collapse;
+}
+
+table#flights th, table#flights td {
+    border: 1px solid gray;
+    padding: 2px 5px;
+}
+
+table#flights th {
+    text-align: left;
+}

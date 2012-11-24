@@ -67,6 +67,7 @@ getFlightsR = do
             addScript $ StaticR S.js_common_js
             addScript $ StaticR S.js_flights_js
             addStylesheet $ StaticR S.css_common_css
+            addStylesheet $ StaticR S.css_flights_css
             $(widgetFile "flights/index")
         json = flights
     defaultLayoutJson html json
