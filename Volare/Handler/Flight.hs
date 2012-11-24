@@ -39,7 +39,8 @@ import System.Locale (defaultTimeLocale)
 import Text.Printf (printf)
 import Yesod.Content (RepHtmlJson,
                       RepJson)
-import Yesod.Handler (invalidArgs)
+import Yesod.Handler (invalidArgs,
+                      setHeader)
 import Yesod.Json (defaultLayoutJson,
                    jsonToRepJson,
                    parseJsonBody_)
@@ -70,6 +71,7 @@ getFlightsR = do
             addStylesheet $ StaticR S.css_flights_css
             $(widgetFile "flights/index")
         json = flights
+    setHeader "Vary" "Accept"
     defaultLayoutJson html json
 
 
@@ -130,6 +132,7 @@ getFlightR flightId = do
             addStylesheet $ StaticR S.css_flight_css
             $(widgetFile "flights/show")
         json = Flight flightId flight records
+    setHeader "Vary" "Accept"
     defaultLayoutJson html json
 
 
