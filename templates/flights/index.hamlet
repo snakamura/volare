@@ -3,8 +3,9 @@
 
 <table id=flights>
   <tr>
-    <th>Time
     <th>Name
+    <th>Time
+    <th>Duration
 
 <div class=file_selector>
   <div>

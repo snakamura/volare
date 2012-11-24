@@ -1,6 +1,7 @@
 Flight
   name T.Text
   time UTCTime
+  duration Int
   minLatitude Double
   maxLatitude Double
   minLongitude Double

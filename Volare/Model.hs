@@ -23,7 +23,8 @@ instance JSON.ToJSON (Entity Flight) where
     toJSON (Entity id flight) = JSON.object [
                                     "id" .= id,
                                     "name" .= flightName flight,
-                                    "time" .= flightTime flight
+                                    "time" .= flightTime flight,
+                                    "duration" .= flightDuration flight
                                   ]
 
 instance JSON.ToJSON (Entity Record) where

@@ -101,6 +101,7 @@ instance JSON.ToJSON Flight where
             "id" .= id,
             "name" .= M.flightName flight,
             "time" .= M.flightTime flight,
+            "duration" .= M.flightDuration flight,
             "minLatitude" .= M.flightMinLatitude flight,
             "maxLatitude" .= M.flightMaxLatitude flight,
             "minLongitude" .= M.flightMinLongitude flight,
@@ -168,6 +169,7 @@ addFlight name igc = do
         value selector property = realToFrac $ property $ IGC.position $ selector (comparing (property . IGC.position)) records
     flightId <- insert $ M.Flight name
                                   (UTCTime (IGC.date igc) (IGC.time $ head records))
+                                  (round ((IGC.time $ last records) - (IGC.time $ head records)))
                                   (value minimumBy IGC.latitude)
                                   (value maximumBy IGC.latitude)
                                   (value minimumBy IGC.longitude)

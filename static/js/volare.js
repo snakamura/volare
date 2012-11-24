@@ -180,6 +180,10 @@ var volare = volare || {};
         return this._time;
     };
 
+    Flight.prototype.getDuration = function() {
+        return this._duration;
+    };
+
     Flight.prototype.getColor = function() {
         return this._color;
     };
@@ -203,10 +207,6 @@ var volare = volare || {};
 
     Flight.prototype.getEndTime = function() {
         return _.last(this._records).time;
-    };
-
-    Flight.prototype.getDuration = function() {
-        return this.getEndTime() - this.getStartTime();
     };
 
     Flight.prototype.getBounds = function() {

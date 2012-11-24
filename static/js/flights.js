@@ -6,9 +6,14 @@ $(function() {
     });
 
     function insertFlight(flight) {
-        var tr = $('<tr><td class="time"></td><td class="name"><a></a></td></tr>');
-        tr.find('.time').text(common.formatTime(new Date(flight.time)));
+        var tr = $('<tr>' +
+                   '<td class="name"><a></a></td>' +
+                   '<td class="time"></td>' +
+                   '<td class="duration"></td>' +
+                   '</tr>');
         tr.find('.name a').attr('href', '/flights/' + flight.id).text(flight.name);
+        tr.find('.time').text(common.formatTime(new Date(flight.time)));
+        tr.find('.duration').text(common.formatDuration(flight.duration));
         $('#flights').append(tr);
     }
 
