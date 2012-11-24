@@ -1,11 +1,8 @@
 $(function() {
     _.mixin(_.string.exports());
 
-    var flights = $.getJSON('/flights', function(flights) {
-        _.each(flights, insertFlight);
-    });
-
-    function insertFlight(flight) {
+    var flights = new Flights();
+    $(flights).on('flight_added', function(event, flight, index) {
         var tr = $('<tr>' +
                    '<td class="name"><a></a></td>' +
                    '<td class="time"></td>' +
@@ -14,11 +11,14 @@ $(function() {
         tr.find('.name a').attr('href', '/flights/' + flight.id).text(flight.name);
         tr.find('.time').text(common.formatTime(new Date(flight.time)));
         tr.find('.duration').text(common.formatDuration(flight.duration));
-        $('#flights').append(tr);
-    }
+        $($('#flights tr')[index]).after(tr);
+    });
 
-    var addFlight = $('#add_flight');
-    addFlight.on('change', function(event) {
+    $.getJSON('/flights', function(fs) {
+        _.each(fs, _.bind(flights.addFlight, flights));
+    });
+
+    $('#add_flight').on('change', function(event) {
         _.each(event.target.files, function(file) {
             var reader = new FileReader();
             $(reader).on('loadend', function(event) {
@@ -32,4 +32,19 @@ $(function() {
         });
         return false;
     });
+
+
+    function Flights() {
+        this._flights = [];
+    }
+
+    Flights.prototype.addFlight = function(flight) {
+        flight.time = new Date(flight.time);
+
+        var index = _.sortedIndex(this._flights, flight, function(flight) {
+            return -flight.time.getTime();
+        });
+        this._flights.splice(index, 0, flight);
+        $(this).trigger('flight_added', [flight, index]);
+    };
 });

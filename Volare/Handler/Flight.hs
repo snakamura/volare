@@ -26,7 +26,7 @@ import Data.Time (UTCTime(UTCTime),
 import Database.Persist (Entity(Entity),
                          Key,
                          PersistStore,
-                         SelectOpt(Asc),
+                         SelectOpt(Asc, Desc),
                          (=.),
                          (==.),
                          delete,
@@ -60,7 +60,7 @@ import qualified Volare.Static as S
 
 getFlightsR :: Handler RepHtmlJson
 getFlightsR = do
-    flights :: [Entity M.Flight] <- runDB $ selectList [] []
+    flights :: [Entity M.Flight] <- runDB $ selectList [] [Desc M.FlightTime]
     let html = do
             setTitle "Flights - Volare"
             addCommonLibraries
