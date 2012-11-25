@@ -29,7 +29,7 @@ $(function() {
                     name: file.name,
                     igc: reader.result
                 };
-                $.postJSON('/flights', data, insertFlight);
+                $.postJSON('/flights', data, _.bind(flights.addFlight, flights));
             });
             reader.readAsText(file);
         });
