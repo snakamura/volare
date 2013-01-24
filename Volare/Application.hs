@@ -12,7 +12,6 @@ import Database.Persist.Store (applyEnv,
                                runPool)
 import Network.Wai (Application)
 import Network.Wai.Middleware.RequestLogger (logStdout)
-import Yesod.Core (yesodDispatch)
 import Yesod.Default.Config (AppConfig,
                              DefaultEnv,
                              appEnv,
