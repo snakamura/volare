@@ -13,11 +13,8 @@ import Control.Applicative ((<$>),
                             pure)
 import Control.Arrow (first)
 import Control.Monad (join)
-import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Logger (MonadLogger)
-import Control.Monad.Trans.Control (MonadBaseControl)
-import Control.Monad.Trans.Resource (MonadThrow,
-                                     MonadUnsafeIO)
+import Control.Monad.Trans.Resource (MonadResource)
 import Data.Aeson ((.=),
                    (.:))
 import qualified Data.Aeson as JSON
@@ -33,6 +30,7 @@ import Data.Traversable (forM,
                          mapM)
 import Database.Persist (Entity(Entity),
                          Key,
+                         PersistMonadBackend,
                          PersistQuery,
                          SelectOpt(Asc),
                          (=.),
@@ -195,7 +193,7 @@ getWorkspaceCandidatesR workspaceId = do
     jsonToRepJson flights
 
 
-selectWorkspaceFlight :: (MonadIO m, MonadBaseControl IO m, MonadLogger m, MonadUnsafeIO m, MonadThrow m) =>
+selectWorkspaceFlight :: (MonadResource m, MonadLogger m) =>
                          M.WorkspaceFlightId ->
                          SqlPersist m (Maybe WorkspaceFlight)
 selectWorkspaceFlight workspaceFlightId = do
@@ -203,7 +201,7 @@ selectWorkspaceFlight workspaceFlightId = do
     join <$> mapM selectWorkspaceFlight' workspaceFlight
 
 
-selectWorkspaceFlights :: (MonadIO m, MonadBaseControl IO m, MonadLogger m, MonadUnsafeIO m, MonadThrow m) =>
+selectWorkspaceFlights :: (MonadResource m, MonadLogger m) =>
                           M.WorkspaceId ->
                           SqlPersist m [WorkspaceFlight]
 selectWorkspaceFlights workspaceId = do
@@ -213,7 +211,7 @@ selectWorkspaceFlights workspaceId = do
     name (WorkspaceFlight _ flight _) = M.flightName flight
 
 
-selectWorkspaceFlight' :: (MonadIO m, MonadBaseControl IO m, MonadLogger m, MonadUnsafeIO m, MonadThrow m) =>
+selectWorkspaceFlight' :: (MonadResource m, MonadLogger m) =>
                           Entity M.WorkspaceFlight ->
                           SqlPersist m (Maybe WorkspaceFlight)
 selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight workspaceFlight
@@ -222,13 +220,13 @@ selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight 
     makeWorkspaceFlight (Entity id flight, color) = WorkspaceFlight id flight color
 
 
-selectCandidateFlights :: PersistQuery backend m =>
-                          Key backend (M.WorkspaceGeneric backend) ->
-                          backend m [Entity (M.FlightGeneric backend)]
+selectCandidateFlights :: PersistQuery m =>
+                          Key (M.WorkspaceGeneric (PersistMonadBackend m)) ->
+                          m [Entity (M.FlightGeneric (PersistMonadBackend m))]
 selectCandidateFlights _ = selectList [] [Asc M.FlightName]
 
 
-nextColor :: (MonadIO m, MonadBaseControl IO m, MonadLogger m, MonadUnsafeIO m, MonadThrow m) =>
+nextColor :: (MonadResource m, MonadLogger m) =>
              M.WorkspaceId ->
              SqlPersist m T.Text
 nextColor workspaceId = do

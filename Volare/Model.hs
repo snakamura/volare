@@ -3,8 +3,7 @@ module Volare.Model where
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import qualified Data.Text as T
-import Data.Time (Day,
-                  UTCTime)
+import Data.Time (UTCTime)
 import Database.Persist (Entity(Entity),
                          PersistEntity(..),
                          PersistEntityBackend,
