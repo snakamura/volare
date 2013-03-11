@@ -431,6 +431,7 @@ var volare = volare || {};
                           '<button class="play">Play</button>' +
                           '<button class="pause">Pause</button>' +
                           '<button class="stop">Stop</button>' +
+                          '<span class="time"></span>' +
                           '</div>' +
                           '<div class="slider"></div>');
 
@@ -448,11 +449,16 @@ var volare = volare || {};
         $(this._flights).on('currenttime_changed', function() {
             self._updateButtons();
             self._updateSliderValue();
+            self._updateTime();
         });
-        $(this._flights).on('properties_changed', _.bind(this._updateSliderRange, this));
+        $(this._flights).on('properties_changed', function() {
+            self._updateSliderRange();
+            self._updateTime();
+        });
 
         this._updateButtons();
         this._updateSliderRange();
+        this._updateTime();
     }
 
     Player.prototype.play = function() {
@@ -529,6 +535,19 @@ var volare = volare || {};
         var slider = this._player.find('.slider');
         var time = this._flights.getCurrentTime();
         slider.slider('value', time ? time.getTime() : slider.slider('option', 'min'));
+    };
+
+    Player.prototype._updateTime = function() {
+        var timeLabel = this._player.find('.time');
+        var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+        timeLabel.text(Player.formatTime(time));
+    };
+
+    Player.formatTime = function(time) {
+        if (time)
+            return _.sprintf("%02d:%02d:%02d", time.getHours(), time.getMinutes(), time.getSeconds());
+        else
+            return '';
     };
 
 
