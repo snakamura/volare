@@ -429,14 +429,12 @@ var volare = volare || {};
 
         this._player.html('<div>' +
                           '<button class="play">Play</button>' +
-                          '<button class="pause">Pause</button>' +
                           '<button class="stop">Stop</button>' +
                           '<span class="time"></span>' +
                           '</div>' +
                           '<div class="slider"></div>');
 
         this._player.find('.play').button().on('click', _.bind(this.play, this));
-        this._player.find('.pause').button().on('click', _.bind(this.pause, this));
         this._player.find('.stop').button().on('click', _.bind(this.stop, this));
         this._player.find('.slider').slider({
             range: 'min',
@@ -462,28 +460,21 @@ var volare = volare || {};
     }
 
     Player.prototype.play = function() {
-        if (this._timer)
-            return;
-
-        var self = this;
-        self._flights.setCurrentTime(this._flights.getCurrentTime() || this._flights.getStartTime());
-        this._timer = setInterval(function() {
-            var time = new Date(self._flights.getCurrentTime().getTime() + 10*1000);
-            if (time > self._flights.getEndTime())
-                self.stop();
-            else
-                self._flights.setCurrentTime(time, true);
-        }, 100);
-
-        this._updateButtons();
-    };
-
-    Player.prototype.pause = function() {
-        if (!this._timer)
-            return;
-
-        clearInterval(this._timer);
-        this._timer = null;
+        if (!this._timer) {
+            var self = this;
+            this._flights.setCurrentTime(this._flights.getCurrentTime() || this._flights.getStartTime());
+            this._timer = setInterval(function() {
+                var time = new Date(self._flights.getCurrentTime().getTime() + 10*1000);
+                if (time > self._flights.getEndTime())
+                    self.stop();
+                else
+                    self._flights.setCurrentTime(time, true);
+            }, 100);
+        }
+        else {
+            clearInterval(this._timer);
+            this._timer = null;
+        }
 
         this._updateButtons();
     };
@@ -499,28 +490,8 @@ var volare = volare || {};
     };
 
     Player.prototype._updateButtons = function() {
-        var buttons = {
-            play: false,
-            pause: false,
-            stop: false
-        };
-
-        if (this._timer) {
-            buttons.pause = true;
-            buttons.stop = true;
-        }
-        else if (this._flights.getCurrentTime()) {
-            buttons.play = true;
-            buttons.stop = true;
-        }
-        else {
-            buttons.play = true;
-        }
-
-        var self = this;
-        _.each(buttons, function(v, k) {
-            self._player.find('.' + k).button(v ? 'enable' : 'disable');
-        });
+        this._player.find('.play').button('option', 'label', this._timer ? 'Pause' : 'Play');
+        this._player.find('.stop').button(this._timer || this._flights.getCurrentTime() ? 'enable' : 'disable');
     };
 
     Player.prototype._updateSliderRange = function() {
