@@ -5,6 +5,7 @@ module Volare.Application (
     withVolare
 ) where
 
+import Control.Monad.Logger (runStderrLoggingT)
 import Database.Persist.GenericSql (runMigration)
 import Database.Persist.Store (applyEnv,
                                createPoolConfig,
@@ -38,7 +39,7 @@ makeVolare :: AppConfig DefaultEnv Config ->
 makeVolare config = do
     persistConfig <- withYamlEnvironment "config/persist.yml" (appEnv config) loadConfig >>= applyEnv
     pool <- createPoolConfig persistConfig
-    runPool persistConfig (runMigration migrateAll) pool
+    runStderrLoggingT $ runPool persistConfig (runMigration migrateAll) pool
     s <- staticSite
     toWaiApp $ Volare config persistConfig pool s
 
