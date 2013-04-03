@@ -28,7 +28,7 @@ import Codec.IGC.Types (IGC(IGC),
 
 
 igc :: Parser IGC
-igc = a *> (IGC <$> headers <*> (catMaybes <$> many record)) <* g
+igc = a *> (IGC <$> headers <*> (catMaybes <$> many record)) <* option () g
 
 
 headers :: Parser Day
