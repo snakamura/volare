@@ -3,8 +3,8 @@ module Volare.Handler.Root (
 ) where
 
 import Yesod.Core (defaultLayout)
-import Yesod.Content (RepHtml)
-import Yesod.Widget (setTitle)
+import Yesod.Core.Content (RepHtml)
+import Yesod.Core.Widget (setTitle)
 
 import Volare.Foundation
 import Volare.Settings (widgetFile)

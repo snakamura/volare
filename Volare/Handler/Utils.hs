@@ -5,9 +5,9 @@ module Volare.Handler.Utils (
     addCommonLibraries
 ) where
 
-import Yesod.Widget (addScript,
-                     addScriptRemote,
-                     addStylesheetRemote)
+import Yesod.Core.Widget (addScript,
+                          addScriptRemote,
+                          addStylesheetRemote)
 
 import Volare.Foundation
 import qualified Volare.Static as S

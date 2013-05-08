@@ -6,20 +6,20 @@ module Volare.Application (
 ) where
 
 import Control.Monad.Logger (runStderrLoggingT)
-import Database.Persist.GenericSql (runMigration)
-import Database.Persist.Store (applyEnv,
+import Database.Persist.Class (applyEnv,
                                createPoolConfig,
                                loadConfig,
                                runPool)
+import Database.Persist.Sql (runMigration)
 import Network.Wai (Application)
 import Network.Wai.Middleware.RequestLogger (logStdout)
+import Yesod.Core.Dispatch (mkYesodDispatch,
+                            toWaiApp)
 import Yesod.Default.Config (AppConfig,
                              DefaultEnv,
                              appEnv,
                              fromArgs,
                              withYamlEnvironment)
-import Yesod.Dispatch (mkYesodDispatch,
-                       toWaiApp)
 
 import Volare.Config (Config,
                       parseConfig)

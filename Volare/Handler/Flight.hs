@@ -23,7 +23,7 @@ import Data.Ord (comparing)
 import qualified Data.Text as T
 import Data.Time (UTCTime(UTCTime),
                   formatTime)
-import Database.Persist (Entity(Entity),
+import Database.Persist (Entity,
                          Key,
                          PersistMonadBackend,
                          PersistStore,
@@ -38,19 +38,18 @@ import Database.Persist (Entity(Entity),
                          selectList)
 import System.Locale (defaultTimeLocale)
 import Text.Printf (printf)
-import Yesod.Content (RepHtmlJson,
-                      RepJson)
-import Yesod.Handler (invalidArgs,
-                      setHeader)
-import Yesod.Json (defaultLayoutJson,
-                   jsonToRepJson,
-                   parseJsonBody_)
+import Yesod.Core.Handler (addHeader,
+                           invalidArgs)
+import Yesod.Core.Json (defaultLayoutJson,
+                        jsonToRepJson,
+                        parseJsonBody_)
+import Yesod.Core.Types (TypedContent)
+import Yesod.Core.Widget (addScript,
+                          addScriptRemote,
+                          addStylesheet,
+                          setTitle)
 import Yesod.Persist (get404,
                       runDB)
-import Yesod.Widget (addScript,
-                     addScriptRemote,
-                     addStylesheet,
-                     setTitle)
 
 import qualified Volare.Config as Config
 import Volare.Foundation
@@ -60,7 +59,7 @@ import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
 
 
-getFlightsR :: Handler RepHtmlJson
+getFlightsR :: Handler TypedContent
 getFlightsR = do
     flights :: [Entity M.Flight] <- runDB $ selectList [] [Desc M.FlightTime]
     let html = do
@@ -71,8 +70,8 @@ getFlightsR = do
             addStylesheet $ StaticR S.css_common_css
             addStylesheet $ StaticR S.css_flights_css
             $(widgetFile "flights/index")
-        json = flights
-    setHeader "Vary" "Accept"
+        json = return flights
+    addHeader "Vary" "Accept"
     defaultLayoutJson html json
 
 
@@ -84,7 +83,7 @@ instance JSON.FromJSON NewFlight where
     parseJSON _ = mempty
 
 
-postFlightsR :: Handler RepJson
+postFlightsR :: Handler JSON.Value
 postFlightsR = do
     NewFlight name igc <- parseJsonBody_
     case parseOnly IGC.igc igc of
@@ -116,7 +115,7 @@ instance JSON.ToJSON Flight where
 
 
 getFlightR :: M.FlightId ->
-              Handler RepHtmlJson
+              Handler TypedContent
 getFlightR flightId = do
     flight <- runDB $ get404 flightId
     records <- runDB $ selectList [M.RecordFlightId ==. flightId] [Asc M.RecordIndex]
@@ -132,8 +131,8 @@ getFlightR flightId = do
             addStylesheet $ StaticR S.css_volare_css
             addStylesheet $ StaticR S.css_flight_css
             $(widgetFile "flights/show")
-        json = Flight flightId flight records
-    setHeader "Vary" "Accept"
+        json = return $ Flight flightId flight records
+    addHeader "Vary" "Accept"
     defaultLayoutJson html json
 
 
@@ -145,7 +144,7 @@ instance JSON.FromJSON EditFlight where
 
 
 putFlightR :: M.FlightId ->
-              Handler RepJson
+              Handler JSON.Value
 putFlightR flightId = do
     EditFlight name <- parseJsonBody_
     flight <- runDB $ do
@@ -155,7 +154,7 @@ putFlightR flightId = do
 
 
 deleteFlightR :: M.FlightId ->
-                 Handler RepJson
+                 Handler JSON.Value
 deleteFlightR flightId = do
     runDB $ do
         delete flightId

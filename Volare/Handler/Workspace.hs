@@ -42,27 +42,30 @@ import Database.Persist (Entity(Entity),
                          selectFirst,
                          selectList,
                          update)
-import Database.Persist.GenericSql (SqlPersist)
+import Database.Persist.Sql (SqlPersistT)
 import Prelude hiding (mapM)
-import Yesod.Core (defaultLayout)
-import Yesod.Content (RepHtml,
-                      RepJson)
+import Text.Blaze (Markup)
+import Yesod.Core (HandlerSite,
+                   WidgetT,
+                   defaultLayout)
+import Yesod.Core.Content (RepHtml)
+import Yesod.Core.Handler (getRequest,
+                           redirect,
+                           reqToken)
+import Yesod.Core.Json (jsonToRepJson,
+                        parseJsonBody_)
+import Yesod.Core.Widget (addScript,
+                          addScriptRemote,
+                          addStylesheet,
+                          setTitle)
 import Yesod.Form (Enctype,
                    FormResult(FormSuccess),
+                   MForm,
                    generateFormPost,
                    renderDivs,
                    runFormPost)
-import Yesod.Handler (getRequest,
-                      redirect)
-import Yesod.Json (jsonToRepJson,
-                   parseJsonBody_)
 import Yesod.Persist (get404,
                       runDB)
-import Yesod.Request (reqToken)
-import Yesod.Widget (addScript,
-                     addScriptRemote,
-                     addStylesheet,
-                     setTitle)
 
 import qualified Volare.Config as Config
 import Volare.Foundation
@@ -75,7 +78,9 @@ import qualified Volare.Static as S
 data NewWorkspace = NewWorkspace
 
 
-newWorkspaceForm :: Form NewWorkspace
+newWorkspaceForm :: Monad m =>
+                    Markup ->
+                    MForm m (FormResult NewWorkspace, WidgetT (HandlerSite m) IO ())
 newWorkspaceForm = renderDivs $ pure NewWorkspace
 
 
@@ -132,7 +137,7 @@ instance JSON.FromJSON EditWorkspace where
 
 
 putWorkspaceR :: M.WorkspaceId ->
-                 Handler RepJson
+                 Handler JSON.Value
 putWorkspaceR workspaceId = do
     EditWorkspace name <- parseJsonBody_
     workspace <- runDB $ do
@@ -142,7 +147,7 @@ putWorkspaceR workspaceId = do
 
 
 deleteWorkspaceR :: M.WorkspaceId ->
-                    Handler RepJson
+                    Handler JSON.Value
 deleteWorkspaceR workspaceId = do
     runDB $ do
         delete workspaceId
@@ -162,7 +167,7 @@ instance JSON.ToJSON WorkspaceFlight where
 
 
 getWorkspaceFlightsR :: M.WorkspaceId ->
-                        Handler RepJson
+                        Handler JSON.Value
 getWorkspaceFlightsR workspaceId = do
     flights <- runDB $ selectWorkspaceFlights workspaceId
     jsonToRepJson flights
@@ -176,7 +181,7 @@ instance JSON.FromJSON NewWorkspaceFlight where
 
 
 postWorkspaceFlightsR :: M.WorkspaceId ->
-                         Handler RepJson
+                         Handler JSON.Value
 postWorkspaceFlightsR workspaceId = do
     NewWorkspaceFlight flightIds <- parseJsonBody_
     newWorkspaceFlights <- runDB $ forM flightIds $ \flightId -> do
@@ -187,7 +192,7 @@ postWorkspaceFlightsR workspaceId = do
 
 
 getWorkspaceCandidatesR :: M.WorkspaceId ->
-                           Handler RepJson
+                           Handler JSON.Value
 getWorkspaceCandidatesR workspaceId = do
     flights <- runDB $ selectCandidateFlights workspaceId
     jsonToRepJson flights
@@ -195,7 +200,7 @@ getWorkspaceCandidatesR workspaceId = do
 
 selectWorkspaceFlight :: (MonadResource m, MonadLogger m) =>
                          M.WorkspaceFlightId ->
-                         SqlPersist m (Maybe WorkspaceFlight)
+                         SqlPersistT m (Maybe WorkspaceFlight)
 selectWorkspaceFlight workspaceFlightId = do
     workspaceFlight <- selectFirst [M.WorkspaceFlightId ==. workspaceFlightId] []
     join <$> mapM selectWorkspaceFlight' workspaceFlight
@@ -203,7 +208,7 @@ selectWorkspaceFlight workspaceFlightId = do
 
 selectWorkspaceFlights :: (MonadResource m, MonadLogger m) =>
                           M.WorkspaceId ->
-                          SqlPersist m [WorkspaceFlight]
+                          SqlPersistT m [WorkspaceFlight]
 selectWorkspaceFlights workspaceId = do
     workspaceFlights <- selectList [M.WorkspaceFlightWorkspaceId ==. workspaceId] []
     (sortBy (comparing name) . catMaybes) <$> mapM selectWorkspaceFlight' workspaceFlights
@@ -213,7 +218,7 @@ selectWorkspaceFlights workspaceId = do
 
 selectWorkspaceFlight' :: (MonadResource m, MonadLogger m) =>
                           Entity M.WorkspaceFlight ->
-                          SqlPersist m (Maybe WorkspaceFlight)
+                          SqlPersistT m (Maybe WorkspaceFlight)
 selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight workspaceFlight
   where
     getFlight (Entity _ (M.WorkspaceFlight _ flightId color)) = fmap (, color) <$> selectFirst [M.FlightId ==. flightId] []
@@ -228,7 +233,7 @@ selectCandidateFlights _ = selectList [] [Asc M.FlightName]
 
 nextColor :: (MonadResource m, MonadLogger m) =>
              M.WorkspaceId ->
-             SqlPersist m T.Text
+             SqlPersistT m T.Text
 nextColor workspaceId = do
     let colors = [
             "red",

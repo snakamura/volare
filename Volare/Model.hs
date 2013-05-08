@@ -4,10 +4,7 @@ import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import qualified Data.Text as T
 import Data.Time (UTCTime)
-import Database.Persist (Entity(Entity),
-                         PersistEntity(..),
-                         PersistEntityBackend,
-                         PersistField(..))
+import Database.Persist (Entity(Entity))
 import Database.Persist.Quasi (lowerCaseSettings)
 import Database.Persist.TH (mkMigrate,
                             mkPersist,

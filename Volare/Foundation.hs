@@ -3,34 +3,33 @@
 module Volare.Foundation where
 
 import Control.Applicative ((<$>))
-import Control.Monad.Logger (LogLevel(LevelDebug))
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy.Builder as T
-import Database.Persist.GenericSql (SqlPersist)
-import Database.Persist.Store (PersistConfigPool,
+import Database.Persist.Class (PersistConfigPool,
                                runPool)
+import Database.Persist.Sql (SqlPersistT)
 import Text.Blaze.Html (Html)
 import Text.Julius (ToJavascript(..))
 import Text.Shakespeare.I18N (RenderMessage,
                               renderMessage)
 import Web.ClientSession (getKey)
 import Yesod.Core (Yesod(..),
-                   clientSessionBackend2,
+                   clientSessionBackend,
                    clientSessionDateCacher,
                    renderRoute)
+import Yesod.Core.Dispatch (mkYesodData,
+                            parseRoutesFile)
+import Yesod.Core.Handler (getYesod)
 import Yesod.Default.Config (AppConfig,
                              DefaultEnv,
                              appExtra)
-import Yesod.Dispatch (mkYesodData,
-                       parseRoutesFile)
 import Yesod.Form (FormMessage,
                    FormResult,
                    MForm,
                    defaultFormMessage)
-import Yesod.Handler (getYesod)
 import Yesod.Persist (YesodPersist(..))
 import Yesod.Static (Static)
 
@@ -51,16 +50,14 @@ mkYesodData "Volare" $(parseRoutesFile "config/routes")
 
 
 instance Yesod Volare where
-    logLevel _ = LevelDebug
-
     makeSessionBackend _ = do
         key <- getKey "config/client_session_key.aes"
         (getCachedDate, _) <- clientSessionDateCacher $ 120 * 60
-        return $ Just $ clientSessionBackend2 key getCachedDate
+        return $ Just $ clientSessionBackend key getCachedDate
 
 
 instance YesodPersist Volare where
-    type YesodPersistBackend Volare = SqlPersist
+    type YesodPersistBackend Volare = SqlPersistT
 
     runDB action = do
         persistConfig <- volarePersistConfig <$> getYesod
@@ -73,7 +70,7 @@ instance RenderMessage Volare FormMessage where
 
 
 type Form a = Html ->
-              MForm Volare Volare (FormResult a, Widget)
+              MForm IO (FormResult a, Widget)
 
 
 instance JSON.ToJSON a => ToJavascript a where
