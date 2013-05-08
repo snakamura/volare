@@ -52,8 +52,7 @@ import Yesod.Core.Content (RepHtml)
 import Yesod.Core.Handler (getRequest,
                            redirect,
                            reqToken)
-import Yesod.Core.Json (jsonToRepJson,
-                        parseJsonBody_)
+import Yesod.Core.Json (parseJsonBody_)
 import Yesod.Core.Widget (addScript,
                           addScriptRemote,
                           addStylesheet,
@@ -143,7 +142,7 @@ putWorkspaceR workspaceId = do
     workspace <- runDB $ do
         update workspaceId [M.WorkspaceName =. name]
         selectFirst [M.WorkspaceId ==. workspaceId] []
-    jsonToRepJson workspace
+    return $ JSON.toJSON workspace
 
 
 deleteWorkspaceR :: M.WorkspaceId ->
@@ -152,7 +151,7 @@ deleteWorkspaceR workspaceId = do
     runDB $ do
         delete workspaceId
         deleteWhere [M.WorkspaceFlightWorkspaceId ==. workspaceId]
-    jsonToRepJson ()
+    return $ JSON.toJSON ()
 
 
 data WorkspaceFlight = WorkspaceFlight M.FlightId M.Flight T.Text
@@ -170,7 +169,7 @@ getWorkspaceFlightsR :: M.WorkspaceId ->
                         Handler JSON.Value
 getWorkspaceFlightsR workspaceId = do
     flights <- runDB $ selectWorkspaceFlights workspaceId
-    jsonToRepJson flights
+    return $ JSON.toJSON flights
 
 
 data NewWorkspaceFlight = NewWorkspaceFlight [M.FlightId]
@@ -188,14 +187,14 @@ postWorkspaceFlightsR workspaceId = do
         color <- nextColor workspaceId
         id <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
         mapM selectWorkspaceFlight id
-    jsonToRepJson $ catMaybes newWorkspaceFlights
+    return $ JSON.toJSON $ catMaybes newWorkspaceFlights
 
 
 getWorkspaceCandidatesR :: M.WorkspaceId ->
                            Handler JSON.Value
 getWorkspaceCandidatesR workspaceId = do
     flights <- runDB $ selectCandidateFlights workspaceId
-    jsonToRepJson flights
+    return $ JSON.toJSON flights
 
 
 selectWorkspaceFlight :: (MonadResource m, MonadLogger m) =>

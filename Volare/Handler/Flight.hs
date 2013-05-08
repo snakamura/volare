@@ -38,11 +38,12 @@ import Database.Persist (Entity,
                          selectList)
 import System.Locale (defaultTimeLocale)
 import Text.Printf (printf)
+import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler (addHeader,
-                           invalidArgs)
-import Yesod.Core.Json (defaultLayoutJson,
-                        jsonToRepJson,
-                        parseJsonBody_)
+                           invalidArgs,
+                           provideRep,
+                           selectRep)
+import Yesod.Core.Json (parseJsonBody_)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget (addScript,
                           addScriptRemote,
@@ -62,7 +63,9 @@ import qualified Volare.Static as S
 getFlightsR :: Handler TypedContent
 getFlightsR = do
     flights :: [Entity M.Flight] <- runDB $ selectList [] [Desc M.FlightTime]
-    let html = do
+    addHeader "Vary" "Accept"
+    selectRep $ do
+        provideRep $ defaultLayout $ do
             setTitle "Flights - Volare"
             addCommonLibraries
             addScript $ StaticR S.js_common_js
@@ -70,9 +73,7 @@ getFlightsR = do
             addStylesheet $ StaticR S.css_common_css
             addStylesheet $ StaticR S.css_flights_css
             $(widgetFile "flights/index")
-        json = return flights
-    addHeader "Vary" "Accept"
-    defaultLayoutJson html json
+        provideRep $ return $ JSON.toJSON flights
 
 
 data NewFlight = NewFlight T.Text B.ByteString
@@ -92,7 +93,7 @@ postFlightsR = do
           flight <- runDB $ do
               flightId <- addFlight name igc
               selectFirst [M.FlightId ==. flightId] []
-          jsonToRepJson flight
+          return $ JSON.toJSON flight
 
 
 data Flight = Flight M.FlightId M.Flight [Entity M.Record]
@@ -120,7 +121,9 @@ getFlightR flightId = do
     flight <- runDB $ get404 flightId
     records <- runDB $ selectList [M.RecordFlightId ==. flightId] [Asc M.RecordIndex]
     googleApiKey <- Config.googleApiKey <$> getConfig
-    let html = do
+    addHeader "Vary" "Accept"
+    selectRep $ do
+        provideRep $ defaultLayout $ do
             setTitle "Flight - Volare"
             addCommonLibraries
             addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
@@ -131,9 +134,7 @@ getFlightR flightId = do
             addStylesheet $ StaticR S.css_volare_css
             addStylesheet $ StaticR S.css_flight_css
             $(widgetFile "flights/show")
-        json = return $ Flight flightId flight records
-    addHeader "Vary" "Accept"
-    defaultLayoutJson html json
+        provideRep $ return $ JSON.toJSON $ Flight flightId flight records
 
 
 data EditFlight = EditFlight T.Text
@@ -150,7 +151,7 @@ putFlightR flightId = do
     flight <- runDB $ do
         update flightId [M.FlightName =. name]
         selectFirst [M.FlightId ==. flightId] []
-    jsonToRepJson flight
+    return $ JSON.toJSON flight
 
 
 deleteFlightR :: M.FlightId ->
@@ -160,7 +161,7 @@ deleteFlightR flightId = do
         delete flightId
         deleteWhere [M.RecordFlightId ==. flightId]
         deleteWhere [M.WorkspaceFlightFlightId ==. flightId]
-    jsonToRepJson ()
+    return $ JSON.toJSON ()
 
 
 addFlight :: PersistStore m =>
