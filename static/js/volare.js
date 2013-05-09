@@ -761,7 +761,7 @@ var volare = volare || {};
         this._flights = flights;
         this._chart = chart;
 
-        this._chart.html('<table><tbody>' +
+        this._chart.html('<table><thead>' +
                            '<tr>' +
                              '<th></th>' +
                              '<th>Name</th>' +
@@ -772,7 +772,7 @@ var volare = volare || {};
                              '<th>Ground Speed</th>' +
                              '<th>Vertical Speed</th>' +
                            '</tr>' +
-                         '</tbody></table>');
+                         '</thead><tbody></tbody></table>');
 
         var self = this;
         var row = _.template('<tr class="flight_<%- getId() %>">' +
@@ -790,7 +790,11 @@ var volare = volare || {};
             tr.find('input').on('change', function(event) {
                 flight.setVisible(event.target.checked);
             });
-            $(self._chart.find('tbody tr')[index]).after(tr);
+            var tbody = self._chart.find('tbody');
+            if (tbody.find('tr')[index])
+                $(tbody.find('tr')[index]).before(tr);
+            else
+                tbody.append(tr);
             self._update();
         });
         $(this._flights).on('flight_removed', function(event, flight) {
