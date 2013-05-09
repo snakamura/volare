@@ -16,24 +16,24 @@ import Database.Persist.TH (mkMigrate,
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFileWith lowerCaseSettings "config/models")
 
 instance JSON.ToJSON (Entity Flight) where
-    toJSON (Entity id flight) = JSON.object [
-                                    "id" .= id,
-                                    "name" .= flightName flight,
-                                    "time" .= flightTime flight,
-                                    "duration" .= flightDuration flight
-                                  ]
+    toJSON (Entity flightId flight) = JSON.object [
+                                          "id" .= flightId,
+                                          "name" .= flightName flight,
+                                          "time" .= flightTime flight,
+                                          "duration" .= flightDuration flight
+                                        ]
 
 instance JSON.ToJSON (Entity Record) where
-    toJSON (Entity id record) = JSON.object [
-                                    "id" .= id,
-                                    "time" .= recordTime record,
-                                    "latitude" .= recordLatitude record,
-                                    "longitude" .= recordLongitude record,
-                                    "altitude" .= recordAltitude record
-                                  ]
+    toJSON (Entity recordId record) = JSON.object [
+                                          "id" .= recordId,
+                                          "time" .= recordTime record,
+                                          "latitude" .= recordLatitude record,
+                                          "longitude" .= recordLongitude record,
+                                          "altitude" .= recordAltitude record
+                                        ]
 
 instance JSON.ToJSON (Entity Workspace) where
-    toJSON (Entity id workspace) = JSON.object [
-                                       "id" .= id,
-                                       "name" .= workspaceName workspace
-                                     ]
+    toJSON (Entity workspaceId workspace) = JSON.object [
+                                                "id" .= workspaceId,
+                                                "name" .= workspaceName workspace
+                                              ]

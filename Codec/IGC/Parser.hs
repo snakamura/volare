@@ -28,31 +28,31 @@ import Codec.IGC.Types (IGC(IGC),
 
 
 igc :: Parser IGC
-igc = a *> (IGC <$> headers <*> (catMaybes <$> many record)) <* option () g
+igc = recordA *> (IGC <$> headers <*> (catMaybes <$> many record)) <* option () recordG
 
 
 headers :: Parser Day
-headers = hfdte <* many h
+headers = hfdte <* many recordH
 
 
 record :: Parser (Maybe Record)
-record = b <|> other
+record = recordB <|> other
 
 
-a :: Parser ()
-a = char 'A' *> line
+recordA :: Parser ()
+recordA = char 'A' *> line
 
 
-b :: Parser (Maybe Record)
-b = Just <$> (char 'B' *> (Record <$> time <*> position) <* line)
+recordB :: Parser (Maybe Record)
+recordB = Just <$> (char 'B' *> (Record <$> time <*> position) <* line)
 
 
-g :: Parser ()
-g = char 'G' *> line
+recordG :: Parser ()
+recordG = char 'G' *> line
 
 
-h :: Parser ()
-h = char 'H' *> line
+recordH :: Parser ()
+recordH = char 'H' *> line
 
 
 hfdte :: Parser Day

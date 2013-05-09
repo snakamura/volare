@@ -21,8 +21,7 @@ import Data.Monoid ((<>),
                     mempty)
 import Data.Ord (comparing)
 import qualified Data.Text as T
-import Data.Time (UTCTime(UTCTime),
-                  formatTime)
+import Data.Time (UTCTime(UTCTime))
 import Database.Persist (Entity,
                          Key,
                          PersistMonadBackend,
@@ -36,7 +35,6 @@ import Database.Persist (Entity,
                          update,
                          selectFirst,
                          selectList)
-import System.Locale (defaultTimeLocale)
 import Text.Printf (printf)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler (addHeader,
@@ -86,8 +84,8 @@ instance JSON.FromJSON NewFlight where
 
 postFlightsR :: Handler JSON.Value
 postFlightsR = do
-    NewFlight name igc <- parseJsonBody_
-    case parseOnly IGC.igc igc of
+    NewFlight name igcBytes <- parseJsonBody_
+    case parseOnly IGC.igc igcBytes of
       Left _ -> invalidArgs ["igc"]
       Right igc -> do
           flight <- runDB $ do
@@ -99,9 +97,9 @@ postFlightsR = do
 data Flight = Flight M.FlightId M.Flight [Entity M.Record]
 
 instance JSON.ToJSON Flight where
-    toJSON (Flight id flight records) =
+    toJSON (Flight flightId flight records) =
         JSON.object [
-            "id" .= id,
+            "id" .= flightId,
             "name" .= M.flightName flight,
             "time" .= M.flightTime flight,
             "duration" .= M.flightDuration flight,

@@ -157,9 +157,9 @@ deleteWorkspaceR workspaceId = do
 data WorkspaceFlight = WorkspaceFlight M.FlightId M.Flight T.Text
 
 instance JSON.ToJSON WorkspaceFlight where
-    toJSON (WorkspaceFlight id flight color) =
+    toJSON (WorkspaceFlight workspaceId flight color) =
         JSON.object [
-            "id" .= id,
+            "id" .= workspaceId,
             "name" .= M.flightName flight,
             "color" .= color
           ]
@@ -185,8 +185,8 @@ postWorkspaceFlightsR workspaceId = do
     NewWorkspaceFlight flightIds <- parseJsonBody_
     newWorkspaceFlights <- runDB $ forM flightIds $ \flightId -> do
         color <- nextColor workspaceId
-        id <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
-        mapM selectWorkspaceFlight id
+        insertedFlightId <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
+        mapM selectWorkspaceFlight insertedFlightId
     return $ JSON.toJSON $ catMaybes newWorkspaceFlights
 
 
@@ -221,7 +221,7 @@ selectWorkspaceFlight' :: (MonadResource m, MonadLogger m) =>
 selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight workspaceFlight
   where
     getFlight (Entity _ (M.WorkspaceFlight _ flightId color)) = fmap (, color) <$> selectFirst [M.FlightId ==. flightId] []
-    makeWorkspaceFlight (Entity id flight, color) = WorkspaceFlight id flight color
+    makeWorkspaceFlight (Entity flightId flight, color) = WorkspaceFlight flightId flight color
 
 
 selectCandidateFlights :: PersistQuery m =>
