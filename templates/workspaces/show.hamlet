@@ -16,9 +16,10 @@
 
 <div id=map>
 
-<canvas id=altitude>
+<div id=sidebar>
+  <canvas id=altitude>
 
-<canvas id=speed>
+  <canvas id=speed>
 
 <div id=chart>
 

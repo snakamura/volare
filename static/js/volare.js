@@ -836,6 +836,19 @@ var volare = volare || {};
     };
 
 
+    function setupLayout(flights, map, sidebar, chart) {
+        function layout() {
+            map.width($(document).width() - (sidebar.width() + 20));
+            var mapPosition = map.position();
+            var chartPosition = chart.position();
+            map.height(chartPosition.top - mapPosition.top - 10);
+        }
+        $(flights).on('flight_added', layout);
+        $(flights).on('flight_removed', layout);
+        $(window).on('resize', layout);
+        layout();
+    }
+
     volare.Flights = Flights;
     volare.Flight = Flight;
     volare.Player = Player;
@@ -843,4 +856,5 @@ var volare = volare || {};
     volare.AltitudeGraph = AltitudeGraph;
     volare.SpeedGraph = SpeedGraph;
     volare.Chart = Chart;
+    volare.setupLayout = setupLayout;
 })();

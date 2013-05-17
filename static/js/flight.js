@@ -51,4 +51,6 @@ $(function() {
             });
         }
     });
+
+    volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
 });

@@ -19,8 +19,10 @@ h1 a, h1 button {
 }
 
 table#properties {
+    width: 300px;
     margin: 10px;
     border-collapse: collapse;
+    font-size: 90%;
 }
 
 table#properties th, table#properties td {

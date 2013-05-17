@@ -12,23 +12,24 @@
     <input type=text name=name value=#{M.flightName flight}>
     <button>Save</button>
 
-<table id=properties>
-  <tr>
-    <th>Time
-    <td id=time>
-  <tr>
-    <th>Duration
-    <td id=duration>
-  <tr>
-    <th>Max Altitude
-    <td id=max_altitude>
-
 <div id=player>
 
 <div id=map>
 
-<canvas id=altitude>
+<div id=sidebar>
+  <table id=properties>
+    <tr>
+      <th>Time
+      <td id=time>
+    <tr>
+      <th>Duration
+      <td id=duration>
+    <tr>
+      <th>Max Altitude
+      <td id=max_altitude>
 
-<canvas id=speed>
+  <canvas id=altitude>
+
+  <canvas id=speed>
 
 <div id=chart>

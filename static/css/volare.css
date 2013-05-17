@@ -7,25 +7,37 @@ div#player .slider {
 }
 
 div#map {
-    width: 500px;
-    height: 500px;
+    width: 800px;
+    height: 600px;
     float: left;
     margin: 10px;
 }
 
+div#sidebar {
+    width: 322px;
+    float: right;
+}
+
 canvas#altitude, canvas#speed {
-    width: 400px;
+    width: 300px;
     height: 200px;
-    border: 1px black solid;
+    border: 1px gray solid;
     margin: 10px;
 }
 
 div#chart {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
     clear: both;
-    margin: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+    max-height: 10em;
+    overflow-y: auto;
 }
 
 div#chart table {
+    width: 100%;
     border-collapse: collapse;
 }
 

@@ -106,4 +106,6 @@ $(function() {
             addFlight(flight.id, flight.color);
         });
     });
+
+    volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
 });
