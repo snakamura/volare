@@ -13,8 +13,6 @@ import Control.Applicative ((<$>),
                             pure)
 import Control.Arrow (first)
 import Control.Monad (join)
-import Control.Monad.Logger (MonadLogger)
-import Control.Monad.Trans.Resource (MonadResource)
 import Data.Aeson ((.=),
                    (.:))
 import qualified Data.Aeson as JSON
@@ -42,7 +40,7 @@ import Database.Persist (Entity(Entity),
                          selectFirst,
                          selectList,
                          update)
-import Database.Persist.Sql (SqlPersistT)
+import Database.Persist.Sql (SqlBackend)
 import Prelude hiding (mapM)
 import Text.Blaze (Markup)
 import Yesod.Core (HandlerSite,
@@ -197,17 +195,17 @@ getWorkspaceCandidatesR workspaceId = do
     return $ JSON.toJSON flights
 
 
-selectWorkspaceFlight :: (MonadResource m, MonadLogger m) =>
+selectWorkspaceFlight :: (Functor m, PersistQuery m, PersistMonadBackend m ~ SqlBackend) =>
                          M.WorkspaceFlightId ->
-                         SqlPersistT m (Maybe WorkspaceFlight)
+                         m (Maybe WorkspaceFlight)
 selectWorkspaceFlight workspaceFlightId = do
     workspaceFlight <- selectFirst [M.WorkspaceFlightId ==. workspaceFlightId] []
     join <$> mapM selectWorkspaceFlight' workspaceFlight
 
 
-selectWorkspaceFlights :: (MonadResource m, MonadLogger m) =>
+selectWorkspaceFlights :: (Functor m, PersistQuery m, PersistMonadBackend m ~ SqlBackend) =>
                           M.WorkspaceId ->
-                          SqlPersistT m [WorkspaceFlight]
+                          m [WorkspaceFlight]
 selectWorkspaceFlights workspaceId = do
     workspaceFlights <- selectList [M.WorkspaceFlightWorkspaceId ==. workspaceId] []
     (sortBy (comparing name) . catMaybes) <$> mapM selectWorkspaceFlight' workspaceFlights
@@ -215,9 +213,9 @@ selectWorkspaceFlights workspaceId = do
     name (WorkspaceFlight _ flight _) = M.flightName flight
 
 
-selectWorkspaceFlight' :: (MonadResource m, MonadLogger m) =>
+selectWorkspaceFlight' :: (Functor m, PersistQuery m, PersistMonadBackend m ~ SqlBackend) =>
                           Entity M.WorkspaceFlight ->
-                          SqlPersistT m (Maybe WorkspaceFlight)
+                          m (Maybe WorkspaceFlight)
 selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight workspaceFlight
   where
     getFlight (Entity _ (M.WorkspaceFlight _ flightId color)) = fmap (, color) <$> selectFirst [M.FlightId ==. flightId] []
@@ -230,9 +228,9 @@ selectCandidateFlights :: PersistQuery m =>
 selectCandidateFlights _ = selectList [] [Asc M.FlightName]
 
 
-nextColor :: (MonadResource m, MonadLogger m) =>
+nextColor :: (Functor m, PersistQuery m, PersistMonadBackend m ~ SqlBackend) =>
              M.WorkspaceId ->
-             SqlPersistT m T.Text
+             m T.Text
 nextColor workspaceId = do
     let colors = [
             "red",
