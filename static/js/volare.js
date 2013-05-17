@@ -247,6 +247,46 @@ var volare = volare || {};
         });
     };
 
+    Flight.prototype.getStatusAt = function(time) {
+        var range = this._getRecordIndexRange(time, Flight.STATUS_SAMPLING_DURATION);
+        if (!range)
+            return Flight.STATUS_UNKNOWN;
+
+        var directions = _.map(range, _.bind(this._getDirection, this));
+        if (directions.length < 2)
+            return Flight.STATUS_UNKNOWN;
+
+        var gliding = true;
+        for (var n = 1; n < directions.length && gliding; ++n) {
+            gliding = Math.cos(directions[n] - directions[n - 1]) >= 0;
+        }
+        if (gliding)
+            return Flight.STATUS_GLIDING;
+
+        var clockwise = Math.sin(directions[1] - directions[0]) >= 0;
+        var circling = true;
+        var firstHalf = true;
+        var circle = 0;
+        for (var n = 1; n < directions.length && circling; ++n) {
+            var f = true;
+            if (clockwise) {
+                circling = Math.sin(directions[n] - directions[n - 1]) >= 0;
+                f = Math.sin(directions[n] - directions[0]) >= 0;
+            }
+            else {
+                circling = Math.sin(directions[n] - directions[n - 1]) <= 0;
+                f = Math.sin(directions[n] - directions[0]) <= 0;
+            }
+            if (f && !firstHalf)
+                ++circle;
+            firstHalf = f;
+        }
+        if (circling && circle > 0)
+            return Flight.STATUS_CIRCLING;
+
+        return Flight.STATUS_UNKNOWN;
+    };
+
     Flight.prototype.setPolyline = function(map, currentTime) {
         if (this._visible) {
             var records = this._records;
@@ -375,13 +415,22 @@ var volare = volare || {};
     };
 
     Flight.prototype._getSpeedAt = function(time, duration, f) {
-        if (!time)
+        var range = this._getRecordIndexRange(time, duration);
+        if (!range)
             return 0;
+
+        var speeds = _.map(range, f);
+        return _.reduce(speeds, function(a, n) { return a + n; }, 0)/speeds.length;
+    };
+
+    Flight.prototype._getRecordIndexRange = function(time, duration) {
+        if (!time)
+            return null;
 
         var records = this._records;
         var index = this._getRecordIndexAt(time);
         if (index <= 0 || records.length <= index)
-            return 0;
+            return null;
 
         var start = this._getRecordIndexAt(new Date(time.getTime() - duration*1000));
         var end = this._getRecordIndexAt(new Date(time.getTime() + duration*1000));
@@ -391,10 +440,8 @@ var volare = volare || {};
             start = index - 1;
             end = index;
         }
-        var speeds = _.map(_.range(start, end), function(n) {
-            return f(n);
-        });
-        return _.reduce(speeds, function(a, n) { return a + n; }, 0)/speeds.length;
+
+        return _.range(start, end);
     };
 
     Flight.prototype._getDistance = function(index) {
@@ -406,6 +453,15 @@ var volare = volare || {};
         return distance;
     };
 
+    Flight.prototype._getDirection = function(index) {
+        var direction = this._records[index].direction;
+        if (_.isUndefined(direction)) {
+            direction = Flight.direction(this._records[index], this._records[index + 1]);
+            this._records[index].direction = direction;
+        }
+        return direction;
+    };
+
     Flight.distance = function(p1, p2) {
         var r = 6378137;
         var dx = (p1.longitude - p2.longitude)/180*Math.PI;
@@ -414,9 +470,21 @@ var volare = volare || {};
         return r*Math.acos(Math.sin(y1)*Math.sin(y2) + Math.cos(y1)*Math.cos(y2)*Math.cos(dx));
     };
 
+    Flight.direction = function(p1, p2) {
+        var y = Math.cos(p2.latitude)*Math.sin(p2.longitude - p1.longitude);
+        var x = Math.cos(p1.latitude)*Math.sin(p2.latitude) - Math.sin(p1.latitude)*Math.cos(p2.latitude)*Math.cos(p2.longitude - p1.longitude);
+        var t = Math.atan2(y, x);
+        return t < 0 ? t + 2*Math.PI : t;
+    };
+
     Flight.TRACK_DURATION = 10*60;
     Flight.GROUND_SPEED_SAMPLING_DURATION = 10;
     Flight.VERTICAL_SPEED_SAMPLING_DURATION = 5;
+    Flight.STATUS_SAMPLING_DURATION = 30;
+
+    Flight.STATUS_UNKNOWN = 0;
+    Flight.STATUS_CIRCLING = 1;
+    Flight.STATUS_GLIDING = 2;
 
 
     function Player(flights, player) {
@@ -771,6 +839,7 @@ var volare = volare || {};
                              '<th>Altitude</th>' +
                              '<th>Ground Speed</th>' +
                              '<th>Vertical Speed</th>' +
+                             '<th>Status</th>' +
                            '</tr>' +
                          '</thead><tbody></tbody></table>');
 
@@ -784,6 +853,7 @@ var volare = volare || {};
                                '<td class="altitude"></td>' +
                                '<td class="ground_speed"></td>' +
                                '<td class="vertical_speed"></td>' +
+                               '<td class="status"></td>' +
                              '</tr>');
         $(this._flights).on('flight_added', function(event, flight, index) {
             var tr = $(row(flight));
@@ -816,23 +886,38 @@ var volare = volare || {};
             tr.find('td.altitude').text(Chart.formatAltitude(position.altitude));
             tr.find('td.ground_speed').text(Chart.formatSpeed(flight.getGroundSpeedAt(time)));
             tr.find('td.vertical_speed').text(Chart.formatVerticalSpeed(flight.getVerticalSpeedAt(time)));
+            tr.find('td.status').text(Chart.formatStatus(flight.getStatusAt(time)));
         });
     };
 
-    Chart.formatPosition = function(p) {
-        return _.sprintf('%.5f', p);
+    Chart.formatPosition = function(position) {
+        return _.sprintf('%.5f', position);
     };
 
-    Chart.formatAltitude = function(a) {
-        return _.numberFormat(a) + 'm';
+    Chart.formatAltitude = function(altitude) {
+        return _.numberFormat(altitude) + 'm';
     };
 
-    Chart.formatSpeed = function(s) {
-        return _.sprintf('%.1fkm/h', s*3600/1000);
+    Chart.formatSpeed = function(speed) {
+        return _.sprintf('%.1fkm/h', speed*3600/1000);
     };
 
-    Chart.formatVerticalSpeed = function(s) {
-        return _.sprintf('%.1fm/s', s);
+    Chart.formatVerticalSpeed = function(speed) {
+        return _.sprintf('%.1fm/s', speed);
+    };
+
+    Chart.formatStatus = function(status) {
+        switch (status) {
+        case Flight.STATUS_UNKNOWN:
+            break;
+        case Flight.STATUS_CIRCLING:
+            return 'Circling';
+        case Flight.STATUS_GLIDING:
+            return 'Gliding';
+        default:
+            break;
+        };
+        return 'Unknown';
     };
 
 
