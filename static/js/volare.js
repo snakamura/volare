@@ -917,7 +917,7 @@ var volare = volare || {};
         default:
             break;
         };
-        return 'Unknown';
+        return '-';
     };
 
 

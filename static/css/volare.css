@@ -62,3 +62,7 @@ div#chart table td.color div {
     height: 5px;
     margin: 0 auto;
 }
+
+div#chart table td.status {
+    text-align: center;
+}
