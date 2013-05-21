@@ -298,6 +298,42 @@ var volare = volare || {};
         return status;
     };
 
+    Flight.prototype.getLD = function(time) {
+        var status = this.getStatusAt(time);
+        if (status !== Flight.STATUS_GLIDING)
+            return null;
+
+        var start = time;
+        while (true) {
+            var t = new Date(start.getTime() - 1000);
+            if (this.getStatusAt(t) !== status)
+                break;
+            start = t;
+        }
+
+        var end = time;
+        while (true) {
+            var t = new Date(end.getTime() + 1000);
+            if (this.getStatusAt(t) !== status)
+                break;
+            end = t;
+        }
+
+        var startIndex = this._getRecordIndexAt(start);
+        var endIndex = this._getRecordIndexAt(end);
+        if (startIndex >= endIndex - 1)
+            return null;
+
+        var distance = 0;
+        for (var n = startIndex; n < endIndex; ++n) {
+            distance += this._getDistance(n);
+        }
+        if (distance === 0)
+            return null;
+
+        return distance/(this._records[startIndex].altitude - this._records[endIndex - 1].altitude);
+    };
+
     Flight.prototype.setPolyline = function(map, currentTime) {
         if (this._visible) {
             var records = this._records;
@@ -851,6 +887,7 @@ var volare = volare || {};
                              '<th>Ground Speed</th>' +
                              '<th>Vertical Speed</th>' +
                              '<th>Status</th>' +
+                             '<th>L/D</th>' +
                            '</tr>' +
                          '</thead><tbody></tbody></table>');
 
@@ -865,6 +902,7 @@ var volare = volare || {};
                                '<td class="ground_speed"></td>' +
                                '<td class="vertical_speed"></td>' +
                                '<td class="status"></td>' +
+                               '<td class="ld"></td>' +
                              '</tr>');
         $(this._flights).on('flight_added', function(event, flight, index) {
             var tr = $(row(flight));
@@ -898,6 +936,7 @@ var volare = volare || {};
             tr.find('td.ground_speed').text(Chart.formatSpeed(flight.getGroundSpeedAt(time)));
             tr.find('td.vertical_speed').text(Chart.formatVerticalSpeed(flight.getVerticalSpeedAt(time)));
             tr.find('td.status').text(Chart.formatStatus(flight.getStatusAt(time)));
+            tr.find('td.ld').text(Chart.formatLD(flight.getLD(time)));
         });
     };
 
@@ -929,6 +968,13 @@ var volare = volare || {};
             break;
         };
         return '-';
+    };
+
+    Chart.formatLD = function(ld) {
+        if (!ld)
+            return '-';
+        else
+            return _.sprintf('%.1f', ld);
     };
 
 
