@@ -166,6 +166,7 @@ var volare = volare || {};
         this._color = color;
         this._visible = true;
         this._polyline = null;
+        this._statuses = {};
     }
 
     Flight.prototype.getId = function() {
@@ -248,43 +249,53 @@ var volare = volare || {};
     };
 
     Flight.prototype.getStatusAt = function(time) {
-        var range = this._getRecordIndexRange(time, Flight.STATUS_SAMPLING_DURATION);
-        if (!range)
-            return Flight.STATUS_UNKNOWN;
+        var self = this;
+        function getStatus() {
+            var range = self._getRecordIndexRange(time, Flight.STATUS_SAMPLING_DURATION);
+            if (!range)
+                return Flight.STATUS_UNKNOWN;
 
-        var directions = _.map(range, _.bind(this._getDirection, this));
-        if (directions.length < 2)
-            return Flight.STATUS_UNKNOWN;
+            var directions = _.map(range, _.bind(self._getDirection, self));
+            if (directions.length < 2)
+                return Flight.STATUS_UNKNOWN;
 
-        var gliding = true;
-        for (var n = 1; n < directions.length && gliding; ++n) {
-            gliding = Math.cos(directions[n] - directions[n - 1]) >= 0;
-        }
-        if (gliding)
-            return Flight.STATUS_GLIDING;
-
-        var clockwise = Math.sin(directions[1] - directions[0]) >= 0;
-        var circling = true;
-        var firstHalf = true;
-        var circle = 0;
-        for (var n = 1; n < directions.length && circling; ++n) {
-            var f = true;
-            if (clockwise) {
-                circling = Math.sin(directions[n] - directions[n - 1]) >= 0;
-                f = Math.sin(directions[n] - directions[0]) >= 0;
+            var gliding = true;
+            for (var n = 1; n < directions.length && gliding; ++n) {
+                gliding = Math.cos(directions[n] - directions[n - 1]) >= 0;
             }
-            else {
-                circling = Math.sin(directions[n] - directions[n - 1]) <= 0;
-                f = Math.sin(directions[n] - directions[0]) <= 0;
-            }
-            if (f && !firstHalf)
-                ++circle;
-            firstHalf = f;
-        }
-        if (circling && circle > 0)
-            return Flight.STATUS_CIRCLING;
+            if (gliding)
+                return Flight.STATUS_GLIDING;
 
-        return Flight.STATUS_UNKNOWN;
+            var clockwise = Math.sin(directions[1] - directions[0]) >= 0;
+            var circling = true;
+            var firstHalf = true;
+            var circle = 0;
+            for (var n = 1; n < directions.length && circling; ++n) {
+                var f = true;
+                if (clockwise) {
+                    circling = Math.sin(directions[n] - directions[n - 1]) >= 0;
+                    f = Math.sin(directions[n] - directions[0]) >= 0;
+                }
+                else {
+                    circling = Math.sin(directions[n] - directions[n - 1]) <= 0;
+                    f = Math.sin(directions[n] - directions[0]) <= 0;
+                }
+                if (f && !firstHalf)
+                    ++circle;
+                firstHalf = f;
+            }
+            if (circling && circle > 0)
+                return Flight.STATUS_CIRCLING;
+
+            return Flight.STATUS_UNKNOWN;
+        };
+
+        var status = this._statuses[time];
+        if (_.isUndefined(status)) {
+            status = getStatus();
+            this._statuses[time] = status;
+        }
+        return status;
     };
 
     Flight.prototype.setPolyline = function(map, currentTime) {
