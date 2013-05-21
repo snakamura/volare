@@ -259,13 +259,6 @@ var volare = volare || {};
             if (directions.length < 2)
                 return Flight.STATUS_UNKNOWN;
 
-            var gliding = true;
-            for (var n = 1; n < directions.length && gliding; ++n) {
-                gliding = Math.cos(directions[n] - directions[n - 1]) >= 0;
-            }
-            if (gliding)
-                return Flight.STATUS_GLIDING;
-
             var clockwise = Math.sin(directions[1] - directions[0]) >= 0;
             var circling = true;
             var firstHalf = true;
@@ -286,6 +279,13 @@ var volare = volare || {};
             }
             if (circling && circle > 0)
                 return Flight.STATUS_CIRCLING;
+
+            var gliding = true;
+            for (var n = 1; n < directions.length && gliding; ++n) {
+                gliding = Math.cos(directions[n] - directions[n - 1]) >= 0;
+            }
+            if (gliding)
+                return Flight.STATUS_GLIDING;
 
             return Flight.STATUS_UNKNOWN;
         };
