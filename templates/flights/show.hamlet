@@ -2,6 +2,8 @@
   <a href=@{RootR}>/
   >
   <a href=@{FlightsR}>Flights
+  >
+  <span>#{M.flightName flight}
 
 <h1>
   <span id=show_name>

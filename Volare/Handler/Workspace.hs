@@ -104,6 +104,9 @@ listWorkspaces workspaceWidget enctype = do
     workspaces <- runDB $ selectList [] []
     defaultLayout $ do
         setTitle "Workspaces - Volare"
+        addCommonLibraries
+        addScript $ StaticR S.js_common_js
+        addStylesheet $ StaticR S.css_common_css
         $(widgetFile "workspaces/index")
 
 

@@ -2,6 +2,8 @@
   <a href=@{RootR}>/
   >
   <a href=@{WorkspacesR}>Workspaces
+  >
+  <span>#{M.workspaceName workspace}
 
 <h1>
   <span id=show_name>

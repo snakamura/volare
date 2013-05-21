@@ -10,8 +10,11 @@ div#navigation {
     border-bottom: 1px solid gray;
 }
 
-div#navigation a {
+div#navigation * {
     margin: 0 10px;
+}
+
+div#navigation a {
     text-decoration: none;
     color: black;
 }

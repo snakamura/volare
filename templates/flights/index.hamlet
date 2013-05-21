@@ -1,5 +1,7 @@
 <div id=navigation>
   <a href=@{RootR}>/
+  >
+  <span>Flights
 
 <table id=flights>
   <thead>

@@ -1,5 +1,7 @@
 <div id=navigation>
   <a href=@{RootR}>/
+  >
+  <span>Workspaces
 
 $if not (null workspaces)
   <ol>
