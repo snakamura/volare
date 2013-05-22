@@ -382,7 +382,7 @@ var volare = volare || {};
         }
     };
 
-    Flight.prototype.drawAltitude = function(graph, currentTime, partial) {
+    Flight.prototype.drawAltitude = function(graph, currentTime, partial, altitudeGraphContext) {
         if (this._visible) {
             var context = graph.getContext();
 
@@ -393,9 +393,9 @@ var volare = volare || {};
             var startTime = null;
             var startAltitude = 0;
             if (partial) {
-                startIndex = this.lastDrawnAltitudeIndex;
-                startTime = new Date(this.lastDrawnAltitudeTime);
-                startAltitude = this.lastDrawnAltitude;
+                startIndex = altitudeGraphContext.getIndex();
+                startTime = altitudeGraphContext.getTime();
+                startAltitude = altitudeGraphContext.getAltitude();
             }
             else {
                 startTime = this.getStartTime();
@@ -423,13 +423,12 @@ var volare = volare || {};
                 context.lineTo(graph.getX(currentTime), graph.getY(lastAltitude));
             context.stroke();
 
-            this.lastDrawnAltitude = lastAltitude;
-            this.lastDrawnAltitudeIndex = n > 0 ? n - 1 : n;
-            this.lastDrawnAltitudeTime = lastTime.getTime();
+            if (altitudeGraphContext)
+                altitudeGraphContext.set(lastAltitude, n > 0 ? n - 1 : n, lastTime);
         }
     };
 
-    Flight.prototype.drawGroundSpeed = function(graph, currentTime, partial) {
+    Flight.prototype.drawGroundSpeed = function(graph, currentTime, partial, speedGraphContext) {
         if (this._visible) {
             var context = graph.getContext();
 
@@ -440,8 +439,9 @@ var volare = volare || {};
             var startTime = null;
             var endTime = null;
             if (partial) {
-                if (currentTime.getTime() >= this.lastDrawnGroundSpeedTime + step) {
-                    startTime = new Date(this.lastDrawnGroundSpeedTime);
+                var lastDrawnGroundSpeedTime = speedGraphContext.getTime();
+                if (currentTime.getTime() >= lastDrawnGroundSpeedTime.getTime() + step) {
+                    startTime = lastDrawnGroundSpeedTime;
                     endTime = currentTime || this.getEndTime();
                 }
             }
@@ -459,7 +459,8 @@ var volare = volare || {};
                 }
                 context.stroke();
 
-                this.lastDrawnGroundSpeedTime = time - step;
+                if (speedGraphContext)
+                    speedGraphContext.set(new Date(time - step));
             }
         }
     };
@@ -748,7 +749,7 @@ var volare = volare || {};
 
         if (this._flights.getCount() > 0) {
             this._drawGrid();
-            this._drawFlights();
+            this._drawFlights(false);
         }
     };
 
@@ -805,7 +806,7 @@ var volare = volare || {};
         context.stroke();
     };
 
-    Graph.prototype._drawFlights = function() {
+    Graph.prototype._drawFlights = function(partial) {
     };
 
     Graph.prototype._getMin = function() {
@@ -849,7 +850,9 @@ var volare = volare || {};
     AltitudeGraph.prototype._drawFlights = function(partial) {
         var self = this;
         this._flights.eachFlights(function(flight) {
-            flight.drawAltitude(self, self._flights.getCurrentTime(), partial);
+            var currentContext = flight.__currentAltitudeGraphContext || new AltitudeGraphContext();
+            flight.drawAltitude(self, self._flights.getCurrentTime(), partial, currentContext);
+            flight.__currentAltitudeGraphContext = currentContext;
         });
     }
 
@@ -872,6 +875,31 @@ var volare = volare || {};
     AltitudeGraph.ALTITUDE_STEP = 200;
 
 
+    function AltitudeGraphContext() {
+        this._altitude = 0;
+        this._index = 0;
+        this._time = null;
+    }
+
+    AltitudeGraphContext.prototype.getAltitude = function() {
+        return this._altitude;
+    };
+
+    AltitudeGraphContext.prototype.getIndex = function() {
+        return this._index;
+    };
+
+    AltitudeGraphContext.prototype.getTime = function() {
+        return this._time;
+    };
+
+    AltitudeGraphContext.prototype.set = function(altitude, index, time) {
+        this._altitude = altitude;
+        this._index = index;
+        this._time = time;
+    };
+
+
     function SpeedGraph(flights, canvas) {
         Graph.call(this, flights, canvas);
     }
@@ -880,7 +908,9 @@ var volare = volare || {};
     SpeedGraph.prototype._drawFlights = function(partial) {
         var self = this;
         this._flights.eachFlights(function(flight) {
-            flight.drawGroundSpeed(self, self._flights.getCurrentTime(), partial);
+            var currentContext = flight.__currentSpeedGraphContext || new SpeedGraphContext();
+            flight.drawGroundSpeed(self, self._flights.getCurrentTime(), partial, currentContext);
+            flight.__currentSpeedGraphContext = currentContext;
         });
     }
 
@@ -901,6 +931,19 @@ var volare = volare || {};
     };
 
     SpeedGraph.SPEED_STEP = 10;
+
+
+    function SpeedGraphContext() {
+        this._time = null;
+    }
+
+    SpeedGraphContext.prototype.getTime = function() {
+        return this._time;
+    };
+
+    SpeedGraphContext.prototype.set = function(time) {
+        this._time = time;
+    };
 
 
     function Chart(flights, chart) {
