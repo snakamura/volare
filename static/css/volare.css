@@ -51,9 +51,29 @@ div#chart table th, div#chart table td {
     padding: 2px 5px;
 }
 
+div#chart table th {
+    width: 80px;
+    font-size: 60%;
+}
+
+div#chart table th.visible {
+    width: 20px;
+}
+
+div#chart table th.name {
+    width: inherit;
+}
+
+div#chart table th.color {
+    width: 50px;
+}
+
 div#chart table td {
     font-family: monospace;
     text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 80%;
 }
 
 div#chart table td.name {

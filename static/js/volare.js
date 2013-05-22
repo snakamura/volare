@@ -996,17 +996,17 @@ var volare = volare || {};
 
         this._chart.html('<table><thead>' +
                            '<tr>' +
-                             '<th></th>' +
-                             '<th>Name</th>' +
-                             '<th>Color</th>' +
-                             '<th>Latitude</th>' +
-                             '<th>Longitude</th>' +
-                             '<th>Altitude</th>' +
-                             '<th>Ground Speed</th>' +
-                             '<th>Vertical Speed</th>' +
-                             '<th>Status</th>' +
-                             '<th>L/D</th>' +
-                             '<th>Average Climb</th>' +
+                             '<th class="visible"></th>' +
+                             '<th class="name">Name</th>' +
+                             '<th class="color">Color</th>' +
+                             '<th class="latitude">Latitude</th>' +
+                             '<th class="longitude">Longitude</th>' +
+                             '<th class="altitude">Altitude</th>' +
+                             '<th class="ground_speed">Ground Speed</th>' +
+                             '<th class="vertical_speed">Vertical Speed</th>' +
+                             '<th class="status">Status</th>' +
+                             '<th class="ld">L/D</th>' +
+                             '<th class="average_climb">Average Climb</th>' +
                            '</tr>' +
                          '</thead><tbody></tbody></table>');
 
