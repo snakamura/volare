@@ -165,7 +165,6 @@ var volare = volare || {};
 
         this._color = color;
         this._visible = true;
-        this._polyline = null;
         this._statuses = {};
     }
 
@@ -365,7 +364,10 @@ var volare = volare || {};
         return (endRecord.altitude - startRecord.altitude)/((endRecord.time.getTime() - startRecord.time.getTime())/1000);
     };
 
-    Flight.prototype.setPolyline = function(map, currentTime) {
+    Flight.prototype.updatePolyline = function(polyline, currentTime) {
+        var path = polyline.getPath();
+        path.clear();
+
         if (this._visible) {
             var records = this._records;
             if (currentTime) {
@@ -374,33 +376,9 @@ var volare = volare || {};
                 records = records.slice(start, end);
             }
 
-            if (this._polyline) {
-                var path = this._polyline.getPath();
-                path.clear();
-                _.each(records, function(record) {
-                    path.push(new LatLng(record.latitude, record.longitude));
-                });
-            }
-            else {
-                var path = new google.maps.MVCArray(_.map(records, function(record) {
-                    return new LatLng(record.latitude, record.longitude);
-                }));
-                this._polyline = new google.maps.Polyline({
-                    map: map,
-                    path: path,
-                    strokeColor: this._color
-                });
-            }
-        }
-        else {
-            this.removePolyline();
-        }
-    };
-
-    Flight.prototype.removePolyline = function() {
-        if (this._polyline) {
-            this._polyline.setMap(null);
-            this._polyline = null;
+            _.each(records, function(record) {
+                path.push(new LatLng(record.latitude, record.longitude));
+            });
         }
     };
 
@@ -675,20 +653,42 @@ var volare = volare || {};
         });
 
         var self = this;
+
         $(this._flights).on('flight_added', function(event, flight) {
             self._map.fitBounds(self._flights.getBounds());
-            flight.setPolyline(self._map);
+
+            var polyline = new google.maps.Polyline({
+                map: self._map,
+                strokeColor: flight.getColor(),
+                strokeOpacity: 0.3
+            });
+            flight.updatePolyline(polyline);
+            flight.__polyline = polyline;
+
+            var currentPolyline = new google.maps.Polyline({
+                map: self._map,
+                strokeColor: flight.getColor()
+            });
+            flight.updatePolyline(currentPolyline);
+            flight.__currentPolyline = currentPolyline;
+
             $(flight).on('visible_changed', function() {
-                flight.setPolyline(self._map, self._flights.getCurrentTime());
+                flight.updatePolyline(flight.__polyline);
+                flight.updatePolyline(flight.__currentPolyline, self._flights.getCurrentTime());
             });
         });
         $(this._flights).on('flight_removed', function(event, flight) {
-            flight.removePolyline();
+            flight.__polyline.setMap(null);
+            flight.__polyline = null;
+
+            flight.__currentPolyline.setMap(null);
+            flight.__currentPolyline = null;
         });
         $(this._flights).on('currenttime_changed', function(event, time) {
             self._flights.eachFlights(function(flight) {
-                flight.setPolyline(self._map, time);
+                flight.updatePolyline(flight.__currentPolyline, time);
             });
+
             var primaryFlight = self._flights.getPrimaryFlight();
             if (primaryFlight) {
                 var position = primaryFlight.getPositionAt(time);
