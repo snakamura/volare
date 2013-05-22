@@ -19,9 +19,9 @@
 <div id=map>
 
 <div id=sidebar>
-  <canvas id=altitude>
+  <div id=altitude class=graph>
 
-  <canvas id=speed>
+  <div id=speed class=graph>
 
 <div id=chart>
 

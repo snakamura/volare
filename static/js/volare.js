@@ -382,17 +382,15 @@ var volare = volare || {};
         }
     };
 
-    Flight.prototype.drawAltitude = function(graph, currentTime, partial, altitudeGraphContext) {
+    Flight.prototype.drawAltitude = function(graph, context, currentTime, altitudeGraphContext) {
         if (this._visible) {
-            var context = graph.getContext();
-
             context.strokeStyle = this._color;
             context.lineWidth = 2;
 
             var startIndex = 0;
             var startTime = null;
             var startAltitude = 0;
-            if (partial) {
+            if (altitudeGraphContext && altitudeGraphContext.isSet()) {
                 startIndex = altitudeGraphContext.getIndex();
                 startTime = altitudeGraphContext.getTime();
                 startAltitude = altitudeGraphContext.getAltitude();
@@ -428,17 +426,15 @@ var volare = volare || {};
         }
     };
 
-    Flight.prototype.drawGroundSpeed = function(graph, currentTime, partial, speedGraphContext) {
+    Flight.prototype.drawGroundSpeed = function(graph, context, currentTime, speedGraphContext) {
         if (this._visible) {
-            var context = graph.getContext();
-
             context.strokeStyle = this._color;
             context.lineWidth = 2;
 
             var step = 20*1000;
             var startTime = null;
             var endTime = null;
-            if (partial) {
+            if (speedGraphContext && speedGraphContext.isSet()) {
                 var lastDrawnGroundSpeedTime = speedGraphContext.getTime();
                 if (currentTime.getTime() >= lastDrawnGroundSpeedTime.getTime() + step) {
                     startTime = lastDrawnGroundSpeedTime;
@@ -702,19 +698,31 @@ var volare = volare || {};
     }
 
 
-    function Graph(flights, canvas) {
+    function Graph(flights, graph) {
+        var gridCanvas = $('<canvas></canvas>');
+        graph.append(gridCanvas);
+
+        var canvas = $('<canvas></canvas>');
+        graph.append(canvas);
+
+        var currentCanvas = $('<canvas></canvas>');
+        graph.append(currentCanvas);
+
         this._flights = flights;
-        this._canvas = canvas;
-        this._width = canvas.width();
-        this._height = canvas.height();
-
-        var canvasElem = this._canvas[0];
-        canvasElem.width = this._width;
-        canvasElem.height = this._height;
-
-        this._context = canvasElem.getContext('2d');
+        this._width = graph.width();
+        this._height = graph.height();
 
         var self = this;
+        _.each(graph.children('canvas'), function(canvas) {
+            canvas.width = self._width;
+            canvas.height = self._height;
+        });
+
+        this._gridContext = gridCanvas[0].getContext('2d');
+        this._context = canvas[0].getContext('2d');
+        this._context.globalAlpha = 0.3;
+        this._currentContext = currentCanvas[0].getContext('2d');
+
         $(this._flights).on('flight_added', function(event, flight) {
             self._refresh();
             $(flight).on('visible_changed', function() {
@@ -725,15 +733,18 @@ var volare = volare || {};
             self._refresh();
         });
         $(this._flights).on('currenttime_changed', function(event, time, play) {
-            if (play)
-                self._drawFlights(true);
-            else
-                self._refresh();
+            if (!play)
+                self._currentContext.clearRect(0, 0, self._width, self._height);
+            self._drawFlights(self._currentContext, self._flights.getCurrentTime(), true, play);
         });
     }
 
-    Graph.prototype.getContext = function() {
+    Graph.prototype.getContext = function(time) {
         return this._context;
+    };
+
+    Graph.prototype.getCurrentContext = function(time) {
+        return this._currentContext;
     };
 
     Graph.prototype.getX = function(time) {
@@ -745,11 +756,14 @@ var volare = volare || {};
     };
 
     Graph.prototype._refresh = function() {
+        this._gridContext.clearRect(0, 0, this._width, this._height);
         this._context.clearRect(0, 0, this._width, this._height);
+        this._currentContext.clearRect(0, 0, this._width, this._height);
 
         if (this._flights.getCount() > 0) {
             this._drawGrid();
-            this._drawFlights(false);
+            this._drawFlights(this._context, null, false, false);
+            this._drawFlights(this._currentContext, null, false, false);
         }
     };
 
@@ -759,7 +773,7 @@ var volare = volare || {};
         var lowestY = this.getY(this._getMin());
         var highestY = this.getY(this._getMax());
 
-        var context = this._context;
+        var context = this._gridContext;
 
         context.lineWidth = 0.1;
         context.strokeStyle = 'black';
@@ -806,7 +820,7 @@ var volare = volare || {};
         context.stroke();
     };
 
-    Graph.prototype._drawFlights = function(partial) {
+    Graph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
     };
 
     Graph.prototype._getMin = function() {
@@ -847,12 +861,17 @@ var volare = volare || {};
     }
     inherit(AltitudeGraph, Graph);
 
-    AltitudeGraph.prototype._drawFlights = function(partial) {
+    AltitudeGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
         var self = this;
         this._flights.eachFlights(function(flight) {
-            var currentContext = flight.__currentAltitudeGraphContext || new AltitudeGraphContext();
-            flight.drawAltitude(self, self._flights.getCurrentTime(), partial, currentContext);
-            flight.__currentAltitudeGraphContext = currentContext;
+            var graphContext = null;
+            if (withGraphContext) {
+                flight.__currentAltitudeGraphContext = flight.__currentAltitudeGraphContext || new AltitudeGraphContext();
+                graphContext = flight.__currentAltitudeGraphContext;
+                if (!partial)
+                    graphContext.reset();
+            }
+            flight.drawAltitude(self, context, currentTime, graphContext);
         });
     }
 
@@ -876,10 +895,15 @@ var volare = volare || {};
 
 
     function AltitudeGraphContext() {
+        this._set = false;
         this._altitude = 0;
         this._index = 0;
         this._time = null;
     }
+
+    AltitudeGraphContext.prototype.isSet = function() {
+        return this._set;
+    };
 
     AltitudeGraphContext.prototype.getAltitude = function() {
         return this._altitude;
@@ -894,9 +918,14 @@ var volare = volare || {};
     };
 
     AltitudeGraphContext.prototype.set = function(altitude, index, time) {
+        this._set = true;
         this._altitude = altitude;
         this._index = index;
         this._time = time;
+    };
+
+    AltitudeGraphContext.prototype.reset = function() {
+        this._set = false;
     };
 
 
@@ -905,12 +934,17 @@ var volare = volare || {};
     }
     inherit(SpeedGraph, Graph);
 
-    SpeedGraph.prototype._drawFlights = function(partial) {
+    SpeedGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
         var self = this;
         this._flights.eachFlights(function(flight) {
-            var currentContext = flight.__currentSpeedGraphContext || new SpeedGraphContext();
-            flight.drawGroundSpeed(self, self._flights.getCurrentTime(), partial, currentContext);
-            flight.__currentSpeedGraphContext = currentContext;
+            var graphContext = null;
+            if (withGraphContext) {
+                flight.__currentSpeedGraphContext = flight.__currentSpeedGraphContext || new SpeedGraphContext();
+                graphContext = flight.__currentSpeedGraphContext;
+                if (!partial)
+                    graphContext.reset();
+            }
+            flight.drawGroundSpeed(self, context, currentTime, graphContext);
         });
     }
 
@@ -934,15 +968,25 @@ var volare = volare || {};
 
 
     function SpeedGraphContext() {
+        this._set = false;
         this._time = null;
     }
+
+    SpeedGraphContext.prototype.isSet = function() {
+        return this._set;
+    };
 
     SpeedGraphContext.prototype.getTime = function() {
         return this._time;
     };
 
     SpeedGraphContext.prototype.set = function(time) {
+        this._set = true;
         this._time = time;
+    };
+
+    SpeedGraphContext.prototype.reset = function() {
+        this._set = false;
     };
 
 

@@ -30,8 +30,8 @@
       <th>Max Altitude
       <td id=max_altitude>
 
-  <canvas id=altitude>
+  <div id=altitude class=graph>
 
-  <canvas id=speed>
+  <div id=speed class=graph>
 
 <div id=chart>
