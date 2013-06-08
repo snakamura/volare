@@ -43,10 +43,10 @@ import Database.Persist (Entity(Entity),
 import Database.Persist.Sql (SqlBackend)
 import Prelude hiding (mapM)
 import Text.Blaze (Markup)
+import Text.Blaze.Html (Html)
 import Yesod.Core (HandlerSite,
                    WidgetT,
                    defaultLayout)
-import Yesod.Core.Content (RepHtml)
 import Yesod.Core.Handler (getRequest,
                            redirect,
                            reqToken)
@@ -81,13 +81,13 @@ newWorkspaceForm :: Monad m =>
 newWorkspaceForm = renderDivs $ pure NewWorkspace
 
 
-getWorkspacesR :: Handler RepHtml
+getWorkspacesR :: Handler Html
 getWorkspacesR = do
     (workspaceWidget, enctype) <- generateFormPost $ newWorkspaceForm
     listWorkspaces workspaceWidget enctype
 
 
-postWorkspacesR :: Handler RepHtml
+postWorkspacesR :: Handler Html
 postWorkspacesR = do
     ((result, workspaceWidget), enctype) <- runFormPost newWorkspaceForm
     case result of
@@ -99,7 +99,7 @@ postWorkspacesR = do
 
 listWorkspaces :: Widget ->
                   Enctype ->
-                  Handler RepHtml
+                  Handler Html
 listWorkspaces workspaceWidget enctype = do
     workspaces <- runDB $ selectList [] []
     defaultLayout $ do
@@ -111,7 +111,7 @@ listWorkspaces workspaceWidget enctype = do
 
 
 getWorkspaceR :: M.WorkspaceId ->
-                 Handler RepHtml
+                 Handler Html
 getWorkspaceR workspaceId = do
     workspace <- runDB $ get404 workspaceId
     token <- reqToken <$> getRequest
