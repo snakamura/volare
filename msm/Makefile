@@ -9,10 +9,13 @@ lib: libmsm.a
 libmsm.a: msm.o netcdf.o
 	$(AR) cr $@ $^
 
-sample: test
+sample: surface pressure
 
-test: test.o libmsm.a
+surface: surface.o libmsm.a
+	$(CC) -o $@ $< -L. -lmsm -lc++ $(shell nc-config --libs)
+
+pressure: pressure.o libmsm.a
 	$(CC) -o $@ $< -L. -lmsm -lc++ $(shell nc-config --libs)
 
 clean:
-	rm -f *.o *.a test
+	rm -f *.o *.a surface pressure

@@ -4,7 +4,7 @@
 
 int main(int argc, char* argv[]) {
     if (argc < 6) {
-        fputs("test <path> <northweast latitude> <northwest longitude> <southeast latitude> <southeast longitude> <time>\n", stderr);
+        fputs("surface <path> <northweast latitude> <northwest longitude> <southeast latitude> <southeast longitude> <time>\n", stderr);
         return 1;
     }
 
