@@ -24,7 +24,9 @@ library
                    Codec.IGC.Types
                    Volare.Foundation
                    Volare.Model
+                   Volare.MSM
                    Volare.Handler.Flight
+                   Volare.Handler.MSM
                    Volare.Handler.Root
                    Volare.Handler.Utils
                    Volare.Handler.Workspace
@@ -38,8 +40,10 @@ library
         ghc-options: -Wall -O2
 
     extensions: CPP
+                DeriveDataTypeable
                 DoAndIfThenElse
                 EmptyDataDecls
+                ForeignFunctionInterface
                 FlexibleContexts
                 FlexibleInstances
                 GADTs
@@ -92,6 +96,11 @@ library
                    yesod-form >= 1.3 && < 1.4,
                    yesod-persistent >= 1.2 && < 1.3,
                    yesod-static >= 1.2 && < 1.3
+
+    includes: msm.h
+    extra-libraries: c++, netcdf, msm
+    include-dirs: msm
+    extra-lib-dirs: /usr/lib, /opt/local/lib, /Users/snakamura/volare/msm
 
 executable volare
     if flag(library-only)

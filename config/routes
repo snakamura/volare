@@ -5,4 +5,5 @@
 /workspaces/#M.WorkspaceId WorkspaceR GET PUT DELETE
 /workspaces/#M.WorkspaceId/flights WorkspaceFlightsR GET POST
 /workspaces/#M.WorkspaceId/candidates WorkspaceCandidatesR GET
+/msm/#Int/#Int/#Int/#Int MSMR GET
 /static StaticR Static volareStatic

@@ -25,6 +25,7 @@ import Volare.Config (Config,
                       parseConfig)
 import Volare.Foundation
 import Volare.Handler.Flight
+import Volare.Handler.MSM
 import Volare.Handler.Root
 import Volare.Handler.Workspace
 import Volare.Model (migrateAll)
