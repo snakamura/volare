@@ -6,4 +6,5 @@
 /workspaces/#M.WorkspaceId/flights WorkspaceFlightsR GET POST
 /workspaces/#M.WorkspaceId/candidates WorkspaceCandidatesR GET
 /msm/surface/#Int/#Int/#Int/#Int SurfaceR GET
+/msm/pressure/#Int/#Int/#Int/#Int PressureR GET
 /static StaticR Static volareStatic

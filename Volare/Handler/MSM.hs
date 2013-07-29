@@ -1,11 +1,13 @@
 module Volare.Handler.MSM (
-    getSurfaceR
+    getSurfaceR,
+    getPressureR
 ) where
 
 import Control.Applicative ((<$>))
 import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as JSON
+import Data.Char (toLower)
 import Data.Conduit (($$+-))
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Text as T
@@ -27,26 +29,47 @@ getSurfaceR :: Int ->
                Int ->
                Int ->
                Handler JSON.Value
-getSurfaceR year month day hour = do
+getSurfaceR = getData True MSM.getSurface
+
+
+getPressureR :: Int ->
+                Int ->
+                Int ->
+                Int ->
+                Handler JSON.Value
+getPressureR = getData False MSM.getPressure
+
+
+getData :: JSON.ToJSON a =>
+           Bool ->
+           (FilePath -> (Float, Float) -> (Float, Float) -> Int -> IO a) ->
+           Int ->
+           Int ->
+           Int ->
+           Int ->
+           Handler JSON.Value
+getData surface f year month day hour = do
   nwLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlat"
   nwLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlon"
   seLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selat"
   seLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selon"
   case (nwLatitude, nwLongitude, seLatitude, seLongitude) of
     (Just nwLat, Just nwLon, Just seLat, Just seLon) -> do
-      path <- liftIO $ dataFile year month day
-      surfaces <- liftIO $ MSM.getSurface path (nwLat, nwLon) (seLat, seLon) hour
+      path <- liftIO $ dataFile surface year month day
+      surfaces <- liftIO $ f path (nwLat, nwLon) (seLat, seLon) hour
       return $ JSON.toJSON surfaces
     _ -> notFound
 
 
-dataFile :: Int ->
+dataFile :: Bool ->
+            Int ->
             Int ->
             Int ->
             IO FilePath
-dataFile year month day = do
-  let path = printf "./data/msm/s/%04d%02d%02d.nc" year month day
-      url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-S/%04d/%02d%02d.nc" year month day
+dataFile surface year month day = do
+  let t = if surface then 'S' else 'P'
+      path = printf "./data/msm/%c/%04d%02d%02d.nc" (toLower t) year month day
+      url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" t year month day
   b <- doesFileExist path
   when (not b) $ do
     createDirectoryIfMissing True $ takeDirectory path
