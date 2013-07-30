@@ -774,10 +774,10 @@ var volare = volare || {};
                 var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
                 var windIconIndex = MSMOverlay.windIconIndex(windSpeed);
                 var windImage = $('<img class="wind" src="/static/image/msm/wind/' + windIconIndex + '.png">');
-                windImage.css('left', Math.round(pos.x - MSMOverlay.WIND_ICON_WIDTH/2) + 'px');
-                windImage.css('top', Math.round(pos.y - MSMOverlay.WIND_ICON_HEIGHT/2) + 'px');
-                windImage.css('transform', 'rotate(-' + Math.round(windAngle/Math.PI*180) + 'deg)');
                 div.append(windImage);
+                windImage.css('left', Math.round(pos.x - windImage.width()/2) + 'px');
+                windImage.css('top', Math.round(pos.y - windImage.height()) + 'px');
+                windImage.css('transform', 'rotate(-' + Math.round(windAngle/Math.PI*180) + 'deg)');
 
                 var cloudDiv = $('<div class="cloud"></div>');
                 cloudDiv.css('left', nw.x + 'px');
@@ -786,6 +786,13 @@ var volare = volare || {};
                 cloudDiv.css('height', (se.y - nw.y) + 'px');
                 cloudDiv.css('opacity', item.cloudAmount/100*0.9);
                 div.append(cloudDiv);
+
+                var temperatureDiv = $('<div class="temperature"></div>');
+                div.append(temperatureDiv);
+                temperatureDiv.css('background-color', MSMOverlay.colorForTemperature(item.airTemperature));
+                temperatureDiv.css('left', Math.round(pos.x - temperatureDiv.width()/2) + 'px');
+                temperatureDiv.css('top', pos.y + 'px');
+                temperatureDiv.text(Math.round(item.airTemperature*10)/10);
             });
         }
     };
@@ -836,8 +843,27 @@ var volare = volare || {};
         return windSpeed <= 2 ? 1 : windSpeed <= 3 ? 2 : windSpeed <= 4 ? 3 : windSpeed <= 5 ? 4 : 5;
     };
 
-    MSMOverlay.WIND_ICON_WIDTH = 28;
-    MSMOverlay.WIND_ICON_HEIGHT = 20;
+    MSMOverlay.colorForTemperature = function(temperature) {
+        if (temperature < 0)
+            return 'rgb(0, 0, 255, 0.5)';
+        else if (temperature < 5)
+            return 'rgb(204, 204, 204, 0.5)';
+        else if (temperature < 10)
+            return 'rgb(0, 255, 255, 0.5)';
+        else if (temperature < 15)
+            return 'rgb(0, 204, 255, 0.5)';
+        else if (temperature < 20)
+            return 'rgb(51, 204, 0, 0.5)';
+        else if (temperature < 25)
+            return 'rgb(255, 255, 0, 0.5)';
+        else if (temperature < 30)
+            return 'rgb(255, 153, 51, 0.5)';
+        else if (temperature < 35)
+            return 'rgb(255, 0, 0, 0.5)';
+        else
+            return 'rgb(204, 0, 0, 0.5)';
+    };
+
     MSMOverlay.SURFACE_LATITUDE_STEP = 0.05;
     MSMOverlay.SURFACE_LONGITUDE_STEP = 0.0625;
 
