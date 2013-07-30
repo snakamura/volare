@@ -16,24 +16,20 @@ div#map {
 div#map div.msm {
 }
 
+div#map div.msm div.item {
+    position: absolute;
+}
+
 div#map div.msm img.wind {
     position: absolute;
     width: 28px;
     height: 20px;
     opacity: 0.8;
-    z-index: 20;
-}
-
-div#map div.msm div.cloud {
-    position: absolute;
-    background-color: white;
-    z-index: 10;
 }
 
 div#map div.msm div.temperature {
     position: absolute;
     color: white;
-    z-index: 30;
     width: 40px;
     height: 3ex;
     line-height: 3ex;

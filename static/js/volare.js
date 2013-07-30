@@ -766,33 +766,33 @@ var volare = volare || {};
         div.empty();
         if (this._items) {
             _.each(this._items, function(item) {
-                var pos = projection.fromLatLngToDivPixel(new LatLng(item.latitude, item.longitude));
                 var nw = projection.fromLatLngToDivPixel(new LatLng(item.latitude + MSMOverlay.SURFACE_LATITUDE_STEP/2, item.longitude - MSMOverlay.SURFACE_LONGITUDE_STEP/2));
                 var se = projection.fromLatLngToDivPixel(new LatLng(item.latitude - MSMOverlay.SURFACE_LATITUDE_STEP/2, item.longitude + MSMOverlay.SURFACE_LONGITUDE_STEP/2));
+                var width = se.x - nw.x;
+                var height = se.y - nw.y;
+
+                var elem = $('<div class="item"><img class="wind"><div class="temperature"></div></div>');
+                elem.css('left', nw.x + 'px');
+                elem.css('top', nw.y + 'px');
+                elem.css('width', width + 'px');
+                elem.css('height', height + 'px');
+                div.append(elem);
 
                 var windSpeed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
                 var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
                 var windIconIndex = MSMOverlay.windIconIndex(windSpeed);
-                var windImage = $('<img class="wind" src="/static/image/msm/wind/' + windIconIndex + '.png">');
-                div.append(windImage);
-                windImage.css('left', Math.round(pos.x - windImage.width()/2) + 'px');
-                windImage.css('top', Math.round(pos.y - windImage.height()) + 'px');
-                windImage.css('transform', 'rotate(-' + Math.round(windAngle/Math.PI*180) + 'deg)');
+                var windImage = elem.find('.wind');
+                windImage[0].src = '/static/image/msm/wind/' + windIconIndex + '.png';
+                windImage.css('left', Math.round((width - windImage.width())/2) + 'px');
+                windImage.css('bottom', Math.round(height/2) + 'px');
 
-                var cloudDiv = $('<div class="cloud"></div>');
-                cloudDiv.css('left', nw.x + 'px');
-                cloudDiv.css('top', nw.y + 'px');
-                cloudDiv.css('width', (se.x - nw.x) + 'px');
-                cloudDiv.css('height', (se.y - nw.y) + 'px');
-                cloudDiv.css('opacity', item.cloudAmount/100*0.9);
-                div.append(cloudDiv);
-
-                var temperatureDiv = $('<div class="temperature"></div>');
-                div.append(temperatureDiv);
+                var temperatureDiv = elem.find('.temperature');
                 temperatureDiv.css('background-color', MSMOverlay.colorForTemperature(item.airTemperature));
-                temperatureDiv.css('left', Math.round(pos.x - temperatureDiv.width()/2) + 'px');
-                temperatureDiv.css('top', pos.y + 'px');
+                temperatureDiv.css('left', Math.round((width - temperatureDiv.width())/2) + 'px');
+                temperatureDiv.css('top', Math.round(height/2) + 'px');
                 temperatureDiv.text(Math.round(item.airTemperature*10)/10);
+
+                elem.css('background-color', 'rgba(255, 255, 255, ' + item.cloudAmount/100*0.9 + ')');
             });
         }
     };
