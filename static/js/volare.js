@@ -709,7 +709,7 @@ var volare = volare || {};
         this._idleListener = null;
         this._time = null;
         this._bounds = null;
-        this._items = null;
+        this._items = {};
         this._listener = function() {
             self._update();
         };
@@ -751,6 +751,10 @@ var volare = volare || {};
     };
 
     MSMOverlay.prototype.draw = function() {
+        this._draw();
+    };
+
+    MSMOverlay.prototype._draw = function() {
         var map = this.getMap();
         var bounds = map.getBounds();
         var projection = this.getProjection();
@@ -763,37 +767,43 @@ var volare = volare || {};
         div.css('width', (ne.x - sw.x) + 'px');
         div.css('height', (sw.y - ne.y) + 'px');
 
-        div.empty();
-        if (this._items) {
+        if (!_.isEmpty(this._items)) {
             _.each(this._items, function(item) {
                 var nw = projection.fromLatLngToDivPixel(new LatLng(item.latitude + MSMOverlay.SURFACE_LATITUDE_STEP/2, item.longitude - MSMOverlay.SURFACE_LONGITUDE_STEP/2));
                 var se = projection.fromLatLngToDivPixel(new LatLng(item.latitude - MSMOverlay.SURFACE_LATITUDE_STEP/2, item.longitude + MSMOverlay.SURFACE_LONGITUDE_STEP/2));
                 var width = se.x - nw.x;
                 var height = se.y - nw.y;
 
-                var elem = $('<div class="item"><img class="wind"><div class="temperature"></div></div>');
+                var elem = item.elem;
+                if (!elem) {
+                    elem = $('<div class="item"><div class="cell"><img class="wind"><br><span class="temperature"></span></div></div>');
+                    div.append(elem);
+
+                    var windSpeed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
+                    var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
+                    var windIconIndex = MSMOverlay.windIconIndex(windSpeed);
+                    var windImage = elem.find('.wind');
+                    windImage[0].src = '/static/image/msm/wind/' + windIconIndex + '.png';
+
+                    var temperatureDiv = elem.find('.temperature');
+                    temperatureDiv.css('background-color', MSMOverlay.colorForTemperature(item.airTemperature));
+                    temperatureDiv.text(Math.round(item.airTemperature*10)/10);
+
+                    elem.css('background-color', 'rgba(255, 255, 255, ' + item.cloudAmount/100*0.9 + ')');
+
+                    item.elem = elem;
+                }
+
                 elem.css('left', nw.x + 'px');
                 elem.css('top', nw.y + 'px');
-                elem.css('width', width + 'px');
-                elem.css('height', height + 'px');
-                div.append(elem);
 
-                var windSpeed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
-                var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
-                var windIconIndex = MSMOverlay.windIconIndex(windSpeed);
-                var windImage = elem.find('.wind');
-                windImage[0].src = '/static/image/msm/wind/' + windIconIndex + '.png';
-                windImage.css('left', Math.round((width - windImage.width())/2) + 'px');
-                windImage.css('bottom', Math.round(height/2) + 'px');
-
-                var temperatureDiv = elem.find('.temperature');
-                temperatureDiv.css('background-color', MSMOverlay.colorForTemperature(item.airTemperature));
-                temperatureDiv.css('left', Math.round((width - temperatureDiv.width())/2) + 'px');
-                temperatureDiv.css('top', Math.round(height/2) + 'px');
-                temperatureDiv.text(Math.round(item.airTemperature*10)/10);
-
-                elem.css('background-color', 'rgba(255, 255, 255, ' + item.cloudAmount/100*0.9 + ')');
+                var cell = elem.find('.cell');
+                cell.css('width', width + 'px');
+                cell.css('height', height + 'px');
             });
+        }
+        else {
+            div.empty();
         }
     };
 
@@ -804,8 +814,8 @@ var volare = volare || {};
         if (time) {
             var map = this.getMap();
             var bounds = map.getBounds();
-            if (this._bounds == null || !this._bounds.equals(bounds) ||
-                this._time == null || !MSMOverlay.timeEquals(this._time, time)) {
+            if (!this._bounds || !this._bounds.equals(bounds) ||
+                !this._time || !MSMOverlay.timeEquals(this._time, time)) {
                 var self = this;
                 $.getJSON('/msm/surface/' + time.getUTCFullYear() +
                           '/' + (time.getUTCMonth() + 1) +
@@ -815,20 +825,43 @@ var volare = volare || {};
                           '&nwlon=' + bounds.getSouthWest().lng() +
                           '&selat=' + bounds.getSouthWest().lat() +
                           '&selon=' + bounds.getNorthEast().lng(), function(items) {
+                    if (self._time && MSMOverlay.timeEquals(self._time, time)) {
+                        var oldItems = self._items;
+                        var newItems = {};
+                        _.each(items, function(item) {
+                            var key = item.latitude + ' ' + item.longitude;
+                            var oldItem = oldItems[key];
+                            if (!_.isUndefined(oldItem)) {
+                                item.elem = oldItem.elem;
+                                delete oldItems[key];
+                            }
+                            newItems[key] = item;
+                        });
+                        _.each(oldItems, function(item) {
+                            var elem = item.elem;
+                            if (elem)
+                                elem[0].parentNode.removeChild(elem[0]);
+                        });
+                        self._items = newItems;
+                    }
+                    else {
+                        self._items = {};
+                        _.each(items, function(item) {
+                            var key = item.latitude + ' ' + item.longitude;
+                            self._items[key] = item;
+                        });
+                    }
                     self._time = time;
                     self._bounds = bounds;
-                    self._items = items;
-                    self.setMap(null);
-                    self.setMap(map);
+                    self._draw();
                 });
             }
         }
         else {
-            self._time = null;
-            self._bounds = null;
-            self._items = null;
-            self.setMap(null);
-            self.setMap(map);
+            this._items = {};
+            this._time = null;
+            this._bounds = null;
+            this._draw();
         }
     };
 

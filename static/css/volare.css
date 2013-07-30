@@ -20,20 +20,25 @@ div#map div.msm div.item {
     position: absolute;
 }
 
+div#map div.msm div.cell {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 0;
+}
+
 div#map div.msm img.wind {
-    position: absolute;
     width: 28px;
     height: 20px;
     opacity: 0.8;
 }
 
-div#map div.msm div.temperature {
-    position: absolute;
+div#map div.msm span.temperature {
+    display: inline-block;
     color: white;
     width: 40px;
     height: 3ex;
     line-height: 3ex;
-    text-align: center;
     font-size: 70%;
 }
 
