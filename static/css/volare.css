@@ -13,6 +13,16 @@ div#map {
     margin: 10px;
 }
 
+div#map div.msm {
+}
+
+div#map div.msm img.item {
+    position: absolute;
+    width: 28px;
+    height: 20px;
+    opacity: 0.7;
+}
+
 div#sidebar {
     width: 322px;
     float: right;

@@ -649,6 +649,9 @@ var volare = volare || {};
             mapTypeId: google.maps.MapTypeId.TERRAIN
         });
 
+        var msmOverlay = new MSMOverlay(this._flights);
+        msmOverlay.setMap(this._map);
+
         var self = this;
 
         $(this._flights).on('flight_added', function(event, flight) {
@@ -696,6 +699,127 @@ var volare = volare || {};
             }
         });
     }
+
+
+    function MSMOverlay(flights) {
+        var self = this;
+
+        this._flights = flights;
+        this._div = null;
+        this._idleListener = null;
+        this._time = null;
+        this._bounds = null;
+        this._items = null;
+        this._listener = function() {
+            self._update();
+        };
+    }
+
+    MSMOverlay.prototype = new google.maps.OverlayView();
+
+    MSMOverlay.prototype.onAdd = function() {
+        var div = $('<div class="msm"></div>');
+
+        var panes = this.getPanes();
+        panes.overlayLayer.appendChild(div[0]);
+
+        this._div = div;
+
+        var map = this.getMap();
+        var self = this;
+        this._idleListener = map.addListener('idle', function() {
+            self._update();
+        });
+
+        $(this._flights).on('flight_added', this._listener);
+        $(this._flights).on('flight_removed', this._listener);
+        $(this._flights).on('currenttime_changed', this._listener);
+
+        this._update();
+    };
+
+    MSMOverlay.prototype.onRemove = function() {
+        $(this._flights).off('flight_added', this._listener);
+        $(this._flights).off('flight_removed', this._listener);
+        $(this._flights).off('currenttime_changed', this._listener);
+
+        google.maps.event.removeListener(this._idleListener);
+        this._idleListener = null;
+
+        this._div[0].parentNode.removeChild(this._div[0]);
+        this._div = null;
+    };
+
+    MSMOverlay.prototype.draw = function() {
+        var map = this.getMap();
+        var bounds = map.getBounds();
+        var projection = this.getProjection();
+        var sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
+        var ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
+
+        var div = this._div;
+        div.css('left', sw.x + 'px');
+        div.css('top', ne.y + 'px');
+        div.css('width', (ne.x - sw.x) + 'px');
+        div.css('height', (sw.y - ne.y) + 'px');
+
+        div.empty();
+        if (this._items) {
+            _.each(this._items, function(item) {
+                var speed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
+                var wind = speed <= 2 ? 1 : speed <= 3 ? 2 : speed <= 4 ? 3 : speed <= 5 ? 4 : 5;
+                var d = $('<img class="item" src="/static/image/msm/wind/' + wind + '.png">');
+                var pos = projection.fromLatLngToDivPixel(new LatLng(item.latitude, item.longitude));
+                d.css('left', (pos.x - 14) + 'px');
+                d.css('top', (pos.y - 10) + 'px');
+                var r = Math.atan2(item.northwardWind, item.eastwardWind);
+                d.css('transform', 'rotate(-' + (r/Math.PI*180) + 'deg)');
+                div.append(d);
+            });
+        }
+    };
+
+    MSMOverlay.prototype._update = function() {
+        var time = this._flights.getCurrentTime();
+        if (!time)
+            time = this._flights.getStartTime();
+        if (time) {
+            var map = this.getMap();
+            var bounds = map.getBounds();
+            if (this._bounds == null || !this._bounds.equals(bounds) ||
+                this._time == null || !MSMOverlay.timeEquals(this._time, time)) {
+                var self = this;
+                $.getJSON('/msm/surface/' + time.getUTCFullYear() +
+                          '/' + (time.getUTCMonth() + 1) +
+                          '/' + time.getUTCDate() +
+                          '/' + time.getUTCHours() +
+                          '?nwlat=' + bounds.getNorthEast().lat() +
+                          '&nwlon=' + bounds.getSouthWest().lng() +
+                          '&selat=' + bounds.getSouthWest().lat() +
+                          '&selon=' + bounds.getNorthEast().lng(), function(items) {
+                    self._time = time;
+                    self._bounds = bounds;
+                    self._items = items;
+                    self.setMap(null);
+                    self.setMap(map);
+                });
+            }
+        }
+        else {
+            self._time = null;
+            self._bounds = null;
+            self._items = null;
+            self.setMap(null);
+            self.setMap(map);
+        }
+    };
+
+    MSMOverlay.timeEquals = function(time1, time2) {
+        return time1.getUTCFullYear() == time2.getUTCFullYear() &&
+            time1.getUTCMonth() == time2.getUTCMonth() &&
+            time1.getUTCDate() == time2.getUTCDate() &&
+            time1.getUTCHours() == time2.getUTCHours();
+    };
 
 
     function Graph(flights, graph) {
