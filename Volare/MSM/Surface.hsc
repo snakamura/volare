@@ -1,5 +1,5 @@
 module Volare.MSM.Surface (
-    Surface(..)
+    Item(..)
 ) where
 
 import Control.Applicative ((<$>),
@@ -12,7 +12,7 @@ import Foreign.Storable (Storable(..))
 #include "../../../msm/msm.h"
 
 
-data Surface = Surface {
+data Item = Item {
     latitude           :: Float,
     longitude          :: Float,
     airPressure        :: Float,
@@ -28,38 +28,38 @@ data Surface = Surface {
     cloudAmount        :: Int
 } deriving Show
 
-instance Storable Surface where
-    sizeOf _ = #{size Surface}
+instance Storable Item where
+    sizeOf _ = #{size surface_item}
     alignment _ = alignment (undefined :: CFloat)
-    peek p = Surface <$> (#{peek Surface, latitude} p)
-                     <*> (#{peek Surface, longitude} p)
-                     <*> (#{peek Surface, airPressure} p)
-                     <*> (#{peek Surface, surfaceAirPressure} p)
-                     <*> (#{peek Surface, eastwardWind} p)
-                     <*> (#{peek Surface, northwardWind} p)
-                     <*> (#{peek Surface, airTemperature} p)
-                     <*> fmap cIntToInt (#{peek Surface, relativeHumidity} p)
-                     <*> (#{peek Surface, rainfallRate} p)
-                     <*> fmap cIntToInt (#{peek Surface, upperCloudiness} p)
-                     <*> fmap cIntToInt (#{peek Surface, midCloudiness} p)
-                     <*> fmap cIntToInt (#{peek Surface, lowCloudiness} p)
-                     <*> fmap cIntToInt (#{peek Surface, cloudAmount} p)
+    peek p = Item <$> (#{peek surface_item, latitude} p)
+                  <*> (#{peek surface_item, longitude} p)
+                  <*> (#{peek surface_item, air_pressure} p)
+                  <*> (#{peek surface_item, surface_air_pressure} p)
+                  <*> (#{peek surface_item, eastward_wind} p)
+                  <*> (#{peek surface_item, northward_wind} p)
+                  <*> (#{peek surface_item, air_temperature} p)
+                  <*> fmap cIntToInt (#{peek surface_item, relative_humidity} p)
+                  <*> (#{peek surface_item, rainfall_rate} p)
+                  <*> fmap cIntToInt (#{peek surface_item, upper_cloudiness} p)
+                  <*> fmap cIntToInt (#{peek surface_item, mid_cloudiness} p)
+                  <*> fmap cIntToInt (#{peek surface_item, low_cloudiness} p)
+                  <*> fmap cIntToInt (#{peek surface_item, cloud_amount} p)
         where
           cIntToInt :: CInt -> Int
           cIntToInt = fromIntegral
     poke p s = do
-      (#{poke Surface, latitude} p $ latitude s)
-      (#{poke Surface, longitude} p $ longitude s)
-      (#{poke Surface, airPressure} p $ airPressure s)
-      (#{poke Surface, surfaceAirPressure} p $ surfaceAirPressure s)
-      (#{poke Surface, eastwardWind} p $ eastwardWind s)
-      (#{poke Surface, northwardWind} p $ northwardWind s)
-      (#{poke Surface, airTemperature} p $ airTemperature s)
-      (#{poke Surface, relativeHumidity} p $ relativeHumidity s)
-      (#{poke Surface, rainfallRate} p $ rainfallRate s)
-      (#{poke Surface, upperCloudiness} p $ upperCloudiness s)
-      (#{poke Surface, midCloudiness} p $ midCloudiness s)
-      (#{poke Surface, lowCloudiness} p $ lowCloudiness s)
-      (#{poke Surface, cloudAmount} p $ cloudAmount s)
+      (#{poke surface_item, latitude} p $ latitude s)
+      (#{poke surface_item, longitude} p $ longitude s)
+      (#{poke surface_item, air_pressure} p $ airPressure s)
+      (#{poke surface_item, surface_air_pressure} p $ surfaceAirPressure s)
+      (#{poke surface_item, eastward_wind} p $ eastwardWind s)
+      (#{poke surface_item, northward_wind} p $ northwardWind s)
+      (#{poke surface_item, air_temperature} p $ airTemperature s)
+      (#{poke surface_item, relative_humidity} p $ relativeHumidity s)
+      (#{poke surface_item, rainfall_rate} p $ rainfallRate s)
+      (#{poke surface_item, upper_cloudiness} p $ upperCloudiness s)
+      (#{poke surface_item, mid_cloudiness} p $ midCloudiness s)
+      (#{poke surface_item, low_cloudiness} p $ lowCloudiness s)
+      (#{poke surface_item, cloud_amount} p $ cloudAmount s)
 
-deriveJSON id ''Surface
+deriveJSON id ''Item

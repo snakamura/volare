@@ -1,6 +1,6 @@
 module Volare.MSM (
-    getSurface,
-    getPressure
+    getSurfaceItems,
+    getBarometricItems
 ) where
 
 import Control.Exception (Exception,
@@ -17,8 +17,8 @@ import Foreign.Ptr (Ptr,
                     nullPtr)
 import Foreign.Storable (Storable)
 
-import Volare.MSM.Pressure (Pressure)
-import Volare.MSM.Surface (Surface)
+import qualified Volare.MSM.Barometric as Barometric
+import qualified Volare.MSM.Surface as Surface
 
 #include "../../../msm/msm.h"
 
@@ -27,30 +27,30 @@ data MSMException = MSMException deriving (Show, Typeable)
 instance Exception MSMException
 
 
-getSurface :: FilePath ->
-              (Float, Float) ->
-              (Float, Float) ->
-              Int ->
-              IO [Surface]
-getSurface = get surface
+getSurfaceItems :: FilePath ->
+                   (Float, Float) ->
+                   (Float, Float) ->
+                   Int ->
+                   IO [Surface.Item]
+getSurfaceItems = getItems get_surface_items
 
 
-getPressure :: FilePath ->
-               (Float, Float) ->
-               (Float, Float) ->
-               Int ->
-               IO [Pressure]
-getPressure = get pressure
+getBarometricItems :: FilePath ->
+                      (Float, Float) ->
+                      (Float, Float) ->
+                      Int ->
+                      IO [Barometric.Item]
+getBarometricItems = getItems get_barometric_items
 
 
-get :: Storable a =>
-       (CString -> CFloat -> CFloat -> CFloat -> CFloat -> CInt -> Ptr a -> CSize -> IO CSize) ->
-       FilePath ->
-       (Float, Float) ->
-       (Float, Float) ->
-       Int ->
-       IO [a]
-get f path (nwLatitude, nwLongitude) (seLatitude, seLongitude) time =
+getItems :: Storable a =>
+            (CString -> CFloat -> CFloat -> CFloat -> CFloat -> CInt -> Ptr a -> CSize -> IO CSize) ->
+            FilePath ->
+            (Float, Float) ->
+            (Float, Float) ->
+            Int ->
+            IO [a]
+getItems f path (nwLatitude, nwLongitude) (seLatitude, seLongitude) time =
   withCString path $ \cpath -> do
     let g = f cpath (CFloat nwLatitude) (CFloat nwLongitude) (CFloat seLatitude) (CFloat seLongitude) (fromIntegral time)
     count <- g nullPtr 0
@@ -65,22 +65,22 @@ get f path (nwLatitude, nwLongitude) (seLatitude, seLongitude) time =
                   _ -> peekArray (fromIntegral readCount) values
 
 
-foreign import ccall surface :: CString ->
-                                CFloat ->
-                                CFloat ->
-                                CFloat ->
-                                CFloat ->
-                                CInt ->
-                                Ptr Surface ->
-                                CSize ->
-                                IO CSize
+foreign import ccall get_surface_items :: CString ->
+                                          CFloat ->
+                                          CFloat ->
+                                          CFloat ->
+                                          CFloat ->
+                                          CInt ->
+                                          Ptr Surface.Item ->
+                                          CSize ->
+                                          IO CSize
 
-foreign import ccall pressure :: CString ->
-                                 CFloat ->
-                                 CFloat ->
-                                 CFloat ->
-                                 CFloat ->
-                                 CInt ->
-                                 Ptr Pressure ->
-                                 CSize ->
-                                 IO CSize
+foreign import ccall get_barometric_items :: CString ->
+                                             CFloat ->
+                                             CFloat ->
+                                             CFloat ->
+                                             CFloat ->
+                                             CInt ->
+                                             Ptr Barometric.Item ->
+                                             CSize ->
+                                             IO CSize

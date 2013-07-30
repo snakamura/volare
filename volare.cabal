@@ -25,7 +25,7 @@ library
                    Volare.Foundation
                    Volare.Model
                    Volare.MSM
-                   Volare.MSM.Pressure
+                   Volare.MSM.Barometric
                    Volare.MSM.Surface
                    Volare.Handler.Flight
                    Volare.Handler.MSM

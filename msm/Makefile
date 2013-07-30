@@ -9,13 +9,13 @@ lib: libmsm.a
 libmsm.a: msm.o netcdf.o
 	$(AR) cr $@ $^
 
-sample: surface pressure
+sample: surface barometric
 
 surface: surface.o libmsm.a
 	$(CC) -o $@ $< -L. -lmsm -lc++ $(shell nc-config --libs)
 
-pressure: pressure.o libmsm.a
+barometric: barometric.o libmsm.a
 	$(CC) -o $@ $< -L. -lmsm -lc++ $(shell nc-config --libs)
 
 clean:
-	rm -f *.o *.a surface pressure
+	rm -f *.o *.a surface barometric

@@ -4,51 +4,51 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct _surface_item {
     float latitude;
     float longitude;
-    float airPressure;
-    float surfaceAirPressure;
-    float eastwardWind;
-    float northwardWind;
-    float airTemperature;
-    int relativeHumidity;
-    float rainfallRate;
-    int upperCloudiness;
-    int midCloudiness;
-    int lowCloudiness;
-    int cloudAmount;
-} Surface;
+    float air_pressure;
+    float surface_air_pressure;
+    float eastward_wind;
+    float northward_wind;
+    float air_temperature;
+    int relative_humidity;
+    float rainfall_rate;
+    int upper_cloudiness;
+    int mid_cloudiness;
+    int low_cloudiness;
+    int cloud_amount;
+} surface_item;
 
-typedef struct {
+typedef struct _barometric_item {
     float latitude;
     float longitude;
-    int airPressure;
-    float geopotentialHeight;
-    float lagrangianTendencyOfAirPressure;
-    float eastwardWind;
-    float northwardWind;
-    float airTemperature;
-    int relativeHumidity;
-} Pressure;
+    int air_pressure;
+    float geopotential_height;
+    float lagrangian_tendency_of_air_pressure;
+    float eastward_wind;
+    float northward_wind;
+    float air_temperature;
+    int relative_humidity;
+} barometric_item;
 
-size_t surface(const char* path,
-               const float nwLatitude,
-               const float nwLongitude,
-               const float seLatitude,
-               const float seLongitude,
-               const int time,
-               Surface *surfaces,
-               const size_t surfaceCount);
+size_t get_surface_items(const char* path,
+                         const float nwLatitude,
+                         const float nwLongitude,
+                         const float seLatitude,
+                         const float seLongitude,
+                         const int time,
+                         surface_item* items,
+                         const size_t itemCount);
 
-size_t pressure(const char* path,
-                const float nwLatitude,
-                const float nwLongitude,
-                const float seLatitude,
-                const float seLongitude,
-                const int time,
-                Pressure *pressures,
-                const size_t pressureCount);
+size_t get_barometric_items(const char* path,
+                            const float nwLatitude,
+                            const float nwLongitude,
+                            const float seLatitude,
+                            const float seLongitude,
+                            const int time,
+                            barometric_item* items,
+                            const size_t itemCount);
 
 #ifdef __cplusplus
 }

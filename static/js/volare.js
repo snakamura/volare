@@ -766,15 +766,15 @@ var volare = volare || {};
         div.empty();
         if (this._items) {
             _.each(this._items, function(item) {
-                var speed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
-                var wind = speed <= 2 ? 1 : speed <= 3 ? 2 : speed <= 4 ? 3 : speed <= 5 ? 4 : 5;
-                var d = $('<img class="item" src="/static/image/msm/wind/' + wind + '.png">');
+                var windSpeed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
+                var windIconIndex = MSMOverlay.windIconIndex(windSpeed);
+                var windImage = $('<img class="item" src="/static/image/msm/wind/' + windIconIndex + '.png">');
                 var pos = projection.fromLatLngToDivPixel(new LatLng(item.latitude, item.longitude));
-                d.css('left', (pos.x - 14) + 'px');
-                d.css('top', (pos.y - 10) + 'px');
-                var r = Math.atan2(item.northwardWind, item.eastwardWind);
-                d.css('transform', 'rotate(-' + (r/Math.PI*180) + 'deg)');
-                div.append(d);
+                windImage.css('left', Math.round(pos.x - MSMOverlay.WIND_ICON_WIDTH/2) + 'px');
+                windImage.css('top', Math.round(pos.y - MSMOverlay.WIND_ICON_HEIGHT/2) + 'px');
+                var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
+                windImage.css('transform', 'rotate(-' + Math.round(windAngle/Math.PI*180) + 'deg)');
+                div.append(windImage);
             });
         }
     };
@@ -820,6 +820,13 @@ var volare = volare || {};
             time1.getUTCDate() == time2.getUTCDate() &&
             time1.getUTCHours() == time2.getUTCHours();
     };
+
+    MSMOverlay.windIconIndex = function(windSpeed) {
+        return windSpeed <= 2 ? 1 : windSpeed <= 3 ? 2 : windSpeed <= 4 ? 3 : windSpeed <= 5 ? 4 : 5;
+    };
+
+    MSMOverlay.WIND_ICON_WIDTH = 28;
+    MSMOverlay.WIND_ICON_HEIGHT = 20;
 
 
     function Graph(flights, graph) {

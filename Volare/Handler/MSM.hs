@@ -1,6 +1,6 @@
 module Volare.Handler.MSM (
     getSurfaceR,
-    getPressureR
+    getBarometricR
 ) where
 
 import Control.Applicative ((<$>))
@@ -29,15 +29,15 @@ getSurfaceR :: Int ->
                Int ->
                Int ->
                Handler JSON.Value
-getSurfaceR = getData True MSM.getSurface
+getSurfaceR = getData True MSM.getSurfaceItems
 
 
-getPressureR :: Int ->
-                Int ->
-                Int ->
-                Int ->
-                Handler JSON.Value
-getPressureR = getData False MSM.getPressure
+getBarometricR :: Int ->
+                  Int ->
+                  Int ->
+                  Int ->
+                  Handler JSON.Value
+getBarometricR = getData False MSM.getBarometricItems
 
 
 getData :: JSON.ToJSON a =>

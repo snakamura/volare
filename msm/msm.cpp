@@ -38,14 +38,14 @@ static void readDoubleInShort(const File& file,
                               PropertyType Type::*property,
                               const Converter& converter);
 
-size_t surface(const char* path,
-               const float nwLatitude,
-               const float nwLongitude,
-               const float seLatitude,
-               const float seLongitude,
-               const int time,
-               Surface *surfaces,
-               const size_t surfaceCount) {
+size_t get_surface_items(const char* path,
+                         const float nwLatitude,
+                         const float nwLongitude,
+                         const float seLatitude,
+                         const float seLongitude,
+                         const int time,
+                         surface_item *items,
+                         const size_t itemCount) {
     const size_t nwLatitudeIndex = floorf((MAX_LATITUDE - min(max(nwLatitude, MIN_LATITUDE), MAX_LATITUDE))/SURFACE_STEP_LATITUDE);
     const size_t nwLongitudeIndex = floorf((min(max(nwLongitude, MIN_LONGITUDE), MAX_LONGITUDE) - MIN_LONGITUDE)/SURFACE_STEP_LONGITUDE);
     const size_t seLatitudeIndex = ceilf((MAX_LATITUDE - min(max(seLatitude, MIN_LATITUDE), MAX_LATITUDE))/SURFACE_STEP_LATITUDE);
@@ -56,10 +56,10 @@ size_t surface(const char* path,
 
     const size_t latitudeCount = seLatitudeIndex - nwLatitudeIndex + 1;
     const size_t longitudeCount = seLongitudeIndex - nwLongitudeIndex + 1;
-    if (!surfaces) {
+    if (!items) {
         return latitudeCount*longitudeCount;
     }
-    else if (surfaceCount < latitudeCount*longitudeCount) {
+    else if (itemCount < latitudeCount*longitudeCount) {
         return -1;
     }
 
@@ -67,8 +67,8 @@ size_t surface(const char* path,
         const float latitude = MAX_LATITUDE - (nwLatitudeIndex + lat)*SURFACE_STEP_LATITUDE;
         for (size_t lon = 0; lon < longitudeCount; ++lon) {
             const float longitude = MIN_LONGITUDE + (nwLongitudeIndex + lon)*SURFACE_STEP_LONGITUDE;
-            surfaces[lat*longitudeCount + lon].latitude = latitude;
-            surfaces[lat*longitudeCount + lon].longitude = longitude;
+            items[lat*longitudeCount + lon].latitude = latitude;
+            items[lat*longitudeCount + lon].longitude = longitude;
         }
     }
 
@@ -77,17 +77,17 @@ size_t surface(const char* path,
     try {
         File file(path);
 
-        readDoubleInShort(file, "psea", start, count, surfaces, &Surface::airPressure, [](double v) { return round(v/10)/10.0f; });
-        readDoubleInShort(file, "sp", start, count, surfaces, &Surface::surfaceAirPressure, [](double v) { return round(v/10)/10.0; });
-        readDoubleInShort(file, "u", start, count, surfaces, &Surface::eastwardWind, [](double v) { return round(v*100.0)/100.0; });
-        readDoubleInShort(file, "v", start, count, surfaces, &Surface::northwardWind, [](double v) { return round(v*100.0)/100.0; });
-        readDoubleInShort(file, "temp", start, count, surfaces, &Surface::airTemperature, [](double v) { return round((v - 273.15)*10)/10.0; });
-        readDoubleInShort(file, "rh", start, count, surfaces, &Surface::relativeHumidity, [](double v) { return round(v); });
-        readDoubleInShort(file, "r1h", start, count, surfaces, &Surface::rainfallRate, [](double v) { return round(v); });
-        readDoubleInShort(file, "ncld_upper", start, count, surfaces, &Surface::upperCloudiness, [](double v) { return round(v); });
-        readDoubleInShort(file, "ncld_mid", start, count, surfaces, &Surface::midCloudiness, [](double v) { return round(v); });
-        readDoubleInShort(file, "ncld_low", start, count, surfaces, &Surface::lowCloudiness, [](double v) { return round(v); });
-        readDoubleInShort(file, "ncld", start, count, surfaces, &Surface::cloudAmount, [](double v) { return round(v); });
+        readDoubleInShort(file, "psea", start, count, items, &surface_item::air_pressure, [](double v) { return round(v/10)/10.0f; });
+        readDoubleInShort(file, "sp", start, count, items, &surface_item::surface_air_pressure, [](double v) { return round(v/10)/10.0; });
+        readDoubleInShort(file, "u", start, count, items, &surface_item::eastward_wind, [](double v) { return round(v*100.0)/100.0; });
+        readDoubleInShort(file, "v", start, count, items, &surface_item::northward_wind, [](double v) { return round(v*100.0)/100.0; });
+        readDoubleInShort(file, "temp", start, count, items, &surface_item::air_temperature, [](double v) { return round((v - 273.15)*10)/10.0; });
+        readDoubleInShort(file, "rh", start, count, items, &surface_item::relative_humidity, [](double v) { return round(v); });
+        readDoubleInShort(file, "r1h", start, count, items, &surface_item::rainfall_rate, [](double v) { return round(v); });
+        readDoubleInShort(file, "ncld_upper", start, count, items, &surface_item::upper_cloudiness, [](double v) { return round(v); });
+        readDoubleInShort(file, "ncld_mid", start, count, items, &surface_item::mid_cloudiness, [](double v) { return round(v); });
+        readDoubleInShort(file, "ncld_low", start, count, items, &surface_item::low_cloudiness, [](double v) { return round(v); });
+        readDoubleInShort(file, "ncld", start, count, items, &surface_item::cloud_amount, [](double v) { return round(v); });
     }
     catch (Exception e) {
         return -1;
@@ -96,14 +96,14 @@ size_t surface(const char* path,
     return latitudeCount*longitudeCount;
 }
 
-size_t pressure(const char* path,
-                const float nwLatitude,
-                const float nwLongitude,
-                const float seLatitude,
-                const float seLongitude,
-                const int time,
-                Pressure *pressures,
-                const size_t pressureCount) {
+size_t get_barometric_items(const char* path,
+                            const float nwLatitude,
+                            const float nwLongitude,
+                            const float seLatitude,
+                            const float seLongitude,
+                            const int time,
+                            barometric_item* items,
+                            const size_t itemCount) {
     const size_t nwLatitudeIndex = floorf((MAX_LATITUDE - min(max(nwLatitude, MIN_LATITUDE), MAX_LATITUDE))/PRESSURE_STEP_LATITUDE);
     const size_t nwLongitudeIndex = floorf((min(max(nwLongitude, MIN_LONGITUDE), MAX_LONGITUDE) - MIN_LONGITUDE)/PRESSURE_STEP_LONGITUDE);
     const size_t seLatitudeIndex = ceilf((MAX_LATITUDE - min(max(seLatitude, MIN_LATITUDE), MAX_LATITUDE))/PRESSURE_STEP_LATITUDE);
@@ -112,45 +112,45 @@ size_t pressure(const char* path,
         return 0;
     }
 
-    const size_t surfaceCount = sizeof(PRESSURES)/sizeof(PRESSURES[0]);
+    const size_t pressureCount = sizeof(PRESSURES)/sizeof(PRESSURES[0]);
     const size_t latitudeCount = seLatitudeIndex - nwLatitudeIndex + 1;
     const size_t longitudeCount = seLongitudeIndex - nwLongitudeIndex + 1;
-    if (!pressures) {
-        return surfaceCount*latitudeCount*longitudeCount;
+    if (!items) {
+        return pressureCount*latitudeCount*longitudeCount;
     }
-    else if (pressureCount < surfaceCount*latitudeCount*longitudeCount) {
+    else if (itemCount < pressureCount*latitudeCount*longitudeCount) {
         return -1;
     }
 
-    for (size_t p = 0 ; p < surfaceCount; ++p) {
+    for (size_t p = 0 ; p < pressureCount; ++p) {
         for (size_t lat = 0; lat < latitudeCount; ++lat) {
             const float latitude = MAX_LATITUDE - (nwLatitudeIndex + lat)*PRESSURE_STEP_LATITUDE;
             for (size_t lon = 0; lon < longitudeCount; ++lon) {
                 const float longitude = MIN_LONGITUDE + (nwLongitudeIndex + lon)*PRESSURE_STEP_LONGITUDE;
-                pressures[p*latitudeCount*longitudeCount + lat*longitudeCount + lon].latitude = latitude;
-                pressures[p*latitudeCount*longitudeCount + lat*longitudeCount + lon].longitude = longitude;
-                pressures[p*latitudeCount*longitudeCount + lat*longitudeCount + lon].airPressure = PRESSURES[p];
+                items[p*latitudeCount*longitudeCount + lat*longitudeCount + lon].latitude = latitude;
+                items[p*latitudeCount*longitudeCount + lat*longitudeCount + lon].longitude = longitude;
+                items[p*latitudeCount*longitudeCount + lat*longitudeCount + lon].air_pressure = PRESSURES[p];
             }
         }
     }
 
     const array<size_t, 4> start = { size_t(time), 0, nwLatitudeIndex, nwLongitudeIndex };
-    const array<size_t, 4> count = { 1, surfaceCount, latitudeCount, longitudeCount };
+    const array<size_t, 4> count = { 1, pressureCount, latitudeCount, longitudeCount };
     try {
         File file(path);
 
-        readDouble(file, "z", start, count, pressures, &Pressure::geopotentialHeight, [](double v) { return round(v); });
-        readDouble(file, "w", start, count, pressures, &Pressure::lagrangianTendencyOfAirPressure, [](double v) { return round(v/10)/10.0; });
-        readDoubleInShort(file, "u", start, count, pressures, &Pressure::eastwardWind, [](double v) { return round(v*100.0)/100.0; });
-        readDoubleInShort(file, "v", start, count, pressures, &Pressure::northwardWind, [](double v) { return round(v*100.0)/100.0; });
-        readDoubleInShort(file, "temp", start, count, pressures, &Pressure::airTemperature, [](double v) { return round((v - 273.15)*10)/10.0; });
-        readDoubleInShort(file, "rh", start, count, pressures, &Pressure::relativeHumidity, [](double v) { return round(v); });
+        readDouble(file, "z", start, count, items, &barometric_item::geopotential_height, [](double v) { return round(v); });
+        readDouble(file, "w", start, count, items, &barometric_item::lagrangian_tendency_of_air_pressure, [](double v) { return round(v/10)/10.0; });
+        readDoubleInShort(file, "u", start, count, items, &barometric_item::eastward_wind, [](double v) { return round(v*100.0)/100.0; });
+        readDoubleInShort(file, "v", start, count, items, &barometric_item::northward_wind, [](double v) { return round(v*100.0)/100.0; });
+        readDoubleInShort(file, "temp", start, count, items, &barometric_item::air_temperature, [](double v) { return round((v - 273.15)*10)/10.0; });
+        readDoubleInShort(file, "rh", start, count, items, &barometric_item::relative_humidity, [](double v) { return round(v); });
     }
     catch (Exception e) {
         return -1;
     }
 
-    return surfaceCount*latitudeCount*longitudeCount;
+    return pressureCount*latitudeCount*longitudeCount;
 }
 
 template<typename Type, typename PropertyType, size_t dimension, typename Converter>
