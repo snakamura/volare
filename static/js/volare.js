@@ -766,15 +766,26 @@ var volare = volare || {};
         div.empty();
         if (this._items) {
             _.each(this._items, function(item) {
-                var windSpeed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
-                var windIconIndex = MSMOverlay.windIconIndex(windSpeed);
-                var windImage = $('<img class="item" src="/static/image/msm/wind/' + windIconIndex + '.png">');
                 var pos = projection.fromLatLngToDivPixel(new LatLng(item.latitude, item.longitude));
+                var nw = projection.fromLatLngToDivPixel(new LatLng(item.latitude + MSMOverlay.SURFACE_LATITUDE_STEP/2, item.longitude - MSMOverlay.SURFACE_LONGITUDE_STEP/2));
+                var se = projection.fromLatLngToDivPixel(new LatLng(item.latitude - MSMOverlay.SURFACE_LATITUDE_STEP/2, item.longitude + MSMOverlay.SURFACE_LONGITUDE_STEP/2));
+
+                var windSpeed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
+                var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
+                var windIconIndex = MSMOverlay.windIconIndex(windSpeed);
+                var windImage = $('<img class="wind" src="/static/image/msm/wind/' + windIconIndex + '.png">');
                 windImage.css('left', Math.round(pos.x - MSMOverlay.WIND_ICON_WIDTH/2) + 'px');
                 windImage.css('top', Math.round(pos.y - MSMOverlay.WIND_ICON_HEIGHT/2) + 'px');
-                var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
                 windImage.css('transform', 'rotate(-' + Math.round(windAngle/Math.PI*180) + 'deg)');
                 div.append(windImage);
+
+                var cloudDiv = $('<div class="cloud"></div>');
+                cloudDiv.css('left', nw.x + 'px');
+                cloudDiv.css('top', nw.y + 'px');
+                cloudDiv.css('width', (se.x - nw.x) + 'px');
+                cloudDiv.css('height', (se.y - nw.y) + 'px');
+                cloudDiv.css('opacity', item.cloudAmount/100*0.9);
+                div.append(cloudDiv);
             });
         }
     };
@@ -827,6 +838,8 @@ var volare = volare || {};
 
     MSMOverlay.WIND_ICON_WIDTH = 28;
     MSMOverlay.WIND_ICON_HEIGHT = 20;
+    MSMOverlay.SURFACE_LATITUDE_STEP = 0.05;
+    MSMOverlay.SURFACE_LONGITUDE_STEP = 0.0625;
 
 
     function Graph(flights, graph) {
