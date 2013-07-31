@@ -52,8 +52,7 @@ getData surface f year month day hour = do
   case (nwLatitude, nwLongitude, seLatitude, seLongitude) of
     (Just nwLat, Just nwLng, Just seLat, Just seLng) -> do
       path <- liftIO $ dataFile surface year month day
-      surfaces <- liftIO $ f path (nwLat, nwLng) (seLat, seLng) hour
-      return $ JSON.toJSON surfaces
+      liftIO $ JSON.toJSON <$> f path (nwLat, nwLng) (seLat, seLng) hour
     _ -> notFound
 
 

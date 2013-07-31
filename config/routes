@@ -7,4 +7,5 @@
 /workspaces/#M.WorkspaceId/candidates WorkspaceCandidatesR GET
 /msm/surface/#Int/#Int/#Int/#Int SurfaceR GET
 /msm/barometric/#Int/#Int/#Int/#Int BarometricR GET
+/amedas/#Int/#Int/#Int/#Int DataR GET
 /static StaticR Static volareStatic
