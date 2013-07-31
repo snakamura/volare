@@ -822,9 +822,9 @@ var volare = volare || {};
                           '/' + time.getUTCDate() +
                           '/' + time.getUTCHours() +
                           '?nwlat=' + bounds.getNorthEast().lat() +
-                          '&nwlon=' + bounds.getSouthWest().lng() +
+                          '&nwlng=' + bounds.getSouthWest().lng() +
                           '&selat=' + bounds.getSouthWest().lat() +
-                          '&selon=' + bounds.getNorthEast().lng(), function(items) {
+                          '&selng=' + bounds.getNorthEast().lng(), function(items) {
                     if (self._time && MSMOverlay.timeEquals(self._time, time)) {
                         var oldItems = self._items;
                         var newItems = {};

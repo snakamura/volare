@@ -65,10 +65,10 @@ size_t get_surface_items(const char* path,
 
     for (size_t lat = 0; lat < latitudeCount; ++lat) {
         const float latitude = MAX_LATITUDE - (nwLatitudeIndex + lat)*SURFACE_STEP_LATITUDE;
-        for (size_t lon = 0; lon < longitudeCount; ++lon) {
-            const float longitude = MIN_LONGITUDE + (nwLongitudeIndex + lon)*SURFACE_STEP_LONGITUDE;
-            items[lat*longitudeCount + lon].latitude = latitude;
-            items[lat*longitudeCount + lon].longitude = longitude;
+        for (size_t lng = 0; lng < longitudeCount; ++lng) {
+            const float longitude = MIN_LONGITUDE + (nwLongitudeIndex + lng)*SURFACE_STEP_LONGITUDE;
+            items[lat*longitudeCount + lng].latitude = latitude;
+            items[lat*longitudeCount + lng].longitude = longitude;
         }
     }
 
@@ -125,11 +125,11 @@ size_t get_barometric_items(const char* path,
     for (size_t p = 0 ; p < pressureCount; ++p) {
         for (size_t lat = 0; lat < latitudeCount; ++lat) {
             const float latitude = MAX_LATITUDE - (nwLatitudeIndex + lat)*PRESSURE_STEP_LATITUDE;
-            for (size_t lon = 0; lon < longitudeCount; ++lon) {
-                const float longitude = MIN_LONGITUDE + (nwLongitudeIndex + lon)*PRESSURE_STEP_LONGITUDE;
-                items[p*latitudeCount*longitudeCount + lat*longitudeCount + lon].latitude = latitude;
-                items[p*latitudeCount*longitudeCount + lat*longitudeCount + lon].longitude = longitude;
-                items[p*latitudeCount*longitudeCount + lat*longitudeCount + lon].air_pressure = PRESSURES[p];
+            for (size_t lng = 0; lng < longitudeCount; ++lng) {
+                const float longitude = MIN_LONGITUDE + (nwLongitudeIndex + lng)*PRESSURE_STEP_LONGITUDE;
+                items[p*latitudeCount*longitudeCount + lat*longitudeCount + lng].latitude = latitude;
+                items[p*latitudeCount*longitudeCount + lat*longitudeCount + lng].longitude = longitude;
+                items[p*latitudeCount*longitudeCount + lat*longitudeCount + lng].air_pressure = PRESSURES[p];
             }
         }
     }

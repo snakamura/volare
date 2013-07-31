@@ -46,13 +46,13 @@ getData :: JSON.ToJSON a =>
            Handler JSON.Value
 getData surface f year month day hour = do
   nwLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlat"
-  nwLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlon"
+  nwLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlng"
   seLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selat"
-  seLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selon"
+  seLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selng"
   case (nwLatitude, nwLongitude, seLatitude, seLongitude) of
-    (Just nwLat, Just nwLon, Just seLat, Just seLon) -> do
+    (Just nwLat, Just nwLng, Just seLat, Just seLng) -> do
       path <- liftIO $ dataFile surface year month day
-      surfaces <- liftIO $ f path (nwLat, nwLon) (seLat, seLon) hour
+      surfaces <- liftIO $ f path (nwLat, nwLng) (seLat, seLng) hour
       return $ JSON.toJSON surfaces
     _ -> notFound
 
@@ -68,5 +68,7 @@ dataFile surface year month day = do
   b <- doesFileExist path
   when (not b) $ do
     createDirectoryIfMissing True $ takeDirectory path
+    -- TODO
+    -- Save to a temporary file and move it
     MSM.download surface year month day path
   return path
