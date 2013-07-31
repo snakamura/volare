@@ -7,11 +7,7 @@ import Control.Applicative ((<$>))
 import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as JSON
-import Data.Char (toLower)
-import Data.Conduit (($$+-))
-import qualified Data.Conduit.Binary as CB
 import qualified Data.Text as T
-import qualified Network.HTTP.Conduit as Http
 import System.Directory (createDirectoryIfMissing,
                          doesFileExist)
 import System.FilePath (takeDirectory)
@@ -67,14 +63,10 @@ dataFile :: Bool ->
             Int ->
             IO FilePath
 dataFile surface year month day = do
-  let t = if surface then 'S' else 'P'
-      path = printf "./data/msm/%c/%04d%02d%02d.nc" (toLower t) year month day
-      url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" t year month day
+  let t = if surface then 's' else 'p'
+      path = printf "./data/msm/%c/%04d%02d%02d.nc" t year month day
   b <- doesFileExist path
   when (not b) $ do
     createDirectoryIfMissing True $ takeDirectory path
-    req <- Http.parseUrl url
-    Http.withManager $ \manager -> do
-      res <- Http.http req manager
-      Http.responseBody res $$+- CB.sinkFile path
+    MSM.download surface year month day path
   return path

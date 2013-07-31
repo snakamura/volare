@@ -1,10 +1,13 @@
 module Volare.MSM (
     getSurfaceItems,
-    getBarometricItems
+    getBarometricItems,
+    download
 ) where
 
 import Control.Exception (Exception,
                           throwIO)
+import Data.Conduit (($$+-))
+import qualified Data.Conduit.Binary as CB
 import Data.Typeable (Typeable)
 import Foreign.C (CFloat(..),
                   CInt(..),
@@ -16,6 +19,8 @@ import Foreign.Marshal (allocaArray,
 import Foreign.Ptr (Ptr,
                     nullPtr)
 import Foreign.Storable (Storable)
+import qualified Network.HTTP.Conduit as Http
+import Text.Printf (printf)
 
 import qualified Volare.MSM.Barometric as Barometric
 import qualified Volare.MSM.Surface as Surface
@@ -63,6 +68,21 @@ getItems f path (nwLatitude, nwLongitude) (seLatitude, seLongitude) time =
                   -1 -> throwIO MSMException
                   0 -> return []
                   _ -> peekArray (fromIntegral readCount) values
+
+
+download :: Bool ->
+            Int ->
+            Int ->
+            Int ->
+            FilePath ->
+            IO ()
+download surface year month day path = do
+  let t = if surface then 'S' else 'P'
+      url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" t year month day
+  req <- Http.parseUrl url
+  Http.withManager $ \manager -> do
+    res <- Http.http req manager
+    Http.responseBody res $$+- CB.sinkFile path
 
 
 foreign import ccall get_surface_items :: CString ->
