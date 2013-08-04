@@ -15,7 +15,9 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import Data.List.Split (splitOn,
                         splitWhen)
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes,
+                   fromMaybe,
+                   listToMaybe)
 import qualified Network.HTTP.Conduit as Http
 import Text.HTML.TagSoup (Tag(TagOpen, TagClose),
                           (~==),
@@ -73,22 +75,19 @@ load path = (map parseItem . lines) <$> readFile path
 parseHtml :: BL.ByteString ->
              [Type.Item]
 parseHtml = catMaybes . map parseItem
-                      . splitWhen (~== TagClose tr)
+                      . tail
+                      . splitWhen (~== TagOpen tr [])
                       . takeWhile (~/= TagClose table)
                       . dropWhile (~/= TagOpen tr [("class", "mtx"), ("style", "")])
                       . parseTags
     where
-      parseItem = makeItem . map fromTagText . filter isTagText . dropWhile (~/= TagOpen tr [])
+      parseItem = makeItem . map (fromMaybe "" . listToMaybe . map fromTagText . filter isTagText . takeWhile (~/= TagClose td)) . tail . splitWhen (~== TagOpen td [])
 
 
 makeItem :: [BL.ByteString] ->
             Maybe Type.Item
-makeItem [time, precipitation, temperature, windSpeed, windDirection, maxWindSpeed, maxWindDirection] =
-    makeItem [time, precipitation, temperature, windSpeed, windDirection, maxWindSpeed, maxWindDirection, ""]
 makeItem [time, precipitation, temperature, windSpeed, windDirection, maxWindSpeed, maxWindDirection, sunshine] =
     makeItem [time, "", "", precipitation, temperature, "", windSpeed, windDirection, maxWindSpeed, maxWindDirection, sunshine]
-makeItem [time, surfacePressure, seaLevelPressure, precipitation, temperature, relativeHumidity, windSpeed, windDirection, maxWindSpeed, maxWindDirection] =
-    makeItem [time, surfacePressure, seaLevelPressure, precipitation, temperature, relativeHumidity, windSpeed, windDirection, maxWindSpeed, maxWindDirection, ""]
 makeItem [time, _, _, precipitation, temperature, _, windSpeed, windDirection, _, _, sunshine] = do
   time' <- parseTime $ BLU.toString time
   return $ Type.Item time'
@@ -128,6 +127,7 @@ parseWindDirection "北北西" = Just Type.NNW
 parseWindDirection "静穏" = Just Type.CALM
 parseWindDirection _ = Nothing
 
-table, tr :: BL.ByteString
+table, tr, td :: BL.ByteString
 table = "table"
 tr = "tr"
+td = "td"
