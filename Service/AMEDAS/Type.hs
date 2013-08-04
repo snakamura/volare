@@ -1,4 +1,4 @@
-module Volare.AMEDAS.Type (
+module Service.AMEDAS.Type (
     Item(..),
     WindDirection(..),
     Station(..)

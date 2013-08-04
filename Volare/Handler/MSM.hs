@@ -8,6 +8,7 @@ import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as JSON
 import qualified Data.Text as T
+import qualified Service.MSM as MSM
 import System.Directory (createDirectoryIfMissing,
                          doesFileExist)
 import System.FilePath (takeDirectory)
@@ -17,7 +18,6 @@ import Yesod.Core.Handler (lookupGetParam,
                            notFound)
 
 import Volare.Foundation
-import qualified Volare.MSM as MSM
 
 
 getSurfaceR :: Int ->

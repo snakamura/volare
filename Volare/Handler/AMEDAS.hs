@@ -15,6 +15,7 @@ import Data.Time (UTCTime(..),
                   todHour,
                   toGregorian,
                   utcToLocalTime)
+import qualified Service.AMEDAS as AMEDAS
 import System.Directory (createDirectoryIfMissing,
                          doesFileExist)
 import System.FilePath (takeDirectory)
@@ -23,7 +24,6 @@ import Text.Read (readMaybe)
 import Yesod.Core.Handler (lookupGetParam,
                            notFound)
 
-import qualified Volare.AMEDAS as AMEDAS
 import Volare.Foundation
 
 

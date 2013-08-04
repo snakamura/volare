@@ -1,4 +1,4 @@
-module Volare.MSM (
+module Service.MSM (
     getSurfaceItems,
     getBarometricItems,
     download
@@ -22,8 +22,8 @@ import Foreign.Storable (Storable)
 import qualified Network.HTTP.Conduit as Http
 import Text.Printf (printf)
 
-import qualified Volare.MSM.Barometric as Barometric
-import qualified Volare.MSM.Surface as Surface
+import qualified Service.MSM.Barometric as Barometric
+import qualified Service.MSM.Surface as Surface
 
 #include "../../../msm/msm.h"
 

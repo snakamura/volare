@@ -1,8 +1,8 @@
-module Volare.AMEDAS.Stations (
+module Service.AMEDAS.Stations (
     stations
 ) where
 
-import Volare.AMEDAS.Type (Station(..))
+import Service.AMEDAS.Type (Station(..))
 
 
 stations :: (Float, Float) ->

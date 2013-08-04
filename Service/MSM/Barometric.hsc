@@ -1,4 +1,4 @@
-module Volare.MSM.Barometric (
+module Service.MSM.Barometric (
     Item(..)
 ) where
 

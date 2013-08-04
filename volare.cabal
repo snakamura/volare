@@ -22,14 +22,14 @@ library
     other-modules: Codec.IGC
                    Codec.IGC.Parser
                    Codec.IGC.Types
-                   Volare.AMEDAS
-                   Volare.AMEDAS.Stations
-                   Volare.AMEDAS.Type
+                   Service.AMEDAS
+                   Service.AMEDAS.Stations
+                   Service.AMEDAS.Type
+                   Service.MSM
+                   Service.MSM.Barometric
+                   Service.MSM.Surface
                    Volare.Foundation
                    Volare.Model
-                   Volare.MSM
-                   Volare.MSM.Barometric
-                   Volare.MSM.Surface
                    Volare.Handler.AMEDAS
                    Volare.Handler.Flight
                    Volare.Handler.MSM

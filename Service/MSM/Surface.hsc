@@ -1,4 +1,4 @@
-module Volare.MSM.Surface (
+module Service.MSM.Surface (
     Item(..)
 ) where
 

@@ -1,4 +1,4 @@
-module Volare.AMEDAS (
+module Service.AMEDAS (
     Type.Item(..),
     Type.WindDirection(..),
     Type.Station(..),
@@ -28,8 +28,8 @@ import Text.HTML.TagSoup (Tag(TagOpen, TagClose),
 import Text.Printf (printf)
 import Text.Read (readMaybe)
 
-import qualified Volare.AMEDAS.Type as Type
-import Volare.AMEDAS.Stations (stations)
+import qualified Service.AMEDAS.Type as Type
+import Service.AMEDAS.Stations (stations)
 
 
 download :: Type.Station ->
