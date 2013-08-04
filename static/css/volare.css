@@ -13,9 +13,6 @@ div#map {
     margin: 10px;
 }
 
-div#map div.msm {
-}
-
 div#map div.msm div.item {
     position: absolute;
 }
@@ -40,6 +37,18 @@ div#map div.msm span.temperature {
     height: 3ex;
     line-height: 3ex;
     font-size: 70%;
+}
+
+div#map div.amedas div.item {
+    position: absolute;
+    width: 28px;
+    height: 20px;
+}
+
+div#map div.amedas img.wind {
+    width: 28px;
+    height: 20px;
+    opacity: 0.8;
 }
 
 div#sidebar {

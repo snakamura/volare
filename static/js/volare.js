@@ -652,6 +652,9 @@ var volare = volare || {};
         var msmOverlay = new MSMOverlay(this._flights);
         msmOverlay.setMap(this._map);
 
+        var amedasOverlay = new AMEDASOverlay(this._flights);
+        amedasOverlay.setMap(this._map);
+
         var self = this;
 
         $(this._flights).on('flight_added', function(event, flight) {
@@ -784,6 +787,7 @@ var volare = volare || {};
                     var windIconIndex = MSMOverlay.windIconIndex(windSpeed);
                     var windImage = elem.find('.wind');
                     windImage[0].src = '/static/image/msm/wind/' + windIconIndex + '.png';
+                    windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
 
                     var temperatureDiv = elem.find('.temperature');
                     temperatureDiv.css('background-color', MSMOverlay.colorForTemperature(item.airTemperature));
@@ -808,14 +812,12 @@ var volare = volare || {};
     };
 
     MSMOverlay.prototype._update = function() {
-        var time = this._flights.getCurrentTime();
-        if (!time)
-            time = this._flights.getStartTime();
+        var time = this._flights.getCurrentTime() || this._flights.getStartTime();
         if (time) {
             var map = this.getMap();
             var bounds = map.getBounds();
             if (!this._bounds || !this._bounds.equals(bounds) ||
-                !this._time || !MSMOverlay.timeEquals(this._time, time)) {
+                !this._time || !MSMOverlay.hoursEquals(this._time, time)) {
                 var self = this;
                 $.getJSON('/msm/surface/' + time.getUTCFullYear() +
                           '/' + (time.getUTCMonth() + 1) +
@@ -825,7 +827,7 @@ var volare = volare || {};
                           '&nwlng=' + bounds.getSouthWest().lng() +
                           '&selat=' + bounds.getSouthWest().lat() +
                           '&selng=' + bounds.getNorthEast().lng(), function(items) {
-                    if (self._time && MSMOverlay.timeEquals(self._time, time)) {
+                    if (self._time && MSMOverlay.hoursEquals(self._time, time)) {
                         var oldItems = self._items;
                         var newItems = {};
                         _.each(items, function(item) {
@@ -865,7 +867,7 @@ var volare = volare || {};
         }
     };
 
-    MSMOverlay.timeEquals = function(time1, time2) {
+    MSMOverlay.hoursEquals = function(time1, time2) {
         return time1.getUTCFullYear() == time2.getUTCFullYear() &&
             time1.getUTCMonth() == time2.getUTCMonth() &&
             time1.getUTCDate() == time2.getUTCDate() &&
@@ -899,6 +901,225 @@ var volare = volare || {};
 
     MSMOverlay.SURFACE_LATITUDE_STEP = 0.05;
     MSMOverlay.SURFACE_LONGITUDE_STEP = 0.0625;
+
+
+    function AMEDASOverlay(flights) {
+        var self = this;
+
+        this._flights = flights;
+        this._div = null;
+        this._idleListener = null;
+        this._time = null;
+        this._bounds = null;
+        this._items = {};
+        this._listener = function() {
+            self._update();
+        };
+    }
+
+    AMEDASOverlay.prototype = new google.maps.OverlayView();
+
+    AMEDASOverlay.prototype.onAdd = function() {
+        var div = $('<div class="amedas"></div>');
+
+        var panes = this.getPanes();
+        panes.overlayLayer.appendChild(div[0]);
+
+        this._div = div;
+
+        var map = this.getMap();
+        var self = this;
+        this._idleListener = map.addListener('idle', function() {
+            self._update();
+        });
+
+        $(this._flights).on('flight_added', this._listener);
+        $(this._flights).on('flight_removed', this._listener);
+        $(this._flights).on('currenttime_changed', this._listener);
+
+        this._update();
+    };
+
+    AMEDASOverlay.prototype.onRemove = function() {
+        $(this._flights).off('flight_added', this._listener);
+        $(this._flights).off('flight_removed', this._listener);
+        $(this._flights).off('currenttime_changed', this._listener);
+
+        google.maps.event.removeListener(this._idleListener);
+        this._idleListener = null;
+
+        this._div[0].parentNode.removeChild(this._div[0]);
+        this._div = null;
+    };
+
+    AMEDASOverlay.prototype.draw = function() {
+        this._draw();
+    };
+
+    AMEDASOverlay.prototype._draw = function() {
+        var map = this.getMap();
+        var bounds = map.getBounds();
+        var projection = this.getProjection();
+        var sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
+        var ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
+
+        var div = this._div;
+        div.css('left', sw.x + 'px');
+        div.css('top', ne.y + 'px');
+        div.css('width', (ne.x - sw.x) + 'px');
+        div.css('height', (sw.y - ne.y) + 'px');
+
+        if (!_.isEmpty(this._items)) {
+            var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+            var minute = Math.floor((time.getUTCHours()*60 + time.getMinutes())/10)*10;
+            div.empty();
+            _.each(this._items, function(item) {
+                if (item.time != minute)
+                    return;
+
+                var elem = item.elem;
+                if (!elem) {
+                    elem = $('<div class="item"><img class="wind"></div>');
+                    div.append(elem);
+
+                    var windIconIndex = AMEDASOverlay.windIconIndex(item.windSpeed);
+                    var windImage = elem.find('.wind');
+                    var windAngle = AMEDASOverlay.windAngle(item.windDirection);
+                    if (!_.isNull(windAngle)) {
+                        windImage[0].src = '/static/image/msm/wind/' + windIconIndex + '.png';
+                        windImage.css('transform', 'rotate(' + (-windAngle) + 'deg)');
+                    }
+                    else {
+                        windImage.css('display', 'none');
+                    }
+                }
+
+                var pos = projection.fromLatLngToDivPixel(new LatLng(item.latitude, item.longitude));
+                elem.css('left', (pos.x - 14) + 'px');
+                elem.css('top', (pos.y - 10) + 'px');
+            });
+        }
+        else {
+            div.empty();
+        }
+    };
+
+    AMEDASOverlay.prototype._update = function() {
+        var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+        if (time) {
+            var map = this.getMap();
+            var bounds = map.getBounds();
+            if (!this._bounds || !this._bounds.equals(bounds) ||
+                !this._time || !AMEDASOverlay.hoursEquals(this._time, time)) {
+                var self = this;
+                $.getJSON('/amedas/' + time.getUTCFullYear() +
+                          '/' + (time.getUTCMonth() + 1) +
+                          '/' + time.getUTCDate() +
+                          '/' + time.getUTCHours() +
+                          '?nwlat=' + bounds.getNorthEast().lat() +
+                          '&nwlng=' + bounds.getSouthWest().lng() +
+                          '&selat=' + bounds.getSouthWest().lat() +
+                          '&selng=' + bounds.getNorthEast().lng(), function(items) {
+                    if (self._time && MSMOverlay.hoursEquals(self._time, time)) {
+                        var oldItems = self._items;
+                        var newItems = {};
+                        _.each(items, function(item) {
+                            var key = item.latitude + ' ' + item.longitude + ' ' + item.time;
+                            var oldItem = oldItems[key];
+                            if (!_.isUndefined(oldItem)) {
+                                item.elem = oldItem.elem;
+                                delete oldItems[key];
+                            }
+                            newItems[key] = item;
+                        });
+                        _.each(oldItems, function(item) {
+                            var elem = item.elem;
+                            if (elem)
+                                elem[0].parentNode.removeChild(elem[0]);
+                        });
+                        self._items = newItems;
+                    }
+                    else {
+                        self._items = {};
+                        _.each(items, function(item) {
+                            var key = item.latitude + ' ' + item.longitude + ' ' + item.time;
+                            self._items[key] = item;
+                        });
+                    }
+                    self._time = time;
+                    self._bounds = bounds;
+                    self._draw();
+                });
+            }
+            else if (!AMEDASOverlay.tenMinutesEquals(this._time, time)) {
+                this._time = time;
+                this._draw();
+            }
+        }
+        else {
+            this._items = {};
+            this._time = null;
+            this._bounds = null;
+            this._draw();
+        }
+    };
+
+    AMEDASOverlay.hoursEquals = function(time1, time2) {
+        return time1.getUTCFullYear() == time2.getUTCFullYear() &&
+            time1.getUTCMonth() == time2.getUTCMonth() &&
+            time1.getUTCDate() == time2.getUTCDate() &&
+            time1.getUTCHours() == time2.getUTCHours();
+    };
+
+    AMEDASOverlay.tenMinutesEquals = function(time1, time2) {
+        return AMEDASOverlay.hoursEquals(time1, time2) &&
+            Math.floor(time1.getUTCMinutes() / 10) == Math.floor(time2.getUTCMinutes() / 10);
+    };
+
+    AMEDASOverlay.windIconIndex = function(windSpeed) {
+        return windSpeed <= 2 ? 1 : windSpeed <= 3 ? 2 : windSpeed <= 4 ? 3 : windSpeed <= 5 ? 4 : 5;
+    };
+
+    AMEDASOverlay.windAngle = function(windDirection) {
+        switch (windDirection) {
+        case 'N':
+            return -90;
+        case 'NNE':
+            return -112.5;
+        case 'NE':
+            return -135;
+        case 'ENE':
+            return -157.5;
+        case 'E':
+            return 180;
+        case 'ESE':
+            return 157.5;
+        case 'SE':
+            return 135;
+        case 'SSE':
+            return 112.5;
+        case 'S':
+            return 90;
+        case 'SSW':
+            return 67.5;
+        case 'SW':
+            return 45;
+        case 'WSW':
+            return 22.5;
+        case 'W':
+            return 0;
+        case 'WNW':
+            return -22.5;
+        case 'NW':
+            return -45;
+        case 'NNW':
+            return -67.5;
+        case 'CALM':
+            return null;
+        default:
+            return null;
+        }
+    };
 
 
     function Graph(flights, graph) {
