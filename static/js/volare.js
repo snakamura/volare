@@ -704,24 +704,21 @@ var volare = volare || {};
     }
 
 
-    function MSMOverlay(flights) {
+    function WeatherOverlay(flights) {
         var self = this;
 
         this._flights = flights;
         this._div = null;
         this._idleListener = null;
-        this._time = null;
-        this._bounds = null;
-        this._items = {};
         this._listener = function() {
             self._update();
         };
     }
 
-    MSMOverlay.prototype = new google.maps.OverlayView();
+    WeatherOverlay.prototype = new google.maps.OverlayView();
 
-    MSMOverlay.prototype.onAdd = function() {
-        var div = $('<div class="msm"></div>');
+    WeatherOverlay.prototype.onAdd = function() {
+        var div = $('<div class="' + this._getClassName() + '"></div>');
 
         var panes = this.getPanes();
         panes.overlayLayer.appendChild(div[0]);
@@ -741,7 +738,7 @@ var volare = volare || {};
         this._update();
     };
 
-    MSMOverlay.prototype.onRemove = function() {
+    WeatherOverlay.prototype.onRemove = function() {
         $(this._flights).off('flight_added', this._listener);
         $(this._flights).off('flight_removed', this._listener);
         $(this._flights).off('currenttime_changed', this._listener);
@@ -753,8 +750,23 @@ var volare = volare || {};
         this._div = null;
     };
 
-    MSMOverlay.prototype.draw = function() {
+    WeatherOverlay.prototype.draw = function() {
         this._draw();
+    };
+
+
+    function MSMOverlay(flights) {
+        WeatherOverlay.call(this, flights);
+
+        this._time = null;
+        this._bounds = null;
+        this._items = {};
+    }
+
+    MSMOverlay.prototype = new WeatherOverlay();
+
+    MSMOverlay.prototype._getClassName = function() {
+        return 'msm';
     };
 
     MSMOverlay.prototype._draw = function() {
@@ -904,56 +916,17 @@ var volare = volare || {};
 
 
     function AMEDASOverlay(flights) {
-        var self = this;
+        WeatherOverlay.call(this, flights);
 
-        this._flights = flights;
-        this._div = null;
-        this._idleListener = null;
         this._time = null;
         this._bounds = null;
         this._items = {};
-        this._listener = function() {
-            self._update();
-        };
     }
 
-    AMEDASOverlay.prototype = new google.maps.OverlayView();
+    AMEDASOverlay.prototype = new WeatherOverlay();
 
-    AMEDASOverlay.prototype.onAdd = function() {
-        var div = $('<div class="amedas"></div>');
-
-        var panes = this.getPanes();
-        panes.overlayLayer.appendChild(div[0]);
-
-        this._div = div;
-
-        var map = this.getMap();
-        var self = this;
-        this._idleListener = map.addListener('idle', function() {
-            self._update();
-        });
-
-        $(this._flights).on('flight_added', this._listener);
-        $(this._flights).on('flight_removed', this._listener);
-        $(this._flights).on('currenttime_changed', this._listener);
-
-        this._update();
-    };
-
-    AMEDASOverlay.prototype.onRemove = function() {
-        $(this._flights).off('flight_added', this._listener);
-        $(this._flights).off('flight_removed', this._listener);
-        $(this._flights).off('currenttime_changed', this._listener);
-
-        google.maps.event.removeListener(this._idleListener);
-        this._idleListener = null;
-
-        this._div[0].parentNode.removeChild(this._div[0]);
-        this._div = null;
-    };
-
-    AMEDASOverlay.prototype.draw = function() {
-        this._draw();
+    AMEDASOverlay.prototype._getClassName = function() {
+        return 'amedas';
     };
 
     AMEDASOverlay.prototype._draw = function() {
