@@ -649,8 +649,8 @@ var volare = volare || {};
             mapTypeId: google.maps.MapTypeId.TERRAIN
         });
 
-        var msmOverlay = new MSMOverlay(this._flights);
-        msmOverlay.setMap(this._map);
+//        var msmOverlay = new MSMOverlay(this._flights);
+//        msmOverlay.setMap(this._map);
 
         var amedasOverlay = new AMEDASOverlay(this._flights);
         amedasOverlay.setMap(this._map);
@@ -718,7 +718,7 @@ var volare = volare || {};
     WeatherOverlay.prototype = new google.maps.OverlayView();
 
     WeatherOverlay.prototype.onAdd = function() {
-        var div = $('<div class="' + this._getClassName() + '"></div>');
+        var div = $('<div class="weather ' + this._getClassName() + '"></div>');
 
         var panes = this.getPanes();
         panes.overlayLayer.appendChild(div[0]);
@@ -952,7 +952,7 @@ var volare = volare || {};
 
                 var elem = item.elem;
                 if (!elem) {
-                    elem = $('<div class="item"><img class="wind"></div>');
+                    elem = $('<div class="item"><div class="cell"><img class="wind"><br><span class="temperature"></span></div></div>');
                     div.append(elem);
 
                     var windIconIndex = AMEDASOverlay.windIconIndex(item.windSpeed);
@@ -965,6 +965,10 @@ var volare = volare || {};
                     else {
                         windImage.css('display', 'none');
                     }
+
+                    var temperatureDiv = elem.find('.temperature');
+                    temperatureDiv.css('background-color', AMEDASOverlay.colorForTemperature(item.temperature));
+                    temperatureDiv.text(Math.round(item.temperature*10)/10);
                 }
 
                 var pos = projection.fromLatLngToDivPixel(new LatLng(item.latitude, item.longitude));
@@ -1094,6 +1098,26 @@ var volare = volare || {};
         }
     };
 
+    AMEDASOverlay.colorForTemperature = function(temperature) {
+        if (temperature < 0)
+            return 'rgb(0, 0, 255, 0.5)';
+        else if (temperature < 5)
+            return 'rgb(204, 204, 204, 0.5)';
+        else if (temperature < 10)
+            return 'rgb(0, 255, 255, 0.5)';
+        else if (temperature < 15)
+            return 'rgb(0, 204, 255, 0.5)';
+        else if (temperature < 20)
+            return 'rgb(51, 204, 0, 0.5)';
+        else if (temperature < 25)
+            return 'rgb(255, 255, 0, 0.5)';
+        else if (temperature < 30)
+            return 'rgb(255, 153, 51, 0.5)';
+        else if (temperature < 35)
+            return 'rgb(255, 0, 0, 0.5)';
+        else
+            return 'rgb(204, 0, 0, 0.5)';
+    };
 
     function Graph(flights, graph) {
         var gridCanvas = $('<canvas></canvas>');
