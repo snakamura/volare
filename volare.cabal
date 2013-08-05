@@ -89,6 +89,7 @@ library
                    persistent-sqlite == 1.2.*,
                    persistent-template == 1.2.*,
                    resourcet == 0.4.*,
+                   safe == 0.3.*,
                    shakespeare-i18n == 1.0.*,
                    shakespeare-js == 1.1.*,
                    split == 0.2.*,
