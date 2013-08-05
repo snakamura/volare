@@ -649,8 +649,8 @@ var volare = volare || {};
             mapTypeId: google.maps.MapTypeId.TERRAIN
         });
 
-//        var msmOverlay = new MSMOverlay(this._flights);
-//        msmOverlay.setMap(this._map);
+        var msmOverlay = new MSMOverlay(this._flights);
+        msmOverlay.setMap(this._map);
 
         var amedasOverlay = new AMEDASOverlay(this._flights);
         amedasOverlay.setMap(this._map);
@@ -746,12 +746,49 @@ var volare = volare || {};
         google.maps.event.removeListener(this._idleListener);
         this._idleListener = null;
 
-        this._div[0].parentNode.removeChild(this._div[0]);
+        this._div.remove();
         this._div = null;
     };
 
     WeatherOverlay.prototype.draw = function() {
         this._draw();
+    };
+
+    WeatherOverlay.hoursEquals = function(time1, time2) {
+        return time1.getUTCFullYear() == time2.getUTCFullYear() &&
+            time1.getUTCMonth() == time2.getUTCMonth() &&
+            time1.getUTCDate() == time2.getUTCDate() &&
+            time1.getUTCHours() == time2.getUTCHours();
+    };
+
+    WeatherOverlay.tenMinutesEquals = function(time1, time2) {
+        return WeatherOverlay.hoursEquals(time1, time2) &&
+            Math.floor(time1.getUTCMinutes() / 10) == Math.floor(time2.getUTCMinutes() / 10);
+    };
+
+    WeatherOverlay.windIconIndex = function(windSpeed) {
+        return windSpeed <= 2 ? 1 : windSpeed <= 3 ? 2 : windSpeed <= 4 ? 3 : windSpeed <= 5 ? 4 : 5;
+    };
+
+    WeatherOverlay.colorForTemperature = function(temperature) {
+        if (temperature < 0)
+            return 'rgb(0, 0, 255, 0.5)';
+        else if (temperature < 5)
+            return 'rgb(204, 204, 204, 0.5)';
+        else if (temperature < 10)
+            return 'rgb(0, 255, 255, 0.5)';
+        else if (temperature < 15)
+            return 'rgb(0, 204, 255, 0.5)';
+        else if (temperature < 20)
+            return 'rgb(51, 204, 0, 0.5)';
+        else if (temperature < 25)
+            return 'rgb(255, 255, 0, 0.5)';
+        else if (temperature < 30)
+            return 'rgb(255, 153, 51, 0.5)';
+        else if (temperature < 35)
+            return 'rgb(255, 0, 0, 0.5)';
+        else
+            return 'rgb(204, 0, 0, 0.5)';
     };
 
 
@@ -796,13 +833,13 @@ var volare = volare || {};
 
                     var windSpeed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
                     var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
-                    var windIconIndex = MSMOverlay.windIconIndex(windSpeed);
+                    var windIconIndex = WeatherOverlay.windIconIndex(windSpeed);
                     var windImage = elem.find('.wind');
                     windImage[0].src = '/static/image/msm/wind/' + windIconIndex + '.png';
                     windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
 
                     var temperatureDiv = elem.find('.temperature');
-                    temperatureDiv.css('background-color', MSMOverlay.colorForTemperature(item.airTemperature));
+                    temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.airTemperature));
                     temperatureDiv.text(Math.round(item.airTemperature*10)/10);
 
                     elem.css('background-color', 'rgba(255, 255, 255, ' + item.cloudAmount/100*0.9 + ')');
@@ -818,9 +855,6 @@ var volare = volare || {};
                 cell.css('height', height + 'px');
             });
         }
-        else {
-            div.empty();
-        }
     };
 
     MSMOverlay.prototype._update = function() {
@@ -829,7 +863,7 @@ var volare = volare || {};
             var map = this.getMap();
             var bounds = map.getBounds();
             if (!this._bounds || !this._bounds.equals(bounds) ||
-                !this._time || !MSMOverlay.hoursEquals(this._time, time)) {
+                !this._time || !WeatherOverlay.hoursEquals(this._time, time)) {
                 var self = this;
                 $.getJSON('/msm/surface/' + time.getUTCFullYear() +
                           '/' + (time.getUTCMonth() + 1) +
@@ -839,7 +873,7 @@ var volare = volare || {};
                           '&nwlng=' + bounds.getSouthWest().lng() +
                           '&selat=' + bounds.getSouthWest().lat() +
                           '&selng=' + bounds.getNorthEast().lng(), function(items) {
-                    if (self._time && MSMOverlay.hoursEquals(self._time, time)) {
+                    if (self._time && WeatherOverlay.hoursEquals(self._time, time)) {
                         var oldItems = self._items;
                         var newItems = {};
                         _.each(items, function(item) {
@@ -854,7 +888,7 @@ var volare = volare || {};
                         _.each(oldItems, function(item) {
                             var elem = item.elem;
                             if (elem)
-                                elem[0].parentNode.removeChild(elem[0]);
+                                elem.remove();
                         });
                         self._items = newItems;
                     }
@@ -864,6 +898,7 @@ var volare = volare || {};
                             var key = item.latitude + ' ' + item.longitude;
                             self._items[key] = item;
                         });
+                        self._div.empty();
                     }
                     self._time = time;
                     self._bounds = bounds;
@@ -875,40 +910,9 @@ var volare = volare || {};
             this._items = {};
             this._time = null;
             this._bounds = null;
+            this._div.empty();
             this._draw();
         }
-    };
-
-    MSMOverlay.hoursEquals = function(time1, time2) {
-        return time1.getUTCFullYear() == time2.getUTCFullYear() &&
-            time1.getUTCMonth() == time2.getUTCMonth() &&
-            time1.getUTCDate() == time2.getUTCDate() &&
-            time1.getUTCHours() == time2.getUTCHours();
-    };
-
-    MSMOverlay.windIconIndex = function(windSpeed) {
-        return windSpeed <= 2 ? 1 : windSpeed <= 3 ? 2 : windSpeed <= 4 ? 3 : windSpeed <= 5 ? 4 : 5;
-    };
-
-    MSMOverlay.colorForTemperature = function(temperature) {
-        if (temperature < 0)
-            return 'rgb(0, 0, 255, 0.5)';
-        else if (temperature < 5)
-            return 'rgb(204, 204, 204, 0.5)';
-        else if (temperature < 10)
-            return 'rgb(0, 255, 255, 0.5)';
-        else if (temperature < 15)
-            return 'rgb(0, 204, 255, 0.5)';
-        else if (temperature < 20)
-            return 'rgb(51, 204, 0, 0.5)';
-        else if (temperature < 25)
-            return 'rgb(255, 255, 0, 0.5)';
-        else if (temperature < 30)
-            return 'rgb(255, 153, 51, 0.5)';
-        else if (temperature < 35)
-            return 'rgb(255, 0, 0, 0.5)';
-        else
-            return 'rgb(204, 0, 0, 0.5)';
     };
 
     MSMOverlay.SURFACE_LATITUDE_STEP = 0.05;
@@ -945,17 +949,21 @@ var volare = volare || {};
         if (!_.isEmpty(this._items)) {
             var time = this._flights.getCurrentTime() || this._flights.getStartTime();
             var minute = Math.floor((time.getUTCHours()*60 + time.getMinutes())/10)*10;
-            div.empty();
             _.each(this._items, function(item) {
+                var elem = item.elem;
+
                 if (item.time != minute)
                     return;
 
-                var elem = item.elem;
-                if (!elem) {
+                if (elem) {
+                    if (!elem[0].parentNode)
+                        div.append(elem);
+                }
+                else {
                     elem = $('<div class="item"><div class="cell"><img class="wind"><br><span class="temperature"></span></div></div>');
                     div.append(elem);
 
-                    var windIconIndex = AMEDASOverlay.windIconIndex(item.windSpeed);
+                    var windIconIndex = WeatherOverlay.windIconIndex(item.windSpeed);
                     var windImage = elem.find('.wind');
                     var windAngle = AMEDASOverlay.windAngle(item.windDirection);
                     if (!_.isNull(windAngle)) {
@@ -967,17 +975,16 @@ var volare = volare || {};
                     }
 
                     var temperatureDiv = elem.find('.temperature');
-                    temperatureDiv.css('background-color', AMEDASOverlay.colorForTemperature(item.temperature));
+                    temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.temperature));
                     temperatureDiv.text(Math.round(item.temperature*10)/10);
+
+                    item.elem = elem;
                 }
 
                 var pos = projection.fromLatLngToDivPixel(new LatLng(item.latitude, item.longitude));
                 elem.css('left', (pos.x - 14) + 'px');
                 elem.css('top', (pos.y - 10) + 'px');
             });
-        }
-        else {
-            div.empty();
         }
     };
 
@@ -987,7 +994,7 @@ var volare = volare || {};
             var map = this.getMap();
             var bounds = map.getBounds();
             if (!this._bounds || !this._bounds.equals(bounds) ||
-                !this._time || !AMEDASOverlay.hoursEquals(this._time, time)) {
+                !this._time || !WeatherOverlay.hoursEquals(this._time, time)) {
                 var self = this;
                 $.getJSON('/amedas/' + time.getUTCFullYear() +
                           '/' + (time.getUTCMonth() + 1) +
@@ -997,7 +1004,7 @@ var volare = volare || {};
                           '&nwlng=' + bounds.getSouthWest().lng() +
                           '&selat=' + bounds.getSouthWest().lat() +
                           '&selng=' + bounds.getNorthEast().lng(), function(items) {
-                    if (self._time && MSMOverlay.hoursEquals(self._time, time)) {
+                    if (self._time && WeatherOverlay.hoursEquals(self._time, time)) {
                         var oldItems = self._items;
                         var newItems = {};
                         _.each(items, function(item) {
@@ -1012,7 +1019,7 @@ var volare = volare || {};
                         _.each(oldItems, function(item) {
                             var elem = item.elem;
                             if (elem)
-                                elem[0].parentNode.removeChild(elem[0]);
+                                elem.remove();
                         });
                         self._items = newItems;
                     }
@@ -1022,14 +1029,16 @@ var volare = volare || {};
                             var key = item.latitude + ' ' + item.longitude + ' ' + item.time;
                             self._items[key] = item;
                         });
+                        self._div.empty();
                     }
                     self._time = time;
                     self._bounds = bounds;
                     self._draw();
                 });
             }
-            else if (!AMEDASOverlay.tenMinutesEquals(this._time, time)) {
+            else if (!WeatherOverlay.tenMinutesEquals(this._time, time)) {
                 this._time = time;
+                this._div.empty();
                 this._draw();
             }
         }
@@ -1037,24 +1046,9 @@ var volare = volare || {};
             this._items = {};
             this._time = null;
             this._bounds = null;
+            this._div.empty();
             this._draw();
         }
-    };
-
-    AMEDASOverlay.hoursEquals = function(time1, time2) {
-        return time1.getUTCFullYear() == time2.getUTCFullYear() &&
-            time1.getUTCMonth() == time2.getUTCMonth() &&
-            time1.getUTCDate() == time2.getUTCDate() &&
-            time1.getUTCHours() == time2.getUTCHours();
-    };
-
-    AMEDASOverlay.tenMinutesEquals = function(time1, time2) {
-        return AMEDASOverlay.hoursEquals(time1, time2) &&
-            Math.floor(time1.getUTCMinutes() / 10) == Math.floor(time2.getUTCMinutes() / 10);
-    };
-
-    AMEDASOverlay.windIconIndex = function(windSpeed) {
-        return windSpeed <= 2 ? 1 : windSpeed <= 3 ? 2 : windSpeed <= 4 ? 3 : windSpeed <= 5 ? 4 : 5;
     };
 
     AMEDASOverlay.windAngle = function(windDirection) {
@@ -1098,26 +1092,6 @@ var volare = volare || {};
         }
     };
 
-    AMEDASOverlay.colorForTemperature = function(temperature) {
-        if (temperature < 0)
-            return 'rgb(0, 0, 255, 0.5)';
-        else if (temperature < 5)
-            return 'rgb(204, 204, 204, 0.5)';
-        else if (temperature < 10)
-            return 'rgb(0, 255, 255, 0.5)';
-        else if (temperature < 15)
-            return 'rgb(0, 204, 255, 0.5)';
-        else if (temperature < 20)
-            return 'rgb(51, 204, 0, 0.5)';
-        else if (temperature < 25)
-            return 'rgb(255, 255, 0, 0.5)';
-        else if (temperature < 30)
-            return 'rgb(255, 153, 51, 0.5)';
-        else if (temperature < 35)
-            return 'rgb(255, 0, 0, 0.5)';
-        else
-            return 'rgb(204, 0, 0, 0.5)';
-    };
 
     function Graph(flights, graph) {
         var gridCanvas = $('<canvas></canvas>');
