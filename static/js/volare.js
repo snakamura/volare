@@ -956,7 +956,7 @@ var volare = volare || {};
                     return;
 
                 if (elem) {
-                    if (!elem[0].parentNode)
+                    if (!elem.parent())
                         div.append(elem);
                 }
                 else {
