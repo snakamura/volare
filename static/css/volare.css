@@ -27,7 +27,6 @@ div#map div.weather div.cell {
 div#map div.weather img.wind {
     width: 28px;
     height: 20px;
-    opacity: 0.8;
 }
 
 div#map div.weather span.temperature {
@@ -37,6 +36,10 @@ div#map div.weather span.temperature {
     height: 3ex;
     line-height: 3ex;
     font-size: 70%;
+}
+
+div#map div.weather.amedas div.cell {
+    padding: 3px;
 }
 
 div#sidebar {

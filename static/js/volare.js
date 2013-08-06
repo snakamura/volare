@@ -770,25 +770,25 @@ var volare = volare || {};
         return windSpeed <= 2 ? 1 : windSpeed <= 3 ? 2 : windSpeed <= 4 ? 3 : windSpeed <= 5 ? 4 : 5;
     };
 
-    WeatherOverlay.colorForTemperature = function(temperature) {
+    WeatherOverlay.colorForTemperature = function(temperature, alpha) {
         if (temperature < 0)
-            return 'rgb(0, 0, 255, 0.5)';
+            return 'rgb(0, 0, 255, ' + alpha + ')';
         else if (temperature < 5)
-            return 'rgb(204, 204, 204, 0.5)';
+            return 'rgb(204, 204, 204, ' + alpha + ')';
         else if (temperature < 10)
-            return 'rgb(0, 255, 255, 0.5)';
+            return 'rgb(0, 255, 255, ' + alpha + ')';
         else if (temperature < 15)
-            return 'rgb(0, 204, 255, 0.5)';
+            return 'rgb(0, 204, 255, ' + alpha + ')';
         else if (temperature < 20)
-            return 'rgb(51, 204, 0, 0.5)';
+            return 'rgb(51, 204, 0, ' + alpha + ')';
         else if (temperature < 25)
-            return 'rgb(255, 255, 0, 0.5)';
+            return 'rgb(255, 255, 0, ' + alpha + ')';
         else if (temperature < 30)
-            return 'rgb(255, 153, 51, 0.5)';
+            return 'rgb(255, 153, 51, ' + alpha + ')';
         else if (temperature < 35)
-            return 'rgb(255, 0, 0, 0.5)';
+            return 'rgb(255, 0, 0, ' + alpha + ')';
         else
-            return 'rgb(204, 0, 0, 0.5)';
+            return 'rgb(204, 0, 0, ' + alpha + ')';
     };
 
 
@@ -839,7 +839,7 @@ var volare = volare || {};
                     windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
 
                     var temperatureDiv = elem.find('.temperature');
-                    temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.airTemperature));
+                    temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.airTemperature, 0.5));
                     temperatureDiv.text(Math.round(item.airTemperature*10)/10);
 
                     elem.css('background-color', 'rgba(255, 255, 255, ' + item.cloudAmount/100*0.9 + ')');
@@ -975,8 +975,10 @@ var volare = volare || {};
                     }
 
                     var temperatureDiv = elem.find('.temperature');
-                    temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.temperature));
+                    temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.temperature, 1.0));
                     temperatureDiv.text(Math.round(item.temperature*10)/10);
+
+                    elem.css('background-color', AMEDASOverlay.colorForSunshine(item.sunshine));
 
                     item.elem = elem;
                 }
@@ -1090,6 +1092,17 @@ var volare = volare || {};
         default:
             return null;
         }
+    };
+
+    AMEDASOverlay.colorForSunshine = function(sunshine) {
+        if (sunshine == 0)
+            return 'rgb(204, 204, 204, 0.5)';
+        else if (sunshine < 5)
+            return 'rgb(51, 204, 0, 0.5)';
+        else if (sunshine < 10)
+            return 'rgb(255, 255, 0, 0.5)';
+        else
+            return 'rgb(255, 153, 51, 0.5)';
     };
 
 
