@@ -23,7 +23,7 @@ import Data.Ord (comparing)
 import qualified Data.Text as T
 import Data.Time (UTCTime(UTCTime))
 import Database.Persist (Entity,
-                         Key,
+                         PersistEntityBackend,
                          PersistMonadBackend,
                          PersistStore,
                          SelectOpt(Asc, Desc),
@@ -162,10 +162,10 @@ deleteFlightR flightId = do
     return $ JSON.toJSON ()
 
 
-addFlight :: PersistStore m =>
+addFlight :: (PersistStore m, PersistMonadBackend m ~ PersistEntityBackend M.Flight) =>
              T.Text ->
              IGC.IGC ->
-             m (Key (M.FlightGeneric (PersistMonadBackend m)))
+             m M.FlightId
 addFlight name igc = do
     let records = IGC.records igc
         value selector property = realToFrac $ property $ IGC.position $ selector (comparing (property . IGC.position)) records

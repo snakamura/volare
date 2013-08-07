@@ -27,7 +27,7 @@ import qualified Data.Text as T
 import Data.Traversable (forM,
                          mapM)
 import Database.Persist (Entity(Entity),
-                         Key,
+                         PersistEntityBackend,
                          PersistMonadBackend,
                          PersistQuery,
                          SelectOpt(Asc),
@@ -40,7 +40,6 @@ import Database.Persist (Entity(Entity),
                          selectFirst,
                          selectList,
                          update)
-import Database.Persist.Sql (SqlBackend)
 import Prelude hiding (mapM)
 import Text.Blaze (Markup)
 import Text.Blaze.Html (Html)
@@ -198,7 +197,7 @@ getWorkspaceCandidatesR workspaceId = do
     return $ JSON.toJSON flights
 
 
-selectWorkspaceFlight :: (Functor m, PersistQuery m, PersistMonadBackend m ~ SqlBackend) =>
+selectWorkspaceFlight :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.WorkspaceFlight) =>
                          M.WorkspaceFlightId ->
                          m (Maybe WorkspaceFlight)
 selectWorkspaceFlight workspaceFlightId = do
@@ -206,7 +205,7 @@ selectWorkspaceFlight workspaceFlightId = do
     join <$> mapM selectWorkspaceFlight' workspaceFlight
 
 
-selectWorkspaceFlights :: (Functor m, PersistQuery m, PersistMonadBackend m ~ SqlBackend) =>
+selectWorkspaceFlights :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.WorkspaceFlight) =>
                           M.WorkspaceId ->
                           m [WorkspaceFlight]
 selectWorkspaceFlights workspaceId = do
@@ -216,7 +215,7 @@ selectWorkspaceFlights workspaceId = do
     name (WorkspaceFlight _ flight _) = M.flightName flight
 
 
-selectWorkspaceFlight' :: (Functor m, PersistQuery m, PersistMonadBackend m ~ SqlBackend) =>
+selectWorkspaceFlight' :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.WorkspaceFlight) =>
                           Entity M.WorkspaceFlight ->
                           m (Maybe WorkspaceFlight)
 selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight workspaceFlight
@@ -225,13 +224,13 @@ selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight 
     makeWorkspaceFlight (Entity flightId flight, color) = WorkspaceFlight flightId flight color
 
 
-selectCandidateFlights :: PersistQuery m =>
-                          Key (M.WorkspaceGeneric (PersistMonadBackend m)) ->
-                          m [Entity (M.FlightGeneric (PersistMonadBackend m))]
+selectCandidateFlights :: (PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.Flight) =>
+                          M.WorkspaceId ->
+                          m [Entity M.Flight]
 selectCandidateFlights _ = selectList [] [Asc M.FlightName]
 
 
-nextColor :: (Functor m, PersistQuery m, PersistMonadBackend m ~ SqlBackend) =>
+nextColor :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.Workspace) =>
              M.WorkspaceId ->
              m T.Text
 nextColor workspaceId = do
