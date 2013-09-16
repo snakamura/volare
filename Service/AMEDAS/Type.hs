@@ -5,7 +5,8 @@ module Service.AMEDAS.Type (
 ) where
 
 import qualified Data.Aeson as JSON
-import Data.Aeson.TH (deriveToJSON)
+import Data.Aeson.TH (defaultOptions,
+                      deriveToJSON)
 import qualified Data.Text as T
 
 
@@ -48,9 +49,9 @@ data Station = Station {
 } deriving Show
 
 
-deriveToJSON id ''Item
+deriveToJSON defaultOptions ''Item
 
 instance JSON.ToJSON WindDirection where
     toJSON = JSON.String . T.pack . show
 
-deriveToJSON id ''Station
+deriveToJSON defaultOptions ''Station

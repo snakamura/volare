@@ -4,7 +4,8 @@ module Service.MSM.Barometric (
 
 import Control.Applicative ((<$>),
                             (<*>))
-import Data.Aeson.TH (deriveJSON)
+import Data.Aeson.TH (defaultOptions,
+                      deriveJSON)
 import Foreign.C (CFloat,
                   CInt)
 import Foreign.Storable (Storable(..))
@@ -50,4 +51,4 @@ instance Storable Item where
       (#{poke barometric_item, air_temperature} p $ airTemperature s)
       (#{poke barometric_item, relative_humidity} p $ relativeHumidity s)
 
-deriveJSON id ''Item
+deriveJSON defaultOptions ''Item

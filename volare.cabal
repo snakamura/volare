@@ -65,7 +65,7 @@ library
                 TypeSynonymInstances
                 UndecidableInstances
 
-    build-depends: aeson == 0.6.*,
+    build-depends: aeson >= 0.6.2,
                    attoparsec == 0.10.*,
                    attoparsec-conduit == 1.0.*,
                    base == 4.*,

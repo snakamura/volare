@@ -4,7 +4,8 @@ module Service.MSM.Surface (
 
 import Control.Applicative ((<$>),
                             (<*>))
-import Data.Aeson.TH (deriveJSON)
+import Data.Aeson.TH (defaultOptions,
+                      deriveJSON)
 import Foreign.C (CFloat,
                   CInt)
 import Foreign.Storable (Storable(..))
@@ -62,4 +63,4 @@ instance Storable Item where
       (#{poke surface_item, low_cloudiness} p $ lowCloudiness s)
       (#{poke surface_item, cloud_amount} p $ cloudAmount s)
 
-deriveJSON id ''Item
+deriveJSON defaultOptions ''Item
