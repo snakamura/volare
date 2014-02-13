@@ -21,6 +21,7 @@ import Data.Monoid ((<>),
                     mempty)
 import Data.Ord (comparing)
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import Data.Time (UTCTime(UTCTime))
 import Database.Persist (Entity,
                          PersistEntityBackend,
@@ -78,7 +79,7 @@ data NewFlight = NewFlight T.Text B.ByteString
 
 instance JSON.FromJSON NewFlight where
     parseJSON (JSON.Object o) = NewFlight <$> o .: "name"
-                                          <*> (o .: "igc")
+                                          <*> (T.encodeUtf8 <$> (o .: "igc"))
     parseJSON _ = mempty
 
 

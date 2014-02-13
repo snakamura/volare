@@ -12,7 +12,8 @@ import Database.Persist.Class (PersistConfigPool,
                                runPool)
 import Database.Persist.Sql (SqlPersistT)
 import Text.Blaze.Html (Html)
-import Text.Julius (ToJavascript(..))
+import Text.Julius (Javascript(..),
+                    ToJavascript(..))
 import Text.Shakespeare.I18N (RenderMessage,
                               renderMessage)
 import Web.ClientSession (getKey)
@@ -74,7 +75,7 @@ type Form a = Html ->
 
 
 instance JSON.ToJSON a => ToJavascript a where
-    toJavascript = T.fromText . T.decodeUtf8 . B.concat . BL.toChunks . JSON.encode
+    toJavascript = Javascript . T.fromText . T.decodeUtf8 . B.concat . BL.toChunks . JSON.encode
 
 
 getConfig :: Handler Config
