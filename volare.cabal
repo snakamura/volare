@@ -112,7 +112,7 @@ library
     includes: msm.h
     extra-libraries: c++, netcdf, msm
     include-dirs: msm
-    extra-lib-dirs: /usr/lib, /opt/local/lib, /Users/snakamura/volare/msm
+    extra-lib-dirs: /usr/lib, /Users/snakamura/volare/msm
 
 executable volare
     if flag(library-only)
