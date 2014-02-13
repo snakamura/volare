@@ -80,17 +80,34 @@ allStations = [
     Station 41 47615 (c 36 32.9) (c 139 52.1) "Utsunomiya",
     Station 41 47690 (c 36 44.3) (c 139 30.0) "Okunikko",
 
+    Station 62  0600 (c 34 56.9) (c 135 27.3) "Nose",
+    Station 62  0602 (c 34 47.0) (c 135 26.2) "Toyonaka",
+    Station 62  0604 (c 34 40.5) (c 135 40.6) "Ikomayama",
+    Station 62  0606 (c 34 23.1) (c 135 21.0) "Kumatori",
+    Station 62  1062 (c 34 33.3) (c 135 29.1) "Sakai",
+    Station 62  1065 (c 34 48.5) (c 135 40.3) "Hirakata",
+    Station 62  1470 (c 34 35.8) (c 135 36.0) "Yao",
+    Station 62  1471 (c 34 26.0) (c 135 13.9) "Kankujima",
+    Station 62 47772 (c 34 40.9) (c 135 31.1) "Osaka",
+
+    Station 64  0630 (c 34 36.3) (c 135 57.2) "Hari",
+    Station 64  0633 (c 34 29.3) (c 135 55.9) "Oouda",
+    Station 64  0635 (c 34 22.8) (c 135 43.8) "Gojo",
+    Station 64  0957 (c 34 08.2) (c 136 00.3) "Kamikitayama",
+    Station 64  1228 (c 34 02.7) (c 135 47.2) "Kazeya",
+    Station 64 47780 (c 34 41.6) (c 135 49.6) "Nara",
+
     Station 65  0645 (c 34 13.3) (c 135 35.4) "Kouyasan",
     Station 65  0649 (c 33 41.2) (c 135 58.2) "Shingu",
     Station 65  0971 (c 33 47.5) (c 135 30.8) "Kurisugawa",
-    Station 65  1063 (c 34  5.2) (c 135 25.5) "Shimizu",
+    Station 65  1063 (c 34 05.2) (c 135 25.5) "Shimizu",
     Station 65  1089 (c 33 56.7) (c 135 33.4) "Ryuujin",
     Station 65  1342 (c 34 18.6) (c 135 31.7) "Katsuragi",
     Station 65  1347 (c 33 38.3) (c 135 42.6) "Nishikawa",
-    Station 65  1457 (c 34 16.8) (c 135  0.0) "Tomogashima",
+    Station 65  1457 (c 34 16.8) (c 135 00.0) "Tomogashima",
     Station 65  1485 (c 33 53.6) (c 135 13.0) "Kawabe",
     Station 65  1589 (c 33 39.7) (c 135 21.8) "Nankishirahama",
-    Station 65 47777 (c 34 13.7) (c 135  9.8) "Wakayama",
+    Station 65 47777 (c 34 13.7) (c 135 09.8) "Wakayama",
     Station 65 47778 (c 33 27.0) (c 135 45.4) "Shionomisaki"
   ]
 
