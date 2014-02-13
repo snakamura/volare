@@ -6,7 +6,7 @@ module Volare.Settings (
 ) where
 
 import Data.Default (def)
-import Database.Persist.Sqlite (SqliteConf)
+import Database.Persist.Postgresql (PostgresConf)
 import Language.Haskell.TH.Syntax (Exp,
                                    Q)
 import Text.Hamlet (NewlineStyle(NoNewlines),
@@ -18,7 +18,7 @@ import Yesod.Default.Util (WidgetFileSettings,
                            widgetFileReload)
 
 
-type PersistConfig = SqliteConf
+type PersistConfig = PostgresConf
 
 
 development :: Bool

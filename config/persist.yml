@@ -1,21 +1,24 @@
 Default: &defaults
+  user: volare
+  password: password
+  host: localhost
   poolsize: 10
 
 Development:
-  database: data/volare_development.sqlite
+  database: volare_development
   poolsize: 1
   <<: *defaults
 
 Testing:
-  database: data/volare_test.sqlite
+  database: volare_test
   <<: *defaults
 
 Staging:
-  database: data/volare_staging.sqlite
+  database: volare_staging
   poolsize: 100
   <<: *defaults
 
 Production:
-  database: data/volare.sqlite
+  database: volare
   poolsize: 100
   <<: *defaults
