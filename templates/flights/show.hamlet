@@ -34,4 +34,32 @@
 
   <div id=speed class=graph>
 
+  <div id=weather>
+    <div>
+      <label>
+        <input id=msm type=checkbox>MSM
+      <ul>
+        <li>
+          <label>
+            <input id=msm_wind type=checkbox>Wind
+        <li>
+          <label>
+            <input id=msm_temperature type=checkbox>Temperature
+        <li>
+          <label>
+            <input id=msm_cloud_amount type=checkbox>Cloud Amount
+    <div>
+      <label>
+        <input id=amedas type=checkbox>AMEDAS
+      <ul>
+        <li>
+          <label>
+            <input id=amedas_wind type=checkbox>Wind
+        <li>
+          <label>
+            <input id=amedas_temperature type=checkbox>Temperature
+        <li>
+          <label>
+            <input id=amedas_sunshine type=checkbox>Sunshine
+
 <div id=chart>

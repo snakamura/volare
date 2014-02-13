@@ -58,6 +58,25 @@ div.graph canvas {
     position: absolute;
 }
 
+div#weather {
+    width: 302px;
+    margin: 10px;
+}
+
+div#weather div {
+    margin: 0 0 10px 0;
+}
+
+div#weather ul {
+    margin: 0;
+    padding: 0 0 0 10px;
+    list-style-type: none;
+}
+
+div#weather input {
+    margin: 0 5px 0 0;
+}
+
 div#chart {
     position: absolute;
     bottom: 0;

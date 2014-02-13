@@ -648,12 +648,9 @@ var volare = volare || {};
         this._map = new google.maps.Map(map[0], {
             mapTypeId: google.maps.MapTypeId.TERRAIN
         });
-
-        var msmOverlay = new MSMOverlay(this._flights);
-        msmOverlay.setMap(this._map);
-
-        var amedasOverlay = new AMEDASOverlay(this._flights);
-        amedasOverlay.setMap(this._map);
+        this._msmOverlay = new MSMOverlay(this._flights);
+        this._amedasOverlay = new AMEDASOverlay(this._flights);
+        this._weatherFlags = 0;
 
         var self = this;
 
@@ -703,6 +700,28 @@ var volare = volare || {};
         });
     }
 
+    Map.prototype.getWeatherFlags = function() {
+        return this._weatherFlags;
+    };
+
+    Map.prototype.setWeatherFlags = function(flags, mask) {
+        this._weatherFlags = (this._weatherFlags & ~mask) | (flags & mask);
+
+        this._msmOverlay.setMap(this._weatherFlags & Map.MSM ? this._map : null);
+        this._amedasOverlay.setMap(this._weatherFlags & Map.AMEDAS ? this._map : null);
+
+        $(this).trigger('weatherFlags_changed', this._weatherFlags);
+    };
+
+    Map.MSM_WIND = 0x01;
+    Map.MSM_TEMPERATURE = 0x02;
+    Map.MSM_CLOUD_AMOUNT = 0x04;
+    Map.MSM = Map.MSM_WIND | Map.MSM_TEMPERATURE | Map.MSM_CLOUD_AMOUNT;
+    Map.AMEDAS_WIND = 0x10;
+    Map.AMEDAS_TEMPERATURE = 0x20;
+    Map.AMEDAS_SUNSHINE = 0x40;
+    Map.AMEDAS = Map.AMEDAS_WIND | Map.AMEDAS_TEMPERATURE | Map.AMEDAS_SUNSHINE;
+
 
     function WeatherOverlay(flights) {
         var self = this;
@@ -748,6 +767,8 @@ var volare = volare || {};
 
         this._div.remove();
         this._div = null;
+
+        this._clear();
     };
 
     WeatherOverlay.prototype.draw = function() {
@@ -795,15 +816,19 @@ var volare = volare || {};
     function MSMOverlay(flights) {
         WeatherOverlay.call(this, flights);
 
-        this._time = null;
-        this._bounds = null;
-        this._items = {};
+        this._clear();
     }
 
     MSMOverlay.prototype = new WeatherOverlay();
 
     MSMOverlay.prototype._getClassName = function() {
         return 'msm';
+    };
+
+    MSMOverlay.prototype._clear = function() {
+        this._time = null;
+        this._bounds = null;
+        this._items = {};
     };
 
     MSMOverlay.prototype._draw = function() {
@@ -922,15 +947,19 @@ var volare = volare || {};
     function AMEDASOverlay(flights) {
         WeatherOverlay.call(this, flights);
 
-        this._time = null;
-        this._bounds = null;
-        this._items = {};
+        this._clear();
     }
 
     AMEDASOverlay.prototype = new WeatherOverlay();
 
     AMEDASOverlay.prototype._getClassName = function() {
         return 'amedas';
+    };
+
+    AMEDASOverlay.prototype._clear = function() {
+        this._time = null;
+        this._bounds = null;
+        this._items = {};
     };
 
     AMEDASOverlay.prototype._draw = function() {
@@ -1039,6 +1068,9 @@ var volare = volare || {};
                 });
             }
             else if (!WeatherOverlay.tenMinutesEquals(this._time, time)) {
+                _.each(this._items, function(item) {
+                    item.elem = null;
+                });
                 this._time = time;
                 this._div.empty();
                 this._draw();
