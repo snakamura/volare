@@ -23,6 +23,13 @@ addJQueryUI = do
   addStylesheetRemote $ "http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/ui-lightness/jquery-ui.css"
 
 
+addBootstrap :: Widget
+addBootstrap = do
+  addScriptRemote "//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"
+  addStylesheetRemote "//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"
+  addStylesheetRemote "//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css"
+
+
 addUnderscore :: Widget
 addUnderscore = do
     addScript $ StaticR S.js_underscore_min_js
@@ -33,4 +40,5 @@ addCommonLibraries :: Widget
 addCommonLibraries = do
     addJQuery
     addJQueryUI
+    addBootstrap
     addUnderscore

@@ -3,24 +3,29 @@ body, div {
     padding: 0;
 }
 
-
-div#navigation {
-    padding: 10px;
-    background: lightgray;
-    border-bottom: 1px solid gray;
+body {
+    padding-top: 55px;
 }
 
-div#navigation * {
-    margin: 0 10px;
+
+div.actionbar {
+    margin: 5px 0;
+    height: 33px;
 }
 
-div#navigation a {
-    text-decoration: none;
-    color: black;
+
+table.list {
+    margin: 10px;
+    border-collapse: collapse;
 }
 
-div#navigation a:hover {
-    text-decoration: underline;
+table.list th, table.list td {
+    border: 1px solid gray;
+    padding: 2px 5px;
+}
+
+table.list th {
+    text-align: left;
 }
 
 
@@ -32,8 +37,8 @@ div.file_selector input[type=file] {
     position: absolute;
     left: 0;
     top: 0;
-    width: 150px;
-    height: 30px;
+    width: 100px;
+    height: 20px;
     opacity: 0;
     z-index: 2;
     cursor: pointer;
@@ -44,14 +49,13 @@ div.file_selector div {
     position: absolute;
     left: 0;
     top: 0;
-    border: solid 1px black;
 }
 
 div.file_selector div span {
     display: inline-block;
     margin: 0 auto;
-    width: 150px;
-    height: 30px;
+    width: 100px;
+    height: 20px;
     text-align: center;
-    line-height: 30px;
+    line-height: 20px;
 }

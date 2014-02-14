@@ -7,6 +7,7 @@ import Yesod.Core (defaultLayout)
 import Yesod.Core.Widget (setTitle)
 
 import Volare.Foundation
+import Volare.Handler.Utils (addCommonLibraries)
 import Volare.Settings (widgetFile)
 
 
@@ -14,4 +15,5 @@ getRootR :: Handler Html
 getRootR =
     defaultLayout $ do
         setTitle "Volare"
+        addCommonLibraries
         $(widgetFile "root")

@@ -26,17 +26,17 @@ $(function() {
         $.putJSON('', data, function(workspace) {
         });
     }
-    $('#show_name a').on('click', function(event) {
+    $('#show_name span.edit').on('click', function(event) {
         event.preventDefault();
         startEditingName();
     });
-    $('#edit_name button').on('click', finishEditingName);
+    $('#edit_name span.save').on('click', finishEditingName);
     inputName.on('keyup', function(event) {
         if (event.keyCode == 0x0d)
             finishEditingName();
     });
 
-    $('#show_name button').on('click', function(event) {
+    $('#show_name span.delete').on('click', function(event) {
         if (confirm('Are you sure to delete this workspace?')) {
             $.deleteJSON('', {}, function() {
                 document.location.href = '/workspaces';

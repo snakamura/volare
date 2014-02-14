@@ -2,12 +2,15 @@ h1 {
     margin: 10px;
 }
 
-h1 a, h1 button {
-    font-size: 60%;
+h1 .action {
+    font-size: 15px;
+    font-weight: normal;
+    cursor: pointer;
+    margin: 2px;
 }
 
-#show_name a, #show_name button {
-    margin-left: 1em;
+h1 .action:first-child {
+    margin-left: 10px;
 }
 
 #edit_name {

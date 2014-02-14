@@ -1,14 +1,26 @@
-<div id=navigation>
-  <a href=@{RootR}>/
-  >
-  <span>Workspaces
+<nav .navbar .navbar-inverse .navbar-fixed-top role=navigation>
+  <div .container-fluid>
+    <div .navbar-header>
+      <a .navbar-brand href=@{RootR}>Volare
+    <div>
+      <ul .nav .navbar-nav>
+        <li>
+          <a href=@{FlightsR}>Flights
+        <li .active>
+          <a href=@{WorkspacesR}>Workspaces
+
+<div .container-fluid .actionbar>
+  <form method=POST action=@{WorkspacesR} enctype=#{enctype}>
+    ^{workspaceWidget}
+    <input .btn .btn-default type=submit value="New Workspace">
 
 $if not (null workspaces)
-  <ol>
-    $forall Entity workspaceId workspace <- workspaces
-      <li>
-        <a href=@{WorkspaceR workspaceId}>#{M.workspaceName workspace}
-
-<form method=POST action=@{WorkspacesR} enctype=#{enctype}>
-  ^{workspaceWidget}
-  <input type=submit>
+  <table .list>
+    <thead>
+      <tr>
+        <th>Name
+    <tbody>
+      $forall Entity workspaceId workspace <- workspaces
+        <tr>
+          <td>
+            <a href=@{WorkspaceR workspaceId}>#{M.workspaceName workspace}

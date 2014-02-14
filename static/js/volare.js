@@ -549,14 +549,16 @@ var volare = volare || {};
         var self = this;
 
         this._player.html('<div>' +
-                          '<button class="play">Play</button>' +
-                          '<button class="stop">Stop</button>' +
+                          '<div class="btn-group">' +
+                          '<button class="btn btn-default play"><span class="glyphicon glyphicon-play"></span></button>' +
+                          '<button class="btn btn-default stop"><span class="glyphicon glyphicon-stop"></span></button>' +
+                          '</div>' +
                           '<span class="time"></span>' +
                           '</div>' +
                           '<div class="slider"></div>');
 
-        this._player.find('.play').button().on('click', _.bind(this.play, this));
-        this._player.find('.stop').button().on('click', _.bind(this.stop, this));
+        this._player.find('.play').on('click', _.bind(this.play, this));
+        this._player.find('.stop').on('click', _.bind(this.stop, this));
         this._player.find('.slider').slider({
             range: 'min',
             min: 0,
@@ -611,8 +613,9 @@ var volare = volare || {};
     };
 
     Player.prototype._updateButtons = function() {
-        this._player.find('.play').button('option', 'label', this._timer ? 'Pause' : 'Play');
-        this._player.find('.stop').button(this._timer || this._flights.getCurrentTime() ? 'enable' : 'disable');
+        this._player.find('.play span').addClass(this._timer ? 'glyphicon-pause' : 'glyphicon-play');
+        this._player.find('.play span').removeClass(this._timer ? 'glyphicon-play' : 'glyphicon-pause');
+        this._player.find('.stop').prop('disabled', !this._timer && !this._flights.getCurrentTime());
     };
 
     Player.prototype._updateSliderRange = function() {

@@ -1,4 +1,10 @@
-<p>
-  <a href="@{FlightsR}">Flights</a>
-<p>
-  <a href="@{WorkspacesR}">Workspaces</a>
+<nav .navbar .navbar-inverse .navbar-fixed-top role=navigation>
+  <div .container-fluid>
+    <div .navbar-header>
+      <a .navbar-brand href=@{RootR}>Volare
+    <div>
+      <ul .nav .navbar-nav>
+        <li>
+          <a href=@{FlightsR}>Flights
+        <li>
+          <a href=@{WorkspacesR}>Workspaces

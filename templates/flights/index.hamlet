@@ -1,17 +1,24 @@
-<div id=navigation>
-  <a href=@{RootR}>/
-  >
-  <span>Flights
+<nav .navbar .navbar-inverse .navbar-fixed-top role=navigation>
+  <div .container-fluid>
+    <div .navbar-header>
+      <a .navbar-brand href=@{RootR}>Volare
+    <div>
+      <ul .nav .navbar-nav>
+        <li .active>
+          <a href=@{FlightsR}>Flights
+        <li>
+          <a href=@{WorkspacesR}>Workspaces
 
-<table id=flights>
+<div .container-fluid .actionbar>
+  <div .file_selector>
+    <div .btn .btn-default>
+      <span>Add Flight
+    <input #add_flight type=file multiple>
+
+<table #flights .list>
   <thead>
     <tr>
       <th>Name
       <th>Time
       <th>Duration
   <tbody>
-
-<div class=file_selector>
-  <div>
-    <span>Add Flight
-  <input id=add_flight type=file multiple>

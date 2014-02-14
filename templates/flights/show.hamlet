@@ -1,65 +1,71 @@
-<div id=navigation>
-  <a href=@{RootR}>/
-  >
-  <a href=@{FlightsR}>Flights
-  >
-  <span>#{M.flightName flight}
+<nav .navbar .navbar-inverse .navbar-fixed-top role=navigation>
+  <div .container-fluid>
+    <div .navbar-header>
+      <a .navbar-brand href=@{RootR}>Volare
+    <div>
+      <ul .nav .navbar-nav>
+        <li .active>
+          <a href=@{FlightsR}>Flights
+        <li>
+          <a href=@{WorkspacesR}>Workspaces
 
 <h1>
-  <span id=show_name>
-    <span id=name>#{M.flightName flight}
-    <a href=#>Edit
-    <button>Delete
-  <span id=edit_name>
+  <span #show_name>
+    <span #name>#{M.flightName flight}
+    <span>
+      <span .action .edit .glyphicon .glyphicon-edit>
+      <span .action .delete .glyphicon .glyphicon-trash>
+  <span #edit_name>
     <input type=text name=name value=#{M.flightName flight}>
-    <button>Save</button>
+    <span>
+      <span .action .save .glyphicon .glyphicon-ok>
 
-<div id=player>
+<div #player>
 
-<div id=map>
+<div #map>
 
-<div id=sidebar>
-  <table id=properties>
+<div #sidebar>
+  <table #properties>
     <tr>
       <th>Time
-      <td id=time>
+      <td #time>
     <tr>
       <th>Duration
-      <td id=duration>
+      <td #duration>
     <tr>
       <th>Max Altitude
-      <td id=max_altitude>
+      <td #max_altitude>
 
-  <div id=altitude class=graph>
+  <div #altitude .graph>
 
-  <div id=speed class=graph>
+  <div #speed .graph>
 
-  <div id=weather>
+  <div #weather>
     <div>
       <label>
-        <input id=msm type=checkbox>MSM
+        <input #msm type=checkbox>MSM
       <ul>
         <li>
           <label>
-            <input id=msm_wind type=checkbox>Wind
+            <input #msm_wind type=checkbox>Wind
         <li>
           <label>
-            <input id=msm_temperature type=checkbox>Temperature
+            <input #msm_temperature type=checkbox>Temperature
         <li>
           <label>
-            <input id=msm_cloud_amount type=checkbox>Cloud Amount
+            <input #msm_cloud_amount type=checkbox>Cloud Amount
     <div>
       <label>
-        <input id=amedas type=checkbox>AMEDAS
+        <input #amedas type=checkbox>AMEDAS
       <ul>
         <li>
           <label>
-            <input id=amedas_wind type=checkbox>Wind
+            <input #amedas_wind type=checkbox>Wind
         <li>
           <label>
-            <input id=amedas_temperature type=checkbox>Temperature
+            <input #amedas_temperature type=checkbox>Temperature
         <li>
           <label>
-            <input id=amedas_sunshine type=checkbox>Sunshine
+            <input #amedas_sunshine type=checkbox>Sunshine
 
-<div id=chart>
+<div #chart>

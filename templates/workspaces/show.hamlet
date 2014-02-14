@@ -1,29 +1,35 @@
-<div id=navigation>
-  <a href=@{RootR}>/
-  >
-  <a href=@{WorkspacesR}>Workspaces
-  >
-  <span>#{M.workspaceName workspace}
+<nav .navbar .navbar-inverse .navbar-fixed-top role=navigation>
+  <div .container-fluid>
+    <div .navbar-header>
+      <a .navbar-brand href=@{RootR}>Volare
+    <div>
+      <ul .nav .navbar-nav>
+        <li>
+          <a href=@{FlightsR}>Flights
+        <li .active>
+          <a href=@{WorkspacesR}>Workspaces
 
 <h1>
-  <span id=show_name>
-    <span id=name>#{M.workspaceName workspace}
-    <a href=#>Edit
-    <button>Delete
-  <span id=edit_name>
+  <span #show_name>
+    <span #name>#{M.workspaceName workspace}
+    <span>
+      <span .action .edit .glyphicon .glyphicon-edit>
+      <span .action .delete .glyphicon .glyphicon-trash>
+  <span #edit_name>
     <input type=text name=name value=#{M.workspaceName workspace}>
-    <button>Save</button>
+    <span>
+      <span .action .save .glyphicon .glyphicon-ok>
 
-<div id=player>
+<div #player>
 
-<div id=map>
+<div #map>
 
-<div id=sidebar>
-  <div id=altitude class=graph>
+<div #sidebar>
+  <div #altitude .graph>
 
-  <div id=speed class=graph>
+  <div #speed .graph>
 
-<div id=chart>
+<div #chart>
 
-<div id=bottom>
-  <input id=add_flight type=button value=Add>
+<div #bottom>
+  <input #add_flight .btn .btn-default type=button value=Add>

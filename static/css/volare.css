@@ -2,6 +2,10 @@ div#player {
     margin: 10px;
 }
 
+div#player span.time {
+    margin: 0 0 0 10px;
+}
+
 div#player .slider {
     margin: 10px;
 }
