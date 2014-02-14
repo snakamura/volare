@@ -9,23 +9,8 @@ body {
 
 
 div.actionbar {
-    margin: 5px 0;
+    margin: 10px 0;
     height: 33px;
-}
-
-
-table.list {
-    margin: 10px;
-    border-collapse: collapse;
-}
-
-table.list th, table.list td {
-    border: 1px solid gray;
-    padding: 2px 5px;
-}
-
-table.list th {
-    text-align: left;
 }
 
 
