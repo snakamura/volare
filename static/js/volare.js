@@ -707,8 +707,8 @@ var volare = volare || {};
     Map.prototype.setWeatherFlags = function(flags, mask) {
         this._weatherFlags = (this._weatherFlags & ~mask) | (flags & mask);
 
-        this._msmOverlay.setMap(this._weatherFlags & Map.MSM ? this._map : null);
-        this._amedasOverlay.setMap(this._weatherFlags & Map.AMEDAS ? this._map : null);
+        this._msmOverlay.setFlags(this._map, this._weatherFlags & Map.MSM);
+        this._amedasOverlay.setFlags(this._map, this._weatherFlags & Map.AMEDAS);
 
         $(this).trigger('weatherFlags_changed', this._weatherFlags);
     };
@@ -816,10 +816,16 @@ var volare = volare || {};
     function MSMOverlay(flights) {
         WeatherOverlay.call(this, flights);
 
+        this._flags = Map.MSM;
         this._clear();
     }
 
     MSMOverlay.prototype = new WeatherOverlay();
+
+    MSMOverlay.prototype.setFlags = function(map, flags) {
+        this._flags = flags;
+        this.setMap(flags ? map : null);
+    };
 
     MSMOverlay.prototype._getClassName = function() {
         return 'msm';
@@ -845,6 +851,7 @@ var volare = volare || {};
         div.css('height', (sw.y - ne.y) + 'px');
 
         if (!_.isEmpty(this._items)) {
+            var self = this;
             _.each(this._items, function(item) {
                 var nw = projection.fromLatLngToDivPixel(new LatLng(item.latitude + MSMOverlay.SURFACE_LATITUDE_STEP/2, item.longitude - MSMOverlay.SURFACE_LONGITUDE_STEP/2));
                 var se = projection.fromLatLngToDivPixel(new LatLng(item.latitude - MSMOverlay.SURFACE_LATITUDE_STEP/2, item.longitude + MSMOverlay.SURFACE_LONGITUDE_STEP/2));
@@ -862,12 +869,14 @@ var volare = volare || {};
                     var windImage = elem.find('.wind');
                     windImage[0].src = '/static/image/msm/wind/' + windIconIndex + '.png';
                     windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
+                    windImage.css('visibility', self._flags & Map.MSM_WIND ? 'visible' : 'hidden');
 
                     var temperatureDiv = elem.find('.temperature');
                     temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.airTemperature, 0.5));
                     temperatureDiv.text(Math.round(item.airTemperature*10)/10);
+                    temperatureDiv.css('visibility', self._flags & Map.MSM_TEMPERATURE ? 'visible' : 'hidden');
 
-                    elem.css('background-color', 'rgba(255, 255, 255, ' + item.cloudAmount/100*0.9 + ')');
+                    elem.css('background-color', 'rgba(255, 255, 255, ' + (self._flags & Map.MSM_CLOUD_AMOUNT ? item.cloudAmount/100*0.9 : 0) + ')');
 
                     item.elem = elem;
                 }
@@ -947,10 +956,16 @@ var volare = volare || {};
     function AMEDASOverlay(flights) {
         WeatherOverlay.call(this, flights);
 
+        this._flags = Map.AMEDAS;
         this._clear();
     }
 
     AMEDASOverlay.prototype = new WeatherOverlay();
+
+    AMEDASOverlay.prototype.setFlags = function(map, flags) {
+        this._flags = flags;
+        this.setMap(flags ? map : null);
+    };
 
     AMEDASOverlay.prototype._getClassName = function() {
         return 'amedas';
@@ -976,6 +991,7 @@ var volare = volare || {};
         div.css('height', (sw.y - ne.y) + 'px');
 
         if (!_.isEmpty(this._items)) {
+            var self = this;
             var time = this._flights.getCurrentTime() || this._flights.getStartTime();
             var minute = Math.floor((time.getUTCHours()*60 + time.getMinutes())/10)*10;
             _.each(this._items, function(item) {
@@ -1002,12 +1018,14 @@ var volare = volare || {};
                     else {
                         windImage.css('display', 'none');
                     }
+                    windImage.css('visibility', self._flags & Map.AMEDAS_WIND ? 'visible' : 'hidden');
 
                     var temperatureDiv = elem.find('.temperature');
                     temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.temperature, 1.0));
                     temperatureDiv.text(Math.round(item.temperature*10)/10);
+                    temperatureDiv.css('visibility', self._flags & Map.AMEDAS_TEMPERATURE ? 'visible' : 'hidden');
 
-                    elem.css('background-color', AMEDASOverlay.colorForSunshine(item.sunshine));
+                    elem.css('background-color', self._flags & Map.AMEDAS_SUNSHINE ? AMEDASOverlay.colorForSunshine(item.sunshine) : 'rgba(255, 255, 255, 0)');
 
                     item.elem = elem;
                 }
