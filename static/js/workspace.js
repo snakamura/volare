@@ -44,7 +44,7 @@ $(function() {
         }
     });
 
-    $('#add_flight').button().on('click', function() {
+    $('#add_flight').on('click', function() {
         var dialog = $('<div><div class="loading">Loading...</div></div>');
         dialog.dialog({
             title: 'Flights',

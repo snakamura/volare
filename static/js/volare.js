@@ -1569,10 +1569,10 @@ var volare = volare || {};
 
     function setupLayout(flights, map, sidebar, chart) {
         function layout() {
-            map.width($(document).width() - (sidebar.width() + 20));
+            map.width($(document).width() - (sidebar.width() + 10));
             var mapPosition = map.position();
             var chartPosition = chart.position();
-            map.height(chartPosition.top - mapPosition.top - 10);
+            map.height(chartPosition.top - mapPosition.top - 20);
         }
         $(flights).on('flight_added', layout);
         $(flights).on('flight_removed', layout);
