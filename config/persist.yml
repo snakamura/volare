@@ -6,7 +6,6 @@ Default: &defaults
 
 Development:
   database: volare_development
-  poolsize: 1
   <<: *defaults
 
 Testing:
