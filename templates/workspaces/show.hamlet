@@ -32,3 +32,13 @@
   <div #speed .graph>
 
 <div #chart>
+
+<div #add_flight_modal .modal .fade>
+  <div .modal-dialog>
+    <div .modal-content>
+      <div .modal-header>
+        <h4 .modal-title>Add flights
+      <div .modal-body>
+      <div .modal-footer>
+        <button type=button .btn .btn-default data-dismiss=modal>Cancel
+        <button type=button .btn .btn-primary>Add

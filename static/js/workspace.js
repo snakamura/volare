@@ -45,53 +45,42 @@ $(function() {
     });
 
     $('#add_flight').on('click', function() {
-        var dialog = $('<div><div class="loading">Loading...</div></div>');
-        dialog.dialog({
-            title: 'Flights',
-            modal: true,
-            buttons: [
-                {
-                    text: 'OK',
-                    click: function() {
-                        var flightIds = _.map(dialog.find('input:checked[type=checkbox]'), function(checkbox) {
-                            return parseInt(checkbox.value, 10);
-                        });
-                        if (flightIds.length === 0) {
-                            dialog.dialog('close');
-                            return;
-                        }
-
-                        var data = {
-                            flightIds: flightIds
-                        };
-                        $.postJSON('/workspaces/' + workspaceId + '/flights', data, function(flights) {
-                            _.each(flights, function(flight) {
-                                addFlight(flight.id, flight.color);
-                            });
-                            dialog.dialog('close');
-                        });
-                    }
-                },
-                {
-                    text: 'Cancel',
-                    click: function() {
-                        dialog.dialog('close');
-                    }
-                }
-            ],
-            close: function() {
-                dialog.dialog('destroy');
-                dialog.remove();
-            }
+        var modal = $('#add_flight_modal');
+        var body = modal.find('.modal-body');
+        body.text('Loading...');
+        modal.modal({
+            backdrop: 'static'
         });
         $.getJSON('/workspaces/' + workspaceId + '/candidates', function(flights) {
+            body.text('');
+            var ul = $('<ul></ul>');
+            body.append(ul);
             _.each(flights, function(flight) {
-                var e = $('<div><label><input type="checkbox" name="flights"><span></span></label></div>');
+                var e = $('<li><label><input type="checkbox" name="flights"><span></span></label></li>');
                 e.find('input').prop('value', flight.id);
                 e.find('span').text(flight.name);
-                dialog.append(e);
+                ul.append(e);
             });
-            dialog.find('div.loading').remove();
+        });
+    });
+    $('#add_flight_modal .btn-primary').on('click', function() {
+        var modal = $('#add_flight_modal');
+        var flightIds = _.map(modal.find('input:checked[type=checkbox]'), function(checkbox) {
+            return parseInt(checkbox.value, 10);
+        });
+        if (flightIds.length === 0) {
+            modal.modal('hide');
+            return;
+        }
+
+        var data = {
+            flightIds: flightIds
+        };
+        $.postJSON('/workspaces/' + workspaceId + '/flights', data, function(flights) {
+            _.each(flights, function(flight) {
+                addFlight(flight.id, flight.color);
+            });
+            modal.modal('hide');
         });
     });
 

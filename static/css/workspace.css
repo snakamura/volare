@@ -24,3 +24,13 @@ h1 .action:first-child {
 #edit_name input {
     font-size: 100%;
 }
+
+
+div#add_flight_modal ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+div#add_flight_modal label span {
+    padding: 0 0 0 0.5em;
+}
