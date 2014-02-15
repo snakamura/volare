@@ -149,8 +149,8 @@ deleteWorkspaceR :: M.WorkspaceId ->
                     Handler JSON.Value
 deleteWorkspaceR workspaceId = do
     runDB $ do
-        delete workspaceId
         deleteWhere [M.WorkspaceFlightWorkspaceId ==. workspaceId]
+        delete workspaceId
     return $ JSON.toJSON ()
 
 
