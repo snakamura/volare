@@ -1,0 +1,27 @@
+<div #weather>
+  <div .msm>
+    <label>
+      <input .all type=checkbox>MSM
+    <ul>
+      <li>
+        <label>
+          <input .wind type=checkbox>Wind
+      <li>
+        <label>
+          <input .temperature type=checkbox>Temperature
+      <li>
+        <label>
+          <input .cloud_amount type=checkbox>Cloud Amount
+  <div .amedas>
+    <label>
+      <input .all type=checkbox>AMEDAS
+    <ul>
+      <li>
+        <label>
+          <input .wind type=checkbox>Wind
+      <li>
+        <label>
+          <input .temperature type=checkbox>Temperature
+      <li>
+        <label>
+          <input .sunshine type=checkbox>Sunshine

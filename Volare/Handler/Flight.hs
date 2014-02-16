@@ -132,6 +132,7 @@ getFlightR flightId = do
             addStylesheet $ StaticR S.css_common_css
             addStylesheet $ StaticR S.css_volare_css
             addStylesheet $ StaticR S.css_flight_css
+            let weather = $(widgetFile "elements/weather")
             $(widgetFile "flights/show")
         provideRep $ return $ JSON.toJSON $ Flight flightId flight records
 
