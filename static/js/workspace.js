@@ -5,6 +5,7 @@ $(function() {
     var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
     var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
     var chart = new volare.Chart(flights, $('#chart'));
+    var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
     var showName = $('#show_name');
     var editName = $('#edit_name');
