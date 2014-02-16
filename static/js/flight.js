@@ -5,38 +5,7 @@ $(function() {
     var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
     var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
     var chart = new volare.Chart(flights, $('#chart'));
-
-    function makeItem(selector, flags) {
-        return {
-            selector: selector,
-            flags: flags
-        };
-    }
-    var items = [
-        makeItem('#msm', volare.Map.MSM),
-        makeItem('#msm_wind', volare.Map.MSM_WIND),
-        makeItem('#msm_temperature', volare.Map.MSM_TEMPERATURE),
-        makeItem('#msm_cloud_amount', volare.Map.MSM_CLOUD_AMOUNT),
-        makeItem('#amedas', volare.Map.AMEDAS),
-        makeItem('#amedas_wind', volare.Map.AMEDAS_WIND),
-        makeItem('#amedas_temperature', volare.Map.AMEDAS_TEMPERATURE),
-        makeItem('#amedas_sunshine', volare.Map.AMEDAS_SUNSHINE)
-    ];
-    _.each(items, function(item) {
-        $(item.selector).on('click', function(event) {
-            map.setWeatherFlags($(event.target).prop('checked') ? item.flags : 0, item.flags);
-        });
-    });
-    $(map).on('weatherFlags_changed', function(event, flags) {
-        $('#msm').prop('checked', flags & volare.Map.MSM);
-        $('#msm_wind').prop('checked', flags & volare.Map.MSM_WIND);
-        $('#msm_temperature').prop('checked', flags & volare.Map.MSM_TEMPERATURE);
-        $('#msm_cloud_amount').prop('checked', flags & volare.Map.MSM_CLOUD_AMOUNT);
-        $('#amedas').prop('checked', flags & volare.Map.AMEDAS);
-        $('#amedas_wind').prop('checked', flags & volare.Map.AMEDAS_WIND);
-        $('#amedas_temperature').prop('checked', flags & volare.Map.AMEDAS_TEMPERATURE);
-        $('#amedas_sunshine').prop('checked', flags & volare.Map.AMEDAS_SUNSHINE);
-    });
+    var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
     $.getJSON('', function(flight) {
         var f = new volare.Flight(flight, 'red');

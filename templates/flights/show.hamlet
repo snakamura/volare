@@ -41,31 +41,31 @@
   <div #speed .graph>
 
   <div #weather>
-    <div>
+    <div .msm>
       <label>
-        <input #msm type=checkbox>MSM
+        <input .all type=checkbox>MSM
       <ul>
         <li>
           <label>
-            <input #msm_wind type=checkbox>Wind
+            <input .wind type=checkbox>Wind
         <li>
           <label>
-            <input #msm_temperature type=checkbox>Temperature
+            <input .temperature type=checkbox>Temperature
         <li>
           <label>
-            <input #msm_cloud_amount type=checkbox>Cloud Amount
-    <div>
+            <input .cloud_amount type=checkbox>Cloud Amount
+    <div .amedas>
       <label>
-        <input #amedas type=checkbox>AMEDAS
+        <input .all type=checkbox>AMEDAS
       <ul>
         <li>
           <label>
-            <input #amedas_wind type=checkbox>Wind
+            <input .wind type=checkbox>Wind
         <li>
           <label>
-            <input #amedas_temperature type=checkbox>Temperature
+            <input .temperature type=checkbox>Temperature
         <li>
           <label>
-            <input #amedas_sunshine type=checkbox>Sunshine
+            <input .sunshine type=checkbox>Sunshine
 
 <div #chart>

@@ -1567,6 +1567,42 @@ var volare = volare || {};
     };
 
 
+    function WeatherControl(map, weather) {
+        function makeItem(selector, flags) {
+            return {
+                selector: selector,
+                flags: flags
+            };
+        }
+        var msm = weather.find('.msm');
+        var amedas = weather.find('.amedas');
+        var items = [
+            makeItem(msm.find('.all'), Map.MSM),
+            makeItem(msm.find('.wind'), Map.MSM_WIND),
+            makeItem(msm.find('.temperature'), Map.MSM_TEMPERATURE),
+            makeItem(msm.find('.cloud_amount'), Map.MSM_CLOUD_AMOUNT),
+            makeItem(amedas.find('.all'), Map.AMEDAS),
+            makeItem(amedas.find('.wind'), Map.AMEDAS_WIND),
+            makeItem(amedas.find('.temperature'), Map.AMEDAS_TEMPERATURE),
+            makeItem(amedas.find('.sunshine'), Map.AMEDAS_SUNSHINE)
+        ];
+        _.each(items, function(item) {
+            $(item.selector).on('click', function(event) {
+                map.setWeatherFlags($(event.target).prop('checked') ? item.flags : 0, item.flags);
+            });
+        });
+        function update(flags) {
+            _.each(items, function(item) {
+                item.selector.prop('checked', flags & item.flags);
+            });
+        }
+        $(map).on('weatherFlags_changed', function(event, flags) {
+            update(flags);
+        });
+        update(map.getWeatherFlags());
+    }
+
+
     function setupLayout(flights, map, sidebar, chart) {
         function layout() {
             map.width($(document).width() - (sidebar.width() + 10));
@@ -1587,5 +1623,6 @@ var volare = volare || {};
     volare.AltitudeGraph = AltitudeGraph;
     volare.SpeedGraph = SpeedGraph;
     volare.Chart = Chart;
+    volare.WeatherControl = WeatherControl;
     volare.setupLayout = setupLayout;
 })();
