@@ -1,17 +1,17 @@
 <div #weather>
   <div .msm>
     <label>
-      <input .all type=checkbox>MSM
+      <input .surface_all type=checkbox>MSM
     <ul>
       <li>
         <label>
-          <input .wind type=checkbox>Wind
+          <input .surface_wind type=checkbox>Wind
       <li>
         <label>
-          <input .temperature type=checkbox>Temperature
+          <input .surface_temperature type=checkbox>Temperature
       <li>
         <label>
-          <input .cloud_amount type=checkbox>Cloud Amount
+          <input .surface_cloud_amount type=checkbox>Cloud Amount
   <div .amedas>
     <label>
       <input .all type=checkbox>AMEDAS
