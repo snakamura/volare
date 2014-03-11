@@ -77,8 +77,13 @@ div#weather ul {
     list-style-type: none;
 }
 
+div#weather li {
+    display: inline;
+    margin: 0 8px 0 0;
+}
+
 div#weather input {
-    margin: 0 5px 0 0;
+    margin: 0 3px 0 0;
 }
 
 div#chart {

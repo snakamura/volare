@@ -652,6 +652,7 @@ var volare = volare || {};
             mapTypeId: google.maps.MapTypeId.TERRAIN
         });
         this._msmSurfaceOverlay = new MSMSurfaceOverlay(this._flights);
+        this._msmBarometricOverlay = new MSMBarometricOverlay(this._flights);
         this._amedasOverlay = new AMEDASOverlay(this._flights);
         this._weatherFlags = 0;
 
@@ -711,6 +712,7 @@ var volare = volare || {};
         this._weatherFlags = (this._weatherFlags & ~mask) | (flags & mask);
 
         this._msmSurfaceOverlay.setFlags(this._map, this._weatherFlags & Map.MSM_SURFACE);
+        this._msmBarometricOverlay.setFlags(this._map, this._weatherFlags & Map.MSM_BAROMETRIC);
         this._amedasOverlay.setFlags(this._map, this._weatherFlags & Map.AMEDAS);
 
         $(this).trigger('weatherFlags_changed', this._weatherFlags);
@@ -720,6 +722,20 @@ var volare = volare || {};
     Map.MSM_SURFACE_TEMPERATURE = 0x02;
     Map.MSM_SURFACE_CLOUD_AMOUNT = 0x04;
     Map.MSM_SURFACE = Map.MSM_SURFACE_WIND | Map.MSM_SURFACE_TEMPERATURE | Map.MSM_SURFACE_CLOUD_AMOUNT;
+    Map.MSM_BAROMETRIC = 0x00;
+    (function() {
+        var flag = 0x10;
+        _.each([1000, 975, 950, 925, 900, 850, 800, 700], function(airPressure) {
+            var wind = flag;
+            flag <<= 1;
+            var temperature = flag;
+            flag <<= 1;
+            Map['MSM_BAROMETRIC_' + airPressure + '_WIND'] = wind;
+            Map['MSM_BAROMETRIC_' + airPressure + '_TEMPERATURE'] = temperature;
+            Map['MSM_BAROMETRIC_' + airPressure] = wind | temperature;
+            Map.MSM_BAROMETRIC |= wind | temperature;
+        });
+    })();
     Map.AMEDAS_WIND = 0x1000000;
     Map.AMEDAS_TEMPERATURE = 0x20000000;
     Map.AMEDAS_SUNSHINE = 0x40000000;
@@ -871,6 +887,10 @@ var volare = volare || {};
         if (!_.isEmpty(this._items)) {
             var self = this;
             _.each(this._items, function(item) {
+                if (!self._isItemVisible(item)) {
+                    return;
+                }
+
                 var nw = projection.fromLatLngToDivPixel(new LatLng(item.latitude + self._getLatitudeStep()/2, item.longitude - self._getLongitudeStep()/2));
                 var se = projection.fromLatLngToDivPixel(new LatLng(item.latitude - self._getLatitudeStep()/2, item.longitude + self._getLongitudeStep()/2));
                 var width = se.x - nw.x;
@@ -887,14 +907,14 @@ var volare = volare || {};
                     var windImage = elem.find('.wind');
                     windImage[0].src = '/static/image/msm/wind/' + windIconIndex + '.png';
                     windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
-                    windImage.css('visibility', self._isWindVisible() ? 'visible' : 'hidden');
+                    windImage.css('visibility', self._isWindVisible(item) ? 'visible' : 'hidden');
 
                     var temperatureDiv = elem.find('.temperature');
                     temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.airTemperature, 0.5));
                     temperatureDiv.text(Math.round(item.airTemperature*10)/10);
-                    temperatureDiv.css('visibility', self._isTemperatureVisible() ? 'visible' : 'hidden');
+                    temperatureDiv.css('visibility', self._isTemperatureVisible(item) ? 'visible' : 'hidden');
 
-                    elem.css('background-color', 'rgba(255, 255, 255, ' + (self._isCloudAmountVisible() ? item.cloudAmount/100*0.9 : 0) + ')');
+                    elem.css('background-color', 'rgba(255, 255, 255, ' + (self._isCloudAmountVisible(item) ? item.cloudAmount/100*0.9 : 0) + ')');
 
                     item.elem = elem;
                 }
@@ -979,15 +999,19 @@ var volare = volare || {};
         throw "This method must be overridden.";
     };
 
-    MSMOverlay.prototype._isWindVisible = function() {
+    MSMOverlay.prototype._isItemVisible = function(item) {
         throw "This method must be overridden.";
     };
 
-    MSMOverlay.prototype._isTemperatureVisible = function() {
+    MSMOverlay.prototype._isWindVisible = function(item) {
         throw "This method must be overridden.";
     };
 
-    MSMOverlay.prototype._isCloudAmountVisible = function() {
+    MSMOverlay.prototype._isTemperatureVisible = function(item) {
+        throw "This method must be overridden.";
+    };
+
+    MSMOverlay.prototype._isCloudAmountVisible = function(item) {
         throw "This method must be overridden.";
     };
 
@@ -1020,15 +1044,19 @@ var volare = volare || {};
         this._flags = flags;
     };
 
-    MSMSurfaceOverlay.prototype._isWindVisible = function() {
+    MSMSurfaceOverlay.prototype._isItemVisible = function(item) {
+        return true;
+    };
+
+    MSMSurfaceOverlay.prototype._isWindVisible = function(item) {
         return (this._flags & Map.MSM_SURFACE_WIND) != 0;
     };
 
-    MSMSurfaceOverlay.prototype._isTemperatureVisible = function() {
+    MSMSurfaceOverlay.prototype._isTemperatureVisible = function(item) {
         return (this._flags & Map.MSM_SURFACE_TEMPERATURE) != 0;
     };
 
-    MSMSurfaceOverlay.prototype._isCloudAmountVisible = function() {
+    MSMSurfaceOverlay.prototype._isCloudAmountVisible = function(item) {
         return (this._flags & Map.MSM_SURFACE_CLOUD_AMOUNT) != 0;
     };
 
@@ -1042,6 +1070,54 @@ var volare = volare || {};
 
     MSMSurfaceOverlay.SURFACE_LATITUDE_STEP = 0.05;
     MSMSurfaceOverlay.SURFACE_LONGITUDE_STEP = 0.0625;
+
+
+    function MSMBarometricOverlay(flights) {
+        MSMOverlay.call(this, flights);
+
+        this._flags = Map.MSM_BAROMETRIC;
+    }
+
+    MSMBarometricOverlay.prototype = new MSMOverlay();
+
+    MSMBarometricOverlay.prototype._getName = function() {
+        return 'barometric';
+    };
+
+    MSMBarometricOverlay.prototype._getItemKey = function(item) {
+        return item.latitude + ' ' + item.longitude + ' ' + item.airPressure;
+    };
+
+    MSMBarometricOverlay.prototype._setFlags = function(flags) {
+        this._flags = flags;
+    };
+
+    MSMBarometricOverlay.prototype._isItemVisible = function(item) {
+        return this._flags & Map['MSM_BAROMETRIC_' + item.airPressure];
+    };
+
+    MSMBarometricOverlay.prototype._isWindVisible = function(item) {
+        return this._flags & Map['MSM_BAROMETRIC_' + item.airPressure + '_WIND'];
+    };
+
+    MSMBarometricOverlay.prototype._isTemperatureVisible = function(item) {
+        return this._flags & Map['MSM_BAROMETRIC_' + item.airPressure + '_TEMPERATURE'];
+    };
+
+    MSMBarometricOverlay.prototype._isCloudAmountVisible = function(item) {
+        return false;
+    };
+
+    MSMBarometricOverlay.prototype._getLatitudeStep = function() {
+        return MSMBarometricOverlay.BAROMETRIC_LATITUDE_STEP;
+    };
+
+    MSMBarometricOverlay.prototype._getLongitudeStep = function() {
+        return MSMBarometricOverlay.BAROMETRIC_LONGITUDE_STEP;
+    };
+
+    MSMBarometricOverlay.BAROMETRIC_LATITUDE_STEP = 0.1;
+    MSMBarometricOverlay.BAROMETRIC_LONGITUDE_STEP = 0.125;
 
 
     function AMEDASOverlay(flights) {
@@ -1674,6 +1750,11 @@ var volare = volare || {};
             makeItem(amedas.find('.temperature'), Map.AMEDAS_TEMPERATURE),
             makeItem(amedas.find('.sunshine'), Map.AMEDAS_SUNSHINE)
         ];
+        _.each([1000, 975, 950, 925, 900, 850, 800, 700], function(airPressure) {
+            items.push(makeItem(msm.find('.barometric_' + airPressure), Map['MSM_BAROMETRIC_' + airPressure]));
+            items.push(makeItem(msm.find('.barometric_' + airPressure + '_wind'), Map['MSM_BAROMETRIC_' + airPressure + '_WIND']));
+            items.push(makeItem(msm.find('.barometric_' + airPressure + '_temperature'), Map['MSM_BAROMETRIC_' + airPressure + '_TEMPERATURE']));
+        });
         _.each(items, function(item) {
             $(item.selector).on('click', function(event) {
                 map.setWeatherFlags($(event.target).prop('checked') ? item.flags : 0, item.flags);
