@@ -42,7 +42,7 @@ import Yesod.Core.Handler (addHeader,
                            invalidArgs,
                            provideRep,
                            selectRep)
-import Yesod.Core.Json (parseJsonBody_)
+import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget (addScript,
                           addScriptRemote,
@@ -85,7 +85,7 @@ instance JSON.FromJSON NewFlight where
 
 postFlightsR :: Handler JSON.Value
 postFlightsR = do
-    NewFlight name igcBytes <- parseJsonBody_
+    NewFlight name igcBytes <- requireJsonBody
     case parseOnly IGC.igc igcBytes of
       Left _ -> invalidArgs ["igc"]
       Right igc -> do
@@ -147,7 +147,7 @@ instance JSON.FromJSON EditFlight where
 putFlightR :: M.FlightId ->
               Handler JSON.Value
 putFlightR flightId = do
-    EditFlight name <- parseJsonBody_
+    EditFlight name <- requireJsonBody
     flight <- runDB $ do
         update flightId [M.FlightName =. name]
         selectFirst [M.FlightId ==. flightId] []

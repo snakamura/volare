@@ -49,7 +49,7 @@ import Yesod.Core (HandlerSite,
 import Yesod.Core.Handler (getRequest,
                            redirect,
                            reqToken)
-import Yesod.Core.Json (parseJsonBody_)
+import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Widget (addScript,
                           addScriptRemote,
                           addStylesheet,
@@ -139,7 +139,7 @@ instance JSON.FromJSON EditWorkspace where
 putWorkspaceR :: M.WorkspaceId ->
                  Handler JSON.Value
 putWorkspaceR workspaceId = do
-    EditWorkspace name <- parseJsonBody_
+    EditWorkspace name <- requireJsonBody
     workspace <- runDB $ do
         update workspaceId [M.WorkspaceName =. name]
         selectFirst [M.WorkspaceId ==. workspaceId] []
@@ -183,7 +183,7 @@ instance JSON.FromJSON NewWorkspaceFlight where
 postWorkspaceFlightsR :: M.WorkspaceId ->
                          Handler JSON.Value
 postWorkspaceFlightsR workspaceId = do
-    NewWorkspaceFlight flightIds <- parseJsonBody_
+    NewWorkspaceFlight flightIds <- requireJsonBody
     newWorkspaceFlights <- runDB $ forM flightIds $ \flightId -> do
         color <- nextColor workspaceId
         insertedFlightId <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
