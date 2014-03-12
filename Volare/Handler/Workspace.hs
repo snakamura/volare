@@ -23,15 +23,18 @@ import Data.Monoid ((<>),
                     mempty)
 import Data.Ord (comparing)
 import qualified Data.Text as T
+import Data.Time (addUTCTime)
 import Data.Traversable (forM,
                          mapM)
 import Database.Persist (Entity(Entity),
                          PersistEntityBackend,
                          PersistMonadBackend,
                          PersistQuery,
-                         SelectOpt(Asc),
+                         SelectOpt(Asc, Desc),
                          (=.),
                          (==.),
+                         (<=.),
+                         (>=.),
                          delete,
                          deleteWhere,
                          insert,
@@ -203,10 +206,19 @@ selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight 
     makeWorkspaceFlight (Entity flightId flight, color) = WorkspaceFlight flightId flight color
 
 
-selectCandidateFlights :: (PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.Flight) =>
+selectCandidateFlights :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.Flight) =>
                           M.WorkspaceId ->
                           m [Entity M.Flight]
-selectCandidateFlights _ = selectList [] [Asc M.FlightName]
+selectCandidateFlights workspaceId = do
+    workspaceFlights <- selectWorkspaceFlights workspaceId
+    case workspaceFlights of
+      [] -> selectList [] [Desc M.FlightTime, Asc M.FlightName]
+      _ -> let times = map (\(WorkspaceFlight _ flight _) -> M.flightTime flight) workspaceFlights
+               start = addUTCTime (-6*60*60) $ minimum times
+               end = addUTCTime (6*60*60*12) $ maximum times
+               flightIds = map (\(WorkspaceFlight flightId _ _) -> flightId) workspaceFlights
+               included (Entity flightId _) = flightId `elem` flightIds
+           in filter (not . included) <$> selectList [M.FlightTime >=. start, M.FlightTime <=. end] [Asc M.FlightName]
 
 
 nextColor :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.Workspace) =>
