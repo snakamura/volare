@@ -9,11 +9,6 @@
         <li .active>
           <a href=@{WorkspacesR}>Workspaces
 
-<div .container-fluid .actionbar>
-  <form method=POST action=@{WorkspacesR} enctype=#{enctype}>
-    ^{workspaceWidget}
-    <input .btn .btn-default type=submit value="New Workspace">
-
 $if not (null workspaces)
   <table .table .table-striped>
     <thead>

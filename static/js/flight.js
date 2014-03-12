@@ -53,5 +53,17 @@ $(function() {
         }
     });
 
+    $('#new_workspace').on('click', function(event) {
+        $.postJSON('/workspaces', {
+            name: $('#name').text()
+        }, function(workspace) {
+            $.postJSON('/workspaces/' + workspace.id + '/flights', {
+                flightIds: [flights.getPrimaryFlight().getId()]
+            }, function(flights) {
+                document.location.href = '/workspaces/' + workspace.id
+            });
+        });
+    });
+
     volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
 });

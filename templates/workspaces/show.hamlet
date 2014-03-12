@@ -16,7 +16,7 @@
       <span .action .edit .glyphicon .glyphicon-edit>
       <span .action .delete .glyphicon .glyphicon-trash>
     <span>
-      <span #add_flight .action .add .glyphicon .glyphicon-plus>
+      <span #add_flight .action .glyphicon .glyphicon-plus>
   <span #edit_name>
     <input type=text name=name value=#{M.workspaceName workspace}>
     <span>

@@ -9,8 +9,7 @@ module Volare.Handler.Workspace (
     getWorkspaceCandidatesR
 ) where
 
-import Control.Applicative ((<$>),
-                            pure)
+import Control.Applicative ((<$>))
 import Control.Arrow (first)
 import Control.Monad (join)
 import Data.Aeson ((.=),
@@ -41,25 +40,15 @@ import Database.Persist (Entity(Entity),
                          selectList,
                          update)
 import Prelude hiding (mapM)
-import Text.Blaze (Markup)
 import Text.Blaze.Html (Html)
-import Yesod.Core (HandlerSite,
-                   WidgetT,
-                   defaultLayout)
+import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler (getRequest,
-                           redirect,
                            reqToken)
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Widget (addScript,
                           addScriptRemote,
                           addStylesheet,
                           setTitle)
-import Yesod.Form (Enctype,
-                   FormResult(FormSuccess),
-                   MForm,
-                   generateFormPost,
-                   renderDivs,
-                   runFormPost)
 import Yesod.Persist (get404,
                       runDB)
 
@@ -71,35 +60,15 @@ import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
 
 
-data NewWorkspace = NewWorkspace
+data NewWorkspace = NewWorkspace T.Text
 
-
-newWorkspaceForm :: Monad m =>
-                    Markup ->
-                    MForm m (FormResult NewWorkspace, WidgetT (HandlerSite m) IO ())
-newWorkspaceForm = renderDivs $ pure NewWorkspace
+instance JSON.FromJSON NewWorkspace where
+    parseJSON (JSON.Object o) = NewWorkspace <$> o .: "name"
+    parseJSON _ = mempty
 
 
 getWorkspacesR :: Handler Html
 getWorkspacesR = do
-    (workspaceWidget, enctype) <- generateFormPost $ newWorkspaceForm
-    listWorkspaces workspaceWidget enctype
-
-
-postWorkspacesR :: Handler Html
-postWorkspacesR = do
-    ((result, workspaceWidget), enctype) <- runFormPost newWorkspaceForm
-    case result of
-      FormSuccess NewWorkspace -> do
-          workspaceId <- runDB $ insert $ M.Workspace "Untitled"
-          redirect $ WorkspaceR workspaceId
-      _ -> listWorkspaces workspaceWidget enctype
-
-
-listWorkspaces :: Widget ->
-                  Enctype ->
-                  Handler Html
-listWorkspaces workspaceWidget enctype = do
     workspaces <- runDB $ selectList [] []
     defaultLayout $ do
         setTitle "Workspaces - Volare"
@@ -107,6 +76,15 @@ listWorkspaces workspaceWidget enctype = do
         addScript $ StaticR S.js_common_js
         addStylesheet $ StaticR S.css_common_css
         $(widgetFile "workspaces/index")
+
+
+postWorkspacesR :: Handler JSON.Value
+postWorkspacesR = do
+  NewWorkspace name <- requireJsonBody
+  workspace <- runDB $ do
+      workspaceId <- insert $ M.Workspace name
+      selectFirst [M.WorkspaceId ==. workspaceId] []
+  return $ JSON.toJSON workspace
 
 
 getWorkspaceR :: M.WorkspaceId ->
