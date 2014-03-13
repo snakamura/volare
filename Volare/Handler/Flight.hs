@@ -61,7 +61,6 @@ import qualified Volare.Static as S
 
 getFlightsR :: Handler TypedContent
 getFlightsR = do
-    flights :: [Entity M.Flight] <- runDB $ selectList [] [Desc M.FlightTime]
     addHeader "Vary" "Accept"
     selectRep $ do
         provideRep $ defaultLayout $ do
@@ -72,7 +71,7 @@ getFlightsR = do
             addStylesheet $ StaticR S.css_common_css
             addStylesheet $ StaticR S.css_flights_css
             $(widgetFile "flights/index")
-        provideRep $ return $ JSON.toJSON flights
+        provideRep $ runDB $ JSON.toJSON <$> selectList [] [Desc M.FlightTime]
 
 
 data NewFlight = NewFlight T.Text B.ByteString
