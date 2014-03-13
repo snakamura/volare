@@ -22,14 +22,20 @@ $(function() {
     });
 
     $('#add_flight').on('change', function(event) {
-        _.each(event.target.files, function(file) {
+        var files = event.target.files;
+        _.each(files, function(file) {
             var reader = new FileReader();
             $(reader).on('loadend', function(event) {
                 var data = {
                     name: file.name,
                     igc: reader.result
                 };
-                $.postJSON('/flights', data, _.bind(flights.addFlight, flights));
+                $.postJSON('/flights', data, function(flight) {
+                    if (files.length == 1)
+                        document.location.href = '/flights/' + flight.id;
+                    else
+                        flights.addFlight(flight);
+                });
             });
             reader.readAsText(file);
         });
