@@ -157,9 +157,9 @@ deleteFlightR :: M.FlightId ->
                  Handler JSON.Value
 deleteFlightR flightId = do
     runDB $ do
-        delete flightId
         deleteWhere [M.RecordFlightId ==. flightId]
         deleteWhere [M.WorkspaceFlightFlightId ==. flightId]
+        delete flightId
     return $ JSON.toJSON ()
 
 
