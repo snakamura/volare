@@ -1,4 +1,4 @@
-Flight
+Flight json
   name T.Text
   time UTCTime
   duration Int
@@ -9,7 +9,7 @@ Flight
   minAltitude Double
   maxAltitude Double
   deriving Show
-Record
+Record json
   flightId FlightId
   index Int
   time UTCTime
@@ -17,10 +17,10 @@ Record
   longitude Double
   altitude Double
   deriving Show
-Workspace
+Workspace json
   name T.Text
   deriving Show
-WorkspaceFlight
+WorkspaceFlight json
   workspaceId WorkspaceId
   flightId FlightId
   color T.Text
