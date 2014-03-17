@@ -6,14 +6,15 @@ import qualified Data.Text as T
 import Data.Time (UTCTime)
 import Database.Persist (Entity(Entity))
 import Database.Persist.Quasi (lowerCaseSettings)
-import Database.Persist.TH (mkMigrate,
+import Database.Persist.TH (mkDeleteCascade,
+                            mkMigrate,
                             mkPersist,
                             persistFileWith,
                             share,
                             sqlSettings)
 
 
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFileWith lowerCaseSettings "config/models")
+share [mkPersist sqlSettings, mkMigrate "migrateAll", mkDeleteCascade sqlSettings] $(persistFileWith lowerCaseSettings "config/models")
 
 instance JSON.ToJSON (Entity Flight) where
     toJSON (Entity flightId flight) = JSON.object [

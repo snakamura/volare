@@ -30,8 +30,7 @@ import Database.Persist (Entity,
                          SelectOpt(Asc, Desc),
                          (=.),
                          (==.),
-                         delete,
-                         deleteWhere,
+                         deleteCascade,
                          insert,
                          update,
                          selectFirst,
@@ -156,10 +155,7 @@ putFlightR flightId = do
 deleteFlightR :: M.FlightId ->
                  Handler JSON.Value
 deleteFlightR flightId = do
-    runDB $ do
-        deleteWhere [M.RecordFlightId ==. flightId]
-        deleteWhere [M.WorkspaceFlightFlightId ==. flightId]
-        delete flightId
+    runDB $ deleteCascade flightId
     return $ JSON.toJSON ()
 
 
