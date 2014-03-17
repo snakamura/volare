@@ -29,6 +29,10 @@ $(function() {
         return $.ajaxJSON('DELETE', url, data, success);
     };
 
+    common.basename = function(name) {
+        return name.replace(/\.[^.]*$/, '');
+    };
+
     common.formatTime = function(time) {
         return _.sprintf('%04d-%02d-%02d %02d:%02d:%02d', time.getFullYear(),
                          time.getMonth() + 1, time.getDate(), time.getHours(),

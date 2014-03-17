@@ -27,7 +27,7 @@ $(function() {
             var reader = new FileReader();
             $(reader).on('loadend', function(event) {
                 var data = {
-                    name: file.name,
+                    name: common.basename(file.name),
                     igc: reader.result
                 };
                 $.postJSON('/flights', data, function(flight) {
