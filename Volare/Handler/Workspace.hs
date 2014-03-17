@@ -215,7 +215,7 @@ selectCandidateFlights workspaceId = do
       [] -> selectList [] [Desc M.FlightTime, Asc M.FlightName]
       _ -> let times = map (\(WorkspaceFlight _ flight _) -> M.flightTime flight) workspaceFlights
                start = addUTCTime (-6*60*60) $ minimum times
-               end = addUTCTime (6*60*60*12) $ maximum times
+               end = addUTCTime (6*60*60) $ maximum times
                flightIds = map (\(WorkspaceFlight flightId _ _) -> flightId) workspaceFlights
                included (Entity flightId _) = flightId `elem` flightIds
            in filter (not . included) <$> selectList [M.FlightTime >=. start, M.FlightTime <=. end] [Asc M.FlightName]
