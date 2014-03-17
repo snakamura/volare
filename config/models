@@ -25,3 +25,4 @@ WorkspaceFlight
   flightId FlightId
   color T.Text
   UniqueWorkspaceFlight workspaceId flightId
+  deriving Show
