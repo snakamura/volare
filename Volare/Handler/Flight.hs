@@ -168,7 +168,7 @@ addFlight :: (PersistStore m, PersistMonadBackend m ~ PersistEntityBackend M.Fli
              IGC.IGC ->
              m M.FlightId
 addFlight name igc = do
-    let records = IGC.records igc
+    let records = filterRecords $ IGC.records igc
         value selector property = realToFrac $ property $ IGC.position $ selector (comparing (property . IGC.position)) records
     flightId <- insert $ M.Flight name
                                   (UTCTime (IGC.date igc) (IGC.time $ head records))
@@ -188,6 +188,31 @@ addFlight name igc = do
                           (realToFrac $ IGC.longitude position)
                           (realToFrac $ IGC.altitude position)
     return flightId
+    where
+      filterRecords records =
+          case reverse $ dropWhileNotFlying $ reverse $ dropWhileNotFlying records of
+            [] -> records
+            body -> let start = IGC.time $ head body
+                        pre record = IGC.time record < start - 30
+                        end = IGC.time $ last body
+                        post record = IGC.time record > end + 30
+                    in takeWhile (not . post) $ dropWhile pre records
+      dropWhileNotFlying records = map fst $ dropWhile (not . uncurry flying) $ zip records (drop 10 records)
+      flying record next = let duration = abs $ IGC.time next - IGC.time record
+                               dist = distance (IGC.position next) (IGC.position record)
+                               speed = dist / realToFrac duration
+                           in speed > 5 && speed < 10
+
+
+distance :: IGC.Position ->
+            IGC.Position ->
+            Double
+distance position1 position2 =
+    let r = 6378137
+        dx = (realToFrac (IGC.longitude position1) - realToFrac (IGC.longitude position2)) / 180 * pi
+        y1 = realToFrac (IGC.latitude position1) / 180 * pi
+        y2 = realToFrac (IGC.latitude position2) / 180 * pi
+    in r * acos (sin y1 * sin y2 + cos y1 * cos y2 * cos dx)
 
 
 formatPosition :: Double ->
