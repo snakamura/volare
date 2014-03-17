@@ -37,8 +37,7 @@ import Database.Persist (Entity,
                          selectList)
 import Text.Printf (printf)
 import Yesod.Core (defaultLayout)
-import Yesod.Core.Handler (addHeader,
-                           invalidArgs,
+import Yesod.Core.Handler (invalidArgs,
                            provideRep,
                            selectRep)
 import Yesod.Core.Json (requireJsonBody)
@@ -60,7 +59,6 @@ import qualified Volare.Static as S
 
 getFlightsR :: Handler TypedContent
 getFlightsR = do
-    addHeader "Vary" "Accept"
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle "Flights - Volare"
@@ -118,7 +116,6 @@ getFlightR flightId = do
     flight <- runDB $ get404 flightId
     records <- runDB $ selectList [M.RecordFlightId ==. flightId] [Asc M.RecordIndex]
     googleApiKey <- Config.googleApiKey <$> getConfig
-    addHeader "Vary" "Accept"
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle "Flight - Volare"
