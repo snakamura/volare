@@ -364,21 +364,24 @@ var volare = volare || {};
         return (endRecord.altitude - startRecord.altitude)/((endRecord.time.getTime() - startRecord.time.getTime())/1000);
     };
 
-    Flight.prototype.updatePolyline = function(polyline, currentTime) {
-        var path = polyline.getPath();
-        path.clear();
-
+    Flight.prototype.updateRoute = function(route, currentTime, currentOnly) {
         if (this._visible) {
             var records = this._records;
+            var currentRecords = records;
             if (currentTime) {
                 var start = this._getRecordIndexAt(new Date(currentTime.getTime() - Flight.TRACK_DURATION*1000));
                 var end = this._getRecordIndexAt(currentTime);
-                records = records.slice(start, end);
+                currentRecords = records.slice(start, end);
             }
 
-            _.each(records, function(record) {
-                path.push(new LatLng(record.latitude, record.longitude));
-            });
+            if (!currentOnly)
+                route.setRecords(records);
+            route.setCurrentRecords(currentRecords);
+        }
+        else {
+            if (!currentOnly)
+                route.setRecords([]);
+            route.setCurrentRecords([]);
         }
     };
 
@@ -661,36 +664,21 @@ var volare = volare || {};
         $(this._flights).on('flight_added', function(event, flight) {
             self._map.fitBounds(self._flights.getBounds());
 
-            var polyline = new google.maps.Polyline({
-                map: self._map,
-                strokeColor: flight.getColor(),
-                strokeOpacity: 0.3
-            });
-            flight.updatePolyline(polyline);
-            flight.__polyline = polyline;
-
-            var currentPolyline = new google.maps.Polyline({
-                map: self._map,
-                strokeColor: flight.getColor()
-            });
-            flight.updatePolyline(currentPolyline);
-            flight.__currentPolyline = currentPolyline;
+            var route = new Route(self._map, flight.getColor());
+            flight.updateRoute(route);
+            flight.__route = route;
 
             $(flight).on('visible_changed', function() {
-                flight.updatePolyline(flight.__polyline);
-                flight.updatePolyline(flight.__currentPolyline, self._flights.getCurrentTime());
+                flight.updateRoute(flight.__route, self._flights.getCurrentTime());
             });
         });
         $(this._flights).on('flight_removed', function(event, flight) {
-            flight.__polyline.setMap(null);
-            flight.__polyline = null;
-
-            flight.__currentPolyline.setMap(null);
-            flight.__currentPolyline = null;
+            flight.__route.clear();
+            flight.__route = null;
         });
         $(this._flights).on('currenttime_changed', function(event, time) {
             self._flights.eachFlights(function(flight) {
-                flight.updatePolyline(flight.__currentPolyline, time);
+                flight.updateRoute(flight.__route, time, true);
             });
 
             var primaryFlight = self._flights.getPrimaryFlight();
@@ -740,6 +728,39 @@ var volare = volare || {};
     Map.AMEDAS_TEMPERATURE = 0x20000000;
     Map.AMEDAS_SUNSHINE = 0x40000000;
     Map.AMEDAS = Map.AMEDAS_WIND | Map.AMEDAS_TEMPERATURE | Map.AMEDAS_SUNSHINE;
+
+
+    function Route(map, color) {
+        this._polyline = new google.maps.Polyline({
+            map: map,
+            strokeColor: color,
+            strokeOpacity: 0.3
+        });
+        this._currentPolyline = new google.maps.Polyline({
+            map: map,
+            strokeColor: color
+        });
+    }
+
+    Route.prototype.clear = function() {
+        this._polyline.setMap(null);
+        this._currentPolyline.setMap(null);
+    };
+
+    Route.prototype.setRecords = function(records) {
+        this._setRecords(this._polyline.getPath(), records);
+    };
+
+    Route.prototype.setCurrentRecords = function(records) {
+        this._setRecords(this._currentPolyline.getPath(), records);
+    };
+
+    Route.prototype._setRecords = function(path, records) {
+        path.clear();
+        _.each(records, function(record) {
+            path.push(new LatLng(record.latitude, record.longitude));
+        });
+    };
 
 
     function WeatherOverlay(flights) {
