@@ -664,7 +664,7 @@ var volare = volare || {};
         $(this._flights).on('flight_added', function(event, flight) {
             self._map.fitBounds(self._flights.getBounds());
 
-            var route = new Route(self._map, flight.getColor());
+            var route = new SolidColorRoute(self._map, flight.getColor());
             flight.updateRoute(route);
             flight.__route = route;
 
@@ -730,7 +730,25 @@ var volare = volare || {};
     Map.AMEDAS = Map.AMEDAS_WIND | Map.AMEDAS_TEMPERATURE | Map.AMEDAS_SUNSHINE;
 
 
-    function Route(map, color) {
+    function Route() {
+    }
+
+    Route.prototype.clear = function() {
+        throw "This method must be overridden.";
+    };
+
+    Route.prototype.setRecords = function(records) {
+        throw "This method must be overridden.";
+    };
+
+    Route.prototype.setCurrentRecords = function(records) {
+        throw "This method must be overridden.";
+    };
+
+
+    function SolidColorRoute(map, color) {
+        Route.call(this);
+
         this._polyline = new google.maps.Polyline({
             map: map,
             strokeColor: color,
@@ -742,20 +760,22 @@ var volare = volare || {};
         });
     }
 
-    Route.prototype.clear = function() {
+    SolidColorRoute.prototype = new Route();
+
+    SolidColorRoute.prototype.clear = function() {
         this._polyline.setMap(null);
         this._currentPolyline.setMap(null);
     };
 
-    Route.prototype.setRecords = function(records) {
+    SolidColorRoute.prototype.setRecords = function(records) {
         this._setRecords(this._polyline.getPath(), records);
     };
 
-    Route.prototype.setCurrentRecords = function(records) {
+    SolidColorRoute.prototype.setCurrentRecords = function(records) {
         this._setRecords(this._currentPolyline.getPath(), records);
     };
 
-    Route.prototype._setRecords = function(path, records) {
+    SolidColorRoute.prototype._setRecords = function(path, records) {
         path.clear();
         _.each(records, function(record) {
             path.push(new LatLng(record.latitude, record.longitude));
