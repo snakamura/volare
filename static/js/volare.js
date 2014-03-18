@@ -29,7 +29,7 @@ var volare = volare || {};
         return this._flights.length;
     };
 
-    Flights.prototype.eachFlights = function(iterator, context) {
+    Flights.prototype.eachFlight = function(iterator, context) {
         _.each(this._flights, iterator, context);
     };
 
@@ -682,7 +682,7 @@ var volare = volare || {};
             flight.__route = null;
         });
         $(this._flights).on('currenttime_changed', function(event, time) {
-            self._flights.eachFlights(function(flight) {
+            self._flights.eachFlight(function(flight) {
                 flight.updateRoute(flight.__route, time, true);
             });
 
@@ -719,7 +719,7 @@ var volare = volare || {};
         this._useGradientColorRoute = useGradientColorRoute;
 
         var self = this;
-        this._flights.eachFlights(function(flight) {
+        this._flights.eachFlight(function(flight) {
             flight.__route.clear();
 
             var route = self._createRoute(flight);
@@ -1642,7 +1642,7 @@ var volare = volare || {};
 
     AltitudeGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
         var self = this;
-        this._flights.eachFlights(function(flight) {
+        this._flights.eachFlight(function(flight) {
             var graphContext = null;
             if (withGraphContext) {
                 flight.__currentAltitudeGraphContext = flight.__currentAltitudeGraphContext || new AltitudeGraphContext();
@@ -1715,7 +1715,7 @@ var volare = volare || {};
 
     SpeedGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
         var self = this;
-        this._flights.eachFlights(function(flight) {
+        this._flights.eachFlight(function(flight) {
             var graphContext = null;
             if (withGraphContext) {
                 flight.__currentSpeedGraphContext = flight.__currentSpeedGraphContext || new SpeedGraphContext();
@@ -1825,7 +1825,7 @@ var volare = volare || {};
     Chart.prototype._update = function() {
         var time = this._flights.getCurrentTime();
         var self = this;
-        this._flights.eachFlights(function(flight) {
+        this._flights.eachFlight(function(flight) {
             var position = flight.getPositionAt(time);
             var tr = self._chart.find('.flight_' + flight.getId());
             tr.find('input').prop('checked', flight.isVisible());
