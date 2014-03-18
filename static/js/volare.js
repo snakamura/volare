@@ -218,6 +218,10 @@ var volare = volare || {};
         return this._maxAltitude;
     };
 
+    Flight.prototype.getMinAltitude = function() {
+        return this._minAltitude;
+    };
+
     Flight.prototype.getPositionAt = function(time) {
         var records = this._records;
         if (!time)
@@ -658,13 +662,14 @@ var volare = volare || {};
         this._msmBarometricOverlay = new MSMBarometricOverlay(this._flights);
         this._amedasOverlay = new AMEDASOverlay(this._flights);
         this._weatherFlags = 0;
+        this._useGradientColorRoute = false;
 
         var self = this;
 
         $(this._flights).on('flight_added', function(event, flight) {
             self._map.fitBounds(self._flights.getBounds());
 
-            var route = new SolidColorRoute(self._map, flight.getColor());
+            var route = self._createRoute(flight);
             flight.updateRoute(route);
             flight.__route = route;
 
@@ -704,6 +709,30 @@ var volare = volare || {};
         this._amedasOverlay.setFlags(this._map, this._weatherFlags & Map.AMEDAS);
 
         $(this).trigger('weatherFlags_changed', this._weatherFlags);
+    };
+
+    Map.prototype.isUseGradientColorRoute = function() {
+        return this._useGradientColorRoute;
+    };
+
+    Map.prototype.setUseGradientColorRoute = function(useGradientColorRoute) {
+        this._useGradientColorRoute = useGradientColorRoute;
+
+        var self = this;
+        this._flights.eachFlights(function(flight) {
+            flight.__route.clear();
+
+            var route = self._createRoute(flight);
+            flight.updateRoute(route);
+            flight.__route = route;
+        });
+    };
+
+    Map.prototype._createRoute = function(flight) {
+        if (this._useGradientColorRoute)
+            return new GradientColorRoute(this._map, flight.getMinAltitude(), flight.getMaxAltitude());
+        else
+            return new SolidColorRoute(this._map, flight.getColor());
     };
 
     Map.MSM_SURFACE_WIND = 0x01;
@@ -781,6 +810,90 @@ var volare = volare || {};
             path.push(new LatLng(record.latitude, record.longitude));
         });
     };
+
+
+    function GradientColorRoute(map, minAltitude, maxAltitude) {
+        Route.call(this);
+
+        this._map = map;
+        this._minAltitude = minAltitude;
+        this._maxAltitude = maxAltitude;
+        this._polylines = [];
+        this._currentPolylines = [];
+    }
+
+    GradientColorRoute.prototype = new Route();
+
+    GradientColorRoute.prototype.clear = function() {
+        _.each(this._polylines, function(polyline) {
+            polyline.setMap(null);
+        });
+        _.each(this._currentPolylines, function(polyline) {
+            polyline.setMap(null);
+        });
+    };
+
+    GradientColorRoute.prototype.setRecords = function(records) {
+        this._setRecords(this._polylines, 0.3, records);
+    };
+
+    GradientColorRoute.prototype.setCurrentRecords = function(records) {
+        this._setRecords(this._currentPolylines, 1, records);
+    };
+
+    GradientColorRoute.prototype._setRecords = function(polylines, opacity, records) {
+        _.each(polylines, function(polyline) {
+            polyline.setMap(null);
+            polylines = [];
+        });
+
+        var self = this;
+        var step = (this._maxAltitude - this._minAltitude)/(GradientColorRoute.COLORS.length - 1);
+        var previousColorIndex = null;
+        var previousPolyline = null;
+        _.each(records, function(record) {
+            if (previousPolyline) {
+                previousPolyline.getPath().push(new LatLng(record.latitude, record.longitude));
+            }
+
+            var colorIndex = Math.round((record.altitude - self._minAltitude)/step);
+            var polyline = previousPolyline;
+            if (!previousPolyline || previousColorIndex !== colorIndex) {
+                polyline = new google.maps.Polyline({
+                    map:self._map,
+                    strokeColor: GradientColorRoute.COLORS[colorIndex],
+                    strokeOpacity: opacity
+                });
+                polylines.push(polyline);
+                previousColorIndex = colorIndex;
+                previousPolyline = polyline;
+            }
+            polyline.getPath().push(new LatLng(record.latitude, record.longitude));
+        });
+    };
+
+    GradientColorRoute.COLORS = [
+        '#FF0000',
+        '#FF3500',
+        '#FF6B00',
+        '#FFA100',
+        '#FFD600',
+        '#F1FF00',
+        '#BBFF00',
+        '#86FF00',
+        '#50FF00',
+        '#1AFF00',
+        '#00FF1A',
+        '#00FF50',
+        '#00FF86',
+        '#00FFBB',
+        '#00FFF1',
+        '#00D6FF',
+        '#00A1FF',
+        '#006BFF',
+        '#0035FF',
+        '#0000FF'
+    ];
 
 
     function WeatherOverlay(flights) {
