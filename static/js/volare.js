@@ -788,8 +788,7 @@ var volare = volare || {};
             strokeColor: color
         });
     }
-
-    SolidColorRoute.prototype = new Route();
+    inherit(SolidColorRoute, Route);
 
     SolidColorRoute.prototype.clear = function() {
         this._polyline.setMap(null);
@@ -821,8 +820,7 @@ var volare = volare || {};
         this._polylines = [];
         this._currentPolylines = [];
     }
-
-    GradientColorRoute.prototype = new Route();
+    inherit(GradientColorRoute, Route);
 
     GradientColorRoute.prototype.clear = function() {
         _.each(this._polylines, function(polyline) {
@@ -906,8 +904,7 @@ var volare = volare || {};
             self._update();
         };
     }
-
-    WeatherOverlay.prototype = new google.maps.OverlayView();
+    inherit(WeatherOverlay, google.maps.OverlayView);
 
     WeatherOverlay.prototype.onAdd = function() {
         var div = $('<div class="weather ' + this._getClassName() + '"></div>');
@@ -1007,8 +1004,7 @@ var volare = volare || {};
 
         this._clear();
     }
-
-    MSMOverlay.prototype = new WeatherOverlay();
+    inherit(MSMOverlay, WeatherOverlay);
 
     MSMOverlay.prototype.setFlags = function(map, flags) {
         this._setFlags(flags);
@@ -1183,8 +1179,7 @@ var volare = volare || {};
 
         this._flags = Map.MSM_SURFACE;
     }
-
-    MSMSurfaceOverlay.prototype = new MSMOverlay();
+    inherit(MSMSurfaceOverlay, MSMOverlay);
 
     MSMSurfaceOverlay.prototype._getName = function() {
         return 'surface';
@@ -1231,8 +1226,7 @@ var volare = volare || {};
 
         this._flags = Map.MSM_BAROMETRIC;
     }
-
-    MSMBarometricOverlay.prototype = new MSMOverlay();
+    inherit(MSMBarometricOverlay, MSMOverlay);
 
     MSMBarometricOverlay.prototype._getName = function() {
         return 'barometric';
@@ -1280,8 +1274,7 @@ var volare = volare || {};
         this._flags = Map.AMEDAS;
         this._clear();
     }
-
-    AMEDASOverlay.prototype = new WeatherOverlay();
+    inherit(AMEDASOverlay, WeatherOverlay);
 
     AMEDASOverlay.prototype.setFlags = function(map, flags) {
         this._flags = flags;
