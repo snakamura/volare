@@ -30,6 +30,7 @@ library
                    Service.MSM.Surface
                    Volare.Foundation
                    Volare.Model
+                   Volare.Model.Settings
                    Volare.Handler.AMEDAS
                    Volare.Handler.Flight
                    Volare.Handler.MSM
