@@ -4,17 +4,6 @@ var volare = volare || {};
     var LatLng = google.maps.LatLng;
     var LatLngBounds = google.maps.LatLngBounds;
 
-    var inherit = (function() {
-        var Proxy = function() {
-        };
-        return function(clazz, parent) {
-            Proxy.prototype = parent.prototype;
-            clazz.prototype = new Proxy();
-            clazz.super_ = parent.prototype;
-            clazz.prototype.constructor = clazz;
-        };
-    })();
-
     function Flights() {
         this._flights = [];
 
@@ -788,7 +777,7 @@ var volare = volare || {};
             strokeColor: color
         });
     }
-    inherit(SolidColorRoute, Route);
+    common.inherit(SolidColorRoute, Route);
 
     SolidColorRoute.prototype.clear = function() {
         this._polyline.setMap(null);
@@ -820,7 +809,7 @@ var volare = volare || {};
         this._polylines = [];
         this._currentPolylines = [];
     }
-    inherit(GradientColorRoute, Route);
+    common.inherit(GradientColorRoute, Route);
 
     GradientColorRoute.prototype.clear = function() {
         _.each(this._polylines, function(polyline) {
@@ -904,7 +893,7 @@ var volare = volare || {};
             self._update();
         };
     }
-    inherit(WeatherOverlay, google.maps.OverlayView);
+    common.inherit(WeatherOverlay, google.maps.OverlayView);
 
     WeatherOverlay.prototype.onAdd = function() {
         var div = $('<div class="weather ' + this._getClassName() + '"></div>');
@@ -1004,7 +993,7 @@ var volare = volare || {};
 
         this._clear();
     }
-    inherit(MSMOverlay, WeatherOverlay);
+    common.inherit(MSMOverlay, WeatherOverlay);
 
     MSMOverlay.prototype.setFlags = function(map, flags) {
         this._setFlags(flags);
@@ -1179,7 +1168,7 @@ var volare = volare || {};
 
         this._flags = Map.MSM_SURFACE;
     }
-    inherit(MSMSurfaceOverlay, MSMOverlay);
+    common.inherit(MSMSurfaceOverlay, MSMOverlay);
 
     MSMSurfaceOverlay.prototype._getName = function() {
         return 'surface';
@@ -1226,7 +1215,7 @@ var volare = volare || {};
 
         this._flags = Map.MSM_BAROMETRIC;
     }
-    inherit(MSMBarometricOverlay, MSMOverlay);
+    common.inherit(MSMBarometricOverlay, MSMOverlay);
 
     MSMBarometricOverlay.prototype._getName = function() {
         return 'barometric';
@@ -1274,7 +1263,7 @@ var volare = volare || {};
         this._flags = Map.AMEDAS;
         this._clear();
     }
-    inherit(AMEDASOverlay, WeatherOverlay);
+    common.inherit(AMEDASOverlay, WeatherOverlay);
 
     AMEDASOverlay.prototype.setFlags = function(map, flags) {
         this._flags = flags;
@@ -1631,7 +1620,7 @@ var volare = volare || {};
     function AltitudeGraph(flights, canvas) {
         Graph.call(this, flights, canvas);
     }
-    inherit(AltitudeGraph, Graph);
+    common.inherit(AltitudeGraph, Graph);
 
     AltitudeGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
         var self = this;
@@ -1704,7 +1693,7 @@ var volare = volare || {};
     function SpeedGraph(flights, canvas) {
         Graph.call(this, flights, canvas);
     }
-    inherit(SpeedGraph, Graph);
+    common.inherit(SpeedGraph, Graph);
 
     SpeedGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
         var self = this;

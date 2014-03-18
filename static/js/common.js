@@ -1,6 +1,6 @@
 var common = common || {};
 
-$(function() {
+(function() {
     _.mixin(_.string.exports());
 
     $.ajaxSetup({
@@ -29,6 +29,17 @@ $(function() {
         return $.ajaxJSON('DELETE', url, data, success);
     };
 
+    common.inherit = (function() {
+        var Proxy = function() {
+        };
+        return function(clazz, parent) {
+            Proxy.prototype = parent.prototype;
+            clazz.prototype = new Proxy();
+            clazz.super_ = parent.prototype;
+            clazz.prototype.constructor = clazz;
+        };
+    })();
+
     common.basename = function(name) {
         return name.replace(/\.[^.]*$/, '');
     };
@@ -46,4 +57,4 @@ $(function() {
     common.formatAltitude = function(altitude) {
         return _.numberFormat(altitude) + 'm';
     };
-});
+})();
