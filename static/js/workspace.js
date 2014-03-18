@@ -5,6 +5,7 @@ $(function() {
     var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
     var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
     var chart = new volare.Chart(flights, $('#chart'));
+    var optionsControl = new volare.OptionsControl(map, $('#options'));
     var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
     var showName = $('#show_name');
@@ -96,15 +97,6 @@ $(function() {
             addFlight(flight.id, flight.color);
         });
     });
-
-    function updateGradient() {
-        $('#gradient').prop('checked', map.isUseGradientColorRoute());
-    }
-    $('#gradient').on('click', function(event) {
-        map.setUseGradientColorRoute($(event.target).prop('checked'));
-    });
-    $(map).on('useGradientColorRoute_changed', updateGradient);
-    updateGradient();
 
     volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
 });

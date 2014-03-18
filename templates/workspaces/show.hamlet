@@ -31,9 +31,7 @@
 
   <div #speed .graph>
 
-  <div #options>
-    <label>
-      <input #gradient type=checkbox>Use Gradient
+  ^{options}
 
   ^{weather}
 

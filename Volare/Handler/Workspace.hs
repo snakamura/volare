@@ -106,7 +106,8 @@ getWorkspaceR workspaceId = do
         addStylesheet $ StaticR S.css_common_css
         addStylesheet $ StaticR S.css_volare_css
         addStylesheet $ StaticR S.css_workspace_css
-        let weather = $(widgetFile "elements/weather")
+        let options = $(widgetFile "elements/options")
+            weather = $(widgetFile "elements/weather")
         $(widgetFile "workspaces/show")
 
 

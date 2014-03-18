@@ -1869,6 +1869,18 @@ var volare = volare || {};
     };
 
 
+    function OptionsControl(map, options) {
+        function updateGradient() {
+            options.find('.gradient').prop('checked', map.isUseGradientColorRoute());
+        }
+        options.find('.gradient').on('click', function(event) {
+            map.setUseGradientColorRoute($(event.target).prop('checked'));
+        });
+        $(map).on('useGradientColorRoute_changed', updateGradient);
+        updateGradient();
+    }
+
+
     function WeatherControl(map, weather) {
         function makeItem(selector, flags) {
             return {
@@ -1930,6 +1942,7 @@ var volare = volare || {};
     volare.AltitudeGraph = AltitudeGraph;
     volare.SpeedGraph = SpeedGraph;
     volare.Chart = Chart;
+    volare.OptionsControl = OptionsControl;
     volare.WeatherControl = WeatherControl;
     volare.setupLayout = setupLayout;
 })();
