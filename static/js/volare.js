@@ -715,6 +715,8 @@ var volare = volare || {};
             flight.updateRoute(route);
             flight.__route = route;
         });
+
+        $(this).trigger('useGradientColorRoute_changed', this._weatherFlags);
     };
 
     Map.prototype._createRoute = function(flight) {

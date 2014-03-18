@@ -66,5 +66,14 @@ $(function() {
         });
     });
 
+    function updateGradient() {
+        $('#gradient').prop('checked', map.isUseGradientColorRoute());
+    }
+    $('#gradient').on('click', function(event) {
+        map.setUseGradientColorRoute($(event.target).prop('checked'));
+    });
+    $(map).on('useGradientColorRoute_changed', updateGradient);
+    updateGradient();
+
     volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
 });
