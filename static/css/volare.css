@@ -49,6 +49,7 @@ div#map div.weather.amedas div.cell {
 div#sidebar {
     width: 322px;
     float: right;
+    overflow: hidden;
 }
 
 div.graph {

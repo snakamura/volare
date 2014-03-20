@@ -1928,6 +1928,7 @@ var volare = volare || {};
             var mapPosition = map.position();
             var chartPosition = chart.position();
             map.height(chartPosition.top - mapPosition.top - 20);
+            sidebar.height(map.height() + 10);
         }
         $(flights).on('flight_added', layout);
         $(flights).on('flight_removed', layout);
