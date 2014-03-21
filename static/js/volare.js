@@ -682,6 +682,10 @@ var volare = volare || {};
         this._useGradientColorRoute = false;
 
         var self = this;
+        var visibleChangedListener = function(event) {
+            var flight = event.target;
+            flight.updateRoute(flight.__route, self._flights.getCurrentTime());
+        };
 
         $(this._flights).on('flight_added', function(event, flight) {
             self._map.fitBounds(self._flights.getBounds());
@@ -690,11 +694,10 @@ var volare = volare || {};
             flight.updateRoute(route);
             flight.__route = route;
 
-            $(flight).on('visible_changed', function() {
-                flight.updateRoute(flight.__route, self._flights.getCurrentTime());
-            });
+            $(flight).on('visible_changed', visibleChangedListener);
         });
         $(this._flights).on('flight_removed', function(event, flight) {
+            $(flight).off('visible_changed', visibleChangedListener);
             flight.__route.clear();
             flight.__route = null;
         });
@@ -1514,13 +1517,15 @@ var volare = volare || {};
         this._context.globalAlpha = 0.3;
         this._currentContext = currentCanvas[0].getContext('2d');
 
+        var visibleChangedListener = function() {
+            self._refresh();
+        };
         $(this._flights).on('flight_added', function(event, flight) {
             self._refresh();
-            $(flight).on('visible_changed', function() {
-                self._refresh();
-            });
+            $(flight).on('visible_changed', visibleChangedListener);
         });
         $(this._flights).on('flight_removed', function(event, flight) {
+            $(flight).off('visible_changed', visibleChangedListener);
             self._refresh();
         });
         $(this._flights).on('currenttime_changed', function(event, time, play) {
