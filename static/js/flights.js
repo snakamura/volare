@@ -21,8 +21,7 @@ $(function() {
         _.each(fs, _.bind(flights.addFlight, flights));
     });
 
-    $('#add_flight').on('change', function(event) {
-        var files = event.target.files;
+    function addFiles(files) {
         _.each(files, function(file) {
             var reader = new FileReader();
             $(reader).on('loadend', function(event) {
@@ -39,7 +38,27 @@ $(function() {
             });
             reader.readAsText(file);
         });
+    }
+
+    $('#add_flight').on('change', function(event) {
+        addFiles(event.target.files);
         return false;
+    });
+
+    var dropTarget = $('#flights');
+    dropTarget.on('dragenter', function(event) {
+        event.preventDefault();
+        event.originalEvent.dataTransfer.dropEffect = 'copy';
+    });
+    dropTarget.on('dragleave', function(event) {
+        event.preventDefault();
+    });
+    dropTarget.on('dragover', function(event) {
+        event.preventDefault();
+    });
+    dropTarget.on('drop', function(event) {
+        event.preventDefault();
+        addFiles(event.originalEvent.dataTransfer.files);
     });
 
 

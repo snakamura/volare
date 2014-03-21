@@ -15,7 +15,7 @@
       <span>Add Flight
     <input #add_flight type=file multiple>
 
-<table #flights .table .table-striped>
+<table #flights .table .table-striped dropzone=copy>
   <thead>
     <tr>
       <th>Name
