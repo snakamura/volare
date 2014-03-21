@@ -12,10 +12,21 @@ var volare = volare || {};
         this._maxAltitude = 0;
 
         this._currentTime = null;
+
+        var self = this;
+        this._visibleChangedListener = function() {
+            self._clearProperties();
+        };
     }
 
     Flights.prototype.getCount = function() {
         return this._flights.length;
+    };
+
+    Flights.prototype.getVisibleCount = function() {
+        return _.reduce(this._flights, function(count, flight) {
+            return count + (flight.isVisible() ? 1 : 0);
+        }, 0);
     };
 
     Flights.prototype.eachFlight = function(iterator, context) {
@@ -23,14 +34,21 @@ var volare = volare || {};
     };
 
     Flights.prototype.getPrimaryFlight = function() {
-        return this._flights.length > 0 ? this._flights[0] : null;
+        return _.find(this._flights, function(flight) {
+            return flight.isVisible();
+        }) || null;
     };
 
     Flights.prototype.getStartTime = function() {
         if (!this._start) {
             this._start = _.reduce(this._flights, function(time, flight) {
-                var start = flight.getStartTime();
-                return time && time < start ? time : start;
+                if (flight.isVisible()) {
+                    var start = flight.getStartTime();
+                    return time && time < start ? time : start;
+                }
+                else {
+                    return time;
+                }
             }, null);
         }
         return this._start;
@@ -39,8 +57,13 @@ var volare = volare || {};
     Flights.prototype.getEndTime = function() {
         if (!this._end) {
             this._end = _.reduce(this._flights, function(time, flight) {
-                var end = flight.getEndTime();
-                return time && time > end ? time : end;
+                if (flight.isVisible()) {
+                    var end = flight.getEndTime();
+                    return time && time > end ? time : end;
+                }
+                else {
+                    return time;
+                }
             }, null);
         }
         return this._end;
@@ -53,7 +76,10 @@ var volare = volare || {};
     Flights.prototype.getMaxAltitude = function() {
         if (this._maxAltitude === 0) {
             this._maxAltitude = _.reduce(this._flights, function(altitude, flight) {
-                return Math.max(altitude, flight.getMaxAltitude());
+                if (flight.isVisible())
+                    return Math.max(altitude, flight.getMaxAltitude());
+                else
+                    return altitude;
             }, 0) + 100;
         }
         return this._maxAltitude;
@@ -74,6 +100,7 @@ var volare = volare || {};
             return flight.getName();
         });
         this._flights.splice(n, 0, flight);
+        $(flight).on('visible_changed', this._visibleChangedListener);
         this._clearProperties();
         $(this).trigger('flight_added', [flight, n]);
     };
@@ -86,6 +113,7 @@ var volare = volare || {};
             return;
 
         this._flights = _.without(this._flights, flight);
+        $(flight).off('visible_changed', this._visibleChangedListener);
         this._clearProperties();
         $(this).trigger('flight_removed', flight);
     };
@@ -1523,7 +1551,7 @@ var volare = volare || {};
         this._context.clearRect(0, 0, this._width, this._height);
         this._currentContext.clearRect(0, 0, this._width, this._height);
 
-        if (this._flights.getCount() > 0) {
+        if (this._flights.getVisibleCount() > 0) {
             this._drawGrid();
             this._drawFlights(this._context, null, false, false);
             this._drawFlights(this._currentContext, null, false, false);
