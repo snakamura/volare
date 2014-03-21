@@ -22,8 +22,8 @@ div.file_selector input[type=file] {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100px;
-    height: 20px;
+    width: 126px;
+    height: 34px;
     opacity: 0;
     z-index: 2;
     cursor: pointer;
