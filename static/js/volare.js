@@ -688,7 +688,7 @@ var volare = volare || {};
     function Map(flights, map) {
         this._flights = flights;
         this._map = new google.maps.Map(map[0], {
-            mapTypeId: google.maps.MapTypeId.TERRAIN
+            mapTypeId: google.maps.MapTypeId.HYBRID
         });
         this._msmSurfaceOverlay = new MSMSurfaceOverlay(this._flights);
         this._msmBarometricOverlay = new MSMBarometricOverlay(this._flights);
