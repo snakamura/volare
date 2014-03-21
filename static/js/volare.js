@@ -10,6 +10,7 @@ var volare = volare || {};
         this._start = null;
         this._end = null;
         this._maxAltitude = 0;
+        this._minAltitude = 0;
 
         this._currentTime = null;
 
@@ -85,6 +86,19 @@ var volare = volare || {};
         return this._maxAltitude;
     };
 
+    Flights.prototype.getMinAltitude = function() {
+        if (this._minAltitude === 0) {
+            var minAltitude = _.reduce(this._flights, function(altitude, flight) {
+                if (flight.isVisible())
+                    return Math.min(altitude, flight.getMinAltitude());
+                else
+                    return altitude;
+            }, 10000);
+            this._minAltitude = Math.max(minAltitude - 100, 0);
+        }
+        return this._minAltitude;
+    };
+
     Flights.prototype.getBounds = function() {
         return _.reduce(this._flights, function(bounds, flight) {
             var b = flight.getBounds();
@@ -131,6 +145,7 @@ var volare = volare || {};
         this._start = null;
         this._end = null;
         this._maxAltitude = 0;
+        this._minAltitude = 0;
 
         $(this).trigger('properties_changed');
     };
@@ -701,6 +716,12 @@ var volare = volare || {};
             flight.__route.clear();
             flight.__route = null;
         });
+        $(this._flights).on('properties_changed', function() {
+            self._flights.eachFlight(function(flight) {
+                if (flight.__route)
+                    flight.updateRoute(flight.__route, self._flights.getCurrentTime());
+            });
+        });
         $(this._flights).on('currenttime_changed', function(event, time) {
             self._flights.eachFlight(function(flight) {
                 flight.updateRoute(flight.__route, time, true);
@@ -752,7 +773,7 @@ var volare = volare || {};
 
     Map.prototype._createRoute = function(flight) {
         if (this._useGradientColorRoute)
-            return new GradientColorRoute(this._map, flight.getMinAltitude(), flight.getMaxAltitude());
+            return new GradientColorRoute(this._map, this._flights);
         else
             return new SolidColorRoute(this._map, flight.getColor());
     };
@@ -833,12 +854,11 @@ var volare = volare || {};
     };
 
 
-    function GradientColorRoute(map, minAltitude, maxAltitude) {
+    function GradientColorRoute(map, flights) {
         Route.call(this);
 
         this._map = map;
-        this._minAltitude = minAltitude;
-        this._maxAltitude = maxAltitude;
+        this._flights = flights;
         this._polylines = [];
         this._currentPolylines = [];
     }
@@ -868,7 +888,9 @@ var volare = volare || {};
         });
 
         var self = this;
-        var step = (this._maxAltitude - this._minAltitude)/(GradientColorRoute.COLORS.length - 1);
+        var maxAltitude = this._flights.getMaxAltitude();
+        var minAltitude = this._flights.getMinAltitude();
+        var step = (maxAltitude - minAltitude)/(GradientColorRoute.COLORS.length - 1);
         var previousColorIndex = null;
         var previousPolyline = null;
         _.each(records, function(record) {
@@ -876,7 +898,7 @@ var volare = volare || {};
                 previousPolyline.getPath().push(new LatLng(record.latitude, record.longitude));
             }
 
-            var colorIndex = Math.round((record.altitude - self._minAltitude)/step);
+            var colorIndex = Math.round((record.altitude - minAltitude)/step);
             var polyline = previousPolyline;
             if (!previousPolyline || previousColorIndex !== colorIndex) {
                 polyline = new google.maps.Polyline({
