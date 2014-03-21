@@ -874,11 +874,11 @@ var volare = volare || {};
     };
 
     GradientColorRoute.prototype.setRecords = function(records) {
-        this._setRecords(this._polylines, 0.3, records);
+        this._polylines = this._setRecords(this._polylines, 0.3, records);
     };
 
     GradientColorRoute.prototype.setCurrentRecords = function(records) {
-        this._setRecords(this._currentPolylines, 1, records);
+        this._currentPolylines = this._setRecords(this._currentPolylines, 1, records);
     };
 
     GradientColorRoute.prototype._setRecords = function(polylines, opacity, records) {
@@ -912,6 +912,8 @@ var volare = volare || {};
             }
             polyline.getPath().push(new LatLng(record.latitude, record.longitude));
         });
+
+        return polylines;
     };
 
     GradientColorRoute.COLORS = [
