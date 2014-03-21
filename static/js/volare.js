@@ -1374,18 +1374,25 @@ var volare = volare || {};
                     if (!_.isNull(windAngle)) {
                         windImage[0].src = '/static/image/weather/wind/' + windIconIndex + '.png';
                         windImage.css('transform', 'rotate(' + (-windAngle) + 'deg)');
+                        windImage.css('visibility', self._flags & Map.AMEDAS_WIND ? 'visible' : 'hidden');
                     }
                     else {
                         windImage.css('display', 'none');
                     }
-                    windImage.css('visibility', self._flags & Map.AMEDAS_WIND ? 'visible' : 'hidden');
 
                     var temperatureDiv = elem.find('.temperature');
-                    temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.temperature, 1.0));
-                    temperatureDiv.text(Math.round(item.temperature*10)/10);
-                    temperatureDiv.css('visibility', self._flags & Map.AMEDAS_TEMPERATURE ? 'visible' : 'hidden');
+                    if (!_.isNull(item.temperature)) {
+                        temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.temperature, 1.0));
+                        temperatureDiv.text(Math.round(item.temperature*10)/10);
+                        temperatureDiv.css('visibility', self._flags & Map.AMEDAS_TEMPERATURE ? 'visible' : 'hidden');
+                    }
+                    else {
+                        temperatureDiv.css('display', 'none');
+                    }
 
-                    elem.css('background-color', self._flags & Map.AMEDAS_SUNSHINE ? AMEDASOverlay.colorForSunshine(item.sunshine) : 'rgba(255, 255, 255, 0)');
+                    if (!_.isNull(item.sunshine)) {
+                        elem.css('background-color', self._flags & Map.AMEDAS_SUNSHINE ? AMEDASOverlay.colorForSunshine(item.sunshine) : 'rgba(255, 255, 255, 0)');
+                    }
 
                     item.elem = elem;
                 }
