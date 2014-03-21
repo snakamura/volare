@@ -6,6 +6,7 @@ module Volare.Handler.Workspace (
     deleteWorkspaceR,
     getWorkspaceFlightsR,
     postWorkspaceFlightsR,
+    deleteWorkspaceFlightR,
     getWorkspaceCandidatesR
 ) where
 
@@ -171,6 +172,15 @@ postWorkspaceFlightsR workspaceId = do
         insertedFlightId <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
         mapM selectWorkspaceFlight insertedFlightId
     return $ JSON.toJSON $ catMaybes newWorkspaceFlights
+
+
+deleteWorkspaceFlightR :: M.WorkspaceId ->
+                          M.FlightId ->
+                          Handler JSON.Value
+deleteWorkspaceFlightR workspaceId flightId = do
+    runDB $ deleteWhere [M.WorkspaceFlightWorkspaceId ==. workspaceId,
+                         M.WorkspaceFlightFlightId ==. flightId]
+    return $ JSON.toJSON ()
 
 
 getWorkspaceCandidatesR :: M.WorkspaceId ->

@@ -26,11 +26,11 @@ h1 .action:first-child {
 }
 
 
-div#add_flight_modal ul {
+div.modal ul {
     list-style-type: none;
     padding-left: 0;
 }
 
-div#add_flight_modal label span {
+div.modal label span {
     padding: 0 0 0 0.5em;
 }

@@ -4,6 +4,7 @@
 /workspaces WorkspacesR GET POST
 /workspaces/#M.WorkspaceId WorkspaceR GET PUT DELETE
 /workspaces/#M.WorkspaceId/flights WorkspaceFlightsR GET POST
+/workspaces/#M.WorkspaceId/flights/#M.FlightId WorkspaceFlightR DELETE
 /workspaces/#M.WorkspaceId/candidates WorkspaceCandidatesR GET
 /msm/surface/#Int/#Int/#Int/#Int SurfaceR GET
 /msm/barometric/#Int/#Int/#Int/#Int BarometricR GET

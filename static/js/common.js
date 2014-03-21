@@ -25,8 +25,8 @@ var common = common || {};
         return $.ajaxJSON('PUT', url, data, success);
     };
 
-    $.deleteJSON = function(url, data, success) {
-        return $.ajaxJSON('DELETE', url, data, success);
+    $.deleteJSON = function(url, success) {
+        return $.ajaxJSON('DELETE', url, {}, success);
     };
 
     common.inherit = (function() {

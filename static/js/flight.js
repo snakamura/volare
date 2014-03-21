@@ -49,7 +49,7 @@ $(function() {
 
     $('#show_name span.delete').on('click', function(event) {
         if (confirm('Are you sure to delete this flight?')) {
-            $.deleteJSON('', {}, function() {
+            $.deleteJSON('', function() {
                 document.location.href = '/flights';
             });
         }

@@ -40,7 +40,7 @@ $(function() {
 
     $('#show_name span.delete').on('click', function(event) {
         if (confirm('Are you sure to delete this workspace?')) {
-            $.deleteJSON('', {}, function() {
+            $.deleteJSON('', function() {
                 document.location.href = '/workspaces';
             });
         }
@@ -84,6 +84,41 @@ $(function() {
             });
             modal.modal('hide');
         });
+    });
+
+    $('#remove_flight').on('click', function() {
+        var modal = $('#remove_flight_modal');
+        var body = modal.find('.modal-body');
+        body.text('');
+        var ul = $('<ul></ul>');
+        body.append(ul);
+        flights.eachFlight(function(flight) {
+            var e = $('<li><label><input type="checkbox" name="flights"><span></span></label></li>');
+            e.find('input').prop('value', flight.getId());
+            e.find('span').text(flight.getName());
+            ul.append(e);
+        });
+        modal.modal({
+            backdrop: 'static'
+        });
+    });
+    $('#remove_flight_modal .btn-primary').on('click', function() {
+        var modal = $('#remove_flight_modal');
+        var flightIds = _.map(modal.find('input:checked[type=checkbox]'), function(checkbox) {
+            return parseInt(checkbox.value, 10);
+        });
+        if (flightIds.length === 0) {
+            modal.modal('hide');
+            return;
+        }
+
+        _.each(flightIds, function(flightId) {
+            $.deleteJSON('/workspaces/' + workspaceId + '/flights/' + flightId, function() {
+                flights.removeFlight(flightId);
+            });
+        });
+
+        modal.modal('hide');
     });
 
     function addFlight(flightId, color) {

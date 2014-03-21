@@ -17,6 +17,7 @@
       <span .action .delete .glyphicon .glyphicon-trash>
     <span>
       <span #add_flight .action .glyphicon .glyphicon-plus>
+      <span #remove_flight .action .glyphicon .glyphicon-minus>
   <span #edit_name>
     <input type=text name=name value=#{M.workspaceName workspace}>
     <span>
@@ -46,3 +47,13 @@
       <div .modal-footer>
         <button type=button .btn .btn-default data-dismiss=modal>Cancel
         <button type=button .btn .btn-primary>Add
+
+<div #remove_flight_modal .modal .fade>
+  <div .modal-dialog>
+    <div .modal-content>
+      <div .modal-header>
+        <h4 .modal-title>Remove flights
+      <div .modal-body>
+      <div .modal-footer>
+        <button type=button .btn .btn-default data-dismiss=modal>Cancel
+        <button type=button .btn .btn-primary>Remove
