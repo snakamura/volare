@@ -9,6 +9,11 @@ module Volare.Handler.Flight (
 import qualified Codec.IGC as IGC
 import Control.Applicative ((<$>),
                             (<*>))
+import Control.Monad (filterM,
+                      when)
+import Control.Monad.State (evalState,
+                            get,
+                            put)
 import Data.Aeson ((.=),
                    (.:))
 import qualified Data.Aeson as JSON
@@ -190,12 +195,19 @@ addFlight name igc = do
                         pre record = IGC.time record < start - 30
                         end = IGC.time $ last body
                         post record = IGC.time record > end + 30
-                    in takeWhile (not . post) $ dropWhile pre records
+                    in flip evalState Nothing $ filterM valid $ takeWhile (not . post) $ dropWhile pre records
       dropWhileNotFlying records = map fst $ dropWhile (not . uncurry flying) $ zip records (drop 10 records)
       flying record next = let duration = abs $ IGC.time next - IGC.time record
                                dist = distance (IGC.position next) (IGC.position record)
                                speed = dist / realToFrac duration
                            in speed > 5 && speed < 10
+      valid record = do
+          previous <- get
+          let altitude = IGC.altitude $ IGC.position record
+              v = maybe True (\p -> abs (p - altitude) < 100) previous
+          when v $
+              put $ Just altitude
+          return v
 
 
 distance :: IGC.Position ->
