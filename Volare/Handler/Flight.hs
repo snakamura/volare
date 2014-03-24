@@ -202,11 +202,12 @@ addFlight name igc = do
                                speed = dist / realToFrac duration
                            in speed > 5 && speed < 10
       valid record = do
-          previous <- get
+          previousRecord <- get
           let altitude = IGC.altitude $ IGC.position record
-              v = maybe True (\p -> abs (p - altitude) < 100) previous
+              time = IGC.time record
+              v = maybe True (\p -> (abs (IGC.altitude (IGC.position p) - altitude)) / realToFrac (time - IGC.time p) < 100) previousRecord
           when v $
-              put $ Just altitude
+              put $ Just record
           return v
 
 
