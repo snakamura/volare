@@ -17,7 +17,9 @@ import Text.Julius (Javascript(..),
 import Text.Shakespeare.I18N (RenderMessage,
                               renderMessage)
 import Web.ClientSession (getKey)
-import Yesod.Core (Yesod(..),
+import Yesod.Core (HandlerSite,
+                   MonadHandler,
+                   Yesod(..),
                    clientSessionBackend,
                    clientSessionDateCacher,
                    renderRoute)
@@ -78,5 +80,6 @@ instance JSON.ToJSON a => ToJavascript a where
     toJavascript = Javascript . T.fromText . T.decodeUtf8 . B.concat . BL.toChunks . JSON.encode
 
 
-getConfig :: Handler Config
+getConfig :: (MonadHandler m, HandlerSite m ~ Volare) =>
+             m Config
 getConfig = (appExtra . volareConfig) <$> getYesod

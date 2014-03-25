@@ -2,13 +2,17 @@ module Volare.Handler.Utils (
     addJQuery,
     addJQueryUI,
     addUnderscore,
+    addGoogleMapsApi,
     addCommonLibraries
 ) where
 
+import Control.Applicative ((<$>))
+import Data.Monoid ((<>))
 import Yesod.Core.Widget (addScript,
                           addScriptRemote,
                           addStylesheetRemote)
 
+import qualified Volare.Config as Config
 import Volare.Foundation
 import qualified Volare.Static as S
 
@@ -34,6 +38,12 @@ addUnderscore :: Widget
 addUnderscore = do
     addScript $ StaticR S.js_underscore_min_js
     addScript $ StaticR S.js_underscore_string_min_js
+
+
+addGoogleMapsApi :: Widget
+addGoogleMapsApi = do
+    googleApiKey <- Config.googleApiKey <$> getConfig
+    addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
 
 
 addCommonLibraries :: Widget

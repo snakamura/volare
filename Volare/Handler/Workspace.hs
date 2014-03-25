@@ -51,15 +51,14 @@ import Yesod.Core.Handler (getRequest,
                            reqToken)
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Widget (addScript,
-                          addScriptRemote,
                           addStylesheet,
                           setTitle)
 import Yesod.Persist (get404,
                       runDB)
 
-import qualified Volare.Config as Config
 import Volare.Foundation
-import Volare.Handler.Utils (addCommonLibraries)
+import Volare.Handler.Utils (addCommonLibraries,
+                             addGoogleMapsApi)
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
@@ -97,11 +96,10 @@ getWorkspaceR :: M.WorkspaceId ->
 getWorkspaceR workspaceId = do
     workspace <- runDB $ get404 workspaceId
     token <- reqToken <$> getRequest
-    googleApiKey <- Config.googleApiKey <$> getConfig
     defaultLayout $ do
         setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
         addCommonLibraries
-        addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
+        addGoogleMapsApi
         addScript $ StaticR S.js_common_js
         addScript $ StaticR S.js_volare_js
         addScript $ StaticR S.js_workspace_js

@@ -49,15 +49,14 @@ import Yesod.Core.Handler (invalidArgs,
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget (addScript,
-                          addScriptRemote,
                           addStylesheet,
                           setTitle)
 import Yesod.Persist (get404,
                       runDB)
 
-import qualified Volare.Config as Config
 import Volare.Foundation
-import Volare.Handler.Utils (addCommonLibraries)
+import Volare.Handler.Utils (addCommonLibraries,
+                             addGoogleMapsApi)
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
@@ -121,12 +120,11 @@ getFlightR :: M.FlightId ->
 getFlightR flightId = do
     flight <- runDB $ get404 flightId
     records <- runDB $ selectList [M.RecordFlightId ==. flightId] [Asc M.RecordIndex]
-    googleApiKey <- Config.googleApiKey <$> getConfig
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle $ toHtml $ M.flightName flight <> " - Flight - Volare"
             addCommonLibraries
-            addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
+            addGoogleMapsApi
             addScript $ StaticR S.js_common_js
             addScript $ StaticR S.js_volare_js
             addScript $ StaticR S.js_flight_js
