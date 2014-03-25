@@ -119,7 +119,6 @@ getFlightR :: M.FlightId ->
               Handler TypedContent
 getFlightR flightId = do
     flight <- runDB $ get404 flightId
-    records <- runDB $ selectList [M.RecordFlightId ==. flightId] [Asc M.RecordIndex]
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle $ toHtml $ M.flightName flight <> " - Flight - Volare"
@@ -134,7 +133,9 @@ getFlightR flightId = do
             let options = $(widgetFile "elements/options")
                 weather = $(widgetFile "elements/weather")
             $(widgetFile "flights/show")
-        provideRep $ return $ JSON.toJSON $ Flight flightId flight records
+        provideRep $ do
+            records <- runDB $ selectList [M.RecordFlightId ==. flightId] [Asc M.RecordIndex]
+            return $ JSON.toJSON $ Flight flightId flight records
 
 
 data EditFlight = EditFlight T.Text
