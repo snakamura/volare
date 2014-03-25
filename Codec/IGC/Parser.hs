@@ -7,8 +7,7 @@ import Control.Applicative ((<*>),
                             (<*),
                             (<$>),
                             (<|>),
-                            many,
-                            pure)
+                            many)
 import Data.Maybe (catMaybes)
 import Data.Time (Day,
                   DiffTime,
@@ -18,13 +17,15 @@ import Data.Attoparsec (Parser,
                         inClass,
                         option,
                         satisfy,
-                        skipWhile,
-                        string,
-                        word8)
+                        string)
 
 import Codec.IGC.Types (IGC(IGC),
                         Position(Position),
                         Record(Record))
+import Codec.Utils (char,
+                    digits,
+                    line,
+                    newline)
 
 
 igc :: Parser IGC
@@ -100,39 +101,6 @@ altitude = (char 'A' <|> char 'V') *> pressure *> gnss
 
 other :: Parser (Maybe Record)
 other = const Nothing <$> (satisfy (inClass "CDEFHIJLMNOPQR") *> line)
-
-
-line :: Parser ()
-line = skipWhile (\b -> b /= 0x0d && b /= 0x0a) *> newline
-
-
-newline :: Parser ()
-newline = const (const ()) <$> (option 0x0d $ word8 0x0d) <*> word8 0x0a
-
-
-char :: Char ->
-        Parser Char
-char c = const c <$> word8 (fromIntegral (fromEnum c))
-
-
-digits :: Int ->
-          Parser Int
-digits n = digits' n 0
-
-
-digits' :: Int ->
-           Int ->
-           Parser Int
-digits' 0 r = pure r
-digits' n r = do
-  m <- digit
-  digits' (n - 1) (r * 10 + m)
-
-
-digit :: Parser Int
-digit = toInt <$> satisfy (inClass "0-9")
-    where
-      toInt n = fromEnum n - fromEnum '0'
 
 
 toDegree :: Int ->

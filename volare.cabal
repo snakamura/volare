@@ -19,9 +19,13 @@ Flag library-only
 library
     exposed-modules: Volare.Application
                      Volare.Config
-    other-modules: Codec.IGC
+    other-modules: Codec.GeoWpt
+                   Codec.GeoWpt.Parser
+                   Codec.GeoWpt.Types
+                   Codec.IGC
                    Codec.IGC.Parser
                    Codec.IGC.Types
+                   Codec.Utils
                    Service.AMEDAS
                    Service.AMEDAS.Stations
                    Service.AMEDAS.Type
