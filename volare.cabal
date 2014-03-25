@@ -36,6 +36,7 @@ library
                    Volare.Handler.MSM
                    Volare.Handler.Root
                    Volare.Handler.Utils
+                   Volare.Handler.Waypoint
                    Volare.Handler.Workspace
                    Volare.Settings
                    Volare.Static

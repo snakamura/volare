@@ -8,3 +8,5 @@
           <a href=@{FlightsR}>Flights
         <li>
           <a href=@{WorkspacesR}>Workspaces
+        <li>
+          <a href=@{WaypointsR}>Waypoints

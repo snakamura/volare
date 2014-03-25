@@ -28,6 +28,7 @@ import Volare.Handler.AMEDAS
 import Volare.Handler.Flight
 import Volare.Handler.MSM
 import Volare.Handler.Root
+import Volare.Handler.Waypoint
 import Volare.Handler.Workspace
 import Volare.Model (migrateAll)
 import Volare.Static (staticSite)

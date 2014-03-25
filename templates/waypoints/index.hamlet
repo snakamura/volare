@@ -6,17 +6,23 @@
       <ul .nav .navbar-nav>
         <li>
           <a href=@{FlightsR}>Flights
-        <li .active>
-          <a href=@{WorkspacesR}>Workspaces
         <li>
+          <a href=@{WorkspacesR}>Workspaces
+        <li .active>
           <a href=@{WaypointsR}>Waypoints
+
+<div .container-fluid .actionbar>
+  <div .file_selector>
+    <div .btn .btn-default>
+      <span>Add Waypoints
+    <input #add_waypoint type=file multiple>
 
 <table .table .table-striped>
   <thead>
     <tr>
       <th>Name
   <tbody>
-    $forall Entity workspaceId workspace <- workspaces
+    $forall Entity waypointId waypoint <- waypoints
       <tr>
         <td>
-          <a href=@{WorkspaceR workspaceId}>#{M.workspaceName workspace}
+          <a href=@{WaypointR waypointId}>#{M.waypointName waypoint}

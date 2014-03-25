@@ -8,6 +8,8 @@
           <a href=@{FlightsR}>Flights
         <li .active>
           <a href=@{WorkspacesR}>Workspaces
+        <li>
+          <a href=@{WaypointsR}>Waypoints
 
 <h1>
   <span #show_name>
