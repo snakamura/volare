@@ -40,6 +40,7 @@ import Database.Persist (Entity,
                          update,
                          selectFirst,
                          selectList)
+import Text.Blaze.Html (toHtml)
 import Text.Printf (printf)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler (invalidArgs,
@@ -123,7 +124,7 @@ getFlightR flightId = do
     googleApiKey <- Config.googleApiKey <$> getConfig
     selectRep $ do
         provideRep $ defaultLayout $ do
-            setTitle "Flight - Volare"
+            setTitle $ toHtml $ M.flightName flight <> " - Flight - Volare"
             addCommonLibraries
             addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
             addScript $ StaticR S.js_common_js

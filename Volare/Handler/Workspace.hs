@@ -44,7 +44,8 @@ import Database.Persist (Entity(Entity),
                          selectList,
                          update)
 import Prelude hiding (mapM)
-import Text.Blaze.Html (Html)
+import Text.Blaze.Html (Html,
+                        toHtml)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler (getRequest,
                            reqToken)
@@ -98,7 +99,7 @@ getWorkspaceR workspaceId = do
     token <- reqToken <$> getRequest
     googleApiKey <- Config.googleApiKey <$> getConfig
     defaultLayout $ do
-        setTitle "Workspace - Volare"
+        setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
         addCommonLibraries
         addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
         addScript $ StaticR S.js_common_js
