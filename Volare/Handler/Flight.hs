@@ -192,9 +192,9 @@ addFlight name igc = do
           case reverse $ dropWhileNotFlying $ reverse $ dropWhileNotFlying records of
             [] -> records
             body -> let start = IGC.time $ head body
-                        pre record = IGC.time record < start - 30
+                        pre record = IGC.time record < start - 60
                         end = IGC.time $ last body
-                        post record = IGC.time record > end + 30
+                        post record = IGC.time record > end + 60
                     in flip evalState Nothing $ filterM valid $ takeWhile (not . post) $ dropWhile pre records
       dropWhileNotFlying records = map fst $ dropWhile (not . uncurry flying) $ zip records (drop 10 records)
       flying record next = let duration = abs $ IGC.time next - IGC.time record
