@@ -28,8 +28,11 @@ import Database.Persist (Entity(Entity),
 import Text.Blaze.Html (Html,
                         toHtml)
 import Yesod.Core (defaultLayout)
-import Yesod.Core.Handler (invalidArgs)
+import Yesod.Core.Handler (invalidArgs,
+                           provideRep,
+                           selectRep)
 import Yesod.Core.Json (requireJsonBody)
+import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget (addScript,
                           addStylesheet,
                           setTitle)
@@ -43,16 +46,17 @@ import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
 
 
-getWaypointsR :: Handler Html
+getWaypointsR :: Handler TypedContent
 getWaypointsR = do
-    waypoints <- runDB $ selectList [] []
-    defaultLayout $ do
-        setTitle "Waypoints - Volare"
-        addCommonLibraries
-        addScript $ StaticR S.js_common_js
-        addScript $ StaticR S.js_waypoints_js
-        addStylesheet $ StaticR S.css_common_css
-        $(widgetFile "waypoints/index")
+    selectRep $ do
+        provideRep $ defaultLayout $ do
+            setTitle "Waypoints - Volare"
+            addCommonLibraries
+            addScript $ StaticR S.js_common_js
+            addScript $ StaticR S.js_waypoints_js
+            addStylesheet $ StaticR S.css_common_css
+            $(widgetFile "waypoints/index")
+        provideRep $ runDB $ JSON.toJSON <$> selectList [] [Asc M.WaypointName]
 
 
 data NewWaypoint = NewWaypoint T.Text B.ByteString

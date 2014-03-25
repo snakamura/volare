@@ -22,7 +22,3 @@
     <tr>
       <th>Name
   <tbody>
-    $forall Entity waypointId waypoint <- waypoints
-      <tr>
-        <td>
-          <a href=@{WaypointR waypointId}>#{M.waypointName waypoint}
