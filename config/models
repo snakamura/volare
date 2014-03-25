@@ -26,3 +26,14 @@ WorkspaceFlight json
   color T.Text
   UniqueWorkspaceFlight workspaceId flightId
   deriving Show
+Waypoint json
+  name T.Text
+  deriving Show
+WaypointItem json
+  waypointId WaypointId
+  name T.Text
+  latitude Double
+  longitude Double
+  altitude Double
+  description T.Text
+  deriving Show
