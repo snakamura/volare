@@ -20,18 +20,21 @@ import Database.Persist (Entity(Entity),
                          PersistEntityBackend,
                          PersistMonadBackend,
                          PersistStore,
+                         SelectOpt(Asc),
                          (==.),
                          insert,
                          selectFirst,
                          selectList)
-import Text.Blaze.Html (Html)
+import Text.Blaze.Html (Html,
+                        toHtml)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler (invalidArgs)
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Widget (addScript,
                           addStylesheet,
                           setTitle)
-import Yesod.Persist (runDB)
+import Yesod.Persist (get404,
+                      runDB)
 
 import Volare.Foundation
 import Volare.Handler.Utils (addCommonLibraries)
@@ -74,7 +77,15 @@ postWaypointsR = do
 
 getWaypointR :: M.WaypointId ->
                 Handler Html
-getWaypointR = undefined
+getWaypointR waypointId = do
+    waypoint <- runDB $ get404 waypointId
+    items <- runDB $ selectList [M.WaypointItemWaypointId ==. waypointId] [Asc M.WaypointItemName]
+    defaultLayout $ do
+        setTitle $ toHtml $ M.waypointName waypoint `T.append` " - Waypoints - Volare"
+        addCommonLibraries
+        addScript $ StaticR S.js_common_js
+        addStylesheet $ StaticR S.css_common_css
+        $(widgetFile "waypoints/show")
 
 
 deleteWaypointR :: M.WaypointId ->

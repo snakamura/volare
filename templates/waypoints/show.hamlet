@@ -1,0 +1,29 @@
+<nav .navbar .navbar-inverse .navbar-fixed-top role=navigation>
+  <div .container-fluid>
+    <div .navbar-header>
+      <a .navbar-brand href=@{RootR}>Volare
+    <div>
+      <ul .nav .navbar-nav>
+        <li>
+          <a href=@{FlightsR}>Flights
+        <li>
+          <a href=@{WorkspacesR}>Workspaces
+        <li .active>
+          <a href=@{WaypointsR}>Waypoints
+
+<table .table .table-striped>
+  <thead>
+    <tr>
+      <th>Name
+      <th>Latitude
+      <th>Longitude
+      <th>Altitude
+      <th>Description
+  <tbody>
+    $forall Entity _ item <- items
+      <tr>
+        <td>#{M.waypointItemName item}
+        <td>#{M.waypointItemLatitude item}
+        <td>#{M.waypointItemLongitude item}
+        <td>#{M.waypointItemAltitude item}
+        <td>#{M.waypointItemDescription item}
