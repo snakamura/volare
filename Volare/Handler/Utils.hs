@@ -44,6 +44,7 @@ addGoogleMapsApi :: Widget
 addGoogleMapsApi = do
     googleApiKey <- Config.googleApiKey <$> getConfig
     addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
+    addScript $ StaticR S.js_markerwithlabel_js
 
 
 addCommonLibraries :: Widget

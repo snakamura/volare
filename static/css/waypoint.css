@@ -1,0 +1,35 @@
+body {
+    overflow: hidden;
+}
+
+h1 {
+    margin: 10px;
+}
+
+h1 .action {
+    font-size: 15px;
+    font-weight: normal;
+    cursor: pointer;
+    margin: 2px;
+}
+
+h1 .action:first-child {
+    margin-left: 10px;
+}
+
+#edit_name {
+    display: none;
+}
+
+#edit_name input {
+    font-size: 100%;
+}
+
+.label {
+    width: auto;
+    height: 'auto';
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 5px;
+    font-size: 120%;
+}

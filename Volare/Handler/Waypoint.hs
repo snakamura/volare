@@ -2,31 +2,36 @@ module Volare.Handler.Waypoint (
     getWaypointsR,
     postWaypointsR,
     getWaypointR,
+    putWaypointR,
     deleteWaypointR
 ) where
 
 import qualified Codec.GeoWpt as GeoWpt
 import Control.Applicative ((<$>),
                             (<*>))
-import Data.Aeson ((.:))
+import Data.Aeson ((.=),
+                   (.:))
 import qualified Data.Aeson as JSON
 import Data.Attoparsec (parseOnly)
 import qualified Data.ByteString as B
 import Data.Foldable (forM_)
-import Data.Monoid (mempty)
+import Data.Monoid ((<>),
+                    mempty)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
-import Database.Persist (Entity(Entity),
+import Database.Persist (Entity,
                          PersistEntityBackend,
                          PersistMonadBackend,
                          PersistStore,
                          SelectOpt(Asc),
+                         (=.),
                          (==.),
+                         deleteCascade,
                          insert,
                          selectFirst,
-                         selectList)
-import Text.Blaze.Html (Html,
-                        toHtml)
+                         selectList,
+                         update)
+import Text.Blaze.Html (toHtml)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler (invalidArgs,
                            provideRep,
@@ -40,7 +45,8 @@ import Yesod.Persist (get404,
                       runDB)
 
 import Volare.Foundation
-import Volare.Handler.Utils (addCommonLibraries)
+import Volare.Handler.Utils (addCommonLibraries,
+                             addGoogleMapsApi)
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
@@ -79,22 +85,58 @@ postWaypointsR = do
           return $ JSON.toJSON waypoint
 
 
+data Waypoint = Waypoint M.WaypointId M.Waypoint [Entity M.WaypointItem]
+
+instance JSON.ToJSON Waypoint where
+    toJSON (Waypoint waypointId waypoint items) =
+        JSON.object [
+            "id" .= waypointId,
+            "name" .= M.waypointName waypoint,
+            "items" .= items
+          ]
+
+
 getWaypointR :: M.WaypointId ->
-                Handler Html
+                Handler TypedContent
 getWaypointR waypointId = do
     waypoint <- runDB $ get404 waypointId
-    items <- runDB $ selectList [M.WaypointItemWaypointId ==. waypointId] [Asc M.WaypointItemName]
-    defaultLayout $ do
-        setTitle $ toHtml $ M.waypointName waypoint `T.append` " - Waypoints - Volare"
-        addCommonLibraries
-        addScript $ StaticR S.js_common_js
-        addStylesheet $ StaticR S.css_common_css
-        $(widgetFile "waypoints/show")
+    selectRep $ do
+        provideRep $ defaultLayout $ do
+            setTitle $ toHtml $ M.waypointName waypoint <> " - Waypoints - Volare"
+            addCommonLibraries
+            addGoogleMapsApi
+            addScript $ StaticR S.js_common_js
+            addScript $ StaticR S.js_waypoint_js
+            addStylesheet $ StaticR S.css_common_css
+            addStylesheet $ StaticR S.css_waypoint_css
+            $(widgetFile "waypoints/show")
+        provideRep $ do
+            items <- runDB $ selectList [M.WaypointItemWaypointId ==. waypointId] [Asc M.WaypointItemName]
+            return $ JSON.toJSON $ Waypoint waypointId waypoint items
+
+
+data EditWaypoint = EditWaypoint T.Text
+
+instance JSON.FromJSON EditWaypoint where
+    parseJSON (JSON.Object o) = EditWaypoint <$> o .: "name"
+    parseJSON _ = mempty
+
+
+putWaypointR :: M.WaypointId ->
+                Handler JSON.Value
+putWaypointR waypointId = do
+    EditWaypoint name <- requireJsonBody
+    waypoint <- runDB $ do
+        update waypointId [M.WaypointName =. name]
+        selectFirst [M.WaypointId ==. waypointId] []
+    return $ JSON.toJSON waypoint
 
 
 deleteWaypointR :: M.WaypointId ->
                    Handler JSON.Value
-deleteWaypointR = undefined
+deleteWaypointR waypointId = do
+    runDB $ deleteCascade waypointId
+    return $ JSON.toJSON ()
 
 
 addWaypoint :: (PersistStore m, PersistMonadBackend m ~ PersistEntityBackend M.Waypoint) =>

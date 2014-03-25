@@ -11,19 +11,17 @@
         <li .active>
           <a href=@{WaypointsR}>Waypoints
 
-<table .table .table-striped>
-  <thead>
-    <tr>
-      <th>Name
-      <th>Latitude
-      <th>Longitude
-      <th>Altitude
-      <th>Description
-  <tbody>
-    $forall Entity _ item <- items
-      <tr>
-        <td>#{M.waypointItemName item}
-        <td>#{M.waypointItemLatitude item}
-        <td>#{M.waypointItemLongitude item}
-        <td>#{M.waypointItemAltitude item}
-        <td>#{M.waypointItemDescription item}
+<h1>
+  <span #show_name>
+    <span #name>#{M.waypointName waypoint}
+    <span>
+      <span .action .edit .glyphicon .glyphicon-edit>
+      <span .action .delete .glyphicon .glyphicon-trash>
+  <span #edit_name>
+    <input type=text name=name value=#{M.waypointName waypoint}>
+    <span>
+      <span .action .save .glyphicon .glyphicon-ok>
+
+<div #map>
+
+<div #chart>
