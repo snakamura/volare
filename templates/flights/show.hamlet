@@ -41,17 +41,10 @@
       <td #max_altitude>
 
   <div #altitude .graph>
-
   <div #speed .graph>
 
   ^{options}
-
-  <div #waypoint>
-    <label>
-      Waypoints:
-      <select>
-        <option value=0>(None)
-
+  ^{waypoint}
   ^{weather}
 
 <div #chart>
