@@ -46,6 +46,12 @@
 
   ^{options}
 
+  <div #waypoint>
+    <label>
+      Waypoints:
+      <select>
+        <option value=0>(None)
+
   ^{weather}
 
 <div #chart>

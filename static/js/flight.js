@@ -7,6 +7,7 @@ $(function() {
     var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
     var chart = new volare.Chart(flights, $('#chart'));
     var optionsControl = new volare.OptionsControl(map, $('#options'));
+    var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
     var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
     $.getJSON('', function(flight) {

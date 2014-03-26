@@ -695,6 +695,7 @@ var volare = volare || {};
         this._amedasOverlay = new AMEDASOverlay(this._flights);
         this._weatherFlags = 0;
         this._useGradientColorRoute = false;
+        this._waypointMakers = [];
 
         var self = this;
         var visibleChangedListener = function(event) {
@@ -769,6 +770,34 @@ var volare = volare || {};
         });
 
         $(this).trigger('useGradientColorRoute_changed', this._weatherFlags);
+    };
+
+    Map.prototype.setWaypoint = function(waypoint) {
+        _.each(this._waypointMakers, function(marker) {
+            marker.setMap(null);
+        });
+
+        var markers = [];
+        if (waypoint) {
+            var self = this;
+            _.each(waypoint.items, function(item) {
+                var position = new LatLng(item.latitude, item.longitude);
+                var label = item.name;
+                if (item.name !== item.description) {
+                    label += ' (' + item.description + ')';
+                }
+                var marker = new MarkerWithLabel({
+                    map: self._map,
+                    position: position,
+                    title: item.name,
+                    labelContent: label,
+                    labelAnchor: new google.maps.Point(-15, 35),
+                    labelClass: 'label'
+                });
+                markers.push(marker);
+            });
+        }
+        this._waypointMakers = markers;
     };
 
     Map.prototype._createRoute = function(flight) {
@@ -1945,6 +1974,30 @@ var volare = volare || {};
     }
 
 
+    function WaypointControl(map, waypoint) {
+        var select = waypoint.find('select');
+        select.on('change', function(event) {
+            var waypointId = select.val();
+            if (waypointId !== '0') {
+                $.getJSON('/waypoints/' + waypointId, function(w) {
+                    map.setWaypoint(w);
+                });
+            }
+            else {
+                map.setWaypoint(null);
+            }
+        });
+        $.getJSON('/waypoints', function(waypoints) {
+            _.each(waypoints, function(waypoint) {
+                var option = $('<option>');
+                option.attr('value', waypoint.id);
+                option.text(waypoint.name);
+                select.append(option);
+            });
+        });
+    }
+
+
     function WeatherControl(map, weather) {
         function makeItem(selector, flags) {
             return {
@@ -2008,6 +2061,7 @@ var volare = volare || {};
     volare.SpeedGraph = SpeedGraph;
     volare.Chart = Chart;
     volare.OptionsControl = OptionsControl;
+    volare.WaypointControl = WaypointControl;
     volare.WeatherControl = WeatherControl;
     volare.setupLayout = setupLayout;
 })();

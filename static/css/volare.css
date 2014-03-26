@@ -46,6 +46,15 @@ div#map div.weather.amedas div.cell {
     padding: 3px;
 }
 
+div#map div.label {
+    width: auto;
+    height: 'auto';
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 5px;
+    font-size: 120%;
+}
+
 div#sidebar {
     width: 322px;
     float: right;
@@ -85,6 +94,15 @@ div#options li {
 
 div#options input {
     margin: 0 3px 0 0;
+}
+
+div#waypoint {
+    width: 302px;
+    margin: 10px;
+}
+
+div#waypoint select {
+    margin: 0 0 0 5px;
 }
 
 div#weather {
