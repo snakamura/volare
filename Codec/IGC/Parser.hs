@@ -93,10 +93,13 @@ longitude = toDegree <$> digits 3 <*> digits 5 <*> (char 'W' <|> char 'E')
 
 
 altitude :: Parser Float
-altitude = (char 'A' <|> char 'V') *> pressure *> gnss
+altitude = ((fromIntegral .) . select) <$> ((char 'A' <|> char 'V') *> pressure) <*> gnss
     where
       pressure = digits 5 <|> (char '-' *> (negate <$> digits 4))
-      gnss = fromIntegral <$> digits 5
+      gnss = digits 5
+      select :: Int -> Int -> Int
+      select p 0 = p
+      select _ g = g
 
 
 other :: Parser (Maybe Record)
