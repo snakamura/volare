@@ -7,7 +7,7 @@ maintainer: snak
 category: Web
 stability: Experimental
 cabal-version: >= 1.8
-build-type: Simple
+build-type: Custom
 homepage: http://github.com/snakamura/volare
 
 Flag dev
@@ -119,7 +119,7 @@ library
     includes: msm.h
     extra-libraries: c++, netcdf, msm
     include-dirs: msm
-    extra-lib-dirs: /usr/lib, /Users/snakamura/volare/msm
+    extra-lib-dirs: /usr/lib
 
 executable volare
     if flag(library-only)
