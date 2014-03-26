@@ -31,11 +31,10 @@
 
 <div #sidebar>
   <div #altitude .graph>
-
   <div #speed .graph>
 
   ^{options}
-
+  ^{waypoint}
   ^{weather}
 
 <div #chart>

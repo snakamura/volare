@@ -107,6 +107,7 @@ getWorkspaceR workspaceId = do
         addStylesheet $ StaticR S.css_volare_css
         addStylesheet $ StaticR S.css_workspace_css
         let options = $(widgetFile "elements/options")
+            waypoint = $(widgetFile "elements/waypoint")
             weather = $(widgetFile "elements/weather")
         $(widgetFile "workspaces/show")
 
