@@ -6,7 +6,7 @@ author: snak
 maintainer: snak
 category: Web
 stability: Experimental
-cabal-version: >= 1.18
+cabal-version: >= 1.16
 build-type: Custom
 homepage: http://github.com/snakamura/volare
 
