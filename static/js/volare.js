@@ -400,7 +400,7 @@ var volare = volare || {};
         return (endRecord.altitude - startRecord.altitude)/((endRecord.time.getTime() - startRecord.time.getTime())/1000);
     };
 
-    Flight.prototype.updateRoute = function(route, currentTime, currentOnly) {
+    Flight.prototype.updateTrack = function(track, currentTime, currentOnly) {
         if (this._visible) {
             var records = this._records;
             var currentRecords = records;
@@ -411,13 +411,13 @@ var volare = volare || {};
             }
 
             if (!currentOnly)
-                route.setRecords(records);
-            route.setCurrentRecords(currentRecords);
+                track.setRecords(records);
+            track.setCurrentRecords(currentRecords);
         }
         else {
             if (!currentOnly)
-                route.setRecords([]);
-            route.setCurrentRecords([]);
+                track.setRecords([]);
+            track.setCurrentRecords([]);
         }
     };
 
@@ -694,38 +694,38 @@ var volare = volare || {};
         this._msmBarometricOverlay = new MSMBarometricOverlay(this._flights);
         this._amedasOverlay = new AMEDASOverlay(this._flights);
         this._weatherFlags = 0;
-        this._useGradientColorRoute = false;
+        this._useGradientColorTrack = false;
         this._waypointMakers = [];
 
         var self = this;
         var visibleChangedListener = function(event) {
             var flight = event.target;
-            flight.updateRoute(flight.__route, self._flights.getCurrentTime());
+            flight.updateTrack(flight.__track, self._flights.getCurrentTime());
         };
 
         $(this._flights).on('flight_added', function(event, flight) {
             self._map.fitBounds(self._flights.getBounds());
 
-            var route = self._createRoute(flight);
-            flight.updateRoute(route);
-            flight.__route = route;
+            var track = self._createTrack(flight);
+            flight.updateTrack(track);
+            flight.__track = track;
 
             $(flight).on('visible_changed', visibleChangedListener);
         });
         $(this._flights).on('flight_removed', function(event, flight) {
             $(flight).off('visible_changed', visibleChangedListener);
-            flight.__route.clear();
-            flight.__route = null;
+            flight.__track.clear();
+            flight.__track = null;
         });
         $(this._flights).on('properties_changed', function() {
             self._flights.eachFlight(function(flight) {
-                if (flight.__route)
-                    flight.updateRoute(flight.__route, self._flights.getCurrentTime());
+                if (flight.__track)
+                    flight.updateTrack(flight.__track, self._flights.getCurrentTime());
             });
         });
         $(this._flights).on('currenttime_changed', function(event, time) {
             self._flights.eachFlight(function(flight) {
-                flight.updateRoute(flight.__route, time, true);
+                flight.updateTrack(flight.__track, time, true);
             });
 
             var primaryFlight = self._flights.getPrimaryFlight();
@@ -753,23 +753,23 @@ var volare = volare || {};
         $(this).trigger('weatherFlags_changed', this._weatherFlags);
     };
 
-    Map.prototype.isUseGradientColorRoute = function() {
-        return this._useGradientColorRoute;
+    Map.prototype.isUseGradientColorTrack = function() {
+        return this._useGradientColorTrack;
     };
 
-    Map.prototype.setUseGradientColorRoute = function(useGradientColorRoute) {
-        this._useGradientColorRoute = useGradientColorRoute;
+    Map.prototype.setUseGradientColorTrack = function(useGradientColorTrack) {
+        this._useGradientColorTrack = useGradientColorTrack;
 
         var self = this;
         this._flights.eachFlight(function(flight) {
-            flight.__route.clear();
+            flight.__track.clear();
 
-            var route = self._createRoute(flight);
-            flight.updateRoute(route);
-            flight.__route = route;
+            var track = self._createTrack(flight);
+            flight.updateTrack(track);
+            flight.__track = track;
         });
 
-        $(this).trigger('useGradientColorRoute_changed', this._weatherFlags);
+        $(this).trigger('useGradientColorTrack_changed', this._weatherFlags);
     };
 
     Map.prototype.setWaypoint = function(waypoint) {
@@ -800,11 +800,11 @@ var volare = volare || {};
         this._waypointMakers = markers;
     };
 
-    Map.prototype._createRoute = function(flight) {
-        if (this._useGradientColorRoute)
-            return new GradientColorRoute(this._map, this._flights);
+    Map.prototype._createTrack = function(flight) {
+        if (this._useGradientColorTrack)
+            return new GradientColorTrack(this._map, this._flights);
         else
-            return new SolidColorRoute(this._map, flight.getColor());
+            return new SolidColorTrack(this._map, flight.getColor());
     };
 
     Map.MSM_SURFACE_WIND = 0x01;
@@ -831,24 +831,24 @@ var volare = volare || {};
     Map.AMEDAS = Map.AMEDAS_WIND | Map.AMEDAS_TEMPERATURE | Map.AMEDAS_SUNSHINE;
 
 
-    function Route() {
+    function Track() {
     }
 
-    Route.prototype.clear = function() {
+    Track.prototype.clear = function() {
         throw "This method must be overridden.";
     };
 
-    Route.prototype.setRecords = function(records) {
+    Track.prototype.setRecords = function(records) {
         throw "This method must be overridden.";
     };
 
-    Route.prototype.setCurrentRecords = function(records) {
+    Track.prototype.setCurrentRecords = function(records) {
         throw "This method must be overridden.";
     };
 
 
-    function SolidColorRoute(map, color) {
-        Route.call(this);
+    function SolidColorTrack(map, color) {
+        Track.call(this);
 
         this._polyline = new google.maps.Polyline({
             map: map,
@@ -860,22 +860,22 @@ var volare = volare || {};
             strokeColor: color
         });
     }
-    common.inherit(SolidColorRoute, Route);
+    common.inherit(SolidColorTrack, Track);
 
-    SolidColorRoute.prototype.clear = function() {
+    SolidColorTrack.prototype.clear = function() {
         this._polyline.setMap(null);
         this._currentPolyline.setMap(null);
     };
 
-    SolidColorRoute.prototype.setRecords = function(records) {
+    SolidColorTrack.prototype.setRecords = function(records) {
         this._setRecords(this._polyline.getPath(), records);
     };
 
-    SolidColorRoute.prototype.setCurrentRecords = function(records) {
+    SolidColorTrack.prototype.setCurrentRecords = function(records) {
         this._setRecords(this._currentPolyline.getPath(), records);
     };
 
-    SolidColorRoute.prototype._setRecords = function(path, records) {
+    SolidColorTrack.prototype._setRecords = function(path, records) {
         path.clear();
         _.each(records, function(record) {
             path.push(new LatLng(record.latitude, record.longitude));
@@ -883,17 +883,17 @@ var volare = volare || {};
     };
 
 
-    function GradientColorRoute(map, flights) {
-        Route.call(this);
+    function GradientColorTrack(map, flights) {
+        Track.call(this);
 
         this._map = map;
         this._flights = flights;
         this._polylines = [];
         this._currentPolylines = [];
     }
-    common.inherit(GradientColorRoute, Route);
+    common.inherit(GradientColorTrack, Track);
 
-    GradientColorRoute.prototype.clear = function() {
+    GradientColorTrack.prototype.clear = function() {
         _.each(this._polylines, function(polyline) {
             polyline.setMap(null);
         });
@@ -902,15 +902,15 @@ var volare = volare || {};
         });
     };
 
-    GradientColorRoute.prototype.setRecords = function(records) {
+    GradientColorTrack.prototype.setRecords = function(records) {
         this._polylines = this._setRecords(this._polylines, 0.3, records);
     };
 
-    GradientColorRoute.prototype.setCurrentRecords = function(records) {
+    GradientColorTrack.prototype.setCurrentRecords = function(records) {
         this._currentPolylines = this._setRecords(this._currentPolylines, 1, records);
     };
 
-    GradientColorRoute.prototype._setRecords = function(polylines, opacity, records) {
+    GradientColorTrack.prototype._setRecords = function(polylines, opacity, records) {
         _.each(polylines, function(polyline) {
             polyline.setMap(null);
             polylines = [];
@@ -919,7 +919,7 @@ var volare = volare || {};
         var self = this;
         var maxAltitude = this._flights.getMaxAltitude();
         var minAltitude = this._flights.getMinAltitude();
-        var step = (maxAltitude - minAltitude)/(GradientColorRoute.COLORS.length - 1);
+        var step = (maxAltitude - minAltitude)/(GradientColorTrack.COLORS.length - 1);
         var previousColorIndex = null;
         var previousPolyline = null;
         _.each(records, function(record) {
@@ -932,7 +932,7 @@ var volare = volare || {};
             if (!previousPolyline || previousColorIndex !== colorIndex) {
                 polyline = new google.maps.Polyline({
                     map:self._map,
-                    strokeColor: GradientColorRoute.COLORS[colorIndex],
+                    strokeColor: GradientColorTrack.COLORS[colorIndex],
                     strokeOpacity: opacity
                 });
                 polylines.push(polyline);
@@ -945,7 +945,7 @@ var volare = volare || {};
         return polylines;
     };
 
-    GradientColorRoute.COLORS = [
+    GradientColorTrack.COLORS = [
         '#FF0000',
         '#FF3500',
         '#FF6B00',
@@ -1964,12 +1964,12 @@ var volare = volare || {};
 
     function OptionsControl(map, options) {
         function updateGradient() {
-            options.find('.gradient').prop('checked', map.isUseGradientColorRoute());
+            options.find('.gradient').prop('checked', map.isUseGradientColorTrack());
         }
         options.find('.gradient').on('click', function(event) {
-            map.setUseGradientColorRoute($(event.target).prop('checked'));
+            map.setUseGradientColorTrack($(event.target).prop('checked'));
         });
-        $(map).on('useGradientColorRoute_changed', updateGradient);
+        $(map).on('useGradientColorTrack_changed', updateGradient);
         updateGradient();
     }
 
