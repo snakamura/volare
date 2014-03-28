@@ -86,7 +86,7 @@ postWorkspacesR :: Handler JSON.Value
 postWorkspacesR = do
   NewWorkspace name <- requireJsonBody
   workspace <- runDB $ do
-      workspaceId <- insert $ M.Workspace name
+      workspaceId <- insert $ M.Workspace name Nothing
       selectFirst [M.WorkspaceId ==. workspaceId] []
   return $ JSON.toJSON workspace
 

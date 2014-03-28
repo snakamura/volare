@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-unused-matches #-}
+
 module Volare.Model where
 
 import qualified Data.Text as T
