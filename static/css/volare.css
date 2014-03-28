@@ -105,6 +105,37 @@ div#waypoint select {
     margin: 0 0 0 5px;
 }
 
+div#route {
+    width: 302px;
+    margin: 10px;
+}
+
+div#route button {
+    margin: 0 0 0 5px;
+}
+
+div#edit_route_modal select.waypoint {
+    margin: 0 0 0 5px;
+}
+
+div#edit_route_modal table.waypoints {
+    table-layout: fixed;
+}
+
+div#edit_route_modal table.waypoints th.name {
+    width: 75%;
+}
+
+div#edit_route_modal table.waypoints td {
+    vertical-align: middle;
+}
+
+div#edit_route_modal table.waypoints td.radius input {
+    width: 5em;
+    margin: 0 3px 0 0;
+    text-align: right;
+}
+
 div#weather {
     width: 302px;
     margin: 10px;

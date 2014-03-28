@@ -696,6 +696,7 @@ var volare = volare || {};
         this._weatherFlags = 0;
         this._useGradientColorTrack = false;
         this._waypointMakers = [];
+        this._routeOverlays = [];
 
         var self = this;
         var visibleChangedListener = function(event) {
@@ -798,6 +799,57 @@ var volare = volare || {};
             });
         }
         this._waypointMakers = markers;
+    };
+
+    Map.prototype.setRoute = function(route) {
+        _.each(this._routeOverlays, function(overlay) {
+            overlay.setMap(null);
+        });
+
+        var overlays = [];
+        if (route) {
+            var self = this;
+            var path = [];
+            _.each(route, function(routeItem) {
+                var item = routeItem.waypointItem;
+                var position = new LatLng(item.latitude, item.longitude);
+                var label = item.name;
+                if (item.name !== item.description) {
+                    label += ' (' + item.description + ')';
+                }
+                var marker = new MarkerWithLabel({
+                    map: self._map,
+                    position: position,
+                    title: item.name,
+                    labelContent: label,
+                    labelAnchor: new google.maps.Point(-15, 35),
+                    labelClass: 'label'
+                });
+                overlays.push(marker);
+
+                var circle = new google.maps.Circle({
+                    map: self._map,
+                    center: position,
+                    clickable: false,
+                    radius: routeItem.radius,
+                    strokeColor: '#ff3300',
+                    strokeWeight: 2,
+                    fillOpacity: 0.01
+                });
+                overlays.push(circle);
+
+                path.push(position);
+            });
+
+            var polyline = new google.maps.Polyline({
+                map: this._map,
+                path: path,
+                strokeColor: '#ff3300',
+                strokeWeight: 2
+            });
+            overlays.push(polyline);
+        }
+        this._routeOverlays = overlays;
     };
 
     Map.prototype._createTrack = function(flight) {
@@ -1998,6 +2050,92 @@ var volare = volare || {};
     }
 
 
+    function RouteControl(map, route) {
+        var edit = route.find('.edit');
+        edit.on('click', function() {
+            // TODO
+            // Handle the case where you open this modal again
+
+            var modal = $('#edit_route_modal');
+
+            var tbody = modal.find('table.waypoints tbody');
+            var waypoint = null;
+
+            function getWaypointItem(waypointItemId) {
+                return _.find(waypoint.items, function(item) {
+                    return item.id === waypointItemId;
+                });
+            }
+
+            function addRow() {
+                var tr = $('<tr>' +
+                           '<td class="name"><select><option value="0">(Select)</option></select></td>' +
+                           '<td class="radius"><input type="number" value="400">m</td>' +
+                           '</tr>');
+                var select = tr.find('select');
+                _.each(waypoint.items, function(item) {
+                    var option = $('<option>');
+                    option.attr('value', item.id);
+                    var name = item.name;
+                    if (item.name !== item.description)
+                        name += ' (' + item.description + ')';
+                    option.text(name);
+                    select.append(option);
+                });
+                select.on('change', function() {
+                    var lastSelect = tbody.find('tr:last-child select');
+                    if (lastSelect.val() !== '0') {
+                        addRow();
+                    }
+                });
+                tbody.append(tr);
+            }
+
+            var select = modal.find('select.waypoint');
+            select.on('change', function(event) {
+                var waypointId = select.val();
+                if (waypointId !== '0') {
+                    $.getJSON('/waypoints/' + waypointId, function(w) {
+                        tbody.text('');
+                        waypoint = w;
+                        addRow();
+                    });
+                }
+            });
+
+            modal.find('.btn-primary').on('click', function() {
+                var route = [];
+                _.each(tbody.find('tr'), function(tr) {
+                    var waypointItemId = parseInt($(tr).find('td.name select').val(), 10);
+                    if (waypointItemId !== 0) {
+                        var radius = parseInt($(tr).find('td.radius input').val(), 10) || 400;
+                        route.push({
+                            waypointItem: getWaypointItem(waypointItemId),
+                            radius: radius
+                        });
+                    }
+                });
+                map.setRoute(route);
+
+                modal.modal('hide');
+            });
+
+            $.getJSON('/waypoints', function(waypoints) {
+                _.each(waypoints, function(waypoint) {
+                    var option = $('<option>');
+                    option.attr('value', waypoint.id);
+                    option.text(waypoint.name);
+                    select.append(option);
+                });
+            });
+
+            modal.modal({
+                backdrop: 'static'
+            });
+        });
+    }
+
+
     function WeatherControl(map, weather) {
         function makeItem(selector, flags) {
             return {
@@ -2062,6 +2200,7 @@ var volare = volare || {};
     volare.Chart = Chart;
     volare.OptionsControl = OptionsControl;
     volare.WaypointControl = WaypointControl;
+    volare.RouteControl = RouteControl;
     volare.WeatherControl = WeatherControl;
     volare.setupLayout = setupLayout;
 })();

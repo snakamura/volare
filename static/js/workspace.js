@@ -7,6 +7,7 @@ $(function() {
     var chart = new volare.Chart(flights, $('#chart'));
     var optionsControl = new volare.OptionsControl(map, $('#options'));
     var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
+    var routeControl = new volare.RouteControl(map, $('#route'));
     var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
     var showName = $('#show_name');
