@@ -695,7 +695,9 @@ var volare = volare || {};
         this._amedasOverlay = new AMEDASOverlay(this._flights);
         this._weatherFlags = 0;
         this._useGradientColorTrack = false;
+        this._waypoint = null;
         this._waypointMakers = [];
+        this._route = null;
         this._routeOverlays = [];
 
         var self = this;
@@ -773,6 +775,10 @@ var volare = volare || {};
         $(this).trigger('useGradientColorTrack_changed', this._weatherFlags);
     };
 
+    Map.prototype.getWaypoint = function() {
+        return this._waypoint;
+    };
+
     Map.prototype.setWaypoint = function(waypoint) {
         _.each(this._waypointMakers, function(marker) {
             marker.setMap(null);
@@ -799,6 +805,14 @@ var volare = volare || {};
             });
         }
         this._waypointMakers = markers;
+
+        this._waypoint = waypoint;
+
+        $(this).trigger('waypoint_changed', waypoint);
+    };
+
+    Map.prototype.getRoute = function() {
+        return this._route;
     };
 
     Map.prototype.setRoute = function(route) {
@@ -850,6 +864,10 @@ var volare = volare || {};
             overlays.push(polyline);
         }
         this._routeOverlays = overlays;
+
+        this._route = route;
+
+        $(this).trigger('route_changed', route);
     };
 
     Map.prototype._createTrack = function(flight) {
@@ -2051,6 +2069,16 @@ var volare = volare || {};
 
 
     function RouteControl(map, route) {
+        $(map).on('route_changed', function() {
+            var r = map.getRoute();
+            var s = _.map(r, function(routeItem) {
+                return routeItem.waypointItem.name;
+            }).join(' - ');
+
+            var span = route.find('span');
+            span.text(s);
+        });
+
         var edit = route.find('.edit');
         edit.on('click', function() {
             // TODO

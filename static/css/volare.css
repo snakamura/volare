@@ -110,6 +110,10 @@ div#route {
     margin: 10px;
 }
 
+div#route label {
+    margin: 0 5px 0 0;
+}
+
 div#route button {
     margin: 0 0 0 5px;
 }
