@@ -16,6 +16,7 @@ import Control.Monad (join)
 import Data.Aeson ((.=),
                    (.:))
 import qualified Data.Aeson as JSON
+import Data.Foldable (for_)
 import Data.List (minimumBy,
                   sortBy)
 import qualified Data.Map as Map
@@ -134,7 +135,10 @@ deleteWorkspaceR :: M.WorkspaceId ->
                     Handler JSON.Value
 deleteWorkspaceR workspaceId = do
     runDB $ do
+        workspace <- get404 workspaceId
         deleteWhere [M.WorkspaceFlightWorkspaceId ==. workspaceId]
+        for_ (M.workspaceRoute workspace) $ \routeId ->
+            delete routeId
         delete workspaceId
     return $ JSON.toJSON ()
 

@@ -41,6 +41,8 @@ WaypointItem json
 Route json
   deriving Show
 RouteItem json
+  routeId RouteId
+  index Int
   waypointItemId WaypointItemId
   radius Int
   deriving Show

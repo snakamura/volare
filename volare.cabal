@@ -39,6 +39,7 @@ library
                    Volare.Handler.Flight
                    Volare.Handler.MSM
                    Volare.Handler.Root
+                   Volare.Handler.Route
                    Volare.Handler.Utils
                    Volare.Handler.Waypoint
                    Volare.Handler.Workspace

@@ -8,6 +8,8 @@
 /workspaces/#M.WorkspaceId/candidates WorkspaceCandidatesR GET
 /waypoints WaypointsR GET POST
 /waypoints/#M.WaypointId WaypointR GET PUT DELETE
+/routes RoutesR POST
+/routes/#M.RouteId RouteR GET DELETE
 /msm/surface/#Int/#Int/#Int/#Int SurfaceR GET
 /msm/barometric/#Int/#Int/#Int/#Int BarometricR GET
 /amedas/#Int/#Int/#Int/#Int DataR GET
