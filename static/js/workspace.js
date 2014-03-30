@@ -129,6 +129,44 @@ $(function() {
         });
     }
 
+    $(map).on('route_changed', function() {
+        // TODO
+        // Remove an old route
+        var route = map.getRoute();
+        if (route) {
+            if (!route.id) {
+                var r = _.map(route.items, function(routeItem) {
+                    return {
+                        waypointItemId: routeItem.waypointItem.id,
+                        radius: routeItem.radius
+                    };
+                });
+                $.postJSON('/routes', r, function(route) {
+                    var data = {
+                        routeId: route.id
+                    };
+                    $.putJSON('', data, function(workspace) {
+                    });
+                });
+            }
+        }
+        else {
+            var data = {
+                routeId: null
+            };
+            $.putJSON('', data, function(workspace) {
+                console.log(workspace);
+            });
+        }
+    });
+
+    $.getJSON('/workspaces/' + workspaceId, function(workspace) {
+        if (workspace.route) {
+            $.getJSON('/routes/' + workspace.route, function(route) {
+                map.setRoute(route);
+            });
+        }
+    });
     $.getJSON('/workspaces/' + workspaceId + '/flights', function(fs) {
         _.each(fs, function(flight) {
             addFlight(flight.id, flight.color);

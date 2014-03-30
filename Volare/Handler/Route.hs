@@ -6,12 +6,16 @@ module Volare.Handler.Route (
 
 import Control.Applicative ((<$>),
                             (<*>))
+import Control.Arrow (second)
 import Data.Aeson ((.=),
                    (.:))
 import qualified Data.Aeson as JSON
 import Data.Foldable (forM_)
+import Data.Maybe (fromJust,
+                   isJust)
 import Data.Monoid (mempty)
-import Database.Persist (Entity,
+import Data.Traversable (forM)
+import Database.Persist (Entity(Entity),
                          PersistEntityBackend,
                          PersistMonadBackend,
                          PersistStore,
@@ -53,7 +57,7 @@ postRoutesR = do
     return $ JSON.toJSON route
 
 
-data Route = Route M.RouteId [Entity M.RouteItem]
+data Route = Route M.RouteId [RouteItem]
 
 instance JSON.ToJSON Route where
     toJSON (Route routeId items) =
@@ -63,14 +67,29 @@ instance JSON.ToJSON Route where
           ]
 
 
+data RouteItem = RouteItem M.RouteItemId (Entity M.WaypointItem) Int
+
+instance JSON.ToJSON RouteItem where
+    toJSON (RouteItem routeItemId waypointItem radius) =
+        JSON.object [
+            "id" .= routeItemId,
+            "waypointItem" .= waypointItem,
+            "radius" .= radius
+          ]
+
+
 getRouteR :: M.RouteId ->
              Handler JSON.Value
 getRouteR routeId = do
-    route <- runDB $ do
+    items <- runDB $ do
         _ <- get404 routeId
         items <- selectList [M.RouteItemRouteId ==. routeId] [Asc M.RouteItemIndex]
-        return (routeId, items)
-    return $ JSON.toJSON $ uncurry Route route
+        waypointItems <- forM items $ \(Entity _ item) ->
+            selectFirst [M.WaypointItemId ==. M.routeItemWaypointItemId item] []
+        return $ map (second fromJust) $ filter (isJust . snd) $ zip items waypointItems
+    return $ JSON.toJSON $ Route routeId $ map (uncurry makeRouteItem) items
+    where
+      makeRouteItem (Entity itemId item) waypointItem = RouteItem itemId waypointItem (M.routeItemRadius item)
 
 
 deleteRouteR :: M.RouteId ->

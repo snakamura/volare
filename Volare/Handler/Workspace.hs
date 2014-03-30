@@ -10,13 +10,18 @@ module Volare.Handler.Workspace (
     getWorkspaceCandidatesR
 ) where
 
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>),
+                            (<*>),
+                            pure)
 import Control.Arrow (first)
 import Control.Monad (join)
 import Data.Aeson ((.=),
-                   (.:))
+                   (.:),
+                   (.:?))
 import qualified Data.Aeson as JSON
+import qualified Data.Aeson.Types as JSON
 import Data.Foldable (for_)
+import qualified Data.HashMap.Strict as HashMap
 import Data.List (minimumBy,
                   sortBy)
 import qualified Data.Map as Map
@@ -48,9 +53,10 @@ import Prelude hiding (mapM)
 import Text.Blaze.Html (Html,
                         toHtml)
 import Yesod.Core (defaultLayout)
-import Yesod.Core.Handler (getRequest,
-                           reqToken)
+import Yesod.Core.Handler (provideRep,
+                           selectRep)
 import Yesod.Core.Json (requireJsonBody)
+import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget (addScript,
                           addStylesheet,
                           setTitle)
@@ -93,40 +99,54 @@ postWorkspacesR = do
 
 
 getWorkspaceR :: M.WorkspaceId ->
-                 Handler Html
+                 Handler TypedContent
 getWorkspaceR workspaceId = do
     workspace <- runDB $ get404 workspaceId
-    token <- reqToken <$> getRequest
-    defaultLayout $ do
-        setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
-        addCommonLibraries
-        addGoogleMapsApi
-        addScript $ StaticR S.js_common_js
-        addScript $ StaticR S.js_volare_js
-        addScript $ StaticR S.js_workspace_js
-        addStylesheet $ StaticR S.css_common_css
-        addStylesheet $ StaticR S.css_volare_css
-        addStylesheet $ StaticR S.css_workspace_css
-        let options = $(widgetFile "elements/options")
-            waypoint = $(widgetFile "elements/waypoint")
-            route = $(widgetFile "elements/route")
-            weather = $(widgetFile "elements/weather")
-        $(widgetFile "workspaces/show")
+    selectRep $ do
+        provideRep $ defaultLayout $ do
+            setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
+            addCommonLibraries
+            addGoogleMapsApi
+            addScript $ StaticR S.js_common_js
+            addScript $ StaticR S.js_volare_js
+            addScript $ StaticR S.js_workspace_js
+            addStylesheet $ StaticR S.css_common_css
+            addStylesheet $ StaticR S.css_volare_css
+            addStylesheet $ StaticR S.css_workspace_css
+            let options = $(widgetFile "elements/options")
+                waypoint = $(widgetFile "elements/waypoint")
+                route = $(widgetFile "elements/route")
+                weather = $(widgetFile "elements/weather")
+            $(widgetFile "workspaces/show")
+        provideRep $ return $ JSON.toJSON workspace
 
 
-data EditWorkspace = EditWorkspace T.Text
+data EditWorkspace = EditWorkspace (Maybe T.Text) (Maybe (Maybe M.RouteId))
 
 instance JSON.FromJSON EditWorkspace where
-    parseJSON (JSON.Object o) = EditWorkspace <$> o .: "name"
+    parseJSON (JSON.Object o) = EditWorkspace <$> o .:? "name"
+                                              <*> o .:?? "routeId"
     parseJSON _ = mempty
+
+
+(.:??) :: JSON.FromJSON a =>
+          JSON.Object ->
+          T.Text ->
+          JSON.Parser (Maybe (Maybe a))
+obj .:?? key = case HashMap.lookup key obj of
+                 Nothing -> pure Nothing
+                 Just v -> Just <$> JSON.parseJSON v
 
 
 putWorkspaceR :: M.WorkspaceId ->
                  Handler JSON.Value
 putWorkspaceR workspaceId = do
-    EditWorkspace name <- requireJsonBody
+    EditWorkspace name routeId <- requireJsonBody
     workspace <- runDB $ do
-        update workspaceId [M.WorkspaceName =. name]
+        for_ name $ \n ->
+            update workspaceId [M.WorkspaceName =. n]
+        for_ routeId $ \r ->
+            update workspaceId [M.WorkspaceRoute =. r]
         selectFirst [M.WorkspaceId ==. workspaceId] []
     return $ JSON.toJSON workspace
 

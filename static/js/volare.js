@@ -824,7 +824,7 @@ var volare = volare || {};
         if (route) {
             var self = this;
             var path = [];
-            _.each(route, function(routeItem) {
+            _.each(route.items, function(routeItem) {
                 var item = routeItem.waypointItem;
                 var position = new LatLng(item.latitude, item.longitude);
                 var label = item.name;
@@ -2126,18 +2126,20 @@ var volare = volare || {};
             });
 
             modal.find('.btn-primary').on('click', function() {
-                var route = [];
+                var route = {
+                    items: []
+                };
                 _.each(tbody.find('tr'), function(tr) {
                     var waypointItemId = parseInt($(tr).find('td.name select').val(), 10);
                     if (waypointItemId !== 0) {
                         var radius = parseInt($(tr).find('td.radius input').val(), 10) || 400;
-                        route.push({
+                        route.items.push({
                             waypointItem: getWaypointItem(waypointItemId),
                             radius: radius
                         });
                     }
                 });
-                map.setRoute(route);
+                map.setRoute(route.items.length !== 0 ? route : null);
 
                 modal.modal('hide');
             });
@@ -2158,9 +2160,12 @@ var volare = volare || {};
 
         $(map).on('route_changed', function() {
             var r = map.getRoute();
-            var s = _.map(r, function(routeItem) {
-                return routeItem.waypointItem.name;
-            }).join(' - ');
+            var s = '';
+            if (r) {
+                s = _.map(r.items, function(routeItem) {
+                    return routeItem.waypointItem.name;
+                }).join(' - ');
+            }
 
             var span = route.find('span');
             span.text(s);
