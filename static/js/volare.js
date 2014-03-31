@@ -2075,9 +2075,6 @@ var volare = volare || {};
     function RouteControl(map, route) {
         var edit = route.find('.edit');
         edit.on('click', function() {
-            // TODO
-            // Handle the case where you open this modal again
-
             var modal = $('#edit_route_modal');
 
             var tbody = modal.find('table.waypoints tbody');
@@ -2106,9 +2103,8 @@ var volare = volare || {};
                 });
                 select.on('change', function() {
                     var lastSelect = tbody.find('tr:last-child select');
-                    if (lastSelect.val() !== '0') {
+                    if (lastSelect.val() !== '0')
                         addRow();
-                    }
                 });
                 tbody.append(tr);
             }
@@ -2122,6 +2118,10 @@ var volare = volare || {};
                         waypoint = w;
                         addRow();
                     });
+                }
+                else {
+                    tbody.text('');
+                    waypoint = null;
                 }
             });
 
@@ -2151,6 +2151,18 @@ var volare = volare || {};
                     option.text(waypoint.name);
                     select.append(option);
                 });
+            });
+
+            modal.on('hidden.bs.modal', function() {
+                _.each(select.find('option'), function(option) {
+                    if ($(option).val() !== '0')
+                        $(option).remove();
+                });
+
+                tbody.text('');
+                waypoint = null;
+
+                modal.find('*').off();
             });
 
             modal.modal({
