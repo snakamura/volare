@@ -81,7 +81,7 @@ instance JSON.FromJSON NewWorkspace where
 
 getWorkspacesR :: Handler Html
 getWorkspacesR = do
-    workspaces <- runDB $ selectList [] []
+    workspaces <- runDB $ selectList [] [Asc M.WorkspaceName]
     defaultLayout $ do
         setTitle "Workspaces - Volare"
         addCommonLibraries
