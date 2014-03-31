@@ -36,6 +36,7 @@ library
                    Volare.Domain.Flight
                    Volare.Domain.Route
                    Volare.Domain.Waypoint
+                   Volare.Domain.Workspace
                    Volare.Foundation
                    Volare.Model
                    Volare.Model.Settings

@@ -16,7 +16,7 @@
     <tr>
       <th>Name
   <tbody>
-    $forall Entity workspaceId workspace <- workspaces
+    $forall workspace <- workspaces
       <tr>
         <td>
-          <a href=@{WorkspaceR workspaceId}>#{M.workspaceName workspace}
+          <a href=@{WorkspaceR $ entityKey workspace}>#{M.workspaceName $ entityVal workspace}

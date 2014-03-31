@@ -13,44 +13,17 @@ module Volare.Handler.Workspace (
 import Control.Applicative ((<$>),
                             (<*>),
                             pure)
-import Control.Arrow (first)
-import Control.Monad (join)
-import Data.Aeson ((.=),
-                   (.:),
+import Data.Aeson ((.:),
                    (.:?))
 import qualified Data.Aeson as JSON
 import qualified Data.Aeson.Types as JSON
-import Data.Foldable (for_)
 import qualified Data.HashMap.Strict as HashMap
-import Data.List (minimumBy,
-                  sortBy)
-import qualified Data.Map as Map
-import Data.Maybe (catMaybes)
 import Data.Monoid ((<>),
                     mempty)
-import Data.Ord (comparing)
 import qualified Data.Text as T
-import Data.Time (addUTCTime)
-import Data.Traversable (forM,
-                         mapM)
-import Database.Persist (Entity(Entity),
-                         PersistEntityBackend,
-                         PersistMonadBackend,
-                         PersistQuery,
-                         SelectOpt(Asc, Desc),
-                         (=.),
-                         (==.),
-                         (<=.),
-                         (>=.),
-                         delete,
-                         deleteWhere,
-                         get,
-                         insert,
-                         insertUnique,
-                         selectFirst,
-                         selectList,
-                         update)
-import Prelude hiding (mapM)
+import Database.Persist (Entity,
+                         entityKey,
+                         entityVal)
 import Text.Blaze.Html (Html,
                         toHtml)
 import Yesod.Core (defaultLayout)
@@ -61,12 +34,13 @@ import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget (addScript,
                           addStylesheet,
                           setTitle)
-import Yesod.Persist (get404,
-                      runDB)
+import Yesod.Persist (runDB)
 
+import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils (addCommonLibraries,
-                             addGoogleMapsApi)
+                             addGoogleMapsApi,
+                             maybeNotFound)
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
@@ -81,7 +55,7 @@ instance JSON.FromJSON NewWorkspace where
 
 getWorkspacesR :: Handler Html
 getWorkspacesR = do
-    workspaces <- runDB $ selectList [] [Asc M.WorkspaceName]
+    workspaces <- runDB $ D.getWorkspaces
     defaultLayout $ do
         setTitle "Workspaces - Volare"
         addCommonLibraries
@@ -92,34 +66,35 @@ getWorkspacesR = do
 
 postWorkspacesR :: Handler JSON.Value
 postWorkspacesR = do
-  NewWorkspace name <- requireJsonBody
-  workspace <- runDB $ do
-      workspaceId <- insert $ M.Workspace name Nothing
-      selectFirst [M.WorkspaceId ==. workspaceId] []
-  return $ JSON.toJSON workspace
+    NewWorkspace name <- requireJsonBody
+    workspace <- runDB $ do
+        workspaceId <- D.addWorkspace name
+        D.getWorkspace workspaceId
+    return $ JSON.toJSON workspace
 
 
 getWorkspaceR :: M.WorkspaceId ->
                  Handler TypedContent
 getWorkspaceR workspaceId = do
-    workspace <- runDB $ get404 workspaceId
-    selectRep $ do
-        provideRep $ defaultLayout $ do
-            setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
-            addCommonLibraries
-            addGoogleMapsApi
-            addScript $ StaticR S.js_common_js
-            addScript $ StaticR S.js_volare_js
-            addScript $ StaticR S.js_workspace_js
-            addStylesheet $ StaticR S.css_common_css
-            addStylesheet $ StaticR S.css_volare_css
-            addStylesheet $ StaticR S.css_workspace_css
-            let options = $(widgetFile "elements/options")
-                waypoint = $(widgetFile "elements/waypoint")
-                route = $(widgetFile "elements/route")
-                weather = $(widgetFile "elements/weather")
-            $(widgetFile "workspaces/show")
-        provideRep $ return $ JSON.toJSON workspace
+    maybeNotFound (runDB $ D.getWorkspace workspaceId) $ \workspaceEntity -> do
+        let workspace = entityVal workspaceEntity
+        selectRep $ do
+            provideRep $ defaultLayout $ do
+                setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
+                addCommonLibraries
+                addGoogleMapsApi
+                addScript $ StaticR S.js_common_js
+                addScript $ StaticR S.js_volare_js
+                addScript $ StaticR S.js_workspace_js
+                addStylesheet $ StaticR S.css_common_css
+                addStylesheet $ StaticR S.css_volare_css
+                addStylesheet $ StaticR S.css_workspace_css
+                let options = $(widgetFile "elements/options")
+                    waypoint = $(widgetFile "elements/waypoint")
+                    route = $(widgetFile "elements/route")
+                    weather = $(widgetFile "elements/weather")
+                $(widgetFile "workspaces/show")
+            provideRep $ return $ JSON.toJSON workspaceEntity
 
 
 data EditWorkspace = EditWorkspace (Maybe T.Text) (Maybe (Maybe M.RouteId))
@@ -144,46 +119,22 @@ putWorkspaceR :: M.WorkspaceId ->
 putWorkspaceR workspaceId = do
     EditWorkspace name routeId <- requireJsonBody
     workspace <- runDB $ do
-        for_ name $ \newName ->
-            update workspaceId [M.WorkspaceName =. newName]
-        for_ routeId $ \newRouteId -> do
-            w <- get workspaceId
-            update workspaceId [M.WorkspaceRoute =. newRouteId]
-            for_ (w >>= M.workspaceRoute) $ \oldRouteId -> do
-                deleteWhere [M.RouteItemRouteId ==. oldRouteId]
-                delete oldRouteId
-        selectFirst [M.WorkspaceId ==. workspaceId] []
+        D.updateWorkspace workspaceId name routeId
+        D.getWorkspace workspaceId
     return $ JSON.toJSON workspace
 
 
 deleteWorkspaceR :: M.WorkspaceId ->
                     Handler JSON.Value
 deleteWorkspaceR workspaceId = do
-    runDB $ do
-        workspace <- get404 workspaceId
-        deleteWhere [M.WorkspaceFlightWorkspaceId ==. workspaceId]
-        for_ (M.workspaceRoute workspace) $ \routeId ->
-            delete routeId
-        delete workspaceId
+    runDB $ D.deleteWorkspace workspaceId
     return $ JSON.toJSON ()
-
-
-data WorkspaceFlight = WorkspaceFlight M.FlightId M.Flight T.Text
-
-instance JSON.ToJSON WorkspaceFlight where
-    toJSON (WorkspaceFlight workspaceId flight color) =
-        JSON.object [
-            "id" .= workspaceId,
-            "name" .= M.flightName flight,
-            "color" .= color
-          ]
 
 
 getWorkspaceFlightsR :: M.WorkspaceId ->
                         Handler JSON.Value
-getWorkspaceFlightsR workspaceId = do
-    flights <- runDB $ selectWorkspaceFlights workspaceId
-    return $ JSON.toJSON flights
+getWorkspaceFlightsR workspaceId =
+    runDB $ JSON.toJSON <$> D.getWorkspaceFlights workspaceId
 
 
 data NewWorkspaceFlight = NewWorkspaceFlight [M.FlightId]
@@ -197,93 +148,18 @@ postWorkspaceFlightsR :: M.WorkspaceId ->
                          Handler JSON.Value
 postWorkspaceFlightsR workspaceId = do
     NewWorkspaceFlight flightIds <- requireJsonBody
-    newWorkspaceFlights <- runDB $ forM flightIds $ \flightId -> do
-        color <- nextColor workspaceId
-        insertedFlightId <- insertUnique $ M.WorkspaceFlight workspaceId flightId color
-        mapM selectWorkspaceFlight insertedFlightId
-    return $ JSON.toJSON $ catMaybes newWorkspaceFlights
+    runDB $ JSON.toJSON <$> D.addWorkspaceFlight workspaceId flightIds
 
 
 deleteWorkspaceFlightR :: M.WorkspaceId ->
                           M.FlightId ->
                           Handler JSON.Value
 deleteWorkspaceFlightR workspaceId flightId = do
-    runDB $ deleteWhere [M.WorkspaceFlightWorkspaceId ==. workspaceId,
-                         M.WorkspaceFlightFlightId ==. flightId]
+    runDB $ D.deleteWorkspaceFlight workspaceId flightId
     return $ JSON.toJSON ()
 
 
 getWorkspaceCandidatesR :: M.WorkspaceId ->
                            Handler JSON.Value
-getWorkspaceCandidatesR workspaceId = do
-    flights <- runDB $ selectCandidateFlights workspaceId
-    return $ JSON.toJSON flights
-
-
-selectWorkspaceFlight :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.WorkspaceFlight) =>
-                         M.WorkspaceFlightId ->
-                         m (Maybe WorkspaceFlight)
-selectWorkspaceFlight workspaceFlightId = do
-    workspaceFlight <- selectFirst [M.WorkspaceFlightId ==. workspaceFlightId] []
-    join <$> mapM selectWorkspaceFlight' workspaceFlight
-
-
-selectWorkspaceFlights :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.WorkspaceFlight) =>
-                          M.WorkspaceId ->
-                          m [WorkspaceFlight]
-selectWorkspaceFlights workspaceId = do
-    workspaceFlights <- selectList [M.WorkspaceFlightWorkspaceId ==. workspaceId] []
-    (sortBy (comparing name) . catMaybes) <$> mapM selectWorkspaceFlight' workspaceFlights
-  where
-    name (WorkspaceFlight _ flight _) = M.flightName flight
-
-
-selectWorkspaceFlight' :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.WorkspaceFlight) =>
-                          Entity M.WorkspaceFlight ->
-                          m (Maybe WorkspaceFlight)
-selectWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight workspaceFlight
-  where
-    getFlight (Entity _ (M.WorkspaceFlight _ flightId color)) = fmap (, color) <$> selectFirst [M.FlightId ==. flightId] []
-    makeWorkspaceFlight (Entity flightId flight, color) = WorkspaceFlight flightId flight color
-
-
-selectCandidateFlights :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.Flight) =>
-                          M.WorkspaceId ->
-                          m [Entity M.Flight]
-selectCandidateFlights workspaceId = do
-    workspaceFlights <- selectWorkspaceFlights workspaceId
-    case workspaceFlights of
-      [] -> selectList [] [Desc M.FlightTime, Asc M.FlightName]
-      _ -> let times = map (\(WorkspaceFlight _ flight _) -> M.flightTime flight) workspaceFlights
-               start = addUTCTime (-6*60*60) $ minimum times
-               end = addUTCTime (6*60*60) $ maximum times
-               flightIds = map (\(WorkspaceFlight flightId _ _) -> flightId) workspaceFlights
-               included (Entity flightId _) = flightId `elem` flightIds
-           in filter (not . included) <$> selectList [M.FlightTime >=. start, M.FlightTime <=. end] [Asc M.FlightName]
-
-
-nextColor :: (Functor m, PersistQuery m, PersistMonadBackend m ~ PersistEntityBackend M.Workspace) =>
-             M.WorkspaceId ->
-             m T.Text
-nextColor workspaceId = do
-    let colors = [
-            "red",
-            "blue",
-            "green",
-            "yellow",
-            "aqua",
-            "fuchsia",
-            "lime",
-            "maroon",
-            "navy",
-            "olive",
-            "purple",
-            "silver",
-            "teal"
-          ]
-    usedColors <- map color <$> selectWorkspaceFlights workspaceId
-    let initialColorMap = Map.fromList $ zip colors $ zip (repeat (0 :: Int)) [0 :: Int ..]
-        colorMap = foldr (Map.update (Just . first (+ 1))) initialColorMap usedColors
-    return $ fst $ minimumBy (comparing snd) $ Map.assocs colorMap
-  where
-    color (WorkspaceFlight _ _ c) = c
+getWorkspaceCandidatesR workspaceId =
+    runDB $ JSON.toJSON <$> D.getWorkspaceCandidateFlights workspaceId
