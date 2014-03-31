@@ -34,6 +34,7 @@ library
                    Service.MSM.Surface
                    Volare.Domain
                    Volare.Domain.Flight
+                   Volare.Domain.Route
                    Volare.Domain.Waypoint
                    Volare.Foundation
                    Volare.Model
