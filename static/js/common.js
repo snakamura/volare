@@ -57,4 +57,32 @@ var common = common || {};
     common.formatAltitude = function(altitude) {
         return _.numberFormat(altitude) + 'm';
     };
+
+    common.makeNameEditable = function(update) {
+        var showName = $('#show_name');
+        var editName = $('#edit_name');
+        var inputName = $('#edit_name input');
+
+        function startEditingName() {
+            showName.hide();
+            editName.show();
+            inputName.focus();
+        }
+
+        function finishEditingName() {
+            var name = inputName.val();
+            $('#name').text(name);
+            editName.hide();
+            showName.show();
+
+            update(name);
+        }
+
+        $('#show_name span.edit').on('click', startEditingName);
+        $('#edit_name span.save').on('click', finishEditingName);
+        inputName.on('keyup', function(event) {
+            if (event.keyCode == 0x0d)
+                finishEditingName();
+        });
+    };
 })();

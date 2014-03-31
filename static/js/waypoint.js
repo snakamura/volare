@@ -38,34 +38,11 @@ $(function() {
         m.fitBounds(bounds);
     });
 
-    var showName = $('#show_name');
-    var editName = $('#edit_name');
-    var inputName = $('#edit_name input');
-    function startEditingName() {
-        showName.hide();
-        editName.show();
-        inputName.focus();
-    }
-    function finishEditingName() {
-        var name = inputName.val();
-        $('#name').text(name);
-        editName.hide();
-        showName.show();
-
-        var data = {
+    common.makeNameEditable(function(name) {
+        $.putJSON('', {
             name: name
-        };
-        $.putJSON('', data, function(flight) {
+        }, function(waypoint) {
         });
-    }
-    $('#show_name span.edit').on('click', function(event) {
-        event.preventDefault();
-        startEditingName();
-    });
-    $('#edit_name span.save').on('click', finishEditingName);
-    inputName.on('keyup', function(event) {
-        if (event.keyCode == 0x0d)
-            finishEditingName();
     });
 
     $('#show_name span.delete').on('click', function(event) {
