@@ -323,7 +323,7 @@ var volare = volare || {};
                 return Flight.STATUS_GLIDING;
 
             return Flight.STATUS_UNKNOWN;
-        };
+        }
 
         var status = this._statuses[time];
         if (_.isUndefined(status)) {
@@ -1343,15 +1343,15 @@ var volare = volare || {};
     };
 
     MSMSurfaceOverlay.prototype._isWindVisible = function(item) {
-        return (this._flags & Map.MSM_SURFACE_WIND) != 0;
+        return (this._flags & Map.MSM_SURFACE_WIND) !== 0;
     };
 
     MSMSurfaceOverlay.prototype._isTemperatureVisible = function(item) {
-        return (this._flags & Map.MSM_SURFACE_TEMPERATURE) != 0;
+        return (this._flags & Map.MSM_SURFACE_TEMPERATURE) !== 0;
     };
 
     MSMSurfaceOverlay.prototype._isCloudAmountVisible = function(item) {
-        return (this._flags & Map.MSM_SURFACE_CLOUD_AMOUNT) != 0;
+        return (this._flags & Map.MSM_SURFACE_CLOUD_AMOUNT) !== 0;
     };
 
     MSMSurfaceOverlay.prototype._getLatitudeStep = function() {
@@ -1611,7 +1611,7 @@ var volare = volare || {};
     };
 
     AMEDASOverlay.colorForSunshine = function(sunshine) {
-        if (sunshine == 0)
+        if (sunshine === 0)
             return 'rgb(204, 204, 204, 0.5)';
         else if (sunshine < 5)
             return 'rgb(51, 204, 0, 0.5)';
@@ -1716,7 +1716,7 @@ var volare = volare || {};
         for (; time < this._flights.getEndTime().getTime(); time += Graph.TIME_STEP) {
             var t = new Date(time);
 
-            var b = t.getMinutes() == 0 || t.getMinutes() == 30;
+            var b = t.getMinutes() === 0 || t.getMinutes() === 30;
             context.strokeStyle = b ? 'black' : 'gray';
 
             var x = this.getX(time);
@@ -1779,7 +1779,7 @@ var volare = volare || {};
 
     Graph.formatTime = function(time) {
         return _.sprintf("%02d:%02d", time.getHours(), time.getMinutes());
-    }
+    };
 
 
     function AltitudeGraph(flights, canvas) {
@@ -1799,7 +1799,7 @@ var volare = volare || {};
             }
             flight.drawAltitude(self, context, currentTime, graphContext);
         });
-    }
+    };
 
     AltitudeGraph.prototype._getMax = function() {
         return this._flights.getMaxAltitude();
@@ -1872,7 +1872,7 @@ var volare = volare || {};
             }
             flight.drawGroundSpeed(self, context, currentTime, graphContext);
         });
-    }
+    };
 
     SpeedGraph.prototype._getMax = function() {
         return 120;
@@ -2013,7 +2013,7 @@ var volare = volare || {};
             return 'Gliding';
         default:
             break;
-        };
+        }
         return '-';
     };
 

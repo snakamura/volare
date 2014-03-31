@@ -29,7 +29,7 @@ $(function() {
                 labelClass: 'label'
             });
 
-            if (bounds == null)
+            if (!bounds)
                 bounds = new google.maps.LatLngBounds(position, position);
             else
                 bounds.extend(position);

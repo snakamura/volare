@@ -63,7 +63,7 @@ $(function() {
             $.postJSON('/workspaces/' + workspace.id + '/flights', {
                 flightIds: [flights.getPrimaryFlight().getId()]
             }, function(flights) {
-                document.location.href = '/workspaces/' + workspace.id
+                document.location.href = '/workspaces/' + workspace.id;
             });
         });
     });
