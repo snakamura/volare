@@ -68,28 +68,28 @@ addFlight name igc = do
                             (realToFrac $ IGC.longitude position)
                             (realToFrac $ IGC.altitude position)
     return flightId
-    where
-      filterRecords records =
-          case reverse $ dropWhileNotFlying $ reverse $ dropWhileNotFlying records of
-            [] -> records
-            body -> let start = IGC.time $ head body
-                        pre record = IGC.time record < start - 60
-                        end = IGC.time $ last body
-                        post record = IGC.time record > end + 60
-                    in flip evalState Nothing $ filterM valid $ takeWhile (not . post) $ dropWhile pre records
-      dropWhileNotFlying records = map fst $ dropWhile (not . uncurry flying) $ zip records (drop 10 records)
-      flying record next = let duration = abs $ IGC.time next - IGC.time record
-                               dist = distance (IGC.position next) (IGC.position record)
-                               speed = dist / realToFrac duration
-                           in speed > 5 && speed < 10
-      valid record = do
-          previousRecord <- get
-          let altitude = IGC.altitude $ IGC.position record
-              time = IGC.time record
-              v = maybe True (\p -> (abs (IGC.altitude (IGC.position p) - altitude)) / realToFrac (time - IGC.time p) < 100) previousRecord
-          when v $
-              put $ Just record
-          return v
+  where
+    filterRecords records =
+        case reverse $ dropWhileNotFlying $ reverse $ dropWhileNotFlying records of
+          [] -> records
+          body -> let start = IGC.time $ head body
+                      pre record = IGC.time record < start - 60
+                      end = IGC.time $ last body
+                      post record = IGC.time record > end + 60
+                  in flip evalState Nothing $ filterM valid $ takeWhile (not . post) $ dropWhile pre records
+    dropWhileNotFlying records = map fst $ dropWhile (not . uncurry flying) $ zip records (drop 10 records)
+    flying record next = let duration = abs $ IGC.time next - IGC.time record
+                             dist = distance (IGC.position next) (IGC.position record)
+                             speed = dist / realToFrac duration
+                         in speed > 5 && speed < 10
+    valid record = do
+        previousRecord <- get
+        let altitude = IGC.altitude $ IGC.position record
+            time = IGC.time record
+            v = maybe True (\p -> (abs (IGC.altitude (IGC.position p) - altitude)) / realToFrac (time - IGC.time p) < 100) previousRecord
+        when v $
+            put $ Just record
+        return v
 
 
 updateFlight :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Flight) =>

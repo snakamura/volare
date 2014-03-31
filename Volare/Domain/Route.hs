@@ -58,8 +58,8 @@ getRouteWithWaypoints routeId = do
               P.selectFirst [M.WaypointItemId ==. M.routeItemWaypointItemId (P.entityVal routeItemEntity)] []
           return $ Just $ Route routeId $ map (uncurry makeRouteItem) $ map (second fromJust) $ filter (isJust . snd) $ zip routeItems waypointItems
       Nothing -> return Nothing
-    where
-      makeRouteItem routeItem waypointItem = RouteItem (P.entityKey routeItem) waypointItem (M.routeItemRadius $ P.entityVal routeItem)
+  where
+    makeRouteItem routeItem waypointItem = RouteItem (P.entityKey routeItem) waypointItem (M.routeItemRadius $ P.entityVal routeItem)
 
 
 addRoute :: (P.PersistStore m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Route) =>
