@@ -44,6 +44,7 @@ import Database.Persist (Entity(Entity),
                          (>=.),
                          delete,
                          deleteWhere,
+                         get,
                          insert,
                          insertUnique,
                          selectFirst,
@@ -143,10 +144,14 @@ putWorkspaceR :: M.WorkspaceId ->
 putWorkspaceR workspaceId = do
     EditWorkspace name routeId <- requireJsonBody
     workspace <- runDB $ do
-        for_ name $ \n ->
-            update workspaceId [M.WorkspaceName =. n]
-        for_ routeId $ \r ->
-            update workspaceId [M.WorkspaceRoute =. r]
+        for_ name $ \newName ->
+            update workspaceId [M.WorkspaceName =. newName]
+        for_ routeId $ \newRouteId -> do
+            w <- get workspaceId
+            update workspaceId [M.WorkspaceRoute =. newRouteId]
+            for_ (w >>= M.workspaceRoute) $ \oldRouteId -> do
+                deleteWhere [M.RouteItemRouteId ==. oldRouteId]
+                delete oldRouteId
         selectFirst [M.WorkspaceId ==. workspaceId] []
     return $ JSON.toJSON workspace
 

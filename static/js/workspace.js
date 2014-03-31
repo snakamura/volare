@@ -130,8 +130,6 @@ $(function() {
     }
 
     $(map).on('route_changed', function() {
-        // TODO
-        // Remove an old route
         var route = map.getRoute();
         if (route) {
             if (!route.id) {
