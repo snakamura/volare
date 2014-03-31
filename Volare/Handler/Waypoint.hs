@@ -14,23 +14,12 @@ import Data.Aeson ((.=),
 import qualified Data.Aeson as JSON
 import Data.Attoparsec (parseOnly)
 import qualified Data.ByteString as B
-import Data.Foldable (forM_)
 import Data.Monoid ((<>),
                     mempty)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Database.Persist (Entity,
-                         PersistEntityBackend,
-                         PersistMonadBackend,
-                         PersistStore,
-                         SelectOpt(Asc),
-                         (=.),
-                         (==.),
-                         deleteCascade,
-                         insert,
-                         selectFirst,
-                         selectList,
-                         update)
+                         entityVal)
 import Text.Blaze.Html (toHtml)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler (invalidArgs,
@@ -41,12 +30,13 @@ import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget (addScript,
                           addStylesheet,
                           setTitle)
-import Yesod.Persist (get404,
-                      runDB)
+import Yesod.Persist (runDB)
 
+import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils (addCommonLibraries,
-                             addGoogleMapsApi)
+                             addGoogleMapsApi,
+                             maybeNotFound)
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
@@ -62,7 +52,7 @@ getWaypointsR = do
             addScript $ StaticR S.js_waypoints_js
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "waypoints/index")
-        provideRep $ runDB $ JSON.toJSON <$> selectList [] [Asc M.WaypointName]
+        provideRep $ runDB $ JSON.toJSON <$> D.getWaypoints
 
 
 data NewWaypoint = NewWaypoint T.Text B.ByteString
@@ -80,8 +70,8 @@ postWaypointsR = do
       Left _ -> invalidArgs ["wpt"]
       Right wpt -> do
           waypoint <- runDB $ do
-              waypointId <- addWaypoint name wpt
-              selectFirst [M.WaypointId ==. waypointId] []
+              waypointId <- D.addWaypoint name wpt
+              D.getWaypoint waypointId
           return $ JSON.toJSON waypoint
 
 
@@ -99,20 +89,21 @@ instance JSON.ToJSON Waypoint where
 getWaypointR :: M.WaypointId ->
                 Handler TypedContent
 getWaypointR waypointId = do
-    waypoint <- runDB $ get404 waypointId
-    selectRep $ do
-        provideRep $ defaultLayout $ do
-            setTitle $ toHtml $ M.waypointName waypoint <> " - Waypoints - Volare"
-            addCommonLibraries
-            addGoogleMapsApi
-            addScript $ StaticR S.js_common_js
-            addScript $ StaticR S.js_waypoint_js
-            addStylesheet $ StaticR S.css_common_css
-            addStylesheet $ StaticR S.css_waypoint_css
-            $(widgetFile "waypoints/show")
-        provideRep $ do
-            items <- runDB $ selectList [M.WaypointItemWaypointId ==. waypointId] [Asc M.WaypointItemName]
-            return $ JSON.toJSON $ Waypoint waypointId waypoint items
+    maybeNotFound (runDB $ D.getWaypoint waypointId) $ \waypointEntity -> do
+        let waypoint = entityVal waypointEntity
+        selectRep $ do
+            provideRep $ defaultLayout $ do
+                setTitle $ toHtml $ M.waypointName waypoint <> " - Waypoints - Volare"
+                addCommonLibraries
+                addGoogleMapsApi
+                addScript $ StaticR S.js_common_js
+                addScript $ StaticR S.js_waypoint_js
+                addStylesheet $ StaticR S.css_common_css
+                addStylesheet $ StaticR S.css_waypoint_css
+                $(widgetFile "waypoints/show")
+            provideRep $ do
+                items <- runDB $ D.getWaypointItems waypointId
+                return $ JSON.toJSON $ Waypoint waypointId waypoint items
 
 
 data EditWaypoint = EditWaypoint T.Text
@@ -127,29 +118,13 @@ putWaypointR :: M.WaypointId ->
 putWaypointR waypointId = do
     EditWaypoint name <- requireJsonBody
     waypoint <- runDB $ do
-        update waypointId [M.WaypointName =. name]
-        selectFirst [M.WaypointId ==. waypointId] []
+        D.updateWaypoint waypointId (Just name)
+        D.getWaypoint waypointId
     return $ JSON.toJSON waypoint
 
 
 deleteWaypointR :: M.WaypointId ->
                    Handler JSON.Value
 deleteWaypointR waypointId = do
-    runDB $ deleteCascade waypointId
+    runDB $ D.deleteWaypoint waypointId
     return $ JSON.toJSON ()
-
-
-addWaypoint :: (PersistStore m, PersistMonadBackend m ~ PersistEntityBackend M.Waypoint) =>
-               T.Text ->
-               GeoWpt.Wpt ->
-               m M.WaypointId
-addWaypoint name wpt = do
-    waypointId <- insert $ M.Waypoint name
-    forM_ (GeoWpt.items wpt) $ \item ->
-        insert $ M.WaypointItem waypointId
-                                (GeoWpt.name item)
-                                (realToFrac $ GeoWpt.latitude item)
-                                (realToFrac $ GeoWpt.longitude item)
-                                (realToFrac $ GeoWpt.altitude item)
-                                (GeoWpt.description item)
-    return waypointId
