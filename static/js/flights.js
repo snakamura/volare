@@ -1,20 +1,20 @@
 $(function() {
     var flights = new Flights();
     $(flights).on('flight_added', function(event, flight, index) {
-        var tr = $('<tr>' +
-                   '<td class="name"><a></a></td>' +
-                   '<td class="time"></td>' +
-                   '<td class="duration"></td>' +
-                   '</tr>');
-        tr.find('.name a').attr('href', '/flights/' + flight.id).text(flight.name);
-        tr.find('.time').text(common.formatTime(new Date(flight.time)));
-        tr.find('.duration').text(common.formatDuration(flight.duration));
+        var $tr = $('<tr>' +
+                    '<td class="name"><a></a></td>' +
+                    '<td class="time"></td>' +
+                    '<td class="duration"></td>' +
+                    '</tr>');
+        $tr.find('.name a').attr('href', '/flights/' + flight.id).text(flight.name);
+        $tr.find('.time').text(common.formatTime(new Date(flight.time)));
+        $tr.find('.duration').text(common.formatDuration(flight.duration));
 
-        var rows = $('#flights tbody tr');
-        if (rows.length > index)
-            $(rows[index]).before(tr);
+        var $rows = $('#flights tbody tr');
+        if ($rows.length > index)
+            $($rows[index]).before($tr);
         else
-            $('#flights tbody').append(tr);
+            $('#flights tbody').append($tr);
     });
 
     $.getJSON('/flights', function(fs) {
@@ -25,11 +25,10 @@ $(function() {
         _.each(files, function(file) {
             var reader = new FileReader();
             $(reader).on('loadend', function(event) {
-                var data = {
+                $.postJSON('/flights', {
                     name: common.basename(file.name),
                     igc: reader.result
-                };
-                $.postJSON('/flights', data, function(flight) {
+                }, function(flight) {
                     if (files.length == 1)
                         document.location.href = '/flights/' + flight.id;
                     else
@@ -45,18 +44,18 @@ $(function() {
         return false;
     });
 
-    var dropTarget = $('#flights');
-    dropTarget.on('dragenter', function(event) {
+    var $dropTarget = $('#flights');
+    $dropTarget.on('dragenter', function(event) {
         event.preventDefault();
         event.originalEvent.dataTransfer.dropEffect = 'copy';
     });
-    dropTarget.on('dragleave', function(event) {
+    $dropTarget.on('dragleave', function(event) {
         event.preventDefault();
     });
-    dropTarget.on('dragover', function(event) {
+    $dropTarget.on('dragover', function(event) {
         event.preventDefault();
     });
-    dropTarget.on('drop', function(event) {
+    $dropTarget.on('drop', function(event) {
         event.preventDefault();
         addFiles(event.originalEvent.dataTransfer.files);
     });

@@ -1,13 +1,13 @@
 $(function() {
-    var map = $('#map');
-    var m = new google.maps.Map(map[0], {
+    var $map = $('#map');
+    var map = new google.maps.Map($map[0], {
         mapTypeId: google.maps.MapTypeId.HYBRID
     });
 
     function layout() {
-        map.width($(document).width());
-        var mapPosition = map.position();
-        map.height($(document).height() - mapPosition.top);
+        $map.width($(document).width());
+        var mapPosition = $map.position();
+        $map.height($(document).height() - mapPosition.top);
     }
     $(window).on('resize', layout);
     layout();
@@ -21,7 +21,7 @@ $(function() {
                 label += ' (' + item.description + ')';
             }
             var marker = new MarkerWithLabel({
-                map: m,
+                map: map,
                 position: position,
                 title: item.name,
                 labelContent: label,
@@ -35,7 +35,7 @@ $(function() {
                 bounds.extend(position);
         });
 
-        m.fitBounds(bounds);
+        map.fitBounds(bounds);
     });
 
     common.makeNameEditable(function(name) {

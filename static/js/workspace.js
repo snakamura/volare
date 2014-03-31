@@ -26,68 +26,67 @@ $(function() {
     });
 
     $('#add_flight').on('click', function() {
-        var modal = $('#add_flight_modal');
-        var body = modal.find('.modal-body');
-        body.text('Loading...');
-        modal.modal({
+        var $modal = $('#add_flight_modal');
+        var $body = $modal.find('.modal-body');
+        $body.text('Loading...');
+        $modal.modal({
             backdrop: 'static'
         });
         $.getJSON('/workspaces/' + workspaceId + '/candidates', function(flights) {
-            body.text('');
-            var ul = $('<ul></ul>');
-            body.append(ul);
+            $body.empty();
+            var $ul = $('<ul></ul>');
+            $body.append($ul);
             _.each(flights, function(flight) {
-                var e = $('<li><label><input type="checkbox" name="flights"><span></span></label></li>');
-                e.find('input').prop('value', flight.id);
-                e.find('span').text(flight.name);
-                ul.append(e);
+                var $e = $('<li><label><input type="checkbox" name="flights"><span></span></label></li>');
+                $e.find('input').prop('value', flight.id);
+                $e.find('span').text(flight.name);
+                $ul.append($e);
             });
         });
     });
     $('#add_flight_modal .btn-primary').on('click', function() {
-        var modal = $('#add_flight_modal');
-        var flightIds = _.map(modal.find('input:checked[type=checkbox]'), function(checkbox) {
+        var $modal = $('#add_flight_modal');
+        var flightIds = _.map($modal.find('input:checked[type=checkbox]'), function(checkbox) {
             return parseInt(checkbox.value, 10);
         });
         if (flightIds.length === 0) {
-            modal.modal('hide');
+            $modal.modal('hide');
             return;
         }
 
-        var data = {
+        $.postJSON('/workspaces/' + workspaceId + '/flights', {
             flightIds: flightIds
-        };
-        $.postJSON('/workspaces/' + workspaceId + '/flights', data, function(flights) {
+        }, function(flights) {
             _.each(flights, function(flight) {
                 addFlight(flight.id, flight.color);
             });
-            modal.modal('hide');
+            $modal.modal('hide');
         });
     });
 
     $('#remove_flight').on('click', function() {
-        var modal = $('#remove_flight_modal');
-        var body = modal.find('.modal-body');
-        body.text('');
-        var ul = $('<ul></ul>');
-        body.append(ul);
+        var $modal = $('#remove_flight_modal');
+        var $body = $modal.find('.modal-body');
+        $body.empty();
+        var $ul = $('<ul></ul>');
+        $body.append($ul);
         flights.eachFlight(function(flight) {
-            var e = $('<li><label><input type="checkbox" name="flights"><span></span></label></li>');
-            e.find('input').prop('value', flight.getId());
-            e.find('span').text(flight.getName());
-            ul.append(e);
+            var $e = $('<li><label><input type="checkbox" name="flights"><span></span></label></li>');
+            $e.find('input').prop('value', flight.getId());
+            $e.find('span').text(flight.getName());
+            $ul.append($e);
         });
-        modal.modal({
+        $modal.modal({
             backdrop: 'static'
         });
     });
     $('#remove_flight_modal .btn-primary').on('click', function() {
-        var modal = $('#remove_flight_modal');
-        var flightIds = _.map(modal.find('input:checked[type=checkbox]'), function(checkbox) {
+        var $modal = $('#remove_flight_modal');
+        var flightIds = _.map($modal.find('input:checked[type=checkbox]'), function(checkbox) {
             return parseInt(checkbox.value, 10);
         });
         if (flightIds.length === 0) {
-            modal.modal('hide');
+            $modal.modal('hide');
             return;
         }
 
@@ -97,7 +96,7 @@ $(function() {
             });
         });
 
-        modal.modal('hide');
+        $modal.modal('hide');
     });
 
     function addFlight(flightId, color) {
@@ -117,19 +116,17 @@ $(function() {
                     };
                 });
                 $.postJSON('/routes', r, function(route) {
-                    var data = {
+                    $.putJSON('', {
                         routeId: route.id
-                    };
-                    $.putJSON('', data, function(workspace) {
+                    }, function(workspace) {
                     });
                 });
             }
         }
         else {
-            var data = {
+            $.putJSON('', {
                 routeId: null
-            };
-            $.putJSON('', data, function(workspace) {
+            }, function(workspace) {
                 console.log(workspace);
             });
         }

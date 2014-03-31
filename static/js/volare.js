@@ -579,26 +579,26 @@ var volare = volare || {};
     Flight.STATUS_GLIDING = 2;
 
 
-    function Player(flights, player) {
+    function Player(flights, $player) {
         this._flights = flights;
-        this._player = player;
+        this._$player = $player;
 
         this._timer = null;
 
         var self = this;
 
-        this._player.html('<div>' +
-                          '<div class="btn-group">' +
-                          '<button class="btn btn-default play"><span class="glyphicon glyphicon-play"></span></button>' +
-                          '<button class="btn btn-default stop"><span class="glyphicon glyphicon-stop"></span></button>' +
-                          '</div>' +
-                          '<span class="time"></span>' +
-                          '</div>' +
-                          '<div class="slider"></div>');
+        this._$player.html('<div>' +
+                           '<div class="btn-group">' +
+                           '<button class="btn btn-default play"><span class="glyphicon glyphicon-play"></span></button>' +
+                           '<button class="btn btn-default stop"><span class="glyphicon glyphicon-stop"></span></button>' +
+                           '</div>' +
+                           '<span class="time"></span>' +
+                           '</div>' +
+                           '<div class="slider"></div>');
 
-        this._player.find('.play').on('click', _.bind(this.play, this));
-        this._player.find('.stop').on('click', _.bind(this.stop, this));
-        this._player.find('.slider').slider({
+        this._$player.find('.play').on('click', _.bind(this.play, this));
+        this._$player.find('.stop').on('click', _.bind(this.stop, this));
+        this._$player.find('.slider').slider({
             range: 'min',
             min: 0,
             max: 100
@@ -652,27 +652,27 @@ var volare = volare || {};
     };
 
     Player.prototype._updateButtons = function() {
-        this._player.find('.play span').addClass(this._timer ? 'glyphicon-pause' : 'glyphicon-play');
-        this._player.find('.play span').removeClass(this._timer ? 'glyphicon-play' : 'glyphicon-pause');
-        this._player.find('.stop').prop('disabled', !this._timer && !this._flights.getCurrentTime());
+        this._$player.find('.play span').addClass(this._timer ? 'glyphicon-pause' : 'glyphicon-play');
+        this._$player.find('.play span').removeClass(this._timer ? 'glyphicon-play' : 'glyphicon-pause');
+        this._$player.find('.stop').prop('disabled', !this._timer && !this._flights.getCurrentTime());
     };
 
     Player.prototype._updateSliderRange = function() {
-        var slider = this._player.find('.slider');
-        slider.slider('option', 'min', this._flights.getStartTime() ? this._flights.getStartTime().getTime() : 0);
-        slider.slider('option', 'max', this._flights.getEndTime() ? this._flights.getEndTime().getTime() : 0);
+        var $slider = this._$player.find('.slider');
+        $slider.slider('option', 'min', this._flights.getStartTime() ? this._flights.getStartTime().getTime() : 0);
+        $slider.slider('option', 'max', this._flights.getEndTime() ? this._flights.getEndTime().getTime() : 0);
 
         this._updateSliderValue();
     };
 
     Player.prototype._updateSliderValue = function() {
-        var slider = this._player.find('.slider');
+        var $slider = this._$player.find('.slider');
         var time = this._flights.getCurrentTime();
-        slider.slider('value', time ? time.getTime() : slider.slider('option', 'min'));
+        $slider.slider('value', time ? time.getTime() : $slider.slider('option', 'min'));
     };
 
     Player.prototype._updateTime = function() {
-        var timeLabel = this._player.find('.time');
+        var timeLabel = this._$player.find('.time');
         var time = this._flights.getCurrentTime() || this._flights.getStartTime();
         timeLabel.text(Player.formatTime(time));
     };
@@ -685,9 +685,9 @@ var volare = volare || {};
     };
 
 
-    function Map(flights, map) {
+    function Map(flights, $map) {
         this._flights = flights;
-        this._map = new google.maps.Map(map[0], {
+        this._map = new google.maps.Map($map[0], {
             mapTypeId: google.maps.MapTypeId.HYBRID
         });
         this._msmSurfaceOverlay = new MSMSurfaceOverlay(this._flights);
@@ -1043,7 +1043,7 @@ var volare = volare || {};
         var self = this;
 
         this._flights = flights;
-        this._div = null;
+        this._$div = null;
         this._idleListener = null;
         this._listener = function() {
             self._update();
@@ -1052,12 +1052,12 @@ var volare = volare || {};
     common.inherit(WeatherOverlay, google.maps.OverlayView);
 
     WeatherOverlay.prototype.onAdd = function() {
-        var div = $('<div class="weather ' + this._getClassName() + '"></div>');
+        var $div = $('<div class="weather ' + this._getClassName() + '"></div>');
 
         var panes = this.getPanes();
-        panes.overlayLayer.appendChild(div[0]);
+        panes.overlayLayer.appendChild($div[0]);
 
-        this._div = div;
+        this._$div = $div;
 
         var map = this.getMap();
         var self = this;
@@ -1080,8 +1080,8 @@ var volare = volare || {};
         google.maps.event.removeListener(this._idleListener);
         this._idleListener = null;
 
-        this._div.remove();
-        this._div = null;
+        this._$div.remove();
+        this._$div = null;
 
         this._clear();
     };
@@ -1173,11 +1173,11 @@ var volare = volare || {};
         var sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
         var ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
 
-        var div = this._div;
-        div.css('left', sw.x + 'px');
-        div.css('top', ne.y + 'px');
-        div.css('width', (ne.x - sw.x) + 'px');
-        div.css('height', (sw.y - ne.y) + 'px');
+        var $div = this._$div;
+        $div.css('left', sw.x + 'px');
+        $div.css('top', ne.y + 'px');
+        $div.css('width', (ne.x - sw.x) + 'px');
+        $div.css('height', (sw.y - ne.y) + 'px');
 
         if (!_.isEmpty(this._items)) {
             var self = this;
@@ -1191,35 +1191,35 @@ var volare = volare || {};
                 var width = se.x - nw.x;
                 var height = se.y - nw.y;
 
-                var elem = item.elem;
-                if (!elem) {
-                    elem = $('<div class="item"><div class="cell"><img class="wind"><br><span class="temperature"></span></div></div>');
-                    div.append(elem);
+                var $elem = item.$elem;
+                if (!$elem) {
+                    $elem = $('<div class="item"><div class="cell"><img class="wind"><br><span class="temperature"></span></div></div>');
+                    $div.append($elem);
 
                     var windSpeed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
                     var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
                     var windIconIndex = WeatherOverlay.windIconIndex(windSpeed);
-                    var windImage = elem.find('.wind');
-                    windImage[0].src = '/static/image/weather/wind/' + windIconIndex + '.png';
-                    windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
-                    windImage.css('visibility', self._isWindVisible(item) ? 'visible' : 'hidden');
+                    var $windImage = $elem.find('.wind');
+                    $windImage[0].src = '/static/image/weather/wind/' + windIconIndex + '.png';
+                    $windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
+                    $windImage.css('visibility', self._isWindVisible(item) ? 'visible' : 'hidden');
 
-                    var temperatureDiv = elem.find('.temperature');
-                    temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.airTemperature, 0.5));
-                    temperatureDiv.text(Math.round(item.airTemperature*10)/10);
-                    temperatureDiv.css('visibility', self._isTemperatureVisible(item) ? 'visible' : 'hidden');
+                    var $temperatureDiv = $elem.find('.temperature');
+                    $temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.airTemperature, 0.5));
+                    $temperatureDiv.text(Math.round(item.airTemperature*10)/10);
+                    $temperatureDiv.css('visibility', self._isTemperatureVisible(item) ? 'visible' : 'hidden');
 
-                    elem.css('background-color', 'rgba(255, 255, 255, ' + (self._isCloudAmountVisible(item) ? item.cloudAmount/100*0.9 : 0) + ')');
+                    $elem.css('background-color', 'rgba(255, 255, 255, ' + (self._isCloudAmountVisible(item) ? item.cloudAmount/100*0.9 : 0) + ')');
 
-                    item.elem = elem;
+                    item.$elem = $elem;
                 }
 
-                elem.css('left', nw.x + 'px');
-                elem.css('top', nw.y + 'px');
+                $elem.css('left', nw.x + 'px');
+                $elem.css('top', nw.y + 'px');
 
-                var cell = elem.find('.cell');
-                cell.css('width', width + 'px');
-                cell.css('height', height + 'px');
+                var $cell = $elem.find('.cell');
+                $cell.css('width', width + 'px');
+                $cell.css('height', height + 'px');
             });
         }
     };
@@ -1247,15 +1247,15 @@ var volare = volare || {};
                             var key = self._getItemKey(item);
                             var oldItem = oldItems[key];
                             if (!_.isUndefined(oldItem)) {
-                                item.elem = oldItem.elem;
+                                item.$elem = oldItem.$elem;
                                 delete oldItems[key];
                             }
                             newItems[key] = item;
                         });
                         _.each(oldItems, function(item) {
-                            var elem = item.elem;
-                            if (elem)
-                                elem.remove();
+                            var $elem = item.$elem;
+                            if ($elem)
+                                $elem.remove();
                         });
                         self._items = newItems;
                     }
@@ -1265,7 +1265,7 @@ var volare = volare || {};
                             var key = self._getItemKey(item);
                             self._items[key] = item;
                         });
-                        self._div.empty();
+                        self._$div.empty();
                     }
                     self._time = time;
                     self._bounds = bounds;
@@ -1277,7 +1277,7 @@ var volare = volare || {};
             this._items = {};
             this._time = null;
             this._bounds = null;
-            this._div.empty();
+            this._$div.empty();
             this._draw();
         }
     };
@@ -1443,62 +1443,62 @@ var volare = volare || {};
         var sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
         var ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
 
-        var div = this._div;
-        div.css('left', sw.x + 'px');
-        div.css('top', ne.y + 'px');
-        div.css('width', (ne.x - sw.x) + 'px');
-        div.css('height', (sw.y - ne.y) + 'px');
+        var $div = this._$div;
+        $div.css('left', sw.x + 'px');
+        $div.css('top', ne.y + 'px');
+        $div.css('width', (ne.x - sw.x) + 'px');
+        $div.css('height', (sw.y - ne.y) + 'px');
 
         if (!_.isEmpty(this._items)) {
             var self = this;
             var time = this._flights.getCurrentTime() || this._flights.getStartTime();
             var minute = Math.floor((time.getUTCHours()*60 + time.getMinutes())/10)*10;
             _.each(this._items, function(item) {
-                var elem = item.elem;
+                var $elem = item.$elem;
 
                 if (item.time != minute)
                     return;
 
-                if (elem) {
-                    if (!elem.parent())
-                        div.append(elem);
+                if ($elem) {
+                    if (!$elem.parent())
+                        $div.append($elem);
                 }
                 else {
-                    elem = $('<div class="item"><div class="cell"><img class="wind"><br><span class="temperature"></span></div></div>');
-                    div.append(elem);
+                    $elem = $('<div class="item"><div class="cell"><img class="wind"><br><span class="temperature"></span></div></div>');
+                    $div.append($elem);
 
                     var windIconIndex = WeatherOverlay.windIconIndex(item.windSpeed);
-                    var windImage = elem.find('.wind');
+                    var $windImage = $elem.find('.wind');
                     var windAngle = AMEDASOverlay.windAngle(item.windDirection);
                     if (!_.isNull(windAngle)) {
-                        windImage[0].src = '/static/image/weather/wind/' + windIconIndex + '.png';
-                        windImage.css('transform', 'rotate(' + (-windAngle) + 'deg)');
-                        windImage.css('visibility', self._flags & Map.AMEDAS_WIND ? 'visible' : 'hidden');
+                        $windImage[0].src = '/static/image/weather/wind/' + windIconIndex + '.png';
+                        $windImage.css('transform', 'rotate(' + (-windAngle) + 'deg)');
+                        $windImage.css('visibility', self._flags & Map.AMEDAS_WIND ? 'visible' : 'hidden');
                     }
                     else {
-                        windImage.css('display', 'none');
+                        $windImage.css('display', 'none');
                     }
 
-                    var temperatureDiv = elem.find('.temperature');
+                    var $temperatureDiv = $elem.find('.temperature');
                     if (!_.isNull(item.temperature)) {
-                        temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.temperature, 1.0));
-                        temperatureDiv.text(Math.round(item.temperature*10)/10);
-                        temperatureDiv.css('visibility', self._flags & Map.AMEDAS_TEMPERATURE ? 'visible' : 'hidden');
+                        $temperatureDiv.css('background-color', WeatherOverlay.colorForTemperature(item.temperature, 1.0));
+                        $temperatureDiv.text(Math.round(item.temperature*10)/10);
+                        $temperatureDiv.css('visibility', self._flags & Map.AMEDAS_TEMPERATURE ? 'visible' : 'hidden');
                     }
                     else {
-                        temperatureDiv.css('display', 'none');
+                        $temperatureDiv.css('display', 'none');
                     }
 
                     if (!_.isNull(item.sunshine)) {
-                        elem.css('background-color', self._flags & Map.AMEDAS_SUNSHINE ? AMEDASOverlay.colorForSunshine(item.sunshine) : 'rgba(255, 255, 255, 0)');
+                        $elem.css('background-color', self._flags & Map.AMEDAS_SUNSHINE ? AMEDASOverlay.colorForSunshine(item.sunshine) : 'rgba(255, 255, 255, 0)');
                     }
 
-                    item.elem = elem;
+                    item.$elem = $elem;
                 }
 
                 var pos = projection.fromLatLngToDivPixel(new LatLng(item.latitude, item.longitude));
-                elem.css('left', (pos.x - 14) + 'px');
-                elem.css('top', (pos.y - 10) + 'px');
+                $elem.css('left', (pos.x - 14) + 'px');
+                $elem.css('top', (pos.y - 10) + 'px');
             });
         }
     };
@@ -1526,15 +1526,15 @@ var volare = volare || {};
                             var key = item.latitude + ' ' + item.longitude + ' ' + item.time;
                             var oldItem = oldItems[key];
                             if (!_.isUndefined(oldItem)) {
-                                item.elem = oldItem.elem;
+                                item.$elem = oldItem.$elem;
                                 delete oldItems[key];
                             }
                             newItems[key] = item;
                         });
                         _.each(oldItems, function(item) {
-                            var elem = item.elem;
-                            if (elem)
-                                elem.remove();
+                            var $elem = item.$elem;
+                            if ($elem)
+                                $elem.remove();
                         });
                         self._items = newItems;
                     }
@@ -1544,7 +1544,7 @@ var volare = volare || {};
                             var key = item.latitude + ' ' + item.longitude + ' ' + item.time;
                             self._items[key] = item;
                         });
-                        self._div.empty();
+                        self._$div.empty();
                     }
                     self._time = time;
                     self._bounds = bounds;
@@ -1553,10 +1553,10 @@ var volare = volare || {};
             }
             else if (!WeatherOverlay.tenMinutesEquals(this._time, time)) {
                 _.each(this._items, function(item) {
-                    item.elem = null;
+                    item.$elem = null;
                 });
                 this._time = time;
-                this._div.empty();
+                this._$div.empty();
                 this._draw();
             }
         }
@@ -1564,7 +1564,7 @@ var volare = volare || {};
             this._items = {};
             this._time = null;
             this._bounds = null;
-            this._div.empty();
+            this._$div.empty();
             this._draw();
         }
     };
@@ -1622,30 +1622,30 @@ var volare = volare || {};
     };
 
 
-    function Graph(flights, graph) {
-        var gridCanvas = $('<canvas></canvas>');
-        graph.append(gridCanvas);
+    function Graph(flights, $graph) {
+        var $gridCanvas = $('<canvas></canvas>');
+        $graph.append($gridCanvas);
 
-        var canvas = $('<canvas></canvas>');
-        graph.append(canvas);
+        var $canvas = $('<canvas></canvas>');
+        $graph.append($canvas);
 
-        var currentCanvas = $('<canvas></canvas>');
-        graph.append(currentCanvas);
+        var $currentCanvas = $('<canvas></canvas>');
+        $graph.append($currentCanvas);
 
         this._flights = flights;
-        this._width = graph.width();
-        this._height = graph.height();
+        this._width = $graph.width();
+        this._height = $graph.height();
 
         var self = this;
-        _.each(graph.children('canvas'), function(canvas) {
+        _.each($graph.children('canvas'), function(canvas) {
             canvas.width = self._width;
             canvas.height = self._height;
         });
 
-        this._gridContext = gridCanvas[0].getContext('2d');
-        this._context = canvas[0].getContext('2d');
+        this._gridContext = $gridCanvas[0].getContext('2d');
+        this._context = $canvas[0].getContext('2d');
         this._context.globalAlpha = 0.3;
-        this._currentContext = currentCanvas[0].getContext('2d');
+        this._currentContext = $currentCanvas[0].getContext('2d');
 
         var visibleChangedListener = function() {
             self._refresh();
@@ -1782,8 +1782,8 @@ var volare = volare || {};
     };
 
 
-    function AltitudeGraph(flights, canvas) {
-        Graph.call(this, flights, canvas);
+    function AltitudeGraph(flights, $canvas) {
+        Graph.call(this, flights, $canvas);
     }
     common.inherit(AltitudeGraph, Graph);
 
@@ -1855,8 +1855,8 @@ var volare = volare || {};
     };
 
 
-    function SpeedGraph(flights, canvas) {
-        Graph.call(this, flights, canvas);
+    function SpeedGraph(flights, $canvas) {
+        Graph.call(this, flights, $canvas);
     }
     common.inherit(SpeedGraph, Graph);
 
@@ -1916,25 +1916,25 @@ var volare = volare || {};
     };
 
 
-    function Chart(flights, chart) {
+    function Chart(flights, $chart) {
         this._flights = flights;
-        this._chart = chart;
+        this._$chart = $chart;
 
-        this._chart.html('<table><thead>' +
-                           '<tr>' +
-                             '<th class="visible"></th>' +
-                             '<th class="name">Name</th>' +
-                             '<th class="color">Color</th>' +
-                             '<th class="latitude">Latitude</th>' +
-                             '<th class="longitude">Longitude</th>' +
-                             '<th class="altitude">Altitude</th>' +
-                             '<th class="ground_speed">Ground Speed</th>' +
-                             '<th class="vertical_speed">Vertical Speed</th>' +
-                             '<th class="status">Status</th>' +
-                             '<th class="ld">L/D</th>' +
-                             '<th class="average_climb">Average Climb</th>' +
-                           '</tr>' +
-                         '</thead><tbody></tbody></table>');
+        this._$chart.html('<table><thead>' +
+                            '<tr>' +
+                              '<th class="visible"></th>' +
+                              '<th class="name">Name</th>' +
+                              '<th class="color">Color</th>' +
+                              '<th class="latitude">Latitude</th>' +
+                              '<th class="longitude">Longitude</th>' +
+                              '<th class="altitude">Altitude</th>' +
+                              '<th class="ground_speed">Ground Speed</th>' +
+                              '<th class="vertical_speed">Vertical Speed</th>' +
+                              '<th class="status">Status</th>' +
+                              '<th class="ld">L/D</th>' +
+                              '<th class="average_climb">Average Climb</th>' +
+                            '</tr>' +
+                          '</thead><tbody></tbody></table>');
 
         var self = this;
         var row = _.template('<tr class="flight_<%- getId() %>">' +
@@ -1951,20 +1951,20 @@ var volare = volare || {};
                                '<td class="average_climb"></td>' +
                              '</tr>');
         $(this._flights).on('flight_added', function(event, flight, index) {
-            var tr = $(row(flight));
-            tr.find('input').on('change', function(event) {
+            var $tr = $(row(flight));
+            $tr.find('input').on('change', function(event) {
                 flight.setVisible(event.target.checked);
             });
-            var tbody = self._chart.find('tbody');
+            var tbody = self._$chart.find('tbody');
             if (tbody.find('tr')[index])
-                $(tbody.find('tr')[index]).before(tr);
+                $(tbody.find('tr')[index]).before($tr);
             else
-                tbody.append(tr);
+                tbody.append($tr);
             self._update();
         });
         $(this._flights).on('flight_removed', function(event, flight) {
-            var tr = self._chart.find('.flight_' + flight.getId());
-            tr.remove();
+            var $tr = self._$chart.find('.flight_' + flight.getId());
+            $tr.remove();
         });
         $(this._flights).on('currenttime_changed', _.bind(this._update, this));
     }
@@ -1974,16 +1974,16 @@ var volare = volare || {};
         var self = this;
         this._flights.eachFlight(function(flight) {
             var position = flight.getPositionAt(time);
-            var tr = self._chart.find('.flight_' + flight.getId());
-            tr.find('input').prop('checked', flight.isVisible());
-            tr.find('td.latitude').text(Chart.formatPosition(position.latitude));
-            tr.find('td.longitude').text(Chart.formatPosition(position.longitude));
-            tr.find('td.altitude').text(Chart.formatAltitude(position.altitude));
-            tr.find('td.ground_speed').text(Chart.formatSpeed(flight.getGroundSpeedAt(time)));
-            tr.find('td.vertical_speed').text(Chart.formatVerticalSpeed(flight.getVerticalSpeedAt(time)));
-            tr.find('td.status').text(Chart.formatStatus(flight.getStatusAt(time)));
-            tr.find('td.ld').text(Chart.formatLD(flight.getLD(time)));
-            tr.find('td.average_climb').text(Chart.formatAverageClimb(flight.getAverageClimb(time)));
+            var $tr = self._$chart.find('.flight_' + flight.getId());
+            $tr.find('input').prop('checked', flight.isVisible());
+            $tr.find('td.latitude').text(Chart.formatPosition(position.latitude));
+            $tr.find('td.longitude').text(Chart.formatPosition(position.longitude));
+            $tr.find('td.altitude').text(Chart.formatAltitude(position.altitude));
+            $tr.find('td.ground_speed').text(Chart.formatSpeed(flight.getGroundSpeedAt(time)));
+            $tr.find('td.vertical_speed').text(Chart.formatVerticalSpeed(flight.getVerticalSpeedAt(time)));
+            $tr.find('td.status').text(Chart.formatStatus(flight.getStatusAt(time)));
+            $tr.find('td.ld').text(Chart.formatLD(flight.getLD(time)));
+            $tr.find('td.average_climb').text(Chart.formatAverageClimb(flight.getAverageClimb(time)));
         });
     };
 
@@ -2032,11 +2032,11 @@ var volare = volare || {};
     };
 
 
-    function OptionsControl(map, options) {
+    function OptionsControl(map, $options) {
         function updateGradient() {
-            options.find('.gradient').prop('checked', map.isUseGradientColorTrack());
+            $options.find('.gradient').prop('checked', map.isUseGradientColorTrack());
         }
-        options.find('.gradient').on('click', function(event) {
+        $options.find('.gradient').on('click', function(event) {
             map.setUseGradientColorTrack($(event.target).prop('checked'));
         });
         $(map).on('useGradientColorTrack_changed', updateGradient);
@@ -2044,10 +2044,10 @@ var volare = volare || {};
     }
 
 
-    function WaypointControl(map, waypoint) {
-        var select = waypoint.find('select');
-        select.on('change', function(event) {
-            var waypointId = select.val();
+    function WaypointControl(map, $waypoint) {
+        var $select = $waypoint.find('select');
+        $select.on('change', function(event) {
+            var waypointId = $select.val();
             if (waypointId !== '0') {
                 $.getJSON('/waypoints/' + waypointId, function(w) {
                     map.setWaypoint(w);
@@ -2058,26 +2058,26 @@ var volare = volare || {};
             }
         });
         $(map).on('waypoint_changed', function() {
-            select.val(map.getWaypoint().id);
+            $select.val(map.getWaypoint().id);
         });
 
         $.getJSON('/waypoints', function(waypoints) {
             _.each(waypoints, function(waypoint) {
-                var option = $('<option>');
-                option.attr('value', waypoint.id);
-                option.text(waypoint.name);
-                select.append(option);
+                var $option = $('<option>');
+                $option.attr('value', waypoint.id);
+                $option.text(waypoint.name);
+                $select.append($option);
             });
         });
     }
 
 
-    function RouteControl(map, route) {
-        var edit = route.find('.edit');
-        edit.on('click', function() {
-            var modal = $('#edit_route_modal');
+    function RouteControl(map, $route) {
+        var $edit = $route.find('.edit');
+        $edit.on('click', function() {
+            var $modal = $('#edit_route_modal');
 
-            var tbody = modal.find('table.waypoints tbody');
+            var $tbody = $modal.find('table.waypoints tbody');
             var waypoint = null;
 
             function getWaypointItem(waypointItemId) {
@@ -2087,49 +2087,49 @@ var volare = volare || {};
             }
 
             function addRow() {
-                var tr = $('<tr>' +
-                           '<td class="name"><select><option value="0">(Select)</option></select></td>' +
-                           '<td class="radius"><input type="number" value="400">m</td>' +
-                           '</tr>');
-                var select = tr.find('select');
+                var $tr = $('<tr>' +
+                            '<td class="name"><select><option value="0">(Select)</option></select></td>' +
+                            '<td class="radius"><input type="number" value="400">m</td>' +
+                            '</tr>');
+                var $select = $tr.find('select');
                 _.each(waypoint.items, function(item) {
-                    var option = $('<option>');
-                    option.attr('value', item.id);
+                    var $option = $('<option>');
+                    $option.attr('value', item.id);
                     var name = item.name;
                     if (item.name !== item.description)
                         name += ' (' + item.description + ')';
-                    option.text(name);
-                    select.append(option);
+                    $option.text(name);
+                    $select.append($option);
                 });
-                select.on('change', function() {
-                    var lastSelect = tbody.find('tr:last-child select');
-                    if (lastSelect.val() !== '0')
+                $select.on('change', function() {
+                    var $lastSelect = $tbody.find('tr:last-child select');
+                    if ($lastSelect.val() !== '0')
                         addRow();
                 });
-                tbody.append(tr);
+                $tbody.append($tr);
             }
 
-            var select = modal.find('select.waypoint');
-            select.on('change', function(event) {
-                var waypointId = select.val();
+            var $select = $modal.find('select.waypoint');
+            $select.on('change', function(event) {
+                var waypointId = $select.val();
                 if (waypointId !== '0') {
                     $.getJSON('/waypoints/' + waypointId, function(w) {
-                        tbody.text('');
+                        $tbody.empty();
                         waypoint = w;
                         addRow();
                     });
                 }
                 else {
-                    tbody.text('');
+                    $tbody.empty();
                     waypoint = null;
                 }
             });
 
-            modal.find('.btn-primary').on('click', function() {
+            $modal.find('.btn-primary').on('click', function() {
                 var route = {
                     items: []
                 };
-                _.each(tbody.find('tr'), function(tr) {
+                _.each($tbody.find('tr'), function(tr) {
                     var waypointItemId = parseInt($(tr).find('td.name select').val(), 10);
                     if (waypointItemId !== 0) {
                         var radius = parseInt($(tr).find('td.radius input').val(), 10) || 400;
@@ -2141,82 +2141,81 @@ var volare = volare || {};
                 });
                 map.setRoute(route.items.length !== 0 ? route : null);
 
-                modal.modal('hide');
+                $modal.modal('hide');
             });
 
             $.getJSON('/waypoints', function(waypoints) {
                 _.each(waypoints, function(waypoint) {
-                    var option = $('<option>');
-                    option.attr('value', waypoint.id);
-                    option.text(waypoint.name);
-                    select.append(option);
+                    var $option = $('<option>');
+                    $option.attr('value', waypoint.id);
+                    $option.text(waypoint.name);
+                    $select.append($option);
                 });
             });
 
-            modal.on('hidden.bs.modal', function() {
-                _.each(select.find('option'), function(option) {
+            $modal.on('hidden.bs.modal', function() {
+                _.each($select.find('option'), function(option) {
                     if ($(option).val() !== '0')
                         $(option).remove();
                 });
 
-                tbody.text('');
+                $tbody.empty();
                 waypoint = null;
 
-                modal.find('*').off();
+                $modal.find('*').off();
             });
 
-            modal.modal({
+            $modal.modal({
                 backdrop: 'static'
             });
         });
 
         $(map).on('route_changed', function() {
-            var r = map.getRoute();
+            var route = map.getRoute();
             var s = '';
-            if (r) {
-                s = _.map(r.items, function(routeItem) {
+            if (route) {
+                s = _.map(route.items, function(routeItem) {
                     return routeItem.waypointItem.name;
                 }).join(' - ');
             }
 
-            var span = route.find('span');
-            span.text(s);
+            $route.find('span').text(s);
         });
     }
 
 
-    function WeatherControl(map, weather) {
-        function makeItem(selector, flags) {
+    function WeatherControl(map, $weather) {
+        function makeItem($elem, flags) {
             return {
-                selector: selector,
+                $elem: $elem,
                 flags: flags
             };
         }
-        var msm = weather.find('.msm');
-        var amedas = weather.find('.amedas');
+        var $msm = $weather.find('.msm');
+        var $amedas = $weather.find('.amedas');
         var items = [
-            makeItem(msm.find('.surface_all'), Map.MSM_SURFACE),
-            makeItem(msm.find('.surface_wind'), Map.MSM_SURFACE_WIND),
-            makeItem(msm.find('.surface_temperature'), Map.MSM_SURFACE_TEMPERATURE),
-            makeItem(msm.find('.surface_cloud_amount'), Map.MSM_SURFACE_CLOUD_AMOUNT),
-            makeItem(amedas.find('.all'), Map.AMEDAS),
-            makeItem(amedas.find('.wind'), Map.AMEDAS_WIND),
-            makeItem(amedas.find('.temperature'), Map.AMEDAS_TEMPERATURE),
-            makeItem(amedas.find('.sunshine'), Map.AMEDAS_SUNSHINE)
+            makeItem($msm.find('.surface_all'), Map.MSM_SURFACE),
+            makeItem($msm.find('.surface_wind'), Map.MSM_SURFACE_WIND),
+            makeItem($msm.find('.surface_temperature'), Map.MSM_SURFACE_TEMPERATURE),
+            makeItem($msm.find('.surface_cloud_amount'), Map.MSM_SURFACE_CLOUD_AMOUNT),
+            makeItem($amedas.find('.all'), Map.AMEDAS),
+            makeItem($amedas.find('.wind'), Map.AMEDAS_WIND),
+            makeItem($amedas.find('.temperature'), Map.AMEDAS_TEMPERATURE),
+            makeItem($amedas.find('.sunshine'), Map.AMEDAS_SUNSHINE)
         ];
         _.each([1000, 975, 950, 925, 900, 850, 800, 700], function(airPressure) {
-            items.push(makeItem(msm.find('.barometric_' + airPressure), Map['MSM_BAROMETRIC_' + airPressure]));
-            items.push(makeItem(msm.find('.barometric_' + airPressure + '_wind'), Map['MSM_BAROMETRIC_' + airPressure + '_WIND']));
-            items.push(makeItem(msm.find('.barometric_' + airPressure + '_temperature'), Map['MSM_BAROMETRIC_' + airPressure + '_TEMPERATURE']));
+            items.push(makeItem($msm.find('.barometric_' + airPressure), Map['MSM_BAROMETRIC_' + airPressure]));
+            items.push(makeItem($msm.find('.barometric_' + airPressure + '_wind'), Map['MSM_BAROMETRIC_' + airPressure + '_WIND']));
+            items.push(makeItem($msm.find('.barometric_' + airPressure + '_temperature'), Map['MSM_BAROMETRIC_' + airPressure + '_TEMPERATURE']));
         });
         _.each(items, function(item) {
-            $(item.selector).on('click', function(event) {
+            item.$elem.on('click', function(event) {
                 map.setWeatherFlags($(event.target).prop('checked') ? item.flags : 0, item.flags);
             });
         });
         function update(flags) {
             _.each(items, function(item) {
-                item.selector.prop('checked', flags & item.flags);
+                item.$elem.prop('checked', flags & item.flags);
             });
         }
         $(map).on('weatherFlags_changed', function(event, flags) {
@@ -2226,13 +2225,13 @@ var volare = volare || {};
     }
 
 
-    function setupLayout(flights, map, sidebar, chart) {
+    function setupLayout(flights, $map, $sidebar, $chart) {
         function layout() {
-            map.width($(document).width() - (sidebar.width() + 10));
-            var mapPosition = map.position();
-            var chartPosition = chart.position();
-            map.height(chartPosition.top - mapPosition.top - 20);
-            sidebar.height(map.height() + 10);
+            $map.width($(document).width() - ($sidebar.width() + 10));
+            var mapPosition = $map.position();
+            var chartPosition = $chart.position();
+            $map.height(chartPosition.top - mapPosition.top - 20);
+            $sidebar.height($map.height() + 10);
         }
         $(flights).on('flight_added', layout);
         $(flights).on('flight_removed', layout);
