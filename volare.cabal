@@ -32,6 +32,8 @@ library
                    Service.MSM
                    Service.MSM.Barometric
                    Service.MSM.Surface
+                   Volare.Domain
+                   Volare.Domain.Flight
                    Volare.Foundation
                    Volare.Model
                    Volare.Model.Settings

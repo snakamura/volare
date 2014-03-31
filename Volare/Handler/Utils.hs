@@ -3,11 +3,14 @@ module Volare.Handler.Utils (
     addJQueryUI,
     addUnderscore,
     addGoogleMapsApi,
-    addCommonLibraries
+    addCommonLibraries,
+    maybeNotFound
 ) where
 
 import Control.Applicative ((<$>))
 import Data.Monoid ((<>))
+import Yesod.Core (MonadHandler,
+                   notFound)
 import Yesod.Core.Widget (addScript,
                           addScriptRemote,
                           addStylesheetRemote)
@@ -53,3 +56,10 @@ addCommonLibraries = do
     addJQueryUI
     addBootstrap
     addUnderscore
+
+
+maybeNotFound :: MonadHandler m =>
+                 m (Maybe a) ->
+                 (a -> m b) ->
+                 m b
+maybeNotFound lookupAction execAction = lookupAction >>= maybe notFound execAction
