@@ -15,6 +15,7 @@ module Volare.Domain.Workspace (
 import Control.Applicative ((<$>))
 import Control.Arrow (first)
 import Control.Monad (join)
+import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import Data.Foldable (forM_)
@@ -24,7 +25,8 @@ import qualified Data.Map as Map
 import Data.Maybe (catMaybes)
 import Data.Ord (comparing)
 import qualified Data.Text as T
-import Data.Time (addUTCTime)
+import Data.Time (addUTCTime,
+                  getCurrentTime)
 import Data.Traversable (forM,
                          mapM)
 import Database.Persist ((=.),
@@ -41,7 +43,7 @@ import qualified Volare.Model as M
 
 getWorkspaces :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Workspace) =>
                  m [P.Entity M.Workspace]
-getWorkspaces = P.selectList [] [P.Asc M.WorkspaceName]
+getWorkspaces = P.selectList [] [P.Desc M.WorkspaceCreated]
 
 
 getWorkspace :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Workspace) =>
@@ -53,7 +55,9 @@ getWorkspace workspaceId = P.selectFirst [M.WorkspaceId ==. workspaceId] []
 addWorkspace :: (P.PersistStore m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Workspace) =>
                 T.Text ->
                 m M.WorkspaceId
-addWorkspace name = P.insert $ M.Workspace name Nothing
+addWorkspace name = do
+    created <- liftIO getCurrentTime
+    P.insert $ M.Workspace name created Nothing
 
 
 updateWorkspace :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Workspace) =>
