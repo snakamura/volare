@@ -6,7 +6,7 @@ import Control.Concurrent (forkIO,
                            threadDelay)
 import Network.Wai.Handler.Warp (defaultSettings,
                                  runSettings,
-                                 settingsPort)
+                                 setPort)
 import System.Directory (doesFileExist,
                          removeFile)
 import System.Exit (exitSuccess)
@@ -24,9 +24,7 @@ main :: IO ()
 main = do
     putStrLn "Starting devel application"
     (port, app) <- defaultDevelApp loader makeVolare
-    forkIO $ runSettings defaultSettings {
-        settingsPort = port
-    } app
+    forkIO $ runSettings (setPort port defaultSettings) app
     loop
   where
     loader = loadConfig (configSettings Development) {
