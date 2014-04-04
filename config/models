@@ -19,7 +19,7 @@ Record json
   deriving Show
 Workspace json
   name T.Text
-  created UTCTime "default=(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')"
+  created UTCTime "default=timezone('UTC'::text, now())"
   route RouteId Maybe
   deriving Show
 WorkspaceFlight json
