@@ -1,3 +1,10 @@
 <div #options>
-  <label>
-    <input .gradient type=checkbox>Use Gradient
+  <label>Options</label>
+  <ul>
+    <li>
+      <label>
+        <input .gradient type=checkbox>Use gradient tracks
+  <ul>
+    <li>
+      <label>
+        <input .thinout type=checkbox>Thin out tracks

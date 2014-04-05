@@ -1,11 +1,12 @@
 $(function() {
     var flights = new volare.Flights();
+    flights.setInterval(10);
     var player = new volare.Player(flights, $('#player'));
     var map = new volare.Map(flights, $('#map'));
     var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
     var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
     var chart = new volare.Chart(flights, $('#chart'));
-    var optionsControl = new volare.OptionsControl(map, $('#options'));
+    var optionsControl = new volare.OptionsControl(flights, map, $('#options'));
     var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
     var routeControl = new volare.RouteControl(map, $('#route'));
     var weatherControl = new volare.WeatherControl(map, $('#weather'));

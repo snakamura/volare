@@ -1,5 +1,5 @@
 <div #route>
-  <label>Route: </label>
+  <label>Route</label>
   <span>
   <button .edit>Edit
 

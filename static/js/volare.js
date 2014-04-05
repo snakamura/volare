@@ -155,6 +155,17 @@ var volare = volare || {};
 
     Flights.prototype.setInterval = function(interval) {
         this._interval = interval;
+        this._reload();
+        $(this).trigger('interval_changed');
+    };
+
+    Flights.prototype._reload = function() {
+        var flights = this._flights.slice(0);
+        var self = this;
+        _.each(flights, function(flight) {
+            self.removeFlight(flight.getId());
+            self.addFlight(flight.getId(), flight.getColor());
+        });
     };
 
     Flights.prototype._clearProperties = function() {
@@ -2156,7 +2167,7 @@ var volare = volare || {};
     };
 
 
-    function OptionsControl(map, $options) {
+    function OptionsControl(flights, map, $options) {
         function updateGradient() {
             $options.find('.gradient').prop('checked', map.isUseGradientColorTrack());
         }
@@ -2165,6 +2176,15 @@ var volare = volare || {};
         });
         $(map).on('useGradientColorTrack_changed', updateGradient);
         updateGradient();
+
+        function updateThinOut() {
+            $options.find('.thinout').prop('checked', flights.getInterval());
+        }
+        $options.find('.thinout').on('click', function(event) {
+            flights.setInterval($(event.target).prop('checked') ? 10 : 0);
+        });
+        $(flights).on('interval_changed', updateThinOut);
+        updateThinOut();
     }
 
 
