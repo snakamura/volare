@@ -10,13 +10,12 @@ $(function() {
     var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
     var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
-    $.getJSON('', function(flight) {
-        var f = volare.Flight.wrap(flight, 'red');
-        $('#time').text(common.formatTime(f.getTime()));
-        $('#duration').text(common.formatDuration(f.getDuration()));
-        $('#max_altitude').text(common.formatAltitude(f.getMaxAltitude()));
-        flights.addFlight(f);
+    $(flights).on('flight_added', function(event, flight) {
+        $('#time').text(common.formatTime(flight.getTime()));
+        $('#duration').text(common.formatDuration(flight.getDuration()));
+        $('#max_altitude').text(common.formatAltitude(flight.getMaxAltitude()));
     });
+    flights.addFlight(flightId, 'red');
 
     common.makeNameEditable(function(name) {
         $.putJSON('', {

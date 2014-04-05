@@ -6,6 +6,7 @@ var volare = volare || {};
 
     function Flights() {
         this._flights = [];
+        this._interval = null;
 
         this._start = null;
         this._end = null;
@@ -106,17 +107,24 @@ var volare = volare || {};
         }, null);
     };
 
-    Flights.prototype.addFlight = function(flight) {
-        if (!flight.getColor())
-            flight.setColor(this._getNextAvailableColor());
+    Flights.prototype.addFlight = function(id, color) {
+        var self = this;
+        var params = {};
+        if (this._interval)
+            params.interval = this._interval;
+        $.getJSON('/flights/' + id, params, function(flight) {
+            if (!color)
+                color =  self._getNextAvailableColor();
 
-        var n = _.sortedIndex(this._flights, flight, function(flight) {
-            return flight.getName();
+            var f = Flight.wrap(flight, color);
+            var n = _.sortedIndex(self._flights, f, function(flight) {
+                return flight.getName();
+            });
+            self._flights.splice(n, 0, f);
+            $(f).on('visible_changed', self._visibleChangedListener);
+            self._clearProperties();
+            $(self).trigger('flight_added', [f, n]);
         });
-        this._flights.splice(n, 0, flight);
-        $(flight).on('visible_changed', this._visibleChangedListener);
-        this._clearProperties();
-        $(this).trigger('flight_added', [flight, n]);
     };
 
     Flights.prototype.removeFlight = function(id) {
@@ -139,6 +147,14 @@ var volare = volare || {};
     Flights.prototype.setCurrentTime = function(time, play) {
         this._currentTime = time;
         $(this).trigger('currenttime_changed', [time, play]);
+    };
+
+    Flights.prototype.getInterval = function() {
+        return this._interval;
+    }
+
+    Flights.prototype.setInterval = function(interval) {
+        this._interval = interval;
     };
 
     Flights.prototype._clearProperties = function() {

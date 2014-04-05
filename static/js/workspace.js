@@ -56,9 +56,9 @@ $(function() {
 
         $.postJSON('/workspaces/' + workspaceId + '/flights', {
             flightIds: flightIds
-        }, function(flights) {
-            _.each(flights, function(flight) {
-                addFlight(flight.id, flight.color);
+        }, function(fs) {
+            _.each(fs, function(flight) {
+                flights.addFlight(flight.id, flight.color);
             });
             $modal.modal('hide');
         });
@@ -99,14 +99,6 @@ $(function() {
         $modal.modal('hide');
     });
 
-    function addFlight(flightId, color) {
-        $.getJSON('/flights/' + flightId, {
-            'interval': 10
-        }, function(flight) {
-            flights.addFlight(volare.Flight.wrap(flight, color));
-        });
-    }
-
     $(map).on('route_changed', function() {
         var route = map.getRoute();
         if (route) {
@@ -142,7 +134,7 @@ $(function() {
     });
     $.getJSON('/workspaces/' + workspaceId + '/flights', function(fs) {
         _.each(fs, function(flight) {
-            addFlight(flight.id, flight.color);
+            flights.addFlight(flight.id, flight.color);
         });
     });
 
