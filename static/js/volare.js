@@ -185,20 +185,22 @@ var volare = volare || {};
     ];
 
 
-    function Flight(flight, color) {
-        var self = this;
-        _.each(flight, function(value, key) {
-            self['_' + key] = value;
-        });
-        self._time = new Date(self._time);
-        _.each(this._records, function(record) {
+    function Flight() {
+    }
+
+    Flight.wrap = function(flight, color) {
+        var f = common.wrap(Flight.prototype, flight);
+        f._time = new Date(flight.time);
+        _.each(f._records, function(record) {
             record.time = new Date(record.time);
         });
 
-        this._color = color;
-        this._visible = true;
-        this._statuses = {};
-    }
+        f._color = color;
+        f._visible = true;
+        f._statuses = {};
+
+        return f;
+    };
 
     Flight.prototype.getId = function() {
         return this._id;

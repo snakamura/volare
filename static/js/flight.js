@@ -11,7 +11,7 @@ $(function() {
     var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
     $.getJSON('', function(flight) {
-        var f = new volare.Flight(flight, 'red');
+        var f = volare.Flight.wrap(flight, 'red');
         $('#time').text(common.formatTime(f.getTime()));
         $('#duration').text(common.formatDuration(f.getDuration()));
         $('#max_altitude').text(common.formatAltitude(f.getMaxAltitude()));

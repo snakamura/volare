@@ -101,7 +101,7 @@ $(function() {
 
     function addFlight(flightId, color) {
         $.getJSON('/flights/' + flightId, function(flight) {
-            flights.addFlight(new volare.Flight(flight, color));
+            flights.addFlight(volare.Flight.wrap(flight, color));
         });
     }
 
