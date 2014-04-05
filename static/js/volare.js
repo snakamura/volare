@@ -2164,7 +2164,8 @@ var volare = volare || {};
             }
         });
         $(map).on('waypoint_changed', function() {
-            $select.val(map.getWaypoint().getId());
+            var waypoint = map.getWaypoint();
+            $select.val(waypoint ? waypoint.getId() : 0);
         });
 
         $.getJSON('/waypoints', function(waypoints) {
