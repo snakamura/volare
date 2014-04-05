@@ -579,6 +579,131 @@ var volare = volare || {};
     Flight.STATUS_GLIDING = 2;
 
 
+    function Waypoint(waypoint) {
+        var self = this;
+        _.each(waypoint, function(value, key) {
+            self['_' + key] = value;
+        });
+
+        this._items = _.map(waypoint.items, function(item) {
+            return new WaypointItem(item);
+        });
+    }
+
+    Waypoint.prototype.getId = function() {
+        return this._id;
+    };
+
+    Waypoint.prototype.getName = function() {
+        return this._name;
+    };
+
+    Waypoint.prototype.getItems = function() {
+        return this._items;
+    };
+
+    Waypoint.prototype.getItem = function(id) {
+        return _.find(this._items, function(item) {
+            return item.getId() === id;
+        });
+    };
+
+
+    function WaypointItem(item) {
+        var self = this;
+        _.each(item, function(value, key) {
+            self['_' + key] = value;
+        });
+    }
+
+    WaypointItem.prototype.getId = function() {
+        return this._id;
+    };
+
+    WaypointItem.prototype.getName = function() {
+        return this._name;
+    };
+
+    WaypointItem.prototype.getLatitude = function() {
+        return this._latitude;
+    };
+
+    WaypointItem.prototype.getLongitude = function() {
+        return this._longitude;
+    };
+
+    WaypointItem.prototype.getAltitude = function() {
+        return this._altitude;
+    };
+
+    WaypointItem.prototype.getDescription = function() {
+        return this._description;
+    };
+
+    WaypointItem.prototype.getPosition = function() {
+        return new LatLng(this._latitude, this._longitude);
+    };
+
+    WaypointItem.prototype.getLabel = function() {
+        var label = this._name;
+        if (this._name !== this._description)
+            label += ' (' + this._description + ')';
+        return label;
+    };
+
+
+    function Route(route) {
+        if (route) {
+            var self = this;
+            _.each(route, function(value, key) {
+                self['_' + key] = value;
+            });
+
+            this._items = _.map(route.items, function(item) {
+                return new RouteItem(item);
+            });
+        }
+        else {
+            this._id = null;
+            this._items = [];
+        }
+    }
+
+    Route.prototype.getId = function() {
+        return this._id;
+    };
+
+    Route.prototype.getItems = function() {
+        return this._items;
+    };
+
+    Route.prototype.addItem = function(waypointItem, radius) {
+        this._items.push(new RouteItem({
+            waypointItem: waypointItem,
+            radius: radius
+        }, true));
+    };
+
+
+    function RouteItem(item, noWrap) {
+        var self = this;
+        _.each(item, function(value, key) {
+            self['_' + key] = value;
+        });
+
+        if (!noWrap)
+            this._waypointItem = new WaypointItem(item.waypointItem);
+    }
+
+    RouteItem.prototype.getWaypointItem = function() {
+        return this._waypointItem;
+    };
+
+    RouteItem.prototype.getRadius = function() {
+        return this._radius;
+    };
+
+
     function Player(flights, $player) {
         this._flights = flights;
         this._$player = $player;
@@ -787,17 +912,12 @@ var volare = volare || {};
         var markers = [];
         if (waypoint) {
             var self = this;
-            _.each(waypoint.items, function(item) {
-                var position = new LatLng(item.latitude, item.longitude);
-                var label = item.name;
-                if (item.name !== item.description) {
-                    label += ' (' + item.description + ')';
-                }
+            _.each(waypoint.getItems(), function(item) {
                 var marker = new MarkerWithLabel({
                     map: self._map,
-                    position: position,
-                    title: item.name,
-                    labelContent: label,
+                    position: item.getPosition(),
+                    title: item.getName(),
+                    labelContent: item.getLabel(),
                     labelAnchor: new google.maps.Point(-15, 35),
                     labelClass: 'label'
                 });
@@ -824,18 +944,14 @@ var volare = volare || {};
         if (route) {
             var self = this;
             var path = [];
-            _.each(route.items, function(routeItem) {
-                var item = routeItem.waypointItem;
-                var position = new LatLng(item.latitude, item.longitude);
-                var label = item.name;
-                if (item.name !== item.description) {
-                    label += ' (' + item.description + ')';
-                }
+            _.each(route.getItems(), function(routeItem) {
+                var waypointItem = routeItem.getWaypointItem();
+                var position = waypointItem.getPosition();
                 var marker = new MarkerWithLabel({
                     map: self._map,
                     position: position,
-                    title: item.name,
-                    labelContent: label,
+                    title: waypointItem.getName(),
+                    labelContent: waypointItem.getLabel(),
                     labelAnchor: new google.maps.Point(-15, 35),
                     labelClass: 'label'
                 });
@@ -845,7 +961,7 @@ var volare = volare || {};
                     map: self._map,
                     center: position,
                     clickable: false,
-                    radius: routeItem.radius,
+                    radius: routeItem.getRadius(),
                     strokeColor: '#ff3300',
                     strokeWeight: 2,
                     fillOpacity: 0.01
@@ -2050,7 +2166,7 @@ var volare = volare || {};
             var waypointId = $select.val();
             if (waypointId !== '0') {
                 $.getJSON('/waypoints/' + waypointId, function(w) {
-                    map.setWaypoint(w);
+                    map.setWaypoint(new Waypoint(w));
                 });
             }
             else {
@@ -2058,7 +2174,7 @@ var volare = volare || {};
             }
         });
         $(map).on('waypoint_changed', function() {
-            $select.val(map.getWaypoint().id);
+            $select.val(map.getWaypoint().getId());
         });
 
         $.getJSON('/waypoints', function(waypoints) {
@@ -2080,25 +2196,16 @@ var volare = volare || {};
             var $tbody = $modal.find('table.waypoints tbody');
             var waypoint = null;
 
-            function getWaypointItem(waypointItemId) {
-                return _.find(waypoint.items, function(item) {
-                    return item.id === waypointItemId;
-                });
-            }
-
             function addRow() {
                 var $tr = $('<tr>' +
                             '<td class="name"><select><option value="0">(Select)</option></select></td>' +
                             '<td class="radius"><input type="number" value="400">m</td>' +
                             '</tr>');
                 var $select = $tr.find('select');
-                _.each(waypoint.items, function(item) {
+                _.each(waypoint.getItems(), function(item) {
                     var $option = $('<option>');
-                    $option.attr('value', item.id);
-                    var name = item.name;
-                    if (item.name !== item.description)
-                        name += ' (' + item.description + ')';
-                    $option.text(name);
+                    $option.attr('value', item.getId());
+                    $option.text(item.getLabel());
                     $select.append($option);
                 });
                 $select.on('change', function() {
@@ -2115,7 +2222,7 @@ var volare = volare || {};
                 if (waypointId !== '0') {
                     $.getJSON('/waypoints/' + waypointId, function(w) {
                         $tbody.empty();
-                        waypoint = w;
+                        waypoint = new Waypoint(w);
                         addRow();
                     });
                 }
@@ -2126,29 +2233,25 @@ var volare = volare || {};
             });
 
             $modal.find('.btn-primary').on('click', function() {
-                var route = {
-                    items: []
-                };
+                var route = new Route();
                 _.each($tbody.find('tr'), function(tr) {
                     var waypointItemId = parseInt($(tr).find('td.name select').val(), 10);
                     if (waypointItemId !== 0) {
                         var radius = parseInt($(tr).find('td.radius input').val(), 10) || 400;
-                        route.items.push({
-                            waypointItem: getWaypointItem(waypointItemId),
-                            radius: radius
-                        });
+                        route.addItem(waypoint.getItem(waypointItemId), radius);
                     }
                 });
-                map.setRoute(route.items.length !== 0 ? route : null);
+                map.setRoute(route.getItems().length !== 0 ? route : null);
 
                 $modal.modal('hide');
             });
 
             $.getJSON('/waypoints', function(waypoints) {
-                _.each(waypoints, function(waypoint) {
+                _.each(waypoints, function(w) {
+                    var waypoint = new Waypoint(w);
                     var $option = $('<option>');
-                    $option.attr('value', waypoint.id);
-                    $option.text(waypoint.name);
+                    $option.attr('value', waypoint.getId());
+                    $option.text(waypoint.getName());
                     $select.append($option);
                 });
             });
@@ -2174,8 +2277,8 @@ var volare = volare || {};
             var route = map.getRoute();
             var s = '';
             if (route) {
-                s = _.map(route.items, function(routeItem) {
-                    return routeItem.waypointItem.name;
+                s = _.map(route.getItems(), function(routeItem) {
+                    return routeItem.getWaypointItem().getName();
                 }).join(' - ');
             }
 
@@ -2241,6 +2344,8 @@ var volare = volare || {};
 
     volare.Flights = Flights;
     volare.Flight = Flight;
+    volare.Waypoint = Waypoint;
+    volare.Route = Route;
     volare.Player = Player;
     volare.Map = Map;
     volare.AltitudeGraph = AltitudeGraph;

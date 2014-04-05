@@ -108,11 +108,11 @@ $(function() {
     $(map).on('route_changed', function() {
         var route = map.getRoute();
         if (route) {
-            if (!route.id) {
-                var r = _.map(route.items, function(routeItem) {
+            if (!route.getId()) {
+                var r = _.map(route.getItems(), function(routeItem) {
                     return {
-                        waypointItemId: routeItem.waypointItem.id,
-                        radius: routeItem.radius
+                        waypointItemId: routeItem.getWaypointItem().getId(),
+                        radius: routeItem.getRadius()
                     };
                 });
                 $.postJSON('/routes', r, function(route) {
@@ -127,7 +127,6 @@ $(function() {
             $.putJSON('', {
                 routeId: null
             }, function(workspace) {
-                console.log(workspace);
             });
         }
     });
@@ -135,7 +134,7 @@ $(function() {
     $.getJSON('/workspaces/' + workspaceId, function(workspace) {
         if (workspace.route) {
             $.getJSON('/routes/' + workspace.route, function(route) {
-                map.setRoute(route);
+                map.setRoute(new volare.Route(route));
             });
         }
     });
