@@ -100,7 +100,9 @@ $(function() {
     });
 
     function addFlight(flightId, color) {
-        $.getJSON('/flights/' + flightId, function(flight) {
+        $.getJSON('/flights/' + flightId, {
+            'interval': 10
+        }, function(flight) {
             flights.addFlight(volare.Flight.wrap(flight, color));
         });
     }

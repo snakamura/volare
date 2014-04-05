@@ -9,6 +9,11 @@ module Volare.Handler.Flight (
 import qualified Codec.IGC as IGC
 import Control.Applicative ((<$>),
                             (<*>))
+import Control.Monad (filterM,
+                      when)
+import Control.Monad.State (evalState,
+                            get,
+                            put)
 import Data.Aeson ((.=),
                    (.:))
 import qualified Data.Aeson as JSON
@@ -18,6 +23,7 @@ import Data.Monoid ((<>),
                     mempty)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
+import Data.Time (diffUTCTime)
 import Database.Persist (Entity,
                          entityVal)
 import Text.Blaze.Html (toHtml)
@@ -37,6 +43,7 @@ import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils (addCommonLibraries,
                              addGoogleMapsApi,
+                             lookupIntegralGetParam,
                              maybeNotFound)
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
@@ -118,7 +125,19 @@ getFlightR flightId = do
                 $(widgetFile "flights/show")
             provideRep $ do
                 records <- runDB $ D.getFlightRecords flightId
-                return $ JSON.toJSON $ Flight flightId flight records
+                interval <- fmap fromInteger <$> lookupIntegralGetParam "interval"
+                let recordFilter = case interval of
+                                    Just i -> flip evalState Nothing . filterM (valid i)
+                                    Nothing -> id
+                return $ JSON.toJSON $ Flight flightId flight $ recordFilter records
+  where
+    valid interval record = do
+        previousTime <- get
+        let time = M.recordTime $ entityVal record
+            v = maybe True ((>= interval) . diffUTCTime time) previousTime
+        when v $
+            put $ Just time
+        return v
 
 
 data EditFlight = EditFlight T.Text

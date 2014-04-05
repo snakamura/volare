@@ -4,13 +4,17 @@ module Volare.Handler.Utils (
     addUnderscore,
     addGoogleMapsApi,
     addCommonLibraries,
+    lookupIntegralGetParam,
     maybeNotFound
 ) where
 
 import Control.Applicative ((<$>))
 import Data.Monoid ((<>))
+import qualified Data.Text as T
+import qualified Data.Text.Read as T
 import Yesod.Core (MonadHandler,
                    notFound)
+import Yesod.Core.Handler (lookupGetParam)
 import Yesod.Core.Widget (addScript,
                           addScriptRemote,
                           addStylesheetRemote)
@@ -56,6 +60,16 @@ addCommonLibraries = do
     addJQueryUI
     addBootstrap
     addUnderscore
+
+
+lookupIntegralGetParam :: (MonadHandler m, Integral a) =>
+                          T.Text ->
+                          m (Maybe a)
+lookupIntegralGetParam name = (>>= readIntegral) <$> lookupGetParam name
+  where
+    readIntegral value = case T.decimal value of
+                           Right (v, r) | T.null r -> Just v
+                           _ -> Nothing
 
 
 maybeNotFound :: MonadHandler m =>
