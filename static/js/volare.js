@@ -579,16 +579,14 @@ var volare = volare || {};
     Flight.STATUS_GLIDING = 2;
 
 
-    function Waypoint(waypoint) {
-        var self = this;
-        _.each(waypoint, function(value, key) {
-            self['_' + key] = value;
-        });
-
-        this._items = _.map(waypoint.items, function(item) {
-            return new WaypointItem(item);
-        });
+    function Waypoint() {
     }
+
+    Waypoint.wrap = function(waypoint) {
+        var w = common.wrap(Waypoint.prototype, waypoint);
+        w._items = _.map(waypoint.items, WaypointItem.wrap);
+        return w;
+    };
 
     Waypoint.prototype.getId = function() {
         return this._id;
@@ -610,11 +608,11 @@ var volare = volare || {};
 
 
     function WaypointItem(item) {
-        var self = this;
-        _.each(item, function(value, key) {
-            self['_' + key] = value;
-        });
     }
+
+    WaypointItem.wrap = function(item) {
+        return common.wrap(WaypointItem.prototype, item);
+    };
 
     WaypointItem.prototype.getId = function() {
         return this._id;
@@ -652,22 +650,16 @@ var volare = volare || {};
     };
 
 
-    function Route(route) {
-        if (route) {
-            var self = this;
-            _.each(route, function(value, key) {
-                self['_' + key] = value;
-            });
-
-            this._items = _.map(route.items, function(item) {
-                return new RouteItem(item);
-            });
-        }
-        else {
-            this._id = null;
-            this._items = [];
-        }
+    function Route() {
+        this._id = null;
+        this._items = [];
     }
+
+    Route.wrap = function(route) {
+        var r = common.wrap(Route.prototype, route);
+        r._items = _.map(route.items, RouteItem.wrap);
+        return r;
+    };
 
     Route.prototype.getId = function() {
         return this._id;
@@ -678,22 +670,20 @@ var volare = volare || {};
     };
 
     Route.prototype.addItem = function(waypointItem, radius) {
-        this._items.push(new RouteItem({
-            waypointItem: waypointItem,
-            radius: radius
-        }, true));
+        this._items.push(new RouteItem(waypointItem, radius));
     };
 
 
-    function RouteItem(item, noWrap) {
-        var self = this;
-        _.each(item, function(value, key) {
-            self['_' + key] = value;
-        });
-
-        if (!noWrap)
-            this._waypointItem = new WaypointItem(item.waypointItem);
+    function RouteItem(waypointItem, radius) {
+        this._waypointItem = waypointItem;
+        this._radius = radius;
     }
+
+    RouteItem.wrap = function(item) {
+        var i = common.wrap(RouteItem.prototype, item);
+        i._waypointItem = WaypointItem.wrap(item.waypointItem);
+        return i;
+    };
 
     RouteItem.prototype.getWaypointItem = function() {
         return this._waypointItem;
@@ -2166,7 +2156,7 @@ var volare = volare || {};
             var waypointId = $select.val();
             if (waypointId !== '0') {
                 $.getJSON('/waypoints/' + waypointId, function(w) {
-                    map.setWaypoint(new Waypoint(w));
+                    map.setWaypoint(Waypoint.wrap(w));
                 });
             }
             else {
@@ -2222,7 +2212,7 @@ var volare = volare || {};
                 if (waypointId !== '0') {
                     $.getJSON('/waypoints/' + waypointId, function(w) {
                         $tbody.empty();
-                        waypoint = new Waypoint(w);
+                        waypoint = Waypoint.wrap(w);
                         addRow();
                     });
                 }
@@ -2248,7 +2238,7 @@ var volare = volare || {};
 
             $.getJSON('/waypoints', function(waypoints) {
                 _.each(waypoints, function(w) {
-                    var waypoint = new Waypoint(w);
+                    var waypoint = Waypoint.wrap(w);
                     var $option = $('<option>');
                     $option.attr('value', waypoint.getId());
                     $option.text(waypoint.getName());
@@ -2345,7 +2335,9 @@ var volare = volare || {};
     volare.Flights = Flights;
     volare.Flight = Flight;
     volare.Waypoint = Waypoint;
+    volare.WaypointItem = WaypointItem;
     volare.Route = Route;
+    volare.RouteItem = RouteItem;
     volare.Player = Player;
     volare.Map = Map;
     volare.AltitudeGraph = AltitudeGraph;

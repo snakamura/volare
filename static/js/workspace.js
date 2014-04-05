@@ -134,7 +134,7 @@ $(function() {
     $.getJSON('/workspaces/' + workspaceId, function(workspace) {
         if (workspace.route) {
             $.getJSON('/routes/' + workspace.route, function(route) {
-                map.setRoute(new volare.Route(route));
+                map.setRoute(volare.Route.wrap(route));
             });
         }
     });

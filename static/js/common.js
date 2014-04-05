@@ -40,6 +40,14 @@ var common = common || {};
         };
     })();
 
+    common.wrap = function(proto, o) {
+        var w = Object.create(proto);
+        _.each(o, function(value, key) {
+            w['_' + key] = value;
+        });
+        return w;
+    };
+
     common.basename = function(name) {
         return name.replace(/\.[^.]*$/, '');
     };
