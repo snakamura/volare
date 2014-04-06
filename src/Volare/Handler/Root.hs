@@ -2,18 +2,12 @@ module Volare.Handler.Root (
     getRootR
 ) where
 
+import Network.HTTP.Types (temporaryRedirect307)
 import Text.Blaze.Html (Html)
-import Yesod.Core (defaultLayout)
-import Yesod.Core.Widget (setTitle)
+import Yesod.Core.Handler (redirectWith)
 
 import Volare.Foundation
-import Volare.Handler.Utils (addCommonLibraries)
-import Volare.Settings (widgetFile)
 
 
 getRootR :: Handler Html
-getRootR =
-    defaultLayout $ do
-        setTitle "Volare"
-        addCommonLibraries
-        $(widgetFile "root")
+getRootR = redirectWith temporaryRedirect307 FlightsR
