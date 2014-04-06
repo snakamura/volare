@@ -45,8 +45,6 @@ import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
 import qualified Volare.Widget as W
-import Volare.Widget.Navigation (Page(WORKSPACES),
-                                 navigation)
 
 
 data NewWorkspace = NewWorkspace T.Text

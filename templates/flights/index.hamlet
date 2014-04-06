@@ -1,4 +1,4 @@
-^{navigation FLIGHTS}
+^{W.navigation W.FLIGHTS}
 
 <div .container-fluid .actionbar>
   <div .file_selector>
