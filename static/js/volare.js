@@ -2055,9 +2055,10 @@ var volare = volare || {};
         this._flights = flights;
         this._$chart = $chart;
 
+        var self = this;
         this._$chart.html('<table><thead>' +
                             '<tr>' +
-                              '<th class="visible"></th>' +
+                              '<th class="visible"><input type="checkbox" checked></th>' +
                               '<th class="name">Name</th>' +
                               '<th class="color">Color</th>' +
                               '<th class="latitude">Latitude</th>' +
@@ -2070,10 +2071,15 @@ var volare = volare || {};
                               '<th class="average_climb">Average Climb</th>' +
                             '</tr>' +
                           '</thead><tbody></tbody></table>');
+        this._$chart.find('th.visible input').on('change', function(event) {
+            var $checkboxes = self._$chart.find('td.visible input');
+            _.each($checkboxes, function(checkbox) {
+                $(checkbox).prop('checked', event.target.checked).change();
+            });
+        });
 
-        var self = this;
         var row = _.template('<tr class="flight_<%- getId() %>">' +
-                               '<td><input type="checkbox"></td>' +
+                               '<td class="visible"><input type="checkbox"></td>' +
                                '<td class="name"><%- getName() %></td>' +
                                '<td class="color"><div style="background:<%- getColor() %>"></div></td>' +
                                '<td class="latitude"></td>' +
@@ -2087,7 +2093,7 @@ var volare = volare || {};
                              '</tr>');
         $(this._flights).on('flight_added', function(event, flight, index) {
             var $tr = $(row(flight));
-            $tr.find('input').on('change', function(event) {
+            $tr.find('td.visible input').on('change', function(event) {
                 flight.setVisible(event.target.checked);
             });
             var tbody = self._$chart.find('tbody');

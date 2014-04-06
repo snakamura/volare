@@ -186,7 +186,7 @@ div#chart table th, div#chart table td {
     padding: 2px 5px;
 }
 
-div#chart table th {
+div#chart table th:not(.visible) {
     width: 80px;
     font-size: 60%;
 }
