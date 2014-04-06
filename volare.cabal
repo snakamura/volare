@@ -50,6 +50,7 @@ library
                    Volare.Handler.Workspace
                    Volare.Settings
                    Volare.Static
+                   Volare.Widget.Navigation
 
     if flag(dev) || flag(library-only)
         cpp-options: -DDEVELOPMENT

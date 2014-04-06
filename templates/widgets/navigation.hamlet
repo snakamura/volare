@@ -1,0 +1,12 @@
+<nav .navbar .navbar-inverse .navbar-fixed-top role=navigation>
+  <div .container-fluid>
+    <div .navbar-header>
+      <a .navbar-brand href=@{RootR}>Volare
+    <div>
+      <ul .nav .navbar-nav>
+        <li class="#{classes FLIGHTS}">
+          <a href=@{FlightsR}>Flights
+        <li class="#{classes WORKSPACES}">
+          <a href=@{WorkspacesR}>Workspaces
+        <li class="#{classes WAYPOINTS}">
+          <a href=@{WaypointsR}>Waypoints

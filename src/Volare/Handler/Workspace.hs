@@ -44,6 +44,8 @@ import Volare.Handler.Utils (addCommonLibraries,
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
+import Volare.Widget.Navigation (Page(WORKSPACES),
+                                 navigation)
 
 
 data NewWorkspace = NewWorkspace T.Text
