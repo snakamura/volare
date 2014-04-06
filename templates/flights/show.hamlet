@@ -32,8 +32,8 @@
   <div #altitude .graph>
   <div #speed .graph>
 
-  ^{options}
-  ^{waypoint}
-  ^{weather}
+  ^{W.options}
+  ^{W.waypoint}
+  ^{W.weather}
 
 <div #chart>

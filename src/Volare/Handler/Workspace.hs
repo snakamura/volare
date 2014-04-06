@@ -44,6 +44,7 @@ import Volare.Handler.Utils (addCommonLibraries,
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
+import qualified Volare.Widget as W
 import Volare.Widget.Navigation (Page(WORKSPACES),
                                  navigation)
 
@@ -91,10 +92,6 @@ getWorkspaceR workspaceId = do
                 addStylesheet $ StaticR S.css_common_css
                 addStylesheet $ StaticR S.css_volare_css
                 addStylesheet $ StaticR S.css_workspace_css
-                let options = $(widgetFile "elements/options")
-                    waypoint = $(widgetFile "elements/waypoint")
-                    route = $(widgetFile "elements/route")
-                    weather = $(widgetFile "elements/weather")
                 $(widgetFile "workspaces/show")
             provideRep $ return $ JSON.toJSON workspaceEntity
 

@@ -22,10 +22,10 @@
   <div #altitude .graph>
   <div #speed .graph>
 
-  ^{options}
-  ^{waypoint}
-  ^{route}
-  ^{weather}
+  ^{W.options}
+  ^{W.waypoint}
+  ^{W.route}
+  ^{W.weather}
 
 <div #chart>
 
