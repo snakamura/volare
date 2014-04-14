@@ -584,18 +584,11 @@ var volare = volare || {};
     };
 
     Flight.distance = function(p1, p2) {
-        var r = 6378137;
-        var dx = (p1.longitude - p2.longitude)/180*Math.PI;
-        var y1 = p1.latitude/180*Math.PI;
-        var y2 = p2.latitude/180*Math.PI;
-        return r*Math.acos(Math.sin(y1)*Math.sin(y2) + Math.cos(y1)*Math.cos(y2)*Math.cos(dx));
+        return Util.distance(p1.latitude, p1.longitude, p2.latitude, p2.longitude);
     };
 
     Flight.direction = function(p1, p2) {
-        var y = Math.cos(p2.latitude)*Math.sin(p2.longitude - p1.longitude);
-        var x = Math.cos(p1.latitude)*Math.sin(p2.latitude) - Math.sin(p1.latitude)*Math.cos(p2.latitude)*Math.cos(p2.longitude - p1.longitude);
-        var t = Math.atan2(y, x);
-        return t < 0 ? t + 2*Math.PI : t;
+        return Util.direction(p1.latitude, p1.longitude, p2.latitude, p2.longitude);
     };
 
     Flight.TRACK_DURATION = 10*60;
@@ -676,6 +669,10 @@ var volare = volare || {};
         if (this._name !== this._description)
             label += ' (' + this._description + ')';
         return label;
+    };
+
+    WaypointItem.distance = function(item1, item2) {
+        return Util.distance(item1.getLatitude(), item1.getLongitude(), item2.getLatitude(), item2.getLongitude());
     };
 
 
@@ -2312,9 +2309,15 @@ var volare = volare || {};
             var route = map.getRoute();
             var s = '';
             if (route) {
-                s = _.map(route.getItems(), function(routeItem) {
-                    return routeItem.getWaypointItem().getName();
-                }).join(' - ');
+                var items = route.getItems();
+                s += items[0].getWaypointItem().getName();
+                for (var n = 1; n < items.length; ++n) {
+                    var item = items[n];
+                    s += ' - (';
+                    s += common.formatDistance(WaypointItem.distance(items[n - 1].getWaypointItem(), item.getWaypointItem()));
+                    s += ') - ';
+                    s += item.getWaypointItem().getName();
+                }
             }
 
             $route.find('span').text(s);
@@ -2361,6 +2364,24 @@ var volare = volare || {};
         });
         update(map.getWeatherFlags());
     }
+
+
+    var Util = {};
+
+    Util.distance = function(latitude1, longitude1, latitude2, longitude2) {
+        var r = 6378137;
+        var dx = (longitude1 - longitude2)/180*Math.PI;
+        var y1 = latitude1/180*Math.PI;
+        var y2 = latitude2/180*Math.PI;
+        return r*Math.acos(Math.sin(y1)*Math.sin(y2) + Math.cos(y1)*Math.cos(y2)*Math.cos(dx));
+    };
+
+    Util.direction = function(latitude1, longitude1, latitude2, longitude2) {
+        var y = Math.cos(latitude2)*Math.sin(longitude2 - longitude1);
+        var x = Math.cos(latitude1)*Math.sin(latitude2) - Math.sin(latitude1)*Math.cos(latitude2)*Math.cos(longitude2 - longitude1);
+        var t = Math.atan2(y, x);
+        return t < 0 ? t + 2*Math.PI : t;
+    };
 
 
     function setupLayout(flights, $map, $sidebar, $chart) {

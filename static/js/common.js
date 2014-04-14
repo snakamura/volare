@@ -66,6 +66,10 @@ var common = common || {};
         return _.numberFormat(altitude) + 'm';
     };
 
+    common.formatDistance = function(distance) {
+        return _.sprintf('%.1f', distance/1000);
+    };
+
     common.makeNameEditable = function(update) {
         var $showName = $('#show_name');
         var $editName = $('#edit_name');
