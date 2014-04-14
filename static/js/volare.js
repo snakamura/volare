@@ -151,7 +151,7 @@ var volare = volare || {};
 
     Flights.prototype.getInterval = function() {
         return this._interval;
-    }
+    };
 
     Flights.prototype.setInterval = function(interval) {
         this._interval = interval;
