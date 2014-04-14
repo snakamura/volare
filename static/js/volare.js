@@ -1004,7 +1004,7 @@ var volare = volare || {};
 
     Map.prototype._createTrack = function(flight) {
         if (this._useGradientColorTrack)
-            return new GradientColorTrack(this._map, this._flights);
+            return new GradientColorAltitudeTrack(this._map, this._flights);
         else
             return new SolidColorTrack(this._map, flight.getColor());
     };
@@ -1112,6 +1112,18 @@ var volare = volare || {};
         this._currentPolylines = this._setRecords(this._currentPolylines, 1, records);
     };
 
+    GradientColorTrack.prototype.getMax = function(flights) {
+        throw "This method must be overridden.";
+    };
+
+    GradientColorTrack.prototype.getMin = function(flights) {
+        throw "This method must be overridden.";
+    };
+
+    GradientColorTrack.prototype.getValue = function(record) {
+        throw "This method must be overridden.";
+    };
+
     GradientColorTrack.prototype._setRecords = function(polylines, opacity, records) {
         _.each(polylines, function(polyline) {
             polyline.setMap(null);
@@ -1119,9 +1131,9 @@ var volare = volare || {};
         });
 
         var self = this;
-        var maxAltitude = this._flights.getMaxAltitude();
-        var minAltitude = this._flights.getMinAltitude();
-        var step = (maxAltitude - minAltitude)/(GradientColorTrack.COLORS.length - 1);
+        var max = this.getMax(this._flights);
+        var min = this.getMin(this._flights);
+        var step = (max - min)/(GradientColorTrack.COLORS.length - 1);
         var previousColorIndex = null;
         var previousPolyline = null;
         _.each(records, function(record) {
@@ -1129,7 +1141,7 @@ var volare = volare || {};
                 previousPolyline.getPath().push(new LatLng(record.latitude, record.longitude));
             }
 
-            var colorIndex = Math.round((record.altitude - minAltitude)/step);
+            var colorIndex = Math.round((self.getValue(record) - min)/step);
             var polyline = previousPolyline;
             if (!previousPolyline || previousColorIndex !== colorIndex) {
                 polyline = new google.maps.Polyline({
@@ -1169,6 +1181,24 @@ var volare = volare || {};
         '#0035FF',
         '#0000FF'
     ];
+
+
+    function GradientColorAltitudeTrack(map, flights) {
+        GradientColorTrack.call(this, map, flights);
+    }
+    common.inherit(GradientColorAltitudeTrack, GradientColorTrack);
+
+    GradientColorAltitudeTrack.prototype.getMax = function(flights) {
+        return flights.getMaxAltitude();
+    };
+
+    GradientColorAltitudeTrack.prototype.getMin = function(flights) {
+        return flights.getMinAltitude();
+    };
+
+    GradientColorAltitudeTrack.prototype.getValue = function(record) {
+        return record.altitude;
+    };
 
 
     function WeatherOverlay(flights) {
