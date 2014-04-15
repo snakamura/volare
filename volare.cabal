@@ -127,7 +127,7 @@ library
 
     hs-source-dirs: src
     includes: msm.h
-    extra-libraries: c++, netcdf, msm
+    extra-libraries: stdc++, netcdf, msm
     include-dirs: msm
     extra-lib-dirs: /usr/lib, /usr/local/lib
 

@@ -1,4 +1,4 @@
-#include <array>
+#include <tr1/array>
 #include <exception>
 #include <string>
 #include <netcdf.h>
@@ -32,10 +32,10 @@ public:
     double attDouble(const std::string& name) const;
 
     template<size_t n>
-    void get(const std::array<size_t, n>& start, const std::array<size_t, n>& count, short* value) const;
+    void get(const std::tr1::array<size_t, n>& start, const std::tr1::array<size_t, n>& count, short* value) const;
 
     template<size_t n>
-    void get(const std::array<size_t, n>& start, const std::array<size_t, n>& count, double* value) const;
+    void get(const std::tr1::array<size_t, n>& start, const std::tr1::array<size_t, n>& count, double* value) const;
 
 private:
     int ncId_;
@@ -68,12 +68,12 @@ static inline void handleError(int status, const std::string& message) {
 
 
 template<size_t n>
-void netcdf::Var::get(const std::array<size_t, n>& start, const std::array<size_t, n>& count, short* value) const {
+void netcdf::Var::get(const std::tr1::array<size_t, n>& start, const std::tr1::array<size_t, n>& count, short* value) const {
     handleError(nc_get_vara_short(ncId_, varId_, start.data(), count.data(), value), "nc_get_vara_short failed");
 }
 
 
 template<size_t n>
-void netcdf::Var::get(const std::array<size_t, n>& start, const std::array<size_t, n>& count, double* value) const {
+void netcdf::Var::get(const std::tr1::array<size_t, n>& start, const std::tr1::array<size_t, n>& count, double* value) const {
     handleError(nc_get_vara_double(ncId_, varId_, start.data(), count.data(), value), "nc_get_vara_double failed");
 }

@@ -1,6 +1,6 @@
 CC=clang
 CXX=clang++
-CXXFLAGS=-std=c++11 -stdlib=libc++ $(shell nc-config --cflags)
+CXXFLAGS=-std=c++11 -stdlib=libstdc++ $(shell nc-config --cflags)
 
 all: lib sample
 
@@ -12,10 +12,10 @@ libmsm.a: msm.o netcdf.o
 sample: surface barometric
 
 surface: surface.o libmsm.a
-	$(CC) -o $@ $< -L. -lmsm -lc++ $(shell nc-config --libs)
+	$(CC) -o $@ $< -L. -lmsm -lstdc++ $(shell nc-config --libs)
 
 barometric: barometric.o libmsm.a
-	$(CC) -o $@ $< -L. -lmsm -lc++ $(shell nc-config --libs)
+	$(CC) -o $@ $< -L. -lmsm -lstdc++ $(shell nc-config --libs)
 
 clean:
 	rm -f *.o *.a surface barometric
