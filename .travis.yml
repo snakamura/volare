@@ -1,0 +1,9 @@
+language: haskell
+ghc:
+  - 7.6
+
+install:
+  - sudo apt-get install libnetcdf-dev netcdf-bin libpq-dev
+  - cabal install alex
+  - cabal install happy
+  - cabal install --only-dependencies --enable-tests

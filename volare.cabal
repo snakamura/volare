@@ -127,8 +127,8 @@ library
 
     hs-source-dirs: src
     includes: msm.h
-    extra-libraries: stdc++, netcdf, msm
     include-dirs: msm
+    extra-libraries: msm, netcdf, stdc++
     extra-lib-dirs: /usr/lib, /usr/local/lib
 
 executable volare
