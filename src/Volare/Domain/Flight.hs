@@ -52,7 +52,7 @@ addFlight name igc = do
         value selector property = realToFrac $ property $ IGC.position $ selector (comparing (property . IGC.position)) records
     flightId <- P.insert $ M.Flight name
                                     (UTCTime (IGC.date igc) (IGC.time $ head records))
-                                    (round ((IGC.time $ last records) - (IGC.time $ head records)))
+                                    (round (IGC.time (last records) - IGC.time (head records)))
                                     (value minimumBy IGC.latitude)
                                     (value maximumBy IGC.latitude)
                                     (value minimumBy IGC.longitude)
@@ -86,7 +86,7 @@ addFlight name igc = do
         previousRecord <- get
         let altitude = IGC.altitude $ IGC.position record
             time = IGC.time record
-            v = maybe True (\p -> (abs (IGC.altitude (IGC.position p) - altitude)) / realToFrac (time - IGC.time p) < 100) previousRecord
+            v = maybe True (\p -> abs (IGC.altitude (IGC.position p) - altitude) / realToFrac (time - IGC.time p) < 100) previousRecord
         when v $
             put $ Just record
         return v
@@ -96,7 +96,7 @@ updateFlight :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBack
                 M.FlightId ->
                 Maybe T.Text ->
                 m ()
-updateFlight flightId name = do
+updateFlight flightId name =
     forM_ name $ \newName ->
         P.update flightId [M.FlightName =. newName]
 

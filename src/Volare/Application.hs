@@ -52,4 +52,4 @@ withVolare :: (Application -> IO ()) -> IO ()
 withVolare f = do
     config <- fromArgs $ const parseConfig
     app <- makeVolare config
-    f $ logStdout $ app
+    f $ logStdout app

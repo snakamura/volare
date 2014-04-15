@@ -44,7 +44,7 @@ import qualified Volare.Widget as W
 
 
 getWaypointsR :: Handler TypedContent
-getWaypointsR = do
+getWaypointsR =
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle "Waypoints - Volare"
@@ -89,7 +89,7 @@ instance JSON.ToJSON Waypoint where
 
 getWaypointR :: M.WaypointId ->
                 Handler TypedContent
-getWaypointR waypointId = do
+getWaypointR waypointId =
     maybeNotFound (runDB $ D.getWaypoint waypointId) $ \waypointEntity -> do
         let waypoint = entityVal waypointEntity
         selectRep $ do

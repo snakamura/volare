@@ -56,7 +56,7 @@ instance JSON.FromJSON NewWorkspace where
 
 getWorkspacesR :: Handler Html
 getWorkspacesR = do
-    workspaces <- runDB $ D.getWorkspaces
+    workspaces <- runDB D.getWorkspaces
     defaultLayout $ do
         setTitle "Workspaces - Volare"
         addCommonLibraries
@@ -76,7 +76,7 @@ postWorkspacesR = do
 
 getWorkspaceR :: M.WorkspaceId ->
                  Handler TypedContent
-getWorkspaceR workspaceId = do
+getWorkspaceR workspaceId =
     maybeNotFound (runDB $ D.getWorkspace workspaceId) $ \workspaceEntity -> do
         let workspace = entityVal workspaceEntity
         selectRep $ do

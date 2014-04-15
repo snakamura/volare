@@ -56,7 +56,7 @@ getRouteWithWaypoints routeId = do
           routeItems <- P.selectList [M.RouteItemRouteId ==. routeId] [P.Asc M.RouteItemIndex]
           waypointItems <- forM routeItems $ \routeItemEntity ->
               P.selectFirst [M.WaypointItemId ==. M.routeItemWaypointItemId (P.entityVal routeItemEntity)] []
-          return $ Just $ Route routeId $ map (uncurry makeRouteItem) $ map (second fromJust) $ filter (isJust . snd) $ zip routeItems waypointItems
+          return $ Just $ Route routeId $ map (uncurry makeRouteItem . second fromJust) $ filter (isJust . snd) $ zip routeItems waypointItems
       Nothing -> return Nothing
   where
     makeRouteItem routeItem waypointItem = RouteItem (P.entityKey routeItem) waypointItem (M.routeItemRadius $ P.entityVal routeItem)
@@ -66,7 +66,7 @@ addRoute :: (P.PersistStore m, P.PersistMonadBackend m ~ P.PersistEntityBackend 
             [(M.WaypointItemId, Int)] ->
             m M.RouteId
 addRoute items = do
-    routeId <- P.insert $ M.Route
+    routeId <- P.insert M.Route
     forM_ (zip [0..] items) $ \(index, (waypointItemId, radius)) ->
         P.insert $ M.RouteItem routeId index waypointItemId radius
     return routeId

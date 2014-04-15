@@ -62,8 +62,8 @@ addWorkspace name = do
 
 updateWorkspace :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Workspace) =>
                    M.WorkspaceId ->
-                   (Maybe T.Text) ->
-                   (Maybe (Maybe M.RouteId)) ->
+                   Maybe T.Text ->
+                   Maybe (Maybe M.RouteId) ->
                    m ()
 updateWorkspace workspaceId name routeId = do
     forM_ name $ \newName ->

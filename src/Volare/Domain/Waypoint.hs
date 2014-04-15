@@ -54,7 +54,7 @@ updateWaypoint :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBa
                   M.WaypointId ->
                   Maybe T.Text ->
                   m ()
-updateWaypoint waypointId name = do
+updateWaypoint waypointId name =
     forM_ name $ \newName ->
         P.update waypointId [M.WaypointName =. newName]
 

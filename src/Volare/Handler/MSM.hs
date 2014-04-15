@@ -4,7 +4,7 @@ module Volare.Handler.MSM (
 ) where
 
 import Control.Applicative ((<$>))
-import Control.Monad (when)
+import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as JSON
 import qualified Data.Text as T
@@ -65,7 +65,7 @@ dataFile surface year month day = do
   let t = if surface then 's' else 'p'
       path = printf "./data/msm/%c/%04d%02d%02d.nc" t year month day
   b <- doesFileExist path
-  when (not b) $ do
+  unless b $ do
     createDirectoryIfMissing True $ takeDirectory path
     -- TODO
     -- Save to a temporary file and move it

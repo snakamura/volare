@@ -30,7 +30,7 @@ line = skipWhile (\b -> b /= 0x0d && b /= 0x0a) *> newline
 
 
 newline :: Parser ()
-newline = const (const ()) <$> (option 0x0d $ word8 0x0d) <*> word8 0x0a
+newline = const (const ()) <$> option 0x0d (word8 0x0d) <*> word8 0x0a
 
 
 char :: Char ->

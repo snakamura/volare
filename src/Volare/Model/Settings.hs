@@ -11,7 +11,7 @@ import Database.Persist.TH (EntityJSON(EntityJSON),
 
 settings :: MkPersistSettings
 settings = sqlSettings {
-    mpsEntityJSON = Just $ EntityJSON {
+    mpsEntityJSON = Just EntityJSON {
       entityToJSON = 'entityIdToJSON,
       entityFromJSON = 'entityIdFromJSON
     }

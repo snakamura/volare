@@ -52,7 +52,7 @@ import qualified Volare.Widget as W
 
 
 getFlightsR :: Handler TypedContent
-getFlightsR = do
+getFlightsR =
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle "Flights - Volare"
@@ -106,7 +106,7 @@ instance JSON.ToJSON Flight where
 
 getFlightR :: M.FlightId ->
               Handler TypedContent
-getFlightR flightId = do
+getFlightR flightId =
     maybeNotFound (runDB $ D.getFlight flightId) $ \flightEntity -> do
         let flight = entityVal flightEntity
         selectRep $ do

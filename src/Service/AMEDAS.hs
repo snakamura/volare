@@ -15,7 +15,7 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import Data.List.Split (splitOn,
                         splitWhen)
-import Data.Maybe (catMaybes)
+import Data.Maybe (mapMaybe)
 import qualified Network.HTTP.Conduit as Http
 import Safe (headDef)
 import Text.HTML.TagSoup (Tag(TagOpen, TagClose),
@@ -73,12 +73,12 @@ load path = (map parseItem . lines) <$> readFile path
 
 parseHtml :: BL.ByteString ->
              [Type.Item]
-parseHtml = catMaybes . map parseItem
-                      . tail
-                      . splitWhen (~== TagOpen tr [])
-                      . takeWhile (~/= TagClose table)
-                      . dropWhile (~/= TagOpen tr [("class", "mtx"), ("style", "")])
-                      . parseTags
+parseHtml = mapMaybe parseItem
+                . tail
+                . splitWhen (~== TagOpen tr [])
+                . takeWhile (~/= TagClose table)
+                . dropWhile (~/= TagOpen tr [("class", "mtx"), ("style", "")])
+                . parseTags
     where
       parseItem = makeItem . map (headDef "" . map fromTagText . filter isTagText . takeWhile (~/= TagClose td)) . tail . splitWhen (~== TagOpen td [])
 

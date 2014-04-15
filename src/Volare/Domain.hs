@@ -1,11 +1,8 @@
 module Volare.Domain (
-    module Volare.Domain.Flight,
-    module Volare.Domain.Route,
-    module Volare.Domain.Waypoint,
-    module Volare.Domain.Workspace
+    module D
 ) where
 
-import Volare.Domain.Flight
-import Volare.Domain.Route
-import Volare.Domain.Waypoint
-import Volare.Domain.Workspace
+import Volare.Domain.Flight as D
+import Volare.Domain.Route as D
+import Volare.Domain.Waypoint as D
+import Volare.Domain.Workspace as D
