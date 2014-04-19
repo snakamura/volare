@@ -1015,7 +1015,7 @@ var volare = volare || {};
             return new GradientColorVerticalSpeedTrack(this._map, this._flights, flight);
         default:
             throw "Never happens.";
-        };
+        }
     };
 
     Map.TrackType = {
