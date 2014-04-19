@@ -835,7 +835,7 @@ var volare = volare || {};
         this._msmBarometricOverlay = new MSMBarometricOverlay(this._flights);
         this._amedasOverlay = new AMEDASOverlay(this._flights);
         this._weatherFlags = 0;
-        this._useGradientColorTrack = false;
+        this._trackType = Map.TrackType.SOLID;
         this._waypoint = null;
         this._waypointMakers = [];
         this._route = null;
@@ -897,12 +897,12 @@ var volare = volare || {};
         $(this).trigger('weatherFlags_changed', this._weatherFlags);
     };
 
-    Map.prototype.isUseGradientColorTrack = function() {
-        return this._useGradientColorTrack;
+    Map.prototype.getTrackType = function() {
+        return this._trackType;
     };
 
-    Map.prototype.setUseGradientColorTrack = function(useGradientColorTrack) {
-        this._useGradientColorTrack = useGradientColorTrack;
+    Map.prototype.setTrackType = function(trackType) {
+        this._trackType = trackType;
 
         var self = this;
         this._flights.eachFlight(function(flight) {
@@ -913,7 +913,8 @@ var volare = volare || {};
             flight.__track = track;
         });
 
-        $(this).trigger('useGradientColorTrack_changed', this._weatherFlags);
+        $(this).trigger('trackType_changed', this._weatherFlags);
+
     };
 
     Map.prototype.getWaypoint = function() {
@@ -1003,10 +1004,25 @@ var volare = volare || {};
     };
 
     Map.prototype._createTrack = function(flight) {
-        if (this._useGradientColorTrack)
-            return new GradientColorAltitudeTrack(this._map, this._flights);
-        else
+        switch (this._trackType) {
+        case Map.TrackType.SOLID:
             return new SolidColorTrack(this._map, flight.getColor());
+        case Map.TrackType.ALTITUDE:
+            return new GradientColorAltitudeTrack(this._map, this._flights);
+        case Map.TrackType.GROUND_SPEED:
+            return new GradientColorGroundSpeedTrack(this._map, this._flights, flight);
+        case Map.TrackType.VERTICAL_SPEED:
+            return new GradientColorVerticalSpeedTrack(this._map, this._flights, flight);
+        default:
+            throw "Never happens.";
+        };
+    };
+
+    Map.TrackType = {
+        SOLID: 0,
+        ALTITUDE: 1,
+        GROUND_SPEED: 2,
+        VERTICAL_SPEED: 3
     };
 
     Map.MSM_SURFACE_WIND = 0x01;
@@ -2246,12 +2262,12 @@ var volare = volare || {};
 
     function OptionsControl(flights, map, $options) {
         function updateGradient() {
-            $options.find('.gradient').prop('checked', map.isUseGradientColorTrack());
+            $options.find('.gradient').prop('checked', map.getTrackType() != Map.TrackType.NORMAL);
         }
         $options.find('.gradient').on('click', function(event) {
-            map.setUseGradientColorTrack($(event.target).prop('checked'));
+            map.setTrackType($(event.target).prop('checked') ? Map.TrackType.ALTITUDE : Map.TrackType.SOLID);
         });
-        $(map).on('useGradientColorTrack_changed', updateGradient);
+        $(map).on('trackType_changed', updateGradient);
         updateGradient();
 
         function updateThinOut() {

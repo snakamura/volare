@@ -2,7 +2,7 @@ $(function() {
     var flights = new volare.Flights();
     var player = new volare.Player(flights, $('#player'));
     var map = new volare.Map(flights, $('#map'));
-    map.setUseGradientColorTrack(true);
+    map.setTrackType(volare.Map.TrackType.ALTITUDE);
     var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
     var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
     var chart = new volare.Chart(flights, $('#chart'));
