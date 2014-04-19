@@ -2,8 +2,19 @@
   <label>Options</label>
   <ul>
     <li>
+      <label>Track
+    <li>
       <label>
-        <input .gradient type=checkbox>Use gradient tracks
+        <input .gradient type=radio name=type value=solid>Solid
+    <li>
+      <label>
+        <input .gradient type=radio name=type value=altitude>Altitude
+    <li>
+      <label>
+        <input .gradient type=radio name=type value=ground_speed>GS
+    <li>
+      <label>
+        <input .gradient type=radio name=type value=vertical_speed>VS
   <ul>
     <li>
       <label>

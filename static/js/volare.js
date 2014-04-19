@@ -2261,11 +2261,14 @@ var volare = volare || {};
 
 
     function OptionsControl(flights, map, $options) {
+        var radio = $options.find('.gradient');
+        var values = ['solid', 'altitude', 'ground_speed', 'vertical_speed'];
         function updateGradient() {
-            $options.find('.gradient').prop('checked', map.getTrackType() != Map.TrackType.NORMAL);
+            radio.val([values[map.getTrackType()]]);
         }
-        $options.find('.gradient').on('click', function(event) {
-            map.setTrackType($(event.target).prop('checked') ? Map.TrackType.ALTITUDE : Map.TrackType.SOLID);
+        radio.on('click', function(event) {
+            map.setTrackType(values.indexOf($(event.target).val()));
+
         });
         $(map).on('trackType_changed', updateGradient);
         updateGradient();
