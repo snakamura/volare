@@ -1225,6 +1225,26 @@ var volare = volare || {};
     };
 
 
+    function GradientColorVerticalSpeedTrack(map, flights, flight) {
+        GradientColorTrack.call(this, map, flights);
+
+        this._flight = flight;
+    }
+    common.inherit(GradientColorVerticalSpeedTrack, GradientColorTrack);
+
+    GradientColorVerticalSpeedTrack.prototype.getMax = function(flights) {
+        return 3;
+    };
+
+    GradientColorVerticalSpeedTrack.prototype.getMin = function(flights) {
+        return -3;
+    };
+
+    GradientColorVerticalSpeedTrack.prototype.getValue = function(record) {
+        return this._flight.getVerticalSpeedAt(record.time);
+    };
+
+
     function WeatherOverlay(flights) {
         var self = this;
 
