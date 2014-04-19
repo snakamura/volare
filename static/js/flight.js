@@ -4,7 +4,7 @@ $(function() {
     var map = new volare.Map(flights, $('#map'));
     map.setTrackType(volare.Map.TrackType.ALTITUDE);
     var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
-    var speedGraph = new volare.SpeedGraph(flights, $('#speed'));
+    var speedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
     var chart = new volare.Chart(flights, $('#chart'));
     var optionsControl = new volare.OptionsControl(flights, map, $('#options'));
     var waypointControl = new volare.WaypointControl(map, $('#waypoint'));

@@ -30,7 +30,7 @@
       <td #max_altitude>
 
   <div #altitude .graph>
-  <div #speed .graph>
+  <div #ground_speed .graph>
 
   ^{W.options}
   ^{W.waypoint}

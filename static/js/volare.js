@@ -494,7 +494,7 @@ var volare = volare || {};
         }
     };
 
-    Flight.prototype.drawGroundSpeed = function(graph, context, currentTime, speedGraphContext) {
+    Flight.prototype.drawGroundSpeed = function(graph, context, currentTime, groundSpeedGraphContext) {
         if (this._visible) {
             context.strokeStyle = this._color;
             context.lineWidth = 2;
@@ -502,8 +502,8 @@ var volare = volare || {};
             var step = 20*1000;
             var startTime = null;
             var endTime = null;
-            if (speedGraphContext && speedGraphContext.isSet()) {
-                var lastDrawnGroundSpeedTime = speedGraphContext.getTime();
+            if (groundSpeedGraphContext && groundSpeedGraphContext.isSet()) {
+                var lastDrawnGroundSpeedTime = groundSpeedGraphContext.getTime();
                 if (currentTime.getTime() >= lastDrawnGroundSpeedTime.getTime() + step) {
                     startTime = lastDrawnGroundSpeedTime;
                     endTime = currentTime || this.getEndTime();
@@ -523,8 +523,8 @@ var volare = volare || {};
                 }
                 context.stroke();
 
-                if (speedGraphContext)
-                    speedGraphContext.set(new Date(time - step));
+                if (groundSpeedGraphContext)
+                    groundSpeedGraphContext.set(new Date(time - step));
             }
         }
     };
@@ -2077,18 +2077,18 @@ var volare = volare || {};
     };
 
 
-    function SpeedGraph(flights, $canvas) {
+    function GroundSpeedGraph(flights, $canvas) {
         Graph.call(this, flights, $canvas);
     }
-    common.inherit(SpeedGraph, Graph);
+    common.inherit(GroundSpeedGraph, Graph);
 
-    SpeedGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
+    GroundSpeedGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
         var self = this;
         this._flights.eachFlight(function(flight) {
             var graphContext = null;
             if (withGraphContext) {
-                flight.__currentSpeedGraphContext = flight.__currentSpeedGraphContext || new SpeedGraphContext();
-                graphContext = flight.__currentSpeedGraphContext;
+                flight.__currentGroundSpeedGraphContext = flight.__currentGroundSpeedGraphContext || new GroundSpeedGraphContext();
+                graphContext = flight.__currentGroundSpeedGraphContext;
                 if (!partial)
                     graphContext.reset();
             }
@@ -2096,44 +2096,44 @@ var volare = volare || {};
         });
     };
 
-    SpeedGraph.prototype._getMax = function() {
+    GroundSpeedGraph.prototype._getMax = function() {
         return 120;
     };
 
-    SpeedGraph.prototype._isPrimaryValue = function(value) {
+    GroundSpeedGraph.prototype._isPrimaryValue = function(value) {
         return value % 50 === 0;
     };
 
-    SpeedGraph.prototype._getValueStep = function() {
-        return SpeedGraph.SPEED_STEP;
+    GroundSpeedGraph.prototype._getValueStep = function() {
+        return GroundSpeedGraph.SPEED_STEP;
     };
 
-    SpeedGraph.prototype._formatValue = function(value) {
+    GroundSpeedGraph.prototype._formatValue = function(value) {
         return value + 'km/h';
     };
 
-    SpeedGraph.SPEED_STEP = 10;
+    GroundSpeedGraph.SPEED_STEP = 10;
 
 
-    function SpeedGraphContext() {
+    function GroundSpeedGraphContext() {
         this._set = false;
         this._time = null;
     }
 
-    SpeedGraphContext.prototype.isSet = function() {
+    GroundSpeedGraphContext.prototype.isSet = function() {
         return this._set;
     };
 
-    SpeedGraphContext.prototype.getTime = function() {
+    GroundSpeedGraphContext.prototype.getTime = function() {
         return this._time;
     };
 
-    SpeedGraphContext.prototype.set = function(time) {
+    GroundSpeedGraphContext.prototype.set = function(time) {
         this._set = true;
         this._time = time;
     };
 
-    SpeedGraphContext.prototype.reset = function() {
+    GroundSpeedGraphContext.prototype.reset = function() {
         this._set = false;
     };
 
@@ -2500,7 +2500,7 @@ var volare = volare || {};
     volare.Player = Player;
     volare.Map = Map;
     volare.AltitudeGraph = AltitudeGraph;
-    volare.SpeedGraph = SpeedGraph;
+    volare.GroundSpeedGraph = GroundSpeedGraph;
     volare.Chart = Chart;
     volare.OptionsControl = OptionsControl;
     volare.WaypointControl = WaypointControl;
