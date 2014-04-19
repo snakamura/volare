@@ -1141,7 +1141,11 @@ var volare = volare || {};
                 previousPolyline.getPath().push(new LatLng(record.latitude, record.longitude));
             }
 
-            var colorIndex = Math.round((self.getValue(record) - min)/step);
+            function clip(index) {
+                return Math.min(Math.max(index, 0), GradientColorTrack.COLORS.length - 1);
+            }
+
+            var colorIndex = clip(Math.round((self.getValue(record) - min)/step));
             var polyline = previousPolyline;
             if (!previousPolyline || previousColorIndex !== colorIndex) {
                 polyline = new google.maps.Polyline({
@@ -1198,6 +1202,26 @@ var volare = volare || {};
 
     GradientColorAltitudeTrack.prototype.getValue = function(record) {
         return record.altitude;
+    };
+
+
+    function GradientColorGroundSpeedTrack(map, flights, flight) {
+        GradientColorTrack.call(this, map, flights);
+
+        this._flight = flight;
+    }
+    common.inherit(GradientColorGroundSpeedTrack, GradientColorTrack);
+
+    GradientColorGroundSpeedTrack.prototype.getMax = function(flights) {
+        return 80;
+    };
+
+    GradientColorGroundSpeedTrack.prototype.getMin = function(flights) {
+        return 30;
+    };
+
+    GradientColorGroundSpeedTrack.prototype.getValue = function(record) {
+        return this._flight.getGroundSpeedAt(record.time)*3600/1000;
     };
 
 
