@@ -495,52 +495,30 @@ var volare = volare || {};
     };
 
     Flight.prototype.drawGroundSpeed = function(graph, context, currentTime, groundSpeedGraphContext) {
-        if (this._visible) {
-            context.strokeStyle = this._color;
-            context.lineWidth = 2;
-
-            var step = 20*1000;
-            var startTime = null;
-            var endTime = null;
-            if (groundSpeedGraphContext && groundSpeedGraphContext.isSet()) {
-                var lastDrawnGroundSpeedTime = groundSpeedGraphContext.getTime();
-                if (currentTime.getTime() >= lastDrawnGroundSpeedTime.getTime() + step) {
-                    startTime = lastDrawnGroundSpeedTime;
-                    endTime = currentTime || this.getEndTime();
-                }
-            }
-            else {
-                startTime = this.getStartTime();
-                endTime = currentTime || this.getEndTime();
-            }
-            if (startTime) {
-                context.beginPath();
-                context.moveTo(graph.getX(startTime), graph.getY(this.getGroundSpeedAt(startTime)*3600/1000));
-                var time = startTime.getTime() + step;
-                for (; time < endTime.getTime(); time += step) {
-                    var t = new Date(time);
-                    context.lineTo(graph.getX(t), graph.getY(this.getGroundSpeedAt(t)*3600/1000));
-                }
-                context.stroke();
-
-                if (groundSpeedGraphContext)
-                    groundSpeedGraphContext.set(new Date(time - step));
-            }
-        }
+        var self = this;
+        this._drawSpeed(graph, context, currentTime, groundSpeedGraphContext, function(time) {
+            return self.getGroundSpeedAt(time)*3600/1000;
+        }, 20*1000);
     };
 
     Flight.prototype.drawVerticalSpeed = function(graph, context, currentTime, verticalSpeedGraphContext) {
+        var self = this;
+        this._drawSpeed(graph, context, currentTime, verticalSpeedGraphContext, function(time) {
+            return self.getVerticalSpeedAt(time);
+        }, 10*1000);
+    };
+
+    Flight.prototype._drawSpeed = function(graph, context, currentTime, speedGraphContext, getSpeedAt, step) {
         if (this._visible) {
             context.strokeStyle = this._color;
             context.lineWidth = 2;
 
-            var step = 20*1000;
             var startTime = null;
             var endTime = null;
-            if (verticalSpeedGraphContext && verticalSpeedGraphContext.isSet()) {
-                var lastDrawnVerticalSpeedTime = verticalSpeedGraphContext.getTime();
-                if (currentTime.getTime() >= lastDrawnVerticalSpeedTime.getTime() + step) {
-                    startTime = lastDrawnVerticalSpeedTime;
+            if (speedGraphContext && speedGraphContext.isSet()) {
+                var lastDrawnSpeedTime = speedGraphContext.getTime();
+                if (currentTime.getTime() >= lastDrawnSpeedTime.getTime() + step) {
+                    startTime = lastDrawnSpeedTime;
                     endTime = currentTime || this.getEndTime();
                 }
             }
@@ -550,16 +528,16 @@ var volare = volare || {};
             }
             if (startTime) {
                 context.beginPath();
-                context.moveTo(graph.getX(startTime), graph.getY(this.getVerticalSpeedAt(startTime)));
+                context.moveTo(graph.getX(startTime), graph.getY(getSpeedAt(startTime)));
                 var time = startTime.getTime() + step;
                 for (; time < endTime.getTime(); time += step) {
                     var t = new Date(time);
-                    context.lineTo(graph.getX(t), graph.getY(this.getVerticalSpeedAt(t)));
+                    context.lineTo(graph.getX(t), graph.getY(getSpeedAt(t)));
                 }
                 context.stroke();
 
-                if (verticalSpeedGraphContext)
-                    verticalSpeedGraphContext.set(new Date(time - step));
+                if (speedGraphContext)
+                    speedGraphContext.set(new Date(time - step));
             }
         }
     };
