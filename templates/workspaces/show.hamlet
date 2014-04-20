@@ -19,14 +19,22 @@
 <div #map>
 
 <div #sidebar>
-  <div #altitude .graph>
-  <div #ground_speed .graph>
-  <div #vertical_speed .graph>
+  <ul .nav .nav-tabs>
+    <li .active>
+      <a href="#tab_graphs" data-toggle="tab">Graphs
+    <li>
+      <a href="#tab_options" data-toggle="tab">Options
 
-  ^{W.options}
-  ^{W.waypoint}
-  ^{W.route}
-  ^{W.weather}
+  <div .tab-content>
+    <div #tab_graphs .tab-pane .active>
+      <div #altitude .graph>
+      <div #ground_speed .graph>
+      <div #vertical_speed .graph>
+
+    <div #tab_options .tab-pane>
+      ^{W.options}
+      ^{W.waypoint}
+      ^{W.weather}
 
 <div #chart>
 

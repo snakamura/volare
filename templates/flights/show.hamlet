@@ -18,23 +18,32 @@
 <div #map>
 
 <div #sidebar>
-  <table #properties>
-    <tr>
-      <th>Time
-      <td #time>
-    <tr>
-      <th>Duration
-      <td #duration>
-    <tr>
-      <th>Max Altitude
-      <td #max_altitude>
+  <ul .nav .nav-tabs>
+    <li .active>
+      <a href="#tab_graphs" data-toggle="tab">Graphs
+    <li>
+      <a href="#tab_options" data-toggle="tab">Options
 
-  <div #altitude .graph>
-  <div #ground_speed .graph>
-  <div #vertical_speed .graph>
+  <div .tab-content>
+    <div #tab_graphs .tab-pane .active>
+      <table #properties>
+        <tr>
+          <th>Time
+          <td #time>
+        <tr>
+          <th>Duration
+          <td #duration>
+        <tr>
+          <th>Max Altitude
+          <td #max_altitude>
 
-  ^{W.options}
-  ^{W.waypoint}
-  ^{W.weather}
+      <div #altitude .graph>
+      <div #ground_speed .graph>
+      <div #vertical_speed .graph>
+
+    <div #tab_options .tab-pane>
+      ^{W.options}
+      ^{W.waypoint}
+      ^{W.weather}
 
 <div #chart>
