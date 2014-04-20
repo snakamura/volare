@@ -34,6 +34,7 @@
     <div #tab_options .tab-pane>
       ^{W.options}
       ^{W.waypoint}
+      ^{W.route}
       ^{W.weather}
 
 <div #chart>
