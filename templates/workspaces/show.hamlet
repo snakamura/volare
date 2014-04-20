@@ -21,6 +21,7 @@
 <div #sidebar>
   <div #altitude .graph>
   <div #ground_speed .graph>
+  <div #vertical_speed .graph>
 
   ^{W.options}
   ^{W.waypoint}

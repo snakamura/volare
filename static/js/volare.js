@@ -529,6 +529,41 @@ var volare = volare || {};
         }
     };
 
+    Flight.prototype.drawVerticalSpeed = function(graph, context, currentTime, verticalSpeedGraphContext) {
+        if (this._visible) {
+            context.strokeStyle = this._color;
+            context.lineWidth = 2;
+
+            var step = 20*1000;
+            var startTime = null;
+            var endTime = null;
+            if (verticalSpeedGraphContext && verticalSpeedGraphContext.isSet()) {
+                var lastDrawnVerticalSpeedTime = verticalSpeedGraphContext.getTime();
+                if (currentTime.getTime() >= lastDrawnVerticalSpeedTime.getTime() + step) {
+                    startTime = lastDrawnVerticalSpeedTime;
+                    endTime = currentTime || this.getEndTime();
+                }
+            }
+            else {
+                startTime = this.getStartTime();
+                endTime = currentTime || this.getEndTime();
+            }
+            if (startTime) {
+                context.beginPath();
+                context.moveTo(graph.getX(startTime), graph.getY(this.getVerticalSpeedAt(startTime)));
+                var time = startTime.getTime() + step;
+                for (; time < endTime.getTime(); time += step) {
+                    var t = new Date(time);
+                    context.lineTo(graph.getX(t), graph.getY(this.getVerticalSpeedAt(t)));
+                }
+                context.stroke();
+
+                if (verticalSpeedGraphContext)
+                    verticalSpeedGraphContext.set(new Date(time - step));
+            }
+        }
+    };
+
     Flight.prototype._getRecordIndexAt = function(time) {
         return _.sortedIndex(this._records, { time: time }, function(record) {
             return record.time;
@@ -1900,7 +1935,7 @@ var volare = volare || {};
     };
 
     Graph.prototype.getY = function(value) {
-        return this._height - (value - this._getMin())/this._getMax()*(this._height - (Graph.MARGIN.top + Graph.MARGIN.bottom)) - Graph.MARGIN.bottom;
+        return this._height - (value - this._getMin())/(this._getMax() - this._getMin())*(this._height - (Graph.MARGIN.top + Graph.MARGIN.bottom)) - Graph.MARGIN.bottom;
     };
 
     Graph.prototype._refresh = function() {
@@ -2134,6 +2169,71 @@ var volare = volare || {};
     };
 
     GroundSpeedGraphContext.prototype.reset = function() {
+        this._set = false;
+    };
+
+
+    function VerticalSpeedGraph(flights, $canvas) {
+        Graph.call(this, flights, $canvas);
+    }
+    common.inherit(VerticalSpeedGraph, Graph);
+
+    VerticalSpeedGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
+        var self = this;
+        this._flights.eachFlight(function(flight) {
+            var graphContext = null;
+            if (withGraphContext) {
+                flight.__currentVerticalSpeedGraphContext = flight.__currentVerticalSpeedGraphContext || new VerticalSpeedGraphContext();
+                graphContext = flight.__currentVerticalSpeedGraphContext;
+                if (!partial)
+                    graphContext.reset();
+            }
+            flight.drawVerticalSpeed(self, context, currentTime, graphContext);
+        });
+    };
+
+    VerticalSpeedGraph.prototype._getMin = function() {
+        return -5;
+    };
+
+    VerticalSpeedGraph.prototype._getMax = function() {
+        return 5;
+    };
+
+    VerticalSpeedGraph.prototype._isPrimaryValue = function(value) {
+        return value === 0;
+    };
+
+    VerticalSpeedGraph.prototype._getValueStep = function() {
+        return VerticalSpeedGraph.SPEED_STEP;
+    };
+
+    VerticalSpeedGraph.prototype._formatValue = function(value) {
+        return value + 'm/s';
+    };
+
+    VerticalSpeedGraph.SPEED_STEP = 1;
+
+
+    function VerticalSpeedGraphContext() {
+        this._set = false;
+        this._time = null;
+    }
+
+    VerticalSpeedGraphContext.prototype.isSet = function() {
+        return this._set;
+    };
+
+    VerticalSpeedGraphContext.prototype.getTime = function() {
+        return this._time;
+    };
+
+    VerticalSpeedGraphContext.prototype.set = function(time) {
+        this._set = true;
+        this._time = time;
+    };
+
+    VerticalSpeedGraphContext.prototype.reset = function() {
         this._set = false;
     };
 
@@ -2501,6 +2601,7 @@ var volare = volare || {};
     volare.Map = Map;
     volare.AltitudeGraph = AltitudeGraph;
     volare.GroundSpeedGraph = GroundSpeedGraph;
+    volare.VerticalSpeedGraph = VerticalSpeedGraph;
     volare.Chart = Chart;
     volare.OptionsControl = OptionsControl;
     volare.WaypointControl = WaypointControl;

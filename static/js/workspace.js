@@ -4,7 +4,8 @@ $(function() {
     var player = new volare.Player(flights, $('#player'));
     var map = new volare.Map(flights, $('#map'));
     var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
-    var speedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
+    var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
+    var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
     var chart = new volare.Chart(flights, $('#chart'));
     var optionsControl = new volare.OptionsControl(flights, map, $('#options'));
     var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
