@@ -2,7 +2,6 @@ module IGCSpec (spec) where
 
 import Data.Attoparsec (parseOnly)
 import qualified Data.ByteString as B
-import Data.IORef
 import Data.Time (fromGregorian)
 import Test.Hspec
 import Test.Hspec.Expectations.Contrib
@@ -12,7 +11,7 @@ import qualified Codec.IGC as IGC
 
 spec :: Spec
 spec =
-    context "when load from file" $ do
+    context "when load from a file" $ do
         let load = do file <- B.readFile "test/test.igc"
                       let r = parseOnly IGC.igc file
                       r `shouldSatisfy` isRight
