@@ -190,4 +190,5 @@ test-suite spec
                    bytestring == 0.10.*,
                    hspec == 1.9.*,
                    hspec-expectations == 0.5.*,
+                   text == 1.1.*,
                    time == 1.4.*
