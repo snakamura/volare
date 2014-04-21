@@ -25,6 +25,7 @@ library
                    Codec.IGC
                    Codec.IGC.Parser
                    Codec.IGC.Types
+                   Codec.IGC.Utils
                    Codec.Utils
                    Service.AMEDAS
                    Service.AMEDAS.Stations

@@ -79,7 +79,7 @@ addFlight name igc = do
                   in flip evalState Nothing $ filterM valid $ takeWhile (not . post) $ dropWhile pre records
     dropWhileNotFlying records = map fst $ dropWhile (not . uncurry flying) $ zip records (drop 10 records)
     flying record next = let duration = abs $ IGC.time next - IGC.time record
-                             dist = distance (IGC.position next) (IGC.position record)
+                             dist = IGC.distance (IGC.position next) (IGC.position record)
                              speed = dist / realToFrac duration
                          in speed > 5 && speed < 10
     valid record = do
@@ -105,14 +105,3 @@ deleteFlight :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBack
                 M.FlightId ->
                 m ()
 deleteFlight = P.deleteCascade
-
-
-distance :: IGC.Position ->
-            IGC.Position ->
-            Double
-distance position1 position2 =
-    let r = 6378137
-        dx = (realToFrac (IGC.longitude position1) - realToFrac (IGC.longitude position2)) / 180 * pi
-        y1 = realToFrac (IGC.latitude position1) / 180 * pi
-        y2 = realToFrac (IGC.latitude position2) / 180 * pi
-    in r * acos (sin y1 * sin y2 + cos y1 * cos y2 * cos dx)
