@@ -2,7 +2,6 @@ module GeoWptSpec (spec) where
 
 import Data.Attoparsec (parseOnly)
 import qualified Data.ByteString as B
-import Data.Time (fromGregorian)
 import Test.Hspec
 import Test.Hspec.Expectations.Contrib
 
