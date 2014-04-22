@@ -15,10 +15,12 @@ spec =
                       let r = parseOnly GeoWpt.wpt file
                       r `shouldSatisfy` isRight
                       return $ either undefined id r
+
         describe "items" $ do
             it "returns all items" $ do
                 wpt <- load
                 length (GeoWpt.items wpt) `shouldBe` 122
+
         describe "the first item" $ do
             it "returns the first item" $ do
                 wpt <- load

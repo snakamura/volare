@@ -16,14 +16,17 @@ spec =
                       let r = parseOnly IGC.igc file
                       r `shouldSatisfy` isRight
                       return $ either undefined id r
+
         describe "date" $ do
             it "returns HFDTE" $ do
                 igc <- load
                 IGC.date igc `shouldBe` fromGregorian 2014 3 15
+
         describe "records" $ do
             it "returns all Bs" $ do
                 igc <- load
                 length (IGC.records igc) `shouldBe` 5175
+
         describe "the first record" $ do
             it "returns the first B" $ do
                 igc <- load
