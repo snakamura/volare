@@ -8,4 +8,4 @@ install:
   - cabal install alex
   - cabal install happy
   - cabal install --only-dependencies --enable-tests
-  - echo "CREATE ROLE volare WITH ENCRYPTED PASSWORD 'password'" | psql -U postgres
+  - echo "CREATE USER volare WITH ENCRYPTED PASSWORD 'password'" | psql -U postgres
