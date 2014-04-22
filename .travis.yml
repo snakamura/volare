@@ -3,7 +3,8 @@ ghc:
   - 7.6
 
 install:
-  - sudo apt-get install libnetcdf-dev netcdf-bin libpq-dev
+  - sudo apt-get install libnetcdf-dev netcdf-bin postgresql libpq-dev
+  - createdb volare_test
   - cabal install alex
   - cabal install happy
   - cabal install --only-dependencies --enable-tests
