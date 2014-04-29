@@ -1077,6 +1077,9 @@ var volare = volare || {};
         throw "This method must be overridden.";
     };
 
+    Track.OPACITY_CURRENT = 1;
+    Track.OPACITY_ALL = 0.3;
+
 
     function SolidColorTrack(map, color) {
         Track.call(this);
@@ -1084,7 +1087,7 @@ var volare = volare || {};
         this._polyline = new google.maps.Polyline({
             map: map,
             strokeColor: color,
-            strokeOpacity: 0.3
+            strokeOpacity: Track.OPACITY_ALL
         });
         this._currentPolyline = new google.maps.Polyline({
             map: map,
@@ -1134,11 +1137,11 @@ var volare = volare || {};
     };
 
     GradientColorTrack.prototype.setRecords = function(records) {
-        this._polylines = this._setRecords(this._polylines, 0.3, records);
+        this._polylines = this._setRecords(this._polylines, Track.OPACITY_ALL, records);
     };
 
     GradientColorTrack.prototype.setCurrentRecords = function(records) {
-        this._currentPolylines = this._setRecords(this._currentPolylines, 1, records);
+        this._currentPolylines = this._setRecords(this._currentPolylines, Track.OPACITY_CURRENT, records);
     };
 
     GradientColorTrack.prototype.getMax = function(flights) {
@@ -1879,7 +1882,7 @@ var volare = volare || {};
 
         this._gridContext = $gridCanvas[0].getContext('2d');
         this._context = $canvas[0].getContext('2d');
-        this._context.globalAlpha = 0.3;
+        this._context.globalAlpha = Graph.OPACITY_ALL;
         this._currentContext = $currentCanvas[0].getContext('2d');
 
         var visibleChangedListener = function() {
@@ -2011,6 +2014,7 @@ var volare = volare || {};
         right: 0
     };
     Graph.TIME_STEP = 10*60*1000;
+    Graph.OPACITY_ALL = 0.3;
 
     Graph.formatTime = function(time) {
         return _.sprintf("%02d:%02d", time.getHours(), time.getMinutes());
