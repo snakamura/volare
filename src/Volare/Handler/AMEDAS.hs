@@ -18,6 +18,8 @@ import Data.Time (UTCTime(..),
                   todHour,
                   toGregorian,
                   utcToLocalTime)
+import Pipes ((>->))
+import qualified Pipes
 import qualified Pipes.Prelude as Pipes
 import qualified Service.AMEDAS as AMEDAS
 import System.Directory (createDirectoryIfMissing,
@@ -74,7 +76,7 @@ loadItems station year month day = do
              createDirectoryIfMissing True $ takeDirectory path
              items <- AMEDAS.download station year month day
              withSystemTempFile "amedas.csv" $ \tempPath handle -> do
-                 AMEDAS.save handle items
+                 Pipes.runEffect $ mapM_ Pipes.yield items >-> AMEDAS.save handle
                  hClose handle
                  renameFile tempPath path `catch` \(_ :: IOException) -> return ()
              return items

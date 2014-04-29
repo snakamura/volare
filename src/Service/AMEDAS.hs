@@ -18,12 +18,12 @@ import Data.List.Split (splitOn,
                         splitWhen)
 import Data.Maybe (mapMaybe)
 import qualified Network.HTTP.Conduit as Http
-import Pipes (Producer,
+import Pipes (Consumer,
+              Producer,
               (>->))
 import qualified Pipes.Prelude as Pipes
 import Safe (headDef)
-import System.IO (Handle,
-                  hPutStr)
+import System.IO (Handle)
 import Text.HTML.TagSoup (Tag(TagOpen, TagClose),
                           (~==),
                           (~/=),
@@ -48,10 +48,10 @@ download station year month day = do
   parseHtml <$> Http.simpleHttp url
 
 
-save :: Handle ->
-        [Type.Item] ->
-        IO ()
-save handle = hPutStr handle . unlines . map formatItem
+save :: MonadIO m =>
+        Handle ->
+        Consumer Type.Item m ()
+save handle = Pipes.map formatItem >-> Pipes.toHandle handle
     where
       formatItem (Type.Item time precipitation temperature windSpeed windDirection sunshine) =
           show time ++ "," ++
