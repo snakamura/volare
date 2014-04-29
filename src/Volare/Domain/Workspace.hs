@@ -1,16 +1,16 @@
-module Volare.Domain.Workspace (
-    WorkspaceFlight(WorkspaceFlight),
-    getWorkspaces,
-    getWorkspace,
-    addWorkspace,
-    updateWorkspace,
-    deleteWorkspace,
-    getWorkspaceFlights,
-    getWorkspaceFlight,
-    getWorkspaceCandidateFlights,
-    addWorkspaceFlight,
-    deleteWorkspaceFlight
-) where
+module Volare.Domain.Workspace
+    ( WorkspaceFlight(WorkspaceFlight)
+    , getWorkspaces
+    , getWorkspace
+    , addWorkspace
+    , updateWorkspace
+    , deleteWorkspace
+    , getWorkspaceFlights
+    , getWorkspaceFlight
+    , getWorkspaceCandidateFlights
+    , addWorkspaceFlight
+    , deleteWorkspaceFlight
+    ) where
 
 import Control.Applicative ((<$>))
 import Control.Arrow (first)
@@ -19,20 +19,28 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import Data.Foldable (forM_)
-import Data.List (minimumBy,
-                  sortBy)
+import Data.List
+    ( minimumBy
+    , sortBy
+    )
 import qualified Data.Map as Map
 import Data.Maybe (catMaybes)
 import Data.Ord (comparing)
 import qualified Data.Text as T
-import Data.Time (addUTCTime,
-                  getCurrentTime)
-import Data.Traversable (forM,
-                         mapM)
-import Database.Persist ((=.),
-                         (==.),
-                         (<=.),
-                         (>=.))
+import Data.Time
+    ( addUTCTime
+    , getCurrentTime
+    )
+import Data.Traversable
+    ( forM
+    , mapM
+    )
+import Database.Persist
+    ( (=.)
+    , (==.)
+    , (<=.)
+    , (>=.)
+    )
 import qualified Database.Persist as P
 import Prelude hiding (mapM)
 
@@ -90,11 +98,10 @@ data WorkspaceFlight = WorkspaceFlight M.FlightId M.Flight T.Text
 
 instance JSON.ToJSON WorkspaceFlight where
     toJSON (WorkspaceFlight workspaceId flight color) =
-        JSON.object [
-            "id" .= workspaceId,
-            "name" .= M.flightName flight,
-            "color" .= color
-          ]
+        JSON.object [ "id" .= workspaceId
+                    , "name" .= M.flightName flight
+                    , "color" .= color
+                    ]
 
 
 getWorkspaceFlights :: (Functor m, P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.WorkspaceFlight) =>
@@ -130,13 +137,13 @@ getWorkspaceCandidateFlights :: (Functor m, P.PersistQuery m, P.PersistMonadBack
 getWorkspaceCandidateFlights workspaceId = do
     workspaceFlights <- getWorkspaceFlights workspaceId
     case workspaceFlights of
-      [] -> P.selectList [] [P.Desc M.FlightTime, P.Asc M.FlightName]
-      _ -> let times = map (\(WorkspaceFlight _ flight _) -> M.flightTime flight) workspaceFlights
-               start = addUTCTime (-6*60*60) $ minimum times
-               end = addUTCTime (6*60*60) $ maximum times
-               flightIds = map (\(WorkspaceFlight flightId _ _) -> flightId) workspaceFlights
-               included (P.Entity flightId _) = flightId `elem` flightIds
-           in filter (not . included) <$> P.selectList [M.FlightTime >=. start, M.FlightTime <=. end] [P.Asc M.FlightName]
+        [] -> P.selectList [] [P.Desc M.FlightTime, P.Asc M.FlightName]
+        _ -> let times = map (\(WorkspaceFlight _ flight _) -> M.flightTime flight) workspaceFlights
+                 start = addUTCTime (-6*60*60) $ minimum times
+                 end = addUTCTime (6*60*60) $ maximum times
+                 flightIds = map (\(WorkspaceFlight flightId _ _) -> flightId) workspaceFlights
+                 included (P.Entity flightId _) = flightId `elem` flightIds
+             in filter (not . included) <$> P.selectList [M.FlightTime >=. start, M.FlightTime <=. end] [P.Asc M.FlightName]
 
 
 addWorkspaceFlight :: (Functor m, P.PersistQuery m, P.PersistUnique m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Workspace) =>
@@ -164,21 +171,20 @@ nextColor :: (Functor m, P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEn
              M.WorkspaceId ->
              m T.Text
 nextColor workspaceId = do
-    let colors = [
-            "red",
-            "blue",
-            "green",
-            "yellow",
-            "aqua",
-            "fuchsia",
-            "lime",
-            "maroon",
-            "navy",
-            "olive",
-            "purple",
-            "silver",
-            "teal"
-          ]
+    let colors = [ "red"
+                 , "blue"
+                 , "green"
+                 , "yellow"
+                 , "aqua"
+                 , "fuchsia"
+                 , "lime"
+                 , "maroon"
+                 , "navy"
+                 , "olive"
+                 , "purple"
+                 , "silver"
+                 , "teal"
+                 ]
     usedColors <- map color <$> getWorkspaceFlights workspaceId
     let initialColorMap = Map.fromList $ zip colors $ zip (repeat (0 :: Int)) [0 :: Int ..]
         colorMap = foldr (Map.update (Just . first (+ 1))) initialColorMap usedColors

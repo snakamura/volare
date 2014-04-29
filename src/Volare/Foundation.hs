@@ -8,31 +8,45 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy.Builder as T
-import Database.Persist.Class (PersistConfigPool,
-                               runPool)
+import Database.Persist.Class
+    ( PersistConfigPool
+    , runPool
+    )
 import Database.Persist.Sql (SqlPersistT)
 import Text.Blaze.Html (Html)
-import Text.Julius (Javascript(..),
-                    ToJavascript(..))
-import Text.Shakespeare.I18N (RenderMessage,
-                              renderMessage)
+import Text.Julius
+    ( Javascript(..)
+    , ToJavascript(..)
+    )
+import Text.Shakespeare.I18N
+    ( RenderMessage
+    , renderMessage
+    )
 import Web.ClientSession (getKey)
-import Yesod.Core (HandlerSite,
-                   MonadHandler,
-                   Yesod(..),
-                   clientSessionBackend,
-                   clientSessionDateCacher,
-                   renderRoute)
-import Yesod.Core.Dispatch (mkYesodData,
-                            parseRoutesFile)
+import Yesod.Core
+    ( HandlerSite
+    , MonadHandler
+    , Yesod(..)
+    , clientSessionBackend
+    , clientSessionDateCacher
+    , renderRoute
+    )
+import Yesod.Core.Dispatch
+    ( mkYesodData
+    , parseRoutesFile
+    )
 import Yesod.Core.Handler (getYesod)
-import Yesod.Default.Config (AppConfig,
-                             DefaultEnv,
-                             appExtra)
-import Yesod.Form (FormMessage,
-                   FormResult,
-                   MForm,
-                   defaultFormMessage)
+import Yesod.Default.Config
+    ( AppConfig
+    , DefaultEnv
+    , appExtra
+    )
+import Yesod.Form
+    ( FormMessage
+    , FormResult
+    , MForm
+    , defaultFormMessage
+    )
 import Yesod.Persist (YesodPersist(..))
 import Yesod.Static (Static)
 
@@ -41,12 +55,12 @@ import qualified Volare.Model as M
 import Volare.Settings (PersistConfig)
 
 
-data Volare = Volare {
-    volareConfig         :: AppConfig DefaultEnv Config,
-    volarePersistConfig  :: PersistConfig,
-    volareConnectionPool :: PersistConfigPool PersistConfig,
-    volareStatic         :: Static
-}
+data Volare = Volare
+    { volareConfig         :: AppConfig DefaultEnv Config
+    , volarePersistConfig  :: PersistConfig
+    , volareConnectionPool :: PersistConfigPool PersistConfig
+    , volareStatic         :: Static
+    }
 
 
 mkYesodData "Volare" $(parseRoutesFile "config/routes")

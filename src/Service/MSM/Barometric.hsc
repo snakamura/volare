@@ -1,29 +1,32 @@
-module Service.MSM.Barometric (
-    Item(..)
-) where
+module Service.MSM.Barometric
+   ( Item(..)
+   ) where
 
-import Control.Applicative ((<$>),
-                            (<*>))
-import Data.Aeson.TH (defaultOptions,
-                      deriveJSON)
-import Foreign.C (CFloat,
-                  CInt)
+import Control.Applicative
+    ( (<$>)
+    , (<*>))
+import Data.Aeson.TH
+    ( defaultOptions
+    , deriveJSON)
+import Foreign.C
+    ( CFloat
+    , CInt)
 import Foreign.Storable (Storable(..))
 
 #include "../../../msm/msm.h"
 
 
-data Item = Item {
-    latitude                        :: Float,
-    longitude                       :: Float,
-    airPressure                     :: Int,
-    geopotentialHeight              :: Float,
-    lagrangianTendencyOfAirPressure :: Float,
-    eastwardWind                    :: Float,
-    northwardWind                   :: Float,
-    airTemperature                  :: Float,
-    relativeHumidity                :: Int
-} deriving Show
+data Item = Item
+    { latitude                        :: Float
+    , longitude                       :: Float
+    , airPressure                     :: Int
+    , geopotentialHeight              :: Float
+    , lagrangianTendencyOfAirPressure :: Float
+    , eastwardWind                    :: Float
+    , northwardWind                   :: Float
+    , airTemperature                  :: Float
+    , relativeHumidity                :: Int
+    } deriving Show
 
 instance Storable Item where
     sizeOf _ = #{size barometric_item}
@@ -37,9 +40,9 @@ instance Storable Item where
                   <*> (#{peek barometric_item, northward_wind} p)
                   <*> (#{peek barometric_item, air_temperature} p)
                   <*> fmap cIntToInt (#{peek barometric_item, relative_humidity} p)
-        where
-          cIntToInt :: CInt -> Int
-          cIntToInt = fromIntegral
+      where
+        cIntToInt :: CInt -> Int
+        cIntToInt = fromIntegral
     poke p s = do
       (#{poke barometric_item, latitude} p $ latitude s)
       (#{poke barometric_item, longitude} p $ longitude s)

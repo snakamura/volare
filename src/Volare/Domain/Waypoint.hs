@@ -1,17 +1,19 @@
-module Volare.Domain.Waypoint (
-    getWaypoints,
-    getWaypoint,
-    getWaypointItems,
-    addWaypoint,
-    updateWaypoint,
-    deleteWaypoint
+module Volare.Domain.Waypoint
+    ( getWaypoints
+    , getWaypoint
+    , getWaypointItems
+    , addWaypoint
+    , updateWaypoint
+    , deleteWaypoint
 ) where
 
 import qualified Codec.GeoWpt as GeoWpt
 import Data.Foldable (forM_)
 import qualified Data.Text as T
-import Database.Persist ((=.),
-                         (==.))
+import Database.Persist
+    ( (=.)
+    , (==.)
+    )
 import qualified Database.Persist as P
 
 import qualified Volare.Model as M

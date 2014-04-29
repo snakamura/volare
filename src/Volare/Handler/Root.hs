@@ -1,6 +1,6 @@
-module Volare.Handler.Root (
-    getRootR
-) where
+module Volare.Handler.Root
+    ( getRootR
+    ) where
 
 import Network.HTTP.Types (temporaryRedirect307)
 import Text.Blaze.Html (Html)

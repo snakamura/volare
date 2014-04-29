@@ -1,42 +1,56 @@
-module Volare.Handler.Waypoint (
-    getWaypointsR,
-    postWaypointsR,
-    getWaypointR,
-    putWaypointR,
-    deleteWaypointR
-) where
+module Volare.Handler.Waypoint
+    ( getWaypointsR
+    , postWaypointsR
+    , getWaypointR
+    , putWaypointR
+    , deleteWaypointR
+    ) where
 
 import qualified Codec.GeoWpt as GeoWpt
-import Control.Applicative ((<$>),
-                            (<*>))
-import Data.Aeson ((.=),
-                   (.:))
+import Control.Applicative
+    ( (<$>)
+    , (<*>)
+    )
+import Data.Aeson
+    ( (.=)
+    , (.:)
+    )
 import qualified Data.Aeson as JSON
 import Data.Attoparsec (parseOnly)
 import qualified Data.ByteString as B
-import Data.Monoid ((<>),
-                    mempty)
+import Data.Monoid
+    ( (<>)
+    , mempty
+    )
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
-import Database.Persist (Entity,
-                         entityVal)
+import Database.Persist
+    ( Entity
+    , entityVal
+    )
 import Text.Blaze.Html (toHtml)
 import Yesod.Core (defaultLayout)
-import Yesod.Core.Handler (invalidArgs,
-                           provideRep,
-                           selectRep)
+import Yesod.Core.Handler
+    ( invalidArgs
+    , provideRep
+    , selectRep
+    )
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
-import Yesod.Core.Widget (addScript,
-                          addStylesheet,
-                          setTitle)
+import Yesod.Core.Widget
+    ( addScript
+    , addStylesheet
+    , setTitle
+    )
 import Yesod.Persist (runDB)
 
 import qualified Volare.Domain as D
 import Volare.Foundation
-import Volare.Handler.Utils (addCommonLibraries,
-                             addGoogleMapsApi,
-                             maybeNotFound)
+import Volare.Handler.Utils
+    ( addCommonLibraries
+    , addGoogleMapsApi
+    , maybeNotFound
+    )
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
@@ -68,23 +82,22 @@ postWaypointsR :: Handler JSON.Value
 postWaypointsR = do
     NewWaypoint name wptBytes <- requireJsonBody
     case parseOnly GeoWpt.wpt wptBytes of
-      Left _ -> invalidArgs ["wpt"]
-      Right wpt -> do
-          waypoint <- runDB $ do
-              waypointId <- D.addWaypoint name wpt
-              D.getWaypoint waypointId
-          return $ JSON.toJSON waypoint
+        Left _ -> invalidArgs ["wpt"]
+        Right wpt -> do
+            waypoint <- runDB $ do
+                waypointId <- D.addWaypoint name wpt
+                D.getWaypoint waypointId
+            return $ JSON.toJSON waypoint
 
 
 data Waypoint = Waypoint M.WaypointId M.Waypoint [Entity M.WaypointItem]
 
 instance JSON.ToJSON Waypoint where
     toJSON (Waypoint waypointId waypoint items) =
-        JSON.object [
-            "id" .= waypointId,
-            "name" .= M.waypointName waypoint,
-            "items" .= items
-          ]
+        JSON.object [ "id" .= waypointId
+                    , "name" .= M.waypointName waypoint
+                    , "items" .= items
+                    ]
 
 
 getWaypointR :: M.WaypointId ->

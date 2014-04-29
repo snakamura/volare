@@ -1,23 +1,27 @@
-module Volare.Handler.Utils (
-    addJQuery,
-    addJQueryUI,
-    addUnderscore,
-    addGoogleMapsApi,
-    addCommonLibraries,
-    lookupIntegralGetParam,
-    maybeNotFound
-) where
+module Volare.Handler.Utils
+    ( addJQuery
+    , addJQueryUI
+    , addUnderscore
+    , addGoogleMapsApi
+    , addCommonLibraries
+    , lookupIntegralGetParam
+    , maybeNotFound
+    ) where
 
 import Control.Applicative ((<$>))
 import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
-import Yesod.Core (MonadHandler,
-                   notFound)
+import Yesod.Core
+    ( MonadHandler
+    , notFound
+    )
 import Yesod.Core.Handler (lookupGetParam)
-import Yesod.Core.Widget (addScript,
-                          addScriptRemote,
-                          addStylesheetRemote)
+import Yesod.Core.Widget
+    ( addScript
+    , addScriptRemote
+    , addStylesheetRemote
+    )
 
 import qualified Volare.Config as Config
 import Volare.Foundation
@@ -30,15 +34,15 @@ addJQuery = addScriptRemote "//code.jquery.com/jquery-2.1.0.min.js"
 
 addJQueryUI :: Widget
 addJQueryUI = do
-  addScriptRemote "//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"
-  addStylesheetRemote "http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/ui-lightness/jquery-ui.css"
+    addScriptRemote "//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"
+    addStylesheetRemote "http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/ui-lightness/jquery-ui.css"
 
 
 addBootstrap :: Widget
 addBootstrap = do
-  addScriptRemote "//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"
-  addStylesheetRemote "//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"
-  addStylesheetRemote "//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css"
+    addScriptRemote "//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"
+    addStylesheetRemote "//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"
+    addStylesheetRemote "//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css"
 
 
 addUnderscore :: Widget
@@ -68,8 +72,8 @@ lookupIntegralGetParam :: (MonadHandler m, Integral a) =>
 lookupIntegralGetParam name = (>>= readIntegral) <$> lookupGetParam name
   where
     readIntegral value = case T.decimal value of
-                           Right (v, r) | T.null r -> Just v
-                           _ -> Nothing
+                             Right (v, r) | T.null r -> Just v
+                             _ -> Nothing
 
 
 maybeNotFound :: MonadHandler m =>

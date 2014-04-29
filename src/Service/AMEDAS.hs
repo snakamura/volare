@@ -1,35 +1,41 @@
-module Service.AMEDAS (
-    Type.Item(..),
-    Type.WindDirection(..),
-    Type.Station(..),
-    download,
-    save,
-    load,
-    parseHtml,
-    stations
+module Service.AMEDAS
+    ( Type.Item(..)
+    , Type.WindDirection(..)
+    , Type.Station(..)
+    , download
+    , save
+    , load
+    , parseHtml
+    , stations
 ) where
 
-import Control.Applicative ((<$>),
-                            (<*>))
+import Control.Applicative
+    ( (<$>)
+    , (<*>)
+    )
 import Control.Monad.IO.Class (MonadIO)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.UTF8 as BLU
-import Data.List.Split (splitOn,
-                        splitWhen)
+import Data.List.Split
+    ( splitOn
+    , splitWhen)
 import Data.Maybe (mapMaybe)
 import qualified Network.HTTP.Conduit as Http
-import Pipes (Consumer,
-              Producer,
-              (>->))
+import Pipes
+    ( Consumer
+    , Producer
+    , (>->))
 import qualified Pipes.Prelude as Pipes
 import Safe (headDef)
 import System.IO (Handle)
-import Text.HTML.TagSoup (Tag(TagOpen, TagClose),
-                          (~==),
-                          (~/=),
-                          fromTagText,
-                          isTagText,
-                          parseTags)
+import Text.HTML.TagSoup
+    ( Tag(TagOpen, TagClose)
+    , (~==)
+    , (~/=)
+    , fromTagText
+    , isTagText
+    , parseTags
+    )
 import Text.Printf (printf)
 import Text.Read (readMaybe)
 
@@ -43,39 +49,39 @@ download :: Type.Station ->
             Int ->
             IO [Type.Item]
 download station year month day = do
-  let c = if Type.block station >= 10000 then 's' else 'a'
-      url = printf "http://www.data.jma.go.jp/obd/stats/etrn/view/10min_%c1.php?prec_no=%d&block_no=%04d&year=%d&month=%d&day=%d&view=p1" c (Type.prec station) (Type.block station) year month day
-  parseHtml <$> Http.simpleHttp url
+    let c = if Type.block station >= 10000 then 's' else 'a'
+        url = printf "http://www.data.jma.go.jp/obd/stats/etrn/view/10min_%c1.php?prec_no=%d&block_no=%04d&year=%d&month=%d&day=%d&view=p1" c (Type.prec station) (Type.block station) year month day
+    parseHtml <$> Http.simpleHttp url
 
 
 save :: MonadIO m =>
         Handle ->
         Consumer Type.Item m ()
 save handle = Pipes.map formatItem >-> Pipes.toHandle handle
-    where
-      formatItem (Type.Item time precipitation temperature windSpeed windDirection sunshine) =
-          show time ++ "," ++
-          maybe "" show precipitation ++ "," ++
-          maybe "" show temperature ++ "," ++
-          maybe "" show windSpeed ++ "," ++
-          maybe "" show windDirection ++ "," ++
-          maybe "" show sunshine
+  where
+    formatItem (Type.Item time precipitation temperature windSpeed windDirection sunshine) =
+        show time ++ "," ++
+        maybe "" show precipitation ++ "," ++
+        maybe "" show temperature ++ "," ++
+        maybe "" show windSpeed ++ "," ++
+        maybe "" show windDirection ++ "," ++
+        maybe "" show sunshine
 
 
 load :: MonadIO m =>
         Handle ->
         Producer Type.Item m ()
 load handle = Pipes.fromHandle handle >-> Pipes.map parseItem
-    where
-      parseItem = make . splitOn ","
-      make [time, precipitation, temperature, windSpeed, windDirection, sunshine] =
-          Type.Item (read time)
-                    (readMaybe precipitation)
-                    (readMaybe temperature)
-                    (readMaybe windSpeed)
-                    (readMaybe windDirection)
-                    (readMaybe sunshine)
-      make _ = error "Never happens."
+  where
+    parseItem = make . splitOn ","
+    make [time, precipitation, temperature, windSpeed, windDirection, sunshine] =
+        Type.Item (read time)
+                  (readMaybe precipitation)
+                  (readMaybe temperature)
+                  (readMaybe windSpeed)
+                  (readMaybe windDirection)
+                  (readMaybe sunshine)
+    make _ = error "Never happens."
 
 
 parseHtml :: BL.ByteString ->
@@ -86,8 +92,8 @@ parseHtml = mapMaybe parseItem
                 . takeWhile (~/= TagClose table)
                 . dropWhile (~/= TagOpen tr [("class", "mtx"), ("style", "")])
                 . parseTags
-    where
-      parseItem = makeItem . map (headDef "" . map fromTagText . filter isTagText . takeWhile (~/= TagClose td)) . tail . splitWhen (~== TagOpen td [])
+  where
+    parseItem = makeItem . map (headDef "" . map fromTagText . filter isTagText . takeWhile (~/= TagClose td)) . tail . splitWhen (~== TagOpen td [])
 
 
 makeItem :: [BL.ByteString] ->
@@ -95,21 +101,21 @@ makeItem :: [BL.ByteString] ->
 makeItem [time, precipitation, temperature, windSpeed, windDirection, maxWindSpeed, maxWindDirection, sunshine] =
     makeItem [time, "", "", precipitation, temperature, "", windSpeed, windDirection, maxWindSpeed, maxWindDirection, sunshine]
 makeItem [time, _, _, precipitation, temperature, _, windSpeed, windDirection, _, _, sunshine] = do
-  time' <- parseTime $ BLU.toString time
-  return $ Type.Item time'
-                     (readMaybe $ BLU.toString precipitation)
-                     (readMaybe $ BLU.toString temperature)
-                     (readMaybe $ BLU.toString windSpeed)
-                     (parseWindDirection $ BLU.toString windDirection)
-                     (readMaybe $ BLU.toString sunshine)
+    time' <- parseTime $ BLU.toString time
+    return $ Type.Item time'
+                       (readMaybe $ BLU.toString precipitation)
+                       (readMaybe $ BLU.toString temperature)
+                       (readMaybe $ BLU.toString windSpeed)
+                       (parseWindDirection $ BLU.toString windDirection)
+                       (readMaybe $ BLU.toString sunshine)
 makeItem _ = Nothing
 
 
 parseTime :: String ->
              Maybe Int
 parseTime s = case break (== ':') s of
-                (_, "") -> Nothing
-                (h, _:m) -> ((+) . (* 60)) <$> readMaybe h <*> readMaybe m
+                  (_, "") -> Nothing
+                  (h, _:m) -> ((+) . (* 60)) <$> readMaybe h <*> readMaybe m
 
 
 parseWindDirection :: String ->

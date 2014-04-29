@@ -2,19 +2,25 @@ module Main (main) where
 
 import Data.Maybe (fromJust)
 import qualified Distribution.PackageDescription as PD
-import Distribution.Simple (Args,
-                            confHook,
-                            defaultMainWithHooks,
-                            postClean,
-                            preConf,
-                            simpleUserHooks)
-import Distribution.Simple.LocalBuildInfo (LocalBuildInfo,
-                                           localPkgDescr)
-import Distribution.Simple.Setup (CleanFlags,
-                                  ConfigFlags,
-                                  cleanVerbosity,
-                                  configVerbosity,
-                                  fromFlag)
+import Distribution.Simple
+    ( Args
+    , confHook
+    , defaultMainWithHooks
+    , postClean
+    , preConf
+    , simpleUserHooks
+    )
+import Distribution.Simple.LocalBuildInfo
+    ( LocalBuildInfo
+    , localPkgDescr
+    )
+import Distribution.Simple.Setup
+    ( CleanFlags
+    , ConfigFlags
+    , cleanVerbosity
+    , configVerbosity
+    , fromFlag
+    )
 import Distribution.Simple.Utils (rawSystemExit)
 import System.Directory (getCurrentDirectory)
 

@@ -1,10 +1,11 @@
-module Codec.IGC.Utils (
-    distance
-) where
+module Codec.IGC.Utils
+    ( distance
+    ) where
 
-import Codec.IGC.Types (Position,
-                        latitude,
-                        longitude)
+import Codec.IGC.Types
+    ( Position
+    , latitude
+    , longitude)
 
 -- $setup
 -- >>> import Codec.IGC.Types (Position(Position))

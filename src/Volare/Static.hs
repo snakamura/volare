@@ -1,14 +1,18 @@
 module Volare.Static where
 
-import Yesod.Static (Route(..),
-                     Static,
-                     StaticRoute,
-                     static,
-                     staticDevel,
-                     staticFiles)
+import Yesod.Static
+    ( Route(..)
+    , Static
+    , StaticRoute
+    , static
+    , staticDevel
+    , staticFiles
+    )
 
-import Volare.Settings (development,
-                        staticDir)
+import Volare.Settings
+    ( development
+    , staticDir
+    )
 
 
 staticSite :: IO Static

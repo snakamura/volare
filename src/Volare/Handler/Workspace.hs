@@ -1,46 +1,61 @@
-module Volare.Handler.Workspace (
-    getWorkspacesR,
-    postWorkspacesR,
-    getWorkspaceR,
-    putWorkspaceR,
-    deleteWorkspaceR,
-    getWorkspaceFlightsR,
-    postWorkspaceFlightsR,
-    deleteWorkspaceFlightR,
-    getWorkspaceCandidatesR
-) where
+module Volare.Handler.Workspace
+    ( getWorkspacesR
+    , postWorkspacesR
+    , getWorkspaceR
+    , putWorkspaceR
+    , deleteWorkspaceR
+    , getWorkspaceFlightsR
+    , postWorkspaceFlightsR
+    , deleteWorkspaceFlightR
+    , getWorkspaceCandidatesR
+    ) where
 
-import Control.Applicative ((<$>),
-                            (<*>),
-                            pure)
-import Data.Aeson ((.:),
-                   (.:?))
+import Control.Applicative
+    ( (<$>)
+    , (<*>)
+    , pure)
+import Data.Aeson
+    ( (.:)
+    , (.:?)
+    )
 import qualified Data.Aeson as JSON
 import qualified Data.Aeson.Types as JSON
 import qualified Data.HashMap.Strict as HashMap
-import Data.Monoid ((<>),
-                    mempty)
+import Data.Monoid
+    ( (<>)
+    , mempty
+    )
 import qualified Data.Text as T
-import Database.Persist (Entity,
-                         entityKey,
-                         entityVal)
-import Text.Blaze.Html (Html,
-                        toHtml)
+import Database.Persist
+    ( Entity
+    , entityKey
+    , entityVal
+    )
+import Text.Blaze.Html
+    ( Html
+    , toHtml
+    )
 import Yesod.Core (defaultLayout)
-import Yesod.Core.Handler (provideRep,
-                           selectRep)
+import Yesod.Core.Handler
+    ( provideRep
+    , selectRep
+    )
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
-import Yesod.Core.Widget (addScript,
-                          addStylesheet,
-                          setTitle)
+import Yesod.Core.Widget
+    ( addScript
+    , addStylesheet
+    , setTitle
+    )
 import Yesod.Persist (runDB)
 
 import qualified Volare.Domain as D
 import Volare.Foundation
-import Volare.Handler.Utils (addCommonLibraries,
-                             addGoogleMapsApi,
-                             maybeNotFound)
+import Volare.Handler.Utils
+    ( addCommonLibraries
+    , addGoogleMapsApi
+    , maybeNotFound
+    )
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S

@@ -1,7 +1,7 @@
-module Volare.Widget.Navigation (
-    Page(..),
-    navigation
-) where
+module Volare.Widget.Navigation
+    ( Page(..)
+    , navigation
+    ) where
 
 import qualified Data.Text as T
 
@@ -12,7 +12,7 @@ import Volare.Settings (widgetFile)
 data Page = FLIGHTS
           | WORKSPACES
           | WAYPOINTS
-  deriving (Show, Eq)
+    deriving (Show, Eq)
 
 
 navigation :: Page ->

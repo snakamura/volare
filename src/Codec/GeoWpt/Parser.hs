@@ -1,30 +1,38 @@
-module Codec.GeoWpt.Parser (
-    wpt
-) where
+module Codec.GeoWpt.Parser
+    ( wpt
+    ) where
 
-import Control.Applicative ((<*>),
-                            (*>),
-                            (<*),
-                            (<$>),
-                            (<|>),
-                            many)
-import Data.Attoparsec (Parser,
-                        string,
-                        skipWhile,
-                        take,
-                        takeWhile)
+import Control.Applicative
+    ( (<*>)
+    , (*>)
+    , (<*)
+    , (<$>)
+    , (<|>)
+    , many)
+import Data.Attoparsec
+    ( Parser
+    , string
+    , skipWhile
+    , take
+    , takeWhile
+    )
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
-import Prelude hiding (take,
-                       takeWhile)
+import Prelude hiding
+    ( take
+    , takeWhile)
 
-import Codec.GeoWpt.Types (Item(Item),
-                           Wpt(Wpt))
-import Codec.Utils (char,
-                    digit,
-                    digits,
-                    many1,
-                    newline)
+import Codec.GeoWpt.Types
+    ( Item(Item)
+    , Wpt(Wpt)
+    )
+import Codec.Utils
+    ( char
+    , digit
+    , digits
+    , many1
+    , newline
+    )
 
 
 wpt :: Parser Wpt
@@ -53,8 +61,8 @@ longitude = toDegree <$> ((char 'W' <|> char 'E') <* char ' ') <*> (digits 3 <* 
 
 altitude :: Parser Int
 altitude = toAltitude <$> (skipWhile (== 0x20) *> many digit)
-    where
-      toAltitude ds = sum $ zipWith (\d e -> d * 10 ^ e) (reverse ds) [(0 :: Int) ..]
+  where
+    toAltitude ds = sum $ zipWith (\d e -> d * 10 ^ e) (reverse ds) [(0 :: Int) ..]
 
 
 description :: Parser T.Text
@@ -68,9 +76,9 @@ toDegree :: Char ->
             Int ->
             Float
 toDegree u d m s ss = unit u * (fromIntegral d + (fromIntegral m / 60) + fromIntegral (s * 100 + ss) / 360000)
-    where
-      unit 'N' =  1
-      unit 'S' = -1
-      unit 'W' = -1
-      unit 'E' =  1
-      unit _   = undefined
+  where
+    unit 'N' =  1
+    unit 'S' = -1
+    unit 'W' = -1
+    unit 'E' =  1
+    unit _   = undefined

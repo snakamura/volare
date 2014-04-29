@@ -1,11 +1,13 @@
-module Volare.Handler.Route (
-    postRoutesR,
-    getRouteR,
-    deleteRouteR
-) where
+module Volare.Handler.Route
+    ( postRoutesR
+    , getRouteR
+    , deleteRouteR
+    ) where
 
-import Control.Applicative ((<$>),
-                            (<*>))
+import Control.Applicative
+    ( (<$>)
+    , (<*>)
+    )
 import Data.Aeson ((.:))
 import qualified Data.Aeson as JSON
 import Data.Monoid (mempty)

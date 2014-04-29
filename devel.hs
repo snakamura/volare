@@ -2,18 +2,22 @@
 
 module Main (main) where
 
-import Control.Concurrent (forkIO,
-                           threadDelay)
-import Network.Wai.Handler.Warp (defaultSettings,
-                                 runSettings,
-                                 setPort)
-import System.Directory (doesFileExist,
-                         removeFile)
+import Control.Concurrent
+    ( forkIO
+    , threadDelay)
+import Network.Wai.Handler.Warp
+    ( defaultSettings
+    , runSettings
+    , setPort)
+import System.Directory
+    ( doesFileExist
+    , removeFile)
 import System.Exit (exitSuccess)
-import Yesod.Default.Config (DefaultEnv(Development),
-                             configSettings,
-                             csParseExtra,
-                             loadConfig)
+import Yesod.Default.Config
+    ( DefaultEnv(Development)
+    , configSettings
+    , csParseExtra
+    , loadConfig)
 import Yesod.Default.Main (defaultDevelApp)
 
 import "volare" Volare.Application (makeVolare)

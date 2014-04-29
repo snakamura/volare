@@ -1,21 +1,27 @@
-module Volare.Settings (
-    PersistConfig,
-    development,
-    staticDir,
-    widgetFile
-) where
+module Volare.Settings
+    ( PersistConfig
+    , development
+    , staticDir
+    , widgetFile
+    ) where
 
 import Data.Default (def)
 import Database.Persist.Postgresql (PostgresConf)
-import Language.Haskell.TH.Syntax (Exp,
-                                   Q)
-import Text.Hamlet (NewlineStyle(NoNewlines),
-                    defaultHamletSettings,
-                    hamletNewlines)
-import Yesod.Default.Util (WidgetFileSettings,
-                           wfsHamletSettings,
-                           widgetFileNoReload,
-                           widgetFileReload)
+import Language.Haskell.TH.Syntax
+    ( Exp
+    , Q
+    )
+import Text.Hamlet
+    ( NewlineStyle(NoNewlines)
+    , defaultHamletSettings
+    , hamletNewlines
+    )
+import Yesod.Default.Util
+    ( WidgetFileSettings
+    , wfsHamletSettings
+    , widgetFileNoReload
+    , widgetFileReload
+    )
 
 
 type PersistConfig = PostgresConf
@@ -45,7 +51,7 @@ widgetFile = widgetFile' widgetFileSettings
 
 widgetFileSettings :: WidgetFileSettings
 widgetFileSettings = def {
-                         wfsHamletSettings = defaultHamletSettings {
-                             hamletNewlines = NoNewlines
-                         }
-                     }
+    wfsHamletSettings = defaultHamletSettings {
+        hamletNewlines = NoNewlines
+    }
+}

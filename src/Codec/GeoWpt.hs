@@ -1,7 +1,4 @@
-module Codec.GeoWpt (
-    module Codec.GeoWpt.Parser,
-    module Codec.GeoWpt.Types
-) where
+module Codec.GeoWpt (module X) where
 
-import Codec.GeoWpt.Parser
-import Codec.GeoWpt.Types
+import Codec.GeoWpt.Parser as X
+import Codec.GeoWpt.Types as X

@@ -1,25 +1,31 @@
-module SpecUtils (
-    runDB,
-    (@==)
-) where
+module SpecUtils
+    ( runDB
+    , (@==)
+    ) where
 
 import Control.Applicative ((<*))
-import Control.Monad.IO.Class (MonadIO,
-                               liftIO)
-import Control.Monad.Logger (NoLoggingT,
-                             runNoLoggingT)
-import Control.Monad.Trans.Resource (ResourceT,
-                                     runResourceT)
-import Database.Persist.Class (PersistConfigBackend,
-                               applyEnv,
-                               createPoolConfig,
-                               loadConfig,
-                               runPool)
-import Database.Persist.Sql (runMigration,
-                             transactionUndo)
+import Control.Monad.IO.Class
+    ( MonadIO
+    , liftIO)
+import Control.Monad.Logger
+    ( NoLoggingT
+    , runNoLoggingT)
+import Control.Monad.Trans.Resource
+    ( ResourceT
+    , runResourceT)
+import Database.Persist.Class
+    ( PersistConfigBackend
+    , applyEnv
+    , createPoolConfig
+    , loadConfig
+    , runPool)
+import Database.Persist.Sql
+    ( runMigration
+    , transactionUndo)
 import Test.HUnit ((@?=))
-import Yesod.Default.Config (DefaultEnv(Testing),
-                             withYamlEnvironment)
+import Yesod.Default.Config
+    ( DefaultEnv(Testing)
+    , withYamlEnvironment)
 
 import qualified Volare.Model as M
 import Volare.Settings (PersistConfig)

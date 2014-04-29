@@ -1,16 +1,18 @@
-module Volare.Domain.Route (
-    Route(Route),
-    getRoute,
-    getRouteWithWaypoints,
-    addRoute,
-    deleteRoute
-) where
+module Volare.Domain.Route
+    ( Route(Route)
+    , getRoute
+    , getRouteWithWaypoints
+    , addRoute
+    , deleteRoute
+    ) where
 
 import Control.Arrow (second)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
-import Data.Maybe (fromJust,
-                   isJust)
+import Data.Maybe
+    ( fromJust
+    , isJust
+    )
 import Data.Foldable (forM_)
 import Data.Traversable (forM)
 import Database.Persist ((==.))
@@ -23,21 +25,19 @@ data Route = Route M.RouteId [RouteItem]
 
 instance JSON.ToJSON Route where
     toJSON (Route routeId items) =
-        JSON.object [
-            "id" .= routeId,
-            "items" .= items
-          ]
+        JSON.object [ "id" .= routeId
+                    , "items" .= items
+                    ]
 
 
 data RouteItem = RouteItem M.RouteItemId (P.Entity M.WaypointItem) Int
 
 instance JSON.ToJSON RouteItem where
     toJSON (RouteItem routeItemId waypointItem radius) =
-        JSON.object [
-            "id" .= routeItemId,
-            "waypointItem" .= waypointItem,
-            "radius" .= radius
-          ]
+        JSON.object [ "id" .= routeItemId
+                    , "waypointItem" .= waypointItem
+                    , "radius" .= radius
+                    ]
 
 
 getRoute :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Route) =>
@@ -52,12 +52,12 @@ getRouteWithWaypoints :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistE
 getRouteWithWaypoints routeId = do
     route <- P.selectFirst [M.RouteId ==. routeId] []
     case route of
-      Just _ -> do
-          routeItems <- P.selectList [M.RouteItemRouteId ==. routeId] [P.Asc M.RouteItemIndex]
-          waypointItems <- forM routeItems $ \routeItemEntity ->
-              P.selectFirst [M.WaypointItemId ==. M.routeItemWaypointItemId (P.entityVal routeItemEntity)] []
-          return $ Just $ Route routeId $ map (uncurry makeRouteItem . second fromJust) $ filter (isJust . snd) $ zip routeItems waypointItems
-      Nothing -> return Nothing
+        Just _ -> do
+            routeItems <- P.selectList [M.RouteItemRouteId ==. routeId] [P.Asc M.RouteItemIndex]
+            waypointItems <- forM routeItems $ \routeItemEntity ->
+                P.selectFirst [M.WaypointItemId ==. M.routeItemWaypointItemId (P.entityVal routeItemEntity)] []
+            return $ Just $ Route routeId $ map (uncurry makeRouteItem . second fromJust) $ filter (isJust . snd) $ zip routeItems waypointItems
+        Nothing -> return Nothing
   where
     makeRouteItem routeItem waypointItem = RouteItem (P.entityKey routeItem) waypointItem (M.routeItemRadius $ P.entityVal routeItem)
 

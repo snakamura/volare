@@ -1,28 +1,36 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Volare.Application (
-    makeVolare,
-    withVolare
-) where
+module Volare.Application
+    ( makeVolare
+    , withVolare
+    ) where
 
 import Control.Monad.Logger (runStderrLoggingT)
-import Database.Persist.Class (applyEnv,
-                               createPoolConfig,
-                               loadConfig,
-                               runPool)
+import Database.Persist.Class
+    ( applyEnv
+    , createPoolConfig
+    , loadConfig
+    , runPool
+    )
 import Database.Persist.Sql (runMigration)
 import Network.Wai (Application)
 import Network.Wai.Middleware.RequestLogger (logStdout)
-import Yesod.Core.Dispatch (mkYesodDispatch,
-                            toWaiApp)
-import Yesod.Default.Config (AppConfig,
-                             DefaultEnv,
-                             appEnv,
-                             fromArgs,
-                             withYamlEnvironment)
+import Yesod.Core.Dispatch
+    ( mkYesodDispatch
+    , toWaiApp
+    )
+import Yesod.Default.Config
+    ( AppConfig
+    , DefaultEnv
+    , appEnv
+    , fromArgs
+    , withYamlEnvironment
+    )
 
-import Volare.Config (Config,
-                      parseConfig)
+import Volare.Config
+    ( Config
+    , parseConfig
+    )
 import Volare.Foundation
 import Volare.Handler.AMEDAS
 import Volare.Handler.Flight

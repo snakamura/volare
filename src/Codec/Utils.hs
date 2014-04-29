@@ -1,23 +1,27 @@
-module Codec.Utils (
-    many1,
-    line,
-    newline,
-    char,
-    digit,
-    digits
-) where
+module Codec.Utils
+    ( many1
+    , line
+    , newline
+    , char
+    , digit
+    , digits
+    ) where
 
-import Control.Applicative ((<*>),
-                            (*>),
-                            (<$>),
-                            many,
-                            pure)
-import Data.Attoparsec (Parser,
-                        inClass,
-                        option,
-                        satisfy,
-                        skipWhile,
-                        word8)
+import Control.Applicative
+    ( (<*>)
+    , (*>)
+    , (<$>)
+    , many
+    , pure
+    )
+import Data.Attoparsec
+    ( Parser
+    , inClass
+    , option
+    , satisfy
+    , skipWhile
+    , word8
+    )
 
 
 many1 :: Parser a ->
@@ -40,8 +44,8 @@ char c = const c <$> word8 (fromIntegral (fromEnum c))
 
 digit :: Parser Int
 digit = toInt <$> satisfy (inClass "0-9")
-    where
-      toInt n = fromEnum n - fromEnum '0'
+  where
+    toInt n = fromEnum n - fromEnum '0'
 
 
 digits :: Int ->

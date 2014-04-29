@@ -1,8 +1,6 @@
-module Volare.Domain (
-    module D
-) where
+module Volare.Domain (module X) where
 
-import Volare.Domain.Flight as D
-import Volare.Domain.Route as D
-import Volare.Domain.Waypoint as D
-import Volare.Domain.Workspace as D
+import Volare.Domain.Flight as X
+import Volare.Domain.Route as X
+import Volare.Domain.Waypoint as X
+import Volare.Domain.Workspace as X

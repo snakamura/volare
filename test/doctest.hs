@@ -4,5 +4,6 @@ import Test.DocTest (doctest)
 
 
 main :: IO ()
-main = doctest ["-isrc",
-                "src/Codec/IGC/Utils.hs"]
+main = doctest [ "-isrc"
+               , "src/Codec/IGC/Utils.hs"
+               ]

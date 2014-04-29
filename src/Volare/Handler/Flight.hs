@@ -1,50 +1,67 @@
-module Volare.Handler.Flight (
-    getFlightsR,
-    postFlightsR,
-    getFlightR,
-    putFlightR,
-    deleteFlightR
-) where
+module Volare.Handler.Flight
+    ( getFlightsR
+    , postFlightsR
+    , getFlightR
+    , putFlightR
+    , deleteFlightR
+    ) where
 
 import qualified Codec.IGC as IGC
-import Control.Applicative ((<$>),
-                            (<*>))
-import Control.Monad (filterM,
-                      when)
-import Control.Monad.State (evalState,
-                            get,
-                            put)
-import Data.Aeson ((.=),
-                   (.:))
+import Control.Applicative
+    ( (<$>)
+    , (<*>)
+    )
+import Control.Monad
+    ( filterM
+    , when
+    )
+import Control.Monad.State
+    ( evalState
+    , get
+    , put
+    )
+import Data.Aeson
+    ( (.=)
+    , (.:)
+    )
 import qualified Data.Aeson as JSON
 import Data.Attoparsec (parseOnly)
 import qualified Data.ByteString as B
-import Data.Monoid ((<>),
-                    mempty)
+import Data.Monoid
+    ( (<>)
+    , mempty
+    )
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Data.Time (diffUTCTime)
-import Database.Persist (Entity,
-                         entityVal)
+import Database.Persist
+    ( Entity
+    , entityVal
+    )
 import Text.Blaze.Html (toHtml)
 import Text.Printf (printf)
 import Yesod.Core (defaultLayout)
-import Yesod.Core.Handler (invalidArgs,
-                           provideRep,
-                           selectRep)
+import Yesod.Core.Handler
+    ( invalidArgs
+    , provideRep
+    , selectRep
+    )
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
-import Yesod.Core.Widget (addScript,
-                          addStylesheet,
-                          setTitle)
+import Yesod.Core.Widget
+    ( addScript
+    , addStylesheet
+    , setTitle)
 import Yesod.Persist (runDB)
 
 import qualified Volare.Domain as D
 import Volare.Foundation
-import Volare.Handler.Utils (addCommonLibraries,
-                             addGoogleMapsApi,
-                             lookupIntegralGetParam,
-                             maybeNotFound)
+import Volare.Handler.Utils
+    ( addCommonLibraries
+    , addGoogleMapsApi
+    , lookupIntegralGetParam
+    , maybeNotFound
+    )
 import qualified Volare.Model as M
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
@@ -89,19 +106,18 @@ data Flight = Flight M.FlightId M.Flight [Entity M.Record]
 
 instance JSON.ToJSON Flight where
     toJSON (Flight flightId flight records) =
-        JSON.object [
-            "id" .= flightId,
-            "name" .= M.flightName flight,
-            "time" .= M.flightTime flight,
-            "duration" .= M.flightDuration flight,
-            "minLatitude" .= M.flightMinLatitude flight,
-            "maxLatitude" .= M.flightMaxLatitude flight,
-            "minLongitude" .= M.flightMinLongitude flight,
-            "maxLongitude" .= M.flightMaxLongitude flight,
-            "minAltitude" .= M.flightMinAltitude flight,
-            "maxAltitude" .= M.flightMaxAltitude flight,
-            "records" .= records
-          ]
+        JSON.object [ "id" .= flightId
+                    , "name" .= M.flightName flight
+                    , "time" .= M.flightTime flight
+                    , "duration" .= M.flightDuration flight
+                    , "minLatitude" .= M.flightMinLatitude flight
+                    , "maxLatitude" .= M.flightMaxLatitude flight
+                    , "minLongitude" .= M.flightMinLongitude flight
+                    , "maxLongitude" .= M.flightMaxLongitude flight
+                    , "minAltitude" .= M.flightMinAltitude flight
+                    , "maxAltitude" .= M.flightMaxAltitude flight
+                    , "records" .= records
+                    ]
 
 
 getFlightR :: M.FlightId ->
@@ -125,8 +141,8 @@ getFlightR flightId =
                 records <- runDB $ D.getFlightRecords flightId
                 interval <- fmap fromInteger <$> lookupIntegralGetParam "interval"
                 let recordFilter = case interval of
-                                    Just i -> flip evalState Nothing . filterM (valid i)
-                                    Nothing -> id
+                                      Just i -> flip evalState Nothing . filterM (valid i)
+                                      Nothing -> id
                 return $ JSON.toJSON $ Flight flightId flight $ recordFilter records
   where
     valid interval record = do

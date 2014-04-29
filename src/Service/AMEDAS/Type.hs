@@ -1,23 +1,25 @@
-module Service.AMEDAS.Type (
-    Item(..),
-    WindDirection(..),
-    Station(..)
-) where
+module Service.AMEDAS.Type
+    ( Item(..)
+    , WindDirection(..)
+    , Station(..)
+    ) where
 
 import qualified Data.Aeson as JSON
-import Data.Aeson.TH (defaultOptions,
-                      deriveToJSON)
+import Data.Aeson.TH
+    ( defaultOptions
+    , deriveToJSON
+    )
 import qualified Data.Text as T
 
 
-data Item = Item {
-    time          :: Int,
-    precipitation :: Maybe Float,
-    temperature   :: Maybe Float,
-    windSpeed     :: Maybe Float,
-    windDirection :: Maybe WindDirection,
-    sunshine      :: Maybe Float
-} deriving (Show, Eq)
+data Item = Item
+    { time          :: Int
+    , precipitation :: Maybe Float
+    , temperature   :: Maybe Float
+    , windSpeed     :: Maybe Float
+    , windDirection :: Maybe WindDirection
+    , sunshine      :: Maybe Float
+    } deriving (Show, Eq)
 
 
 data WindDirection = N
@@ -37,16 +39,16 @@ data WindDirection = N
                    | NW
                    | NNW
                    | CALM
-  deriving (Show, Read, Eq)
+    deriving (Show, Read, Eq)
 
 
-data Station = Station {
-    prec      :: Int,
-    block     :: Int,
-    latitude  :: Float,
-    longitude :: Float,
-    name      :: String
-} deriving Show
+data Station = Station
+    { prec      :: Int
+    , block     :: Int
+    , latitude  :: Float
+    , longitude :: Float
+    , name      :: String
+    } deriving Show
 
 
 deriveToJSON defaultOptions ''Item

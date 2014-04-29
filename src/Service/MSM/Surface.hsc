@@ -1,32 +1,37 @@
-module Service.MSM.Surface (
-    Item(..)
-) where
+module Service.MSM.Surface
+    ( Item(..)
+    ) where
 
-import Control.Applicative ((<$>),
-                            (<*>))
-import Data.Aeson.TH (defaultOptions,
-                      deriveJSON)
-import Foreign.C (CFloat,
-                  CInt)
+import Control.Applicative
+    ( (<$>)
+    , (<*>)
+    )
+import Data.Aeson.TH
+    ( defaultOptions
+    , deriveJSON
+    )
+import Foreign.C
+    ( CFloat
+    , CInt)
 import Foreign.Storable (Storable(..))
 
 #include "../../../msm/msm.h"
 
 
-data Item = Item {
-    latitude           :: Float,
-    longitude          :: Float,
-    airPressure        :: Float,
-    surfaceAirPressure :: Float,
-    eastwardWind       :: Float,
-    northwardWind      :: Float,
-    airTemperature     :: Float,
-    relativeHumidity   :: Int,
-    rainfallRate       :: Float,
-    upperCloudiness    :: Int,
-    midCloudiness      :: Int,
-    lowCloudiness      :: Int,
-    cloudAmount        :: Int
+data Item = Item
+    { latitude           :: Float
+    , longitude          :: Float
+    , airPressure        :: Float
+    , surfaceAirPressure :: Float
+    , eastwardWind       :: Float
+    , northwardWind      :: Float
+    , airTemperature     :: Float
+    , relativeHumidity   :: Int
+    , rainfallRate       :: Float
+    , upperCloudiness    :: Int
+    , midCloudiness      :: Int
+    , lowCloudiness      :: Int
+    , cloudAmount        :: Int
 } deriving Show
 
 instance Storable Item where
@@ -45,9 +50,9 @@ instance Storable Item where
                   <*> fmap cIntToInt (#{peek surface_item, mid_cloudiness} p)
                   <*> fmap cIntToInt (#{peek surface_item, low_cloudiness} p)
                   <*> fmap cIntToInt (#{peek surface_item, cloud_amount} p)
-        where
-          cIntToInt :: CInt -> Int
-          cIntToInt = fromIntegral
+      where
+        cIntToInt :: CInt -> Int
+        cIntToInt = fromIntegral
     poke p s = do
       (#{poke surface_item, latitude} p $ latitude s)
       (#{poke surface_item, longitude} p $ longitude s)

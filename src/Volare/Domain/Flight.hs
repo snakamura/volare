@@ -1,26 +1,34 @@
-module Volare.Domain.Flight (
-    getFlights,
-    getFlight,
-    getFlightRecords,
-    addFlight,
-    updateFlight,
-    deleteFlight
-) where
+module Volare.Domain.Flight
+    ( getFlights
+    , getFlight
+    , getFlightRecords
+    , addFlight
+    , updateFlight
+    , deleteFlight
+    ) where
 
 import qualified Codec.IGC as IGC
-import Control.Monad (filterM,
-                      when)
-import Control.Monad.State (evalState,
-                            get,
-                            put)
+import Control.Monad
+    ( filterM
+    , when
+    )
+import Control.Monad.State
+    ( evalState
+    , get
+    , put
+    )
 import Data.Foldable (forM_)
-import Data.List (maximumBy,
-                  minimumBy)
+import Data.List
+    ( maximumBy
+    , minimumBy
+    )
 import Data.Ord (comparing)
 import qualified Data.Text as T
 import Data.Time (UTCTime(UTCTime))
-import Database.Persist ((=.),
-                         (==.))
+import Database.Persist
+    ( (=.)
+    , (==.)
+    )
 import qualified Database.Persist as P
 
 import qualified Volare.Model as M
@@ -71,12 +79,12 @@ addFlight name igc = do
   where
     filterRecords records =
         case reverse $ dropWhileNotFlying $ reverse $ dropWhileNotFlying records of
-          [] -> records
-          body -> let start = IGC.time $ head body
-                      pre record = IGC.time record < start - 60
-                      end = IGC.time $ last body
-                      post record = IGC.time record > end + 60
-                  in flip evalState Nothing $ filterM valid $ takeWhile (not . post) $ dropWhile pre records
+            [] -> records
+            body -> let start = IGC.time $ head body
+                        pre record = IGC.time record < start - 60
+                        end = IGC.time $ last body
+                        post record = IGC.time record > end + 60
+                    in flip evalState Nothing $ filterM valid $ takeWhile (not . post) $ dropWhile pre records
     dropWhileNotFlying records = map fst $ dropWhile (not . uncurry flying) $ zip records (drop 10 records)
     flying record next = let duration = abs $ IGC.time next - IGC.time record
                              dist = IGC.distance (IGC.position next) (IGC.position record)
