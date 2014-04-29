@@ -3,6 +3,7 @@ module Volare.Handler.AMEDAS (
 ) where
 
 import Control.Applicative ((<$>))
+import Control.Concurrent.Async (mapConcurrently)
 import Control.Exception (IOException,
                           catch)
 import Control.Monad.IO.Class (liftIO)
@@ -54,7 +55,7 @@ getDataR year month day hour = do
           f (Item _ _ item) = let t = AMEDAS.time item
                               in h * 60 <= t && t < (h + 1) * 60
           load station = filter f <$> loadItems station (fromIntegral y) m d
-      liftIO $ JSON.toJSON . concat <$> mapM load (AMEDAS.stations (nwLat, nwLng) (seLat, seLng))
+      liftIO $ JSON.toJSON . concat <$> mapConcurrently load (AMEDAS.stations (nwLat, nwLng) (seLat, seLng))
     _ -> notFound
 
 
