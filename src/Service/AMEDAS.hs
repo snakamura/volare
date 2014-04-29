@@ -7,6 +7,7 @@ module Service.AMEDAS
     , load
     , parseHtml
     , stations
+    , allStations
 ) where
 
 import Control.Applicative
@@ -40,7 +41,10 @@ import Text.Printf (printf)
 import Text.Read (readMaybe)
 
 import qualified Service.AMEDAS.Type as Type
-import Service.AMEDAS.Stations (stations)
+import Service.AMEDAS.Stations
+    ( allStations
+    , stations
+    )
 
 
 download :: Type.Station ->

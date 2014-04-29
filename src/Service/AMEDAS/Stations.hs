@@ -1,5 +1,6 @@
 module Service.AMEDAS.Stations
     ( stations
+    , allStations
     ) where
 
 import Service.AMEDAS.Type (Station(..))
