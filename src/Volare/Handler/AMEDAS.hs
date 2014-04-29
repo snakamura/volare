@@ -18,6 +18,7 @@ import Data.Time (UTCTime(..),
                   todHour,
                   toGregorian,
                   utcToLocalTime)
+import qualified Pipes.Prelude as Pipes
 import qualified Service.AMEDAS as AMEDAS
 import System.Directory (createDirectoryIfMissing,
                          doesFileExist,
@@ -68,7 +69,7 @@ loadItems station year month day = do
   let path = printf "./data/amedas/%d/%04d/%04d%02d%02d.csv" (AMEDAS.prec station) (AMEDAS.block station) year month day
   b <- doesFileExist path
   items <- if b then
-               withFile path ReadMode AMEDAS.load
+               withFile path ReadMode $ Pipes.toListM . AMEDAS.load
            else do
              createDirectoryIfMissing True $ takeDirectory path
              items <- AMEDAS.download station year month day

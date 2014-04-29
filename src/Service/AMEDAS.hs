@@ -11,16 +11,18 @@ module Service.AMEDAS (
 
 import Control.Applicative ((<$>),
                             (<*>))
+import Control.Monad.IO.Class (MonadIO)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import Data.List.Split (splitOn,
                         splitWhen)
 import Data.Maybe (mapMaybe)
 import qualified Network.HTTP.Conduit as Http
+import Pipes (Producer,
+              (>->))
+import qualified Pipes.Prelude as Pipes
 import Safe (headDef)
 import System.IO (Handle,
-                  hGetLine,
-                  hIsEOF,
                   hPutStr)
 import Text.HTML.TagSoup (Tag(TagOpen, TagClose),
                           (~==),
@@ -60,17 +62,11 @@ save handle = hPutStr handle . unlines . map formatItem
           maybe "" show sunshine
 
 
-load :: Handle ->
-        IO [Type.Item]
-load handle = reverse <$> go []
+load :: MonadIO m =>
+        Handle ->
+        Producer Type.Item m ()
+load handle = Pipes.fromHandle handle >-> Pipes.map parseItem
     where
-      go items = do
-        eof <- hIsEOF handle
-        if eof then
-            return items
-        else do
-          item <- parseItem <$> hGetLine handle
-          go $ item:items
       parseItem = make . splitOn ","
       make [time, precipitation, temperature, windSpeed, windDirection, sunshine] =
           Type.Item (read time)
