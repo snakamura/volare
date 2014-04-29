@@ -3,6 +3,8 @@ module Volare.Handler.AMEDAS (
 ) where
 
 import Control.Applicative ((<$>))
+import Control.Exception (IOException,
+                          catch)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
@@ -17,8 +19,13 @@ import Data.Time (UTCTime(..),
                   utcToLocalTime)
 import qualified Service.AMEDAS as AMEDAS
 import System.Directory (createDirectoryIfMissing,
-                         doesFileExist)
+                         doesFileExist,
+                         renameFile)
 import System.FilePath (takeDirectory)
+import System.IO (IOMode(ReadMode),
+                  hClose,
+                  withFile)
+import System.IO.Temp (withSystemTempFile)
 import Text.Printf (printf)
 import Text.Read (readMaybe)
 import Yesod.Core.Handler (lookupGetParam,
@@ -60,13 +67,14 @@ loadItems station year month day = do
   let path = printf "./data/amedas/%d/%04d/%04d%02d%02d.csv" (AMEDAS.prec station) (AMEDAS.block station) year month day
   b <- doesFileExist path
   items <- if b then
-               AMEDAS.load path
+               withFile path ReadMode AMEDAS.load
            else do
              createDirectoryIfMissing True $ takeDirectory path
              items <- AMEDAS.download station year month day
-             -- TODO
-             -- Save to a temporary file and move it
-             AMEDAS.save path items
+             withSystemTempFile "amedas.csv" $ \tempPath handle -> do
+                 AMEDAS.save handle items
+                 hClose handle
+                 renameFile tempPath path `catch` \(_ :: IOException) -> return ()
              return items
   return $ map (Item (AMEDAS.latitude station) (AMEDAS.longitude station)) items
 

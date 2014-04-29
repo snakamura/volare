@@ -18,6 +18,10 @@ import Data.List.Split (splitOn,
 import Data.Maybe (mapMaybe)
 import qualified Network.HTTP.Conduit as Http
 import Safe (headDef)
+import System.IO (Handle,
+                  hGetLine,
+                  hIsEOF,
+                  hPutStr)
 import Text.HTML.TagSoup (Tag(TagOpen, TagClose),
                           (~==),
                           (~/=),
@@ -42,10 +46,10 @@ download station year month day = do
   parseHtml <$> Http.simpleHttp url
 
 
-save :: FilePath ->
+save :: Handle ->
         [Type.Item] ->
         IO ()
-save path = writeFile path . unlines . map formatItem
+save handle = hPutStr handle . unlines . map formatItem
     where
       formatItem (Type.Item time precipitation temperature windSpeed windDirection sunshine) =
           show time ++ "," ++
@@ -56,10 +60,17 @@ save path = writeFile path . unlines . map formatItem
           maybe "" show sunshine
 
 
-load :: FilePath ->
+load :: Handle ->
         IO [Type.Item]
-load path = (map parseItem . lines) <$> readFile path
+load handle = reverse <$> go []
     where
+      go items = do
+        eof <- hIsEOF handle
+        if eof then
+            return items
+        else do
+          item <- parseItem <$> hGetLine handle
+          go $ item:items
       parseItem = make . splitOn ","
       make [time, precipitation, temperature, windSpeed, windDirection, sunshine] =
           Type.Item (read time)
