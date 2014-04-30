@@ -21,6 +21,8 @@ library
                      Codec.IGC
                      Service.AMEDAS
                      Service.MSM
+                     Service.MSM.Barometric
+                     Service.MSM.Surface
                      Volare.Application
                      Volare.Config
                      Volare.Domain
@@ -34,8 +36,6 @@ library
                    Codec.Utils
                    Service.AMEDAS.Stations
                    Service.AMEDAS.Type
-                   Service.MSM.Barometric
-                   Service.MSM.Surface
                    Volare.Domain.Flight
                    Volare.Domain.Route
                    Volare.Domain.Waypoint
@@ -192,7 +192,9 @@ test-suite spec
 
     build-depends: attoparsec == 0.11.*,
                    base == 4.*,
+                   bytedump == 1.*,
                    bytestring == 0.10.*,
+                   cryptohash == 0.11.*,
                    hspec == 1.9.*,
                    hspec-expectations == 0.5.*,
                    HUnit == 1.2.*,
