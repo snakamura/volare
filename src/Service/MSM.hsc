@@ -27,6 +27,7 @@ import Foreign.Ptr
     )
 import Foreign.Storable (Storable)
 import qualified Network.HTTP.Conduit as Http
+import System.IO (Handle)
 import Text.Printf (printf)
 
 import qualified Service.MSM.Barometric as Barometric
@@ -81,15 +82,15 @@ download :: Bool ->
             Int ->
             Int ->
             Int ->
-            FilePath ->
+            Handle ->
             IO ()
-download surface year month day path = do
+download surface year month day handle = do
     let t = if surface then 'S' else 'P'
         url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" t year month day
     req <- Http.parseUrl url
     Http.withManager $ \manager -> do
         res <- Http.http req manager
-        Http.responseBody res $$+- CB.sinkFile path
+        Http.responseBody res $$+- CB.sinkHandle handle
 
 
 foreign import ccall get_surface_items :: CString ->

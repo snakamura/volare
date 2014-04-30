@@ -20,10 +20,11 @@ spec = do
     describe "download" $ do
         it "downloads surface data" $ do
             withSystemTempFile "msmspec_s.nc" $ \path handle -> do
+                MSM.download True 2014 4 24 handle
                 hClose handle
-                MSM.download True 2014 4 24 path
                 hash <- hashlazy <$> BL.readFile path
                 dumpRawBS hash @== "8027ea10a8d752a4308fc87fca3fb198d29eded5"
+
                 items <- MSM.getSurfaceItems path (37, 140) (36, 141) 3
                 length items @== 374
                 let item = head items
@@ -43,10 +44,11 @@ spec = do
 
         it "downloads barometric data" $ do
             withSystemTempFile "msmspec_p.nc" $ \path handle -> do
+                MSM.download False 2014 3 9 handle
                 hClose handle
-                MSM.download False 2014 3 9 path
                 hash <- hashlazy <$> BL.readFile path
                 dumpRawBS hash @== "6202e74ef30fb541da50c8fbb13095c0f79e2383"
+
                 items <- MSM.getBarometricItems path (37.5, 139.5) (36.3, 140.2) 5
                 length items @== 1568
                 let item = head items

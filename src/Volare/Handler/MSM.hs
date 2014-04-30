@@ -4,6 +4,10 @@ module Volare.Handler.MSM
     ) where
 
 import Control.Applicative ((<$>))
+import Control.Exception
+    ( IOException
+    , catch
+    )
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as JSON
@@ -12,8 +16,11 @@ import qualified Service.MSM as MSM
 import System.Directory
     ( createDirectoryIfMissing
     , doesFileExist
+    , renameFile
     )
 import System.FilePath (takeDirectory)
+import System.IO (hClose)
+import System.IO.Temp (withSystemTempFile)
 import Text.Printf (printf)
 import Text.Read (readMaybe)
 import Yesod.Core.Handler
@@ -71,7 +78,8 @@ dataFile surface year month day = do
     b <- doesFileExist path
     unless b $ do
         createDirectoryIfMissing True $ takeDirectory path
-        -- TODO
-        -- Save to a temporary file and move it
-        MSM.download surface year month day path
+        withSystemTempFile "msm.nc" $ \tempPath handle -> do
+            MSM.download surface year month day handle
+            hClose handle
+            renameFile tempPath path `catch` \(_ :: IOException) -> return ()
     return path
