@@ -7,8 +7,7 @@ module Service.MSM
 import Control.Exception
     ( Exception
     , throwIO)
-import Data.Conduit (($$+-))
-import qualified Data.Conduit.Binary as CB
+import qualified Data.ByteString as B
 import Data.Typeable (Typeable)
 import Foreign.C
     ( CFloat(..)
@@ -26,8 +25,13 @@ import Foreign.Ptr
     , nullPtr
     )
 import Foreign.Storable (Storable)
-import qualified Network.HTTP.Conduit as Http
-import System.IO (Handle)
+import qualified Network.HTTP.Client as Http
+import Pipes
+    ( Consumer
+    , (>->)
+    , runEffect
+    )
+import Pipes.HTTP (withHTTP)
 import Text.Printf (printf)
 
 import qualified Service.MSM.Barometric as Barometric
@@ -82,15 +86,15 @@ download :: Bool ->
             Int ->
             Int ->
             Int ->
-            Handle ->
+            Consumer B.ByteString IO () ->
             IO ()
-download surface year month day handle = do
+download surface year month day pipe = do
     let t = if surface then 'S' else 'P'
         url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" t year month day
     req <- Http.parseUrl url
-    Http.withManager $ \manager -> do
-        res <- Http.http req manager
-        Http.responseBody res $$+- CB.sinkHandle handle
+    Http.withManager Http.defaultManagerSettings $ \manager -> do
+        withHTTP req manager $ \res -> do
+            runEffect $ Http.responseBody res >-> pipe
 
 
 foreign import ccall get_surface_items :: CString ->
