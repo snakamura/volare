@@ -21,7 +21,7 @@ import Data.List.Split
     ( splitOn
     , splitWhen)
 import Data.Maybe (mapMaybe)
-import qualified Network.HTTP.Conduit as Http
+import qualified Network.HTTP.Client as Http
 import Pipes
     ( Consumer
     , Producer
@@ -55,7 +55,8 @@ download :: Type.Station ->
 download station year month day = do
     let c = if Type.block station >= 10000 then 's' else 'a'
         url = printf "http://www.data.jma.go.jp/obd/stats/etrn/view/10min_%c1.php?prec_no=%d&block_no=%04d&year=%d&month=%d&day=%d&view=p1" c (Type.prec station) (Type.block station) year month day
-    parseHtml <$> Http.simpleHttp url
+    req <- Http.parseUrl url
+    (parseHtml . Http.responseBody) <$> Http.withManager Http.defaultManagerSettings (Http.httpLbs req)
 
 
 save :: MonadIO m =>
