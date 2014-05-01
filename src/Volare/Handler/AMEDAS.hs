@@ -86,7 +86,7 @@ loadItems station year month day = do
                  createDirectoryIfMissing True $ takeDirectory path
                  items <- AMEDAS.download station year month day
                  withSystemTempFile "amedas.csv" $ \tempPath handle -> do
-                     Pipes.runEffect $ mapM_ Pipes.yield items >-> AMEDAS.save handle
+                     Pipes.runEffect $ Pipes.each items >-> AMEDAS.save handle
                      hClose handle
                      renameFile tempPath path `catch` \(_ :: IOException) -> return ()
                  return items

@@ -63,7 +63,7 @@ spec = do
         it "saves all items" $ do
             items <- downloadSimple
             withSystemTempFile "amedasspec.csv" $ \path handle -> do
-                Pipes.runEffect $ mapM_ Pipes.yield items >-> AMEDAS.save handle
+                Pipes.runEffect $ Pipes.each items >-> AMEDAS.save handle
                 hClose handle
                 expected <- readFile "test/amedas_36_0312_20140426.csv"
                 actual <- readFile path
