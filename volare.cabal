@@ -136,7 +136,7 @@ library
         cpp-options: -DDEVELOPMENT
         ghc-options: -Wall -Werror -O0
     else
-        ghc-options: -Wall -O2
+        ghc-options: -Wall -Werror -O2
 
 executable volare
     if flag(library-only)
