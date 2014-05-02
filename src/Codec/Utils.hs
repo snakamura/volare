@@ -1,6 +1,5 @@
 module Codec.Utils
-    ( many1
-    , line
+    ( line
     , newline
     , char
     , digit
@@ -11,7 +10,6 @@ import Control.Applicative
     ( (<*>)
     , (*>)
     , (<$>)
-    , many
     , pure
     )
 import Data.Attoparsec
@@ -22,11 +20,6 @@ import Data.Attoparsec
     , skipWhile
     , word8
     )
-
-
-many1 :: Parser a ->
-         Parser [a]
-many1 parser = (:) <$> parser <*> many parser
 
 
 line :: Parser ()

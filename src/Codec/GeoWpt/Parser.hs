@@ -16,6 +16,7 @@ import Data.Attoparsec
     , take
     , takeWhile
     )
+import Data.Attoparsec.Combinator (many1)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Prelude hiding
@@ -30,7 +31,6 @@ import Codec.Utils
     ( char
     , digit
     , digits
-    , many1
     , newline
     )
 
