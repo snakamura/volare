@@ -1,7 +1,6 @@
 module AMEDASSpec (spec) where
 
 import Control.Applicative ((<$>))
-import Data.List (find)
 import Data.Maybe (fromJust)
 import Pipes ((>->))
 import qualified Pipes
@@ -25,10 +24,10 @@ spec = do
         it "returns stations in a specified range" $ do
             length (AMEDAS.stations (37, 140) (36, 141)) `shouldBe` 16
 
-    let downloadSimple = let station = fromJust $ find ((== "Higashishirakawa") . AMEDAS.name) AMEDAS.allStations
+    let downloadSimple = let station = fromJust $ AMEDAS.station "Higashishirakawa"
                          in AMEDAS.download station 2014 4 26
 
-    let downloadComplex = let station = fromJust $ find ((== "Tsukuba") . AMEDAS.name) AMEDAS.allStations
+    let downloadComplex = let station = fromJust $ AMEDAS.station "Tsukuba"
                           in AMEDAS.download station 2014 4 26
 
     describe "download" $ do

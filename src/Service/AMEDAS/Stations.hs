@@ -1,9 +1,17 @@
 module Service.AMEDAS.Stations
-    ( stations
-    , allStations
+    ( station
+    , stations
     ) where
 
-import Service.AMEDAS.Type (Station(..))
+import Data.List (find)
+
+import Service.AMEDAS.Type (Station(Station))
+import qualified Service.AMEDAS.Type as Type
+
+
+station :: String ->
+           Maybe Station
+station name = find ((== name) . Type.name) allStations
 
 
 stations :: (Float, Float) ->
@@ -13,6 +21,7 @@ stations (nwLat, nwLng) (seLat, seLng) = filter f allStations
   where
     f (Station _ _ lat lng _) = seLat <= lat && lat <= nwLat &&
                                 nwLng <= lng && lng <= seLng
+
 
 
 allStations :: [Station]

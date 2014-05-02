@@ -6,9 +6,9 @@ module Service.AMEDAS
     , save
     , load
     , parseHtml
-    , stations
-    , allStations
-) where
+    , Stations.station
+    , Stations.stations
+    ) where
 
 import Control.Applicative
     ( (<$>)
@@ -45,10 +45,7 @@ import Text.Printf (printf)
 import Text.Read (readMaybe)
 
 import qualified Service.AMEDAS.Type as Type
-import Service.AMEDAS.Stations
-    ( allStations
-    , stations
-    )
+import qualified Service.AMEDAS.Stations as Stations
 
 
 download :: (MonadIO m, MonadThrow m) =>
