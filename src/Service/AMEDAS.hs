@@ -22,6 +22,7 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans (lift)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.UTF8 as BLU
+import Data.Foldable (for_)
 import Data.List.Split
     ( splitOn
     , splitWhen
@@ -32,7 +33,10 @@ import Pipes ((>->))
 import qualified Pipes
 import qualified Pipes.Prelude as Pipes
 import Safe (headDef)
-import System.IO (Handle)
+import System.IO
+    ( Handle
+    , hPutStr
+    )
 import Text.HTML.TagSoup
     ( Tag(TagOpen, TagClose)
     , (~==)
@@ -65,15 +69,28 @@ download station year month day = do
 save :: MonadIO m =>
         Handle ->
         Pipes.Consumer Type.Item m ()
-save handle = Pipes.map formatItem >-> Pipes.toHandle handle
+save handle = serialize >-> toHandle
   where
-    formatItem (Type.Item time precipitation temperature windSpeed windDirection sunshine) =
-        show time ++ "," ++
-        maybe "" show precipitation ++ "," ++
-        maybe "" show temperature ++ "," ++
-        maybe "" show windSpeed ++ "," ++
-        maybe "" show windDirection ++ "," ++
-        maybe "" show sunshine
+    toHandle = Pipes.for Pipes.cat (liftIO . hPutStr handle)
+
+
+serialize :: Monad m =>
+             Pipes.Pipe Type.Item String m ()
+serialize = do
+    Type.Item time precipitation temperature windSpeed windDirection sunshine <- Pipes.await
+    Pipes.yield $ show time
+    Pipes.yield ","
+    for_ precipitation $ Pipes.yield . show
+    Pipes.yield ","
+    for_ temperature $ Pipes.yield . show
+    Pipes.yield ","
+    for_ windSpeed $ Pipes.yield . show
+    Pipes.yield ","
+    for_ windDirection $ Pipes.yield . show
+    Pipes.yield ","
+    for_ sunshine $ Pipes.yield . show
+    Pipes.yield "\n"
+    serialize
 
 
 load :: MonadIO m =>
