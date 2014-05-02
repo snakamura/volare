@@ -68,11 +68,13 @@ spec = do
 
     describe "load" $ do
         it "loads all simple items" $ do
-            b <- withFile "test/amedas_36_0312_20140426.csv" ReadMode $ \handle -> do
-                Pipes.and $ Pipes.zipWith (==) downloadSimple (AMEDAS.load handle)
-            b `shouldBe` True
+            l <- withFile "test/amedas_36_0312_20140426.csv" ReadMode $ \handle -> do
+                Pipes.toListM $ Pipes.zipWith (==) downloadSimple (AMEDAS.load handle)
+            length l `shouldBe` 144
+            and l `shouldBe` True
 
         it "loads all complex items" $ do
-            b <- withFile "test/amedas_40_47646_20140426.csv" ReadMode $ \handle -> do
-                Pipes.and $ Pipes.zipWith (==) downloadComplex (AMEDAS.load handle)
-            b `shouldBe` True
+            l <- withFile "test/amedas_40_47646_20140426.csv" ReadMode $ \handle -> do
+                Pipes.toListM $ Pipes.zipWith (==) downloadComplex (AMEDAS.load handle)
+            length l `shouldBe` 144
+            and l `shouldBe` True

@@ -13,25 +13,34 @@ module Service.AMEDAS
 import Control.Applicative
     ( (<$>)
     , (<*>)
+    , (<*)
+    , many
+    , optional
     )
+import Control.Exception (throwIO)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class
     ( MonadIO
     , liftIO
     )
 import Control.Monad.Trans (lift)
+import Data.Attoparsec.ByteString.Char8
+    ( char
+    , digit
+    , notChar
+    , rational
+    )
+import Data.Attoparsec.Combinator (many1)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import Data.Foldable (for_)
-import Data.List.Split
-    ( splitOn
-    , splitWhen
-    )
+import Data.List.Split (splitWhen)
 import Data.Maybe (mapMaybe)
 import qualified Network.HTTP.Client as Http
 import Pipes ((>->))
 import qualified Pipes
-import qualified Pipes.Prelude as Pipes
+import Pipes.Attoparsec (parsed)
+import qualified Pipes.ByteString as PipesB
 import Safe (headDef)
 import System.IO
     ( Handle
@@ -96,18 +105,18 @@ serialize = do
 load :: MonadIO m =>
         Handle ->
         Pipes.Producer Type.Item m ()
-load handle = Pipes.fromHandle handle >-> Pipes.map parseItem
+load handle = do
+    r <- parsed item (PipesB.fromHandle handle)
+    case r of
+      Left (e, _) -> liftIO $ throwIO e
+      Right () -> return ()
   where
-    parseItem = make . splitOn ","
-    make [time, precipitation, temperature, windSpeed, windDirection, sunshine] =
-        Type.Item (read time)
-                  (readMaybe precipitation)
-                  (readMaybe temperature)
-                  (readMaybe windSpeed)
-                  (readMaybe windDirection)
-                  (readMaybe sunshine)
-    make _ = error "Never happens."
-
+    item = Type.Item <$> ((read <$> many1 digit) <* char ',')
+                     <*> (optional rational <* char ',')
+                     <*> (optional rational <* char ',')
+                     <*> (optional rational <* char ',')
+                     <*> ((readMaybe <$> many (notChar ',')) <* char ',')
+                     <*> (optional rational <* char '\n')
 
 parseHtml :: BL.ByteString ->
              [Type.Item]
