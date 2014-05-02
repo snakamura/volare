@@ -14,18 +14,22 @@ import Control.Applicative
     ( (<$>)
     , (<*>)
     )
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class
+    ( MonadIO
+    , liftIO
+    )
+import Control.Monad.Trans (lift)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import Data.List.Split
     ( splitOn
-    , splitWhen)
+    , splitWhen
+    )
 import Data.Maybe (mapMaybe)
 import qualified Network.HTTP.Client as Http
-import Pipes
-    ( Consumer
-    , Producer
-    , (>->))
+import Pipes ((>->))
+import qualified Pipes
 import qualified Pipes.Prelude as Pipes
 import Safe (headDef)
 import System.IO (Handle)
@@ -47,21 +51,23 @@ import Service.AMEDAS.Stations
     )
 
 
-download :: Type.Station ->
+download :: (MonadIO m, MonadThrow m) =>
+            Type.Station ->
             Int ->
             Int ->
             Int ->
-            IO [Type.Item]
+            Pipes.Producer Type.Item m ()
 download station year month day = do
     let c = if Type.block station >= 10000 then 's' else 'a'
         url = printf "http://www.data.jma.go.jp/obd/stats/etrn/view/10min_%c1.php?prec_no=%d&block_no=%04d&year=%d&month=%d&day=%d&view=p1" c (Type.prec station) (Type.block station) year month day
-    req <- Http.parseUrl url
-    (parseHtml . Http.responseBody) <$> Http.withManager Http.defaultManagerSettings (Http.httpLbs req)
+    req <- lift $ Http.parseUrl url
+    items <- liftIO $ (parseHtml . Http.responseBody) <$> Http.withManager Http.defaultManagerSettings (Http.httpLbs req)
+    Pipes.each items
 
 
 save :: MonadIO m =>
         Handle ->
-        Consumer Type.Item m ()
+        Pipes.Consumer Type.Item m ()
 save handle = Pipes.map formatItem >-> Pipes.toHandle handle
   where
     formatItem (Type.Item time precipitation temperature windSpeed windDirection sunshine) =
@@ -75,7 +81,7 @@ save handle = Pipes.map formatItem >-> Pipes.toHandle handle
 
 load :: MonadIO m =>
         Handle ->
-        Producer Type.Item m ()
+        Pipes.Producer Type.Item m ()
 load handle = Pipes.fromHandle handle >-> Pipes.map parseItem
   where
     parseItem = make . splitOn ","

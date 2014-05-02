@@ -84,7 +84,7 @@ loadItems station year month day = do
                  withFile path ReadMode $ Pipes.toListM . AMEDAS.load
              else do
                  createDirectoryIfMissing True $ takeDirectory path
-                 items <- AMEDAS.download station year month day
+                 items <- Pipes.toListM $ AMEDAS.download station year month day
                  withSystemTempFile "amedas.csv" $ \tempPath handle -> do
                      Pipes.runEffect $ Pipes.each items >-> AMEDAS.save handle
                      hClose handle

@@ -1,5 +1,6 @@
 module AMEDASSpec (spec) where
 
+import Control.Applicative ((<$>))
 import Data.List (find)
 import Data.Maybe (fromJust)
 import Pipes ((>->))
@@ -32,16 +33,15 @@ spec = do
 
     describe "download" $ do
         it "downloads all simple items" $ do
-            items <- downloadSimple
-            length items `shouldBe` 144
+            count <- Pipes.length downloadSimple
+            count `shouldBe` 144
 
         it "downloads all complex items" $ do
-            items <- downloadComplex
-            length items `shouldBe` 144
+            count <- Pipes.length downloadComplex
+            count `shouldBe` 144
 
         it "downloads a correct simple item" $ do
-            items <- downloadSimple
-            let item = items !! 70
+            item <- fromJust <$> Pipes.index 70 downloadSimple
             AMEDAS.time item `shouldBe` 710
             AMEDAS.precipitation item `shouldBe` Just 0
             AMEDAS.temperature item `shouldBe` Just 22.8
@@ -50,8 +50,7 @@ spec = do
             AMEDAS.sunshine item `shouldBe` Just 10
 
         it "downloads a correct complex item" $ do
-            items <- downloadComplex
-            let item = items !! 10
+            item <- fromJust <$> Pipes.index 10 downloadComplex
             AMEDAS.time item `shouldBe` 110
             AMEDAS.precipitation item `shouldBe` Nothing
             AMEDAS.temperature item `shouldBe` Just 9.8
@@ -61,9 +60,8 @@ spec = do
 
     describe "save" $ do
         it "saves all items" $ do
-            items <- downloadSimple
             withSystemTempFile "amedasspec.csv" $ \path handle -> do
-                Pipes.runEffect $ Pipes.each items >-> AMEDAS.save handle
+                Pipes.runEffect $ downloadSimple >-> AMEDAS.save handle
                 hClose handle
                 expected <- readFile "test/amedas_36_0312_20140426.csv"
                 actual <- readFile path
@@ -71,11 +69,11 @@ spec = do
 
     describe "load" $ do
         it "loads all simple items" $ do
-            downloadedItems <- downloadSimple
-            loadedItems <- withFile "test/amedas_36_0312_20140426.csv" ReadMode $ Pipes.toListM . AMEDAS.load
-            loadedItems @== downloadedItems
+            b <- withFile "test/amedas_36_0312_20140426.csv" ReadMode $ \handle -> do
+                Pipes.and $ Pipes.zipWith (==) downloadSimple (AMEDAS.load handle)
+            b `shouldBe` True
 
         it "loads all complex items" $ do
-            downloadedItems <- downloadComplex
-            loadedItems <- withFile "test/amedas_40_47646_20140426.csv" ReadMode $ Pipes.toListM . AMEDAS.load
-            loadedItems @== downloadedItems
+            b <- withFile "test/amedas_40_47646_20140426.csv" ReadMode $ \handle -> do
+                Pipes.and $ Pipes.zipWith (==) downloadComplex (AMEDAS.load handle)
+            b `shouldBe` True
