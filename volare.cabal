@@ -34,6 +34,7 @@ library
                    Codec.IGC.Types
                    Codec.IGC.Utils
                    Codec.Utils.Attoparsec
+                   Codec.Utils.Pipes
                    Service.AMEDAS.Stations
                    Service.AMEDAS.Type
                    Volare.Domain.Flight
@@ -73,6 +74,7 @@ library
                         OverlappingInstances
                         OverloadedStrings
                         QuasiQuotes
+                        RankNTypes
                         ScopedTypeVariables
                         TemplateHaskell
                         TupleSections
