@@ -1,9 +1,16 @@
 module GeoWptSpec (spec) where
 
-import Data.Attoparsec (parseOnly)
-import qualified Data.ByteString as B
+import Control.Monad.Trans.State.Strict (evalStateT)
+import Data.Maybe
+    ( fromJust
+    , isJust
+    )
+import qualified Pipes.ByteString as PipesB
+import System.IO
+    ( IOMode(ReadMode)
+    , withFile
+    )
 import Test.Hspec
-import Test.Hspec.Expectations.Contrib
 
 import qualified Codec.GeoWpt as GeoWpt
 
@@ -11,10 +18,10 @@ import qualified Codec.GeoWpt as GeoWpt
 spec :: Spec
 spec =
     context "when load from a file" $ do
-        let load = do file <- B.readFile "test/test.wpt"
-                      let r = parseOnly GeoWpt.wpt file
-                      r `shouldSatisfy` isRight
-                      return $ either undefined id r
+        let load = withFile "test/test.wpt" ReadMode $ \handle -> do
+                       wpt <- evalStateT GeoWpt.parser (PipesB.fromHandle handle)
+                       wpt `shouldSatisfy` isJust
+                       return $ fromJust wpt
 
         describe "items" $ do
             it "returns all items" $ do

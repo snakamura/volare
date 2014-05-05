@@ -11,13 +11,14 @@ import Control.Applicative
     ( (<$>)
     , (<*>)
     )
+import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Aeson
     ( (.=)
     , (.:)
     )
 import qualified Data.Aeson as JSON
-import Data.Attoparsec (parseOnly)
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BL
 import Data.Monoid
     ( (<>)
     , mempty
@@ -28,6 +29,7 @@ import Database.Persist
     ( Entity
     , entityVal
     )
+import qualified Pipes.ByteString as PipesB
 import Text.Blaze.Html (toHtml)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler
@@ -81,13 +83,14 @@ instance JSON.FromJSON NewWaypoint where
 postWaypointsR :: Handler JSON.Value
 postWaypointsR = do
     NewWaypoint name wptBytes <- requireJsonBody
-    case parseOnly GeoWpt.wpt wptBytes of
-        Left _ -> invalidArgs ["wpt"]
-        Right wpt -> do
+    w <- evalStateT GeoWpt.parser $ PipesB.fromLazy $ BL.fromStrict wptBytes
+    case w of
+        Just wpt -> do
             waypoint <- runDB $ do
                 waypointId <- D.addWaypoint name wpt
                 D.getWaypoint waypointId
             return $ JSON.toJSON waypoint
+        Nothing -> invalidArgs ["wpt"]
 
 
 data Waypoint = Waypoint M.WaypointId M.Waypoint [Entity M.WaypointItem]
