@@ -8,7 +8,8 @@ import Control.Applicative
     , (<*)
     , (<$>)
     , (<|>)
-    , many)
+    , many
+    )
 import Data.Maybe (catMaybes)
 import Data.Time
     ( Day

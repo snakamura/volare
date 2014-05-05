@@ -53,7 +53,8 @@ import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget
     ( addScript
     , addStylesheet
-    , setTitle)
+    , setTitle
+    )
 import Yesod.Persist (runDB)
 
 import qualified Volare.Domain as D

@@ -8,7 +8,8 @@ import Control.Applicative
     , (<*)
     , (<$>)
     , (<|>)
-    , many)
+    , many
+    )
 import Data.Attoparsec
     ( Parser
     , string
@@ -21,7 +22,8 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Prelude hiding
     ( take
-    , takeWhile)
+    , takeWhile
+    )
 
 import Codec.GeoWpt.Types
     ( Item(Item)

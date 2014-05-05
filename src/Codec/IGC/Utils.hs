@@ -5,7 +5,8 @@ module Codec.IGC.Utils
 import Codec.IGC.Types
     ( Position
     , latitude
-    , longitude)
+    , longitude
+    )
 
 -- $setup
 -- >>> import Codec.IGC.Types (Position(Position))

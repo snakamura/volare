@@ -13,7 +13,8 @@ module Volare.Handler.Workspace
 import Control.Applicative
     ( (<$>)
     , (<*>)
-    , pure)
+    , pure
+    )
 import Data.Aeson
     ( (.:)
     , (.:?)

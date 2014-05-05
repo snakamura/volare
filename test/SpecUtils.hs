@@ -6,26 +6,32 @@ module SpecUtils
 import Control.Applicative ((<*))
 import Control.Monad.IO.Class
     ( MonadIO
-    , liftIO)
+    , liftIO
+    )
 import Control.Monad.Logger
     ( NoLoggingT
-    , runNoLoggingT)
+    , runNoLoggingT
+    )
 import Control.Monad.Trans.Resource
     ( ResourceT
-    , runResourceT)
+    , runResourceT
+    )
 import Database.Persist.Class
     ( PersistConfigBackend
     , applyEnv
     , createPoolConfig
     , loadConfig
-    , runPool)
+    , runPool
+    )
 import Database.Persist.Sql
     ( runMigration
-    , transactionUndo)
+    , transactionUndo
+    )
 import Test.HUnit ((@?=))
 import Yesod.Default.Config
     ( DefaultEnv(Testing)
-    , withYamlEnvironment)
+    , withYamlEnvironment
+    )
 
 import qualified Volare.Model as M
 import Volare.Settings (PersistConfig)
