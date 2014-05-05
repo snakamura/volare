@@ -28,7 +28,7 @@ import Codec.IGC.Types
     , Position(Position)
     , Record(Record)
     )
-import Codec.Utils
+import Codec.Utils.Attoparsec
     ( char
     , digits
     , line

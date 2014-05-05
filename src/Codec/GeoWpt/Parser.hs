@@ -27,7 +27,7 @@ import Codec.GeoWpt.Types
     ( Item(Item)
     , Wpt(Wpt)
     )
-import Codec.Utils
+import Codec.Utils.Attoparsec
     ( char
     , digit
     , digits

@@ -33,7 +33,7 @@ library
                    Codec.IGC.Parser
                    Codec.IGC.Types
                    Codec.IGC.Utils
-                   Codec.Utils
+                   Codec.Utils.Attoparsec
                    Service.AMEDAS.Stations
                    Service.AMEDAS.Type
                    Volare.Domain.Flight

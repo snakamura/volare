@@ -1,4 +1,4 @@
-module Codec.Utils
+module Codec.Utils.Attoparsec
     ( line
     , newline
     , char
