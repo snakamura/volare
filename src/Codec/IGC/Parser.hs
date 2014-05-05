@@ -19,7 +19,6 @@ import Data.Time
 import Data.Attoparsec
     ( Parser
     , inClass
-    , option
     , satisfy
     , string
     )
@@ -38,7 +37,7 @@ import Codec.Utils
 
 
 igc :: Parser IGC
-igc = recordA *> (IGC <$> headers <*> (catMaybes <$> many record)) <* option () recordG
+igc = recordA *> (IGC <$> headers <*> (catMaybes <$> many record)) <* many recordG
 
 
 headers :: Parser Day
