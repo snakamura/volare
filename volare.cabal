@@ -108,7 +108,7 @@ library
                    pipes == 4.1.*,
                    pipes-attoparsec == 0.5.*,
                    pipes-bytestring == 2.0.*,
-                   pipes-http == 1.0.*,
+                   pipes-http >= 1.0.1 && < 1.1,
                    resourcet == 1.1.*,
                    safe == 0.3.*,
                    shakespeare == 2.0.*,
