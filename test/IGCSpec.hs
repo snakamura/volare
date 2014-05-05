@@ -1,10 +1,17 @@
 module IGCSpec (spec) where
 
-import Data.Attoparsec (parseOnly)
-import qualified Data.ByteString as B
+import Control.Monad.Trans.State.Strict (evalStateT)
+import Data.Maybe
+    ( fromJust
+    , isJust
+    )
 import Data.Time (fromGregorian)
+import qualified Pipes.ByteString as PipesB
+import System.IO
+    ( IOMode(ReadMode)
+    , withFile
+    )
 import Test.Hspec
-import Test.Hspec.Expectations.Contrib
 
 import qualified Codec.IGC as IGC
 
@@ -12,10 +19,10 @@ import qualified Codec.IGC as IGC
 spec :: Spec
 spec =
     context "when load from a file" $ do
-        let load = do file <- B.readFile "test/test.igc"
-                      let r = parseOnly IGC.igc file
-                      r `shouldSatisfy` isRight
-                      return $ either undefined id r
+        let load = withFile "test/test.igc" ReadMode $ \handle -> do
+                       igc <- evalStateT IGC.parser (PipesB.fromHandle handle)
+                       igc `shouldSatisfy` isJust
+                       return $ fromJust igc
 
         describe "date" $ do
             it "returns HFDTE" $ do

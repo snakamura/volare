@@ -20,13 +20,14 @@ import Control.Monad.State
     , get
     , put
     )
+import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Aeson
     ( (.=)
     , (.:)
     )
 import qualified Data.Aeson as JSON
-import Data.Attoparsec (parseOnly)
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BL
 import Data.Monoid
     ( (<>)
     , mempty
@@ -38,6 +39,7 @@ import Database.Persist
     ( Entity
     , entityVal
     )
+import qualified Pipes.ByteString as PipesB
 import Text.Blaze.Html (toHtml)
 import Text.Printf (printf)
 import Yesod.Core (defaultLayout)
@@ -93,13 +95,14 @@ instance JSON.FromJSON NewFlight where
 postFlightsR :: Handler JSON.Value
 postFlightsR = do
     NewFlight name igcBytes <- requireJsonBody
-    case parseOnly IGC.igc igcBytes of
-      Left _ -> invalidArgs ["igc"]
-      Right igc -> do
+    i <- evalStateT IGC.parser $ PipesB.fromLazy $ BL.fromStrict igcBytes
+    case i of
+      Just igc -> do
           flight <- runDB $ do
               flightId <- D.addFlight name igc
               D.getFlight flightId
           return $ JSON.toJSON flight
+      Nothing -> invalidArgs ["igc"]
 
 
 data Flight = Flight M.FlightId M.Flight [Entity M.Record]
