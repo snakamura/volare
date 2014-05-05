@@ -15,7 +15,7 @@ import Control.Monad
     ( filterM
     , when
     )
-import Control.Monad.State
+import Control.Monad.Trans.State
     ( evalState
     , get
     , put

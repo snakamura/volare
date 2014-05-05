@@ -23,7 +23,7 @@ import Control.Monad.IO.Class
     ( MonadIO
     , liftIO
     )
-import Control.Monad.Trans (lift)
+import Control.Monad.Trans.Class (lift)
 import Data.Attoparsec.ByteString.Char8
     ( char
     , digit
