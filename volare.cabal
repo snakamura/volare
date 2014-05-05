@@ -204,7 +204,6 @@ test-suite spec
                    bytestring == 0.10.*,
                    cryptohash == 0.11.*,
                    hspec == 1.9.*,
-                   hspec-expectations == 0.5.*,
                    HUnit == 1.2.*,
                    monad-logger == 0.3.*,
                    persistent == 1.3.*,
