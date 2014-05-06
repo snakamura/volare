@@ -5,13 +5,13 @@ module Codec.GeoWpt
     ) where
 
 import qualified Data.ByteString as BL
-import Pipes.Parse (Parser)
+import qualified Pipes.Parse as P
 
 import Codec.GeoWpt.Parser
 import Codec.GeoWpt.Types
-import Codec.Utils.Pipes (parse)
+import Codec.Utils.Pipes (makeParser)
 
 
-parser :: Monad m =>
-          Parser BL.ByteString m (Maybe Wpt)
-parser = parse wpt
+parser :: (Functor m, Monad m) =>
+          P.Parser BL.ByteString m (Maybe Wpt)
+parser = makeParser wpt

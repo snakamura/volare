@@ -29,7 +29,7 @@ import Database.Persist
     ( Entity
     , entityVal
     )
-import qualified Pipes.ByteString as PipesB
+import qualified Pipes.ByteString as P
 import Text.Blaze.Html (toHtml)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler
@@ -83,7 +83,7 @@ instance JSON.FromJSON NewWaypoint where
 postWaypointsR :: Handler JSON.Value
 postWaypointsR = do
     NewWaypoint name wptBytes <- requireJsonBody
-    w <- evalStateT GeoWpt.parser $ PipesB.fromLazy $ BL.fromStrict wptBytes
+    w <- evalStateT GeoWpt.parser $ P.fromLazy $ BL.fromStrict wptBytes
     case w of
         Just wpt -> do
             waypoint <- runDB $ do

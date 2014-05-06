@@ -38,9 +38,9 @@ import Data.List.Split (splitWhen)
 import Data.Maybe (mapMaybe)
 import qualified Network.HTTP.Client as Http
 import Pipes ((>->))
-import qualified Pipes
+import qualified Pipes as P
 import Pipes.Attoparsec (parsed)
-import qualified Pipes.ByteString as PipesB
+import qualified Pipes.ByteString as P
 import Safe (headDef)
 import System.IO
     ( Handle
@@ -66,47 +66,47 @@ download :: (MonadIO m, MonadThrow m) =>
             Int ->
             Int ->
             Int ->
-            Pipes.Producer Type.Item m ()
+            P.Producer Type.Item m ()
 download station year month day = do
     let c = if Type.block station >= 10000 then 's' else 'a'
         url = printf "http://www.data.jma.go.jp/obd/stats/etrn/view/10min_%c1.php?prec_no=%d&block_no=%04d&year=%d&month=%d&day=%d&view=p1" c (Type.prec station) (Type.block station) year month day
     req <- lift $ Http.parseUrl url
     items <- liftIO $ (parseHtml . Http.responseBody) <$> Http.withManager Http.defaultManagerSettings (Http.httpLbs req)
-    Pipes.each items
+    P.each items
 
 
 save :: MonadIO m =>
         Handle ->
-        Pipes.Consumer Type.Item m ()
+        P.Consumer Type.Item m ()
 save handle = serialize >-> toHandle
   where
-    toHandle = Pipes.for Pipes.cat (liftIO . hPutStr handle)
+    toHandle = P.for P.cat (liftIO . hPutStr handle)
 
 
 serialize :: Monad m =>
-             Pipes.Pipe Type.Item String m ()
+             P.Pipe Type.Item String m ()
 serialize = do
-    Type.Item time precipitation temperature windSpeed windDirection sunshine <- Pipes.await
-    Pipes.yield $ show time
-    Pipes.yield ","
-    for_ precipitation $ Pipes.yield . show
-    Pipes.yield ","
-    for_ temperature $ Pipes.yield . show
-    Pipes.yield ","
-    for_ windSpeed $ Pipes.yield . show
-    Pipes.yield ","
-    for_ windDirection $ Pipes.yield . show
-    Pipes.yield ","
-    for_ sunshine $ Pipes.yield . show
-    Pipes.yield "\n"
+    Type.Item time precipitation temperature windSpeed windDirection sunshine <- P.await
+    P.yield $ show time
+    P.yield ","
+    for_ precipitation $ P.yield . show
+    P.yield ","
+    for_ temperature $ P.yield . show
+    P.yield ","
+    for_ windSpeed $ P.yield . show
+    P.yield ","
+    for_ windDirection $ P.yield . show
+    P.yield ","
+    for_ sunshine $ P.yield . show
+    P.yield "\n"
     serialize
 
 
 load :: MonadIO m =>
         Handle ->
-        Pipes.Producer Type.Item m ()
+        P.Producer Type.Item m ()
 load handle = do
-    r <- parsed item (PipesB.fromHandle handle)
+    r <- parsed item (P.fromHandle handle)
     case r of
       Left (e, _) -> liftIO $ throwIO e
       Right () -> return ()

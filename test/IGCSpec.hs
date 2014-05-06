@@ -6,7 +6,7 @@ import Data.Maybe
     , isJust
     )
 import Data.Time (fromGregorian)
-import qualified Pipes.ByteString as PipesB
+import qualified Pipes.ByteString as P
 import System.IO
     ( IOMode(ReadMode)
     , withFile
@@ -20,7 +20,7 @@ spec :: Spec
 spec =
     context "when load from a file" $ do
         let load = withFile "test/test.igc" ReadMode $ \handle -> do
-                       igc <- evalStateT IGC.parser (PipesB.fromHandle handle)
+                       igc <- evalStateT IGC.parser (P.fromHandle handle)
                        igc `shouldSatisfy` isJust
                        return $ fromJust igc
 

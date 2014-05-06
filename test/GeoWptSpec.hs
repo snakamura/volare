@@ -5,7 +5,7 @@ import Data.Maybe
     ( fromJust
     , isJust
     )
-import qualified Pipes.ByteString as PipesB
+import qualified Pipes.ByteString as P
 import System.IO
     ( IOMode(ReadMode)
     , withFile
@@ -19,7 +19,7 @@ spec :: Spec
 spec =
     context "when load from a file" $ do
         let load = withFile "test/test.wpt" ReadMode $ \handle -> do
-                       wpt <- evalStateT GeoWpt.parser (PipesB.fromHandle handle)
+                       wpt <- evalStateT GeoWpt.parser (P.fromHandle handle)
                        wpt `shouldSatisfy` isJust
                        return $ fromJust wpt
 

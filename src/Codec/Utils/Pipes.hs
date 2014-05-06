@@ -1,19 +1,21 @@
-module Codec.Utils.Pipes (parse) where
+module Codec.Utils.Pipes (makeParser) where
 
-import qualified Data.Attoparsec as Attoparsec
+import qualified Data.Attoparsec as A
 import qualified Data.ByteString as BL
+import Data.Functor ((<$>))
 import Data.Maybe.HT (toMaybe)
-import qualified Pipes.Attoparsec as PipesA
-import Pipes.Parse (Parser)
+import Pipes.Attoparsec
+    ( isEndOfParserInput
+    , parse
+    )
+import qualified Pipes.Parse as P
 
 
-parse :: Monad m =>
-         Attoparsec.Parser a ->
-         Parser BL.ByteString m (Maybe a)
-parse parser = do
-    p <- PipesA.parse parser
+makeParser :: (Functor m, Monad m) =>
+              A.Parser a ->
+              P.Parser BL.ByteString m (Maybe a)
+makeParser parser = do
+    p <- parse parser
     case p of
-        Just (Right p') -> do
-            b <- PipesA.isEndOfParserInput
-            return $ toMaybe b p'
+        Just (Right p') -> flip toMaybe p' <$> isEndOfParserInput
         _ -> return Nothing

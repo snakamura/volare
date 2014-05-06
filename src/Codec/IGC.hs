@@ -6,14 +6,14 @@ module Codec.IGC
     ) where
 
 import qualified Data.ByteString as BL
-import Pipes.Parse (Parser)
+import qualified Pipes.Parse as P
 
 import Codec.IGC.Parser
 import Codec.IGC.Types
 import Codec.IGC.Utils
-import Codec.Utils.Pipes (parse)
+import Codec.Utils.Pipes (makeParser)
 
 
-parser :: Monad m =>
-          Parser BL.ByteString m (Maybe IGC)
-parser = parse igc
+parser :: (Functor m, Monad m) =>
+          P.Parser BL.ByteString m (Maybe IGC)
+parser = makeParser igc

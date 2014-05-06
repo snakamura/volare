@@ -12,7 +12,7 @@ import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as JSON
 import qualified Data.Text as T
-import Pipes.ByteString (toHandle)
+import qualified Pipes.ByteString as P
 import qualified Service.MSM as MSM
 import System.Directory
     ( createDirectoryIfMissing
@@ -80,7 +80,7 @@ dataFile surface year month day = do
     unless b $ do
         createDirectoryIfMissing True $ takeDirectory path
         withSystemTempFile "msm.nc" $ \tempPath handle -> do
-            MSM.download surface year month day $ toHandle handle
+            MSM.download surface year month day $ P.toHandle handle
             hClose handle
             renameFile tempPath path `catch` \(_ :: IOException) -> return ()
     return path
