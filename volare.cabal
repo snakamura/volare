@@ -19,6 +19,8 @@ Flag library-only
 library
     exposed-modules: Codec.GeoWpt
                      Codec.IGC
+                     Codec.Utils.Attoparsec
+                     Codec.Utils.Pipes
                      Service.AMEDAS
                      Service.MSM
                      Service.MSM.Barometric
@@ -33,8 +35,6 @@ library
                    Codec.IGC.Parser
                    Codec.IGC.Types
                    Codec.IGC.Utils
-                   Codec.Utils.Attoparsec
-                   Codec.Utils.Pipes
                    Service.AMEDAS.Stations
                    Service.AMEDAS.Type
                    Volare.Domain.Flight
@@ -207,6 +207,7 @@ test-suite spec
                    monad-logger == 0.3.*,
                    persistent == 1.3.*,
                    pipes == 4.1.*,
+                   pipes-attoparsec == 0.5.*,
                    pipes-bytestring == 2.0.*,
                    resourcet == 1.1.*,
                    temporary == 1.2.*,

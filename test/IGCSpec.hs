@@ -1,7 +1,10 @@
 module IGCSpec (spec) where
 
 import Control.Monad (void)
-import Control.Monad.Trans.State.Strict (evalStateT)
+import Control.Monad.Trans.State.Strict
+    ( evalStateT
+    , execStateT
+    )
 import Data.Maybe
     ( fromJust
     , isJust
@@ -9,6 +12,7 @@ import Data.Maybe
     )
 import Data.Time (fromGregorian)
 import qualified Pipes as P
+import qualified Pipes.Attoparsec as P
 import qualified Pipes.ByteString as P
 import System.IO
     ( IOMode(ReadMode)
@@ -17,12 +21,14 @@ import System.IO
 import Test.Hspec
 
 import qualified Codec.IGC as IGC
+import Codec.Utils.Attoparsec (line)
 
 
 spec :: Spec
 spec = do
-    let load = withFile "test/test.igc" ReadMode $ \handle -> do
-                   igc <- evalStateT IGC.parser $ P.fromHandle handle
+    let withTestFile action = withFile "test/test.igc" ReadMode $ action . P.fromHandle
+    let load = withTestFile $ \producer -> do
+                   igc <- evalStateT IGC.parser producer
                    igc `shouldSatisfy` isJust
                    return $ fromJust igc
 
@@ -31,9 +37,15 @@ spec = do
             void load
 
         it "fails with extra inputs" $ do
-            withFile "test/test.igc" ReadMode $ \handle -> do
-                wpt <- evalStateT IGC.parser $ P.fromHandle handle >> P.yield "\n"
-                wpt `shouldSatisfy` isNothing
+            withTestFile $ \producer -> do
+                igc <- evalStateT IGC.parser $ producer >> P.yield "\n"
+                igc `shouldSatisfy` isNothing
+
+        it "fails without the first line" $ do
+            withTestFile $ \producer -> do
+                rest <- execStateT (P.parse line) producer
+                igc <- evalStateT IGC.parser rest
+                igc `shouldSatisfy` isNothing
 
     context "when load from a file" $ do
         describe "date" $ do
