@@ -1,10 +1,13 @@
 module GeoWptSpec (spec) where
 
+import Control.Monad (void)
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Maybe
     ( fromJust
     , isJust
+    , isNothing
     )
+import qualified Pipes as P
 import qualified Pipes.ByteString as P
 import System.IO
     ( IOMode(ReadMode)
@@ -16,13 +19,22 @@ import qualified Codec.GeoWpt as GeoWpt
 
 
 spec :: Spec
-spec =
-    context "when load from a file" $ do
-        let load = withFile "test/test.wpt" ReadMode $ \handle -> do
-                       wpt <- evalStateT GeoWpt.parser (P.fromHandle handle)
-                       wpt `shouldSatisfy` isJust
-                       return $ fromJust wpt
+spec = do
+    let load = withFile "test/test.wpt" ReadMode $ \handle -> do
+                   wpt <- evalStateT GeoWpt.parser $ P.fromHandle handle
+                   wpt `shouldSatisfy` isJust
+                   return $ fromJust wpt
 
+    describe "parse" $ do
+        it "succeeds in pasing a wpt" $ do
+            void load
+
+        it "fails with extra inputs" $ do
+            withFile "test/test.wpt" ReadMode $ \handle -> do
+                wpt <- evalStateT GeoWpt.parser $ P.fromHandle handle >> P.yield "\n"
+                wpt `shouldSatisfy` isNothing
+
+    context "when load from a file" $ do
         describe "items" $ do
             it "returns all items" $ do
                 wpt <- load

@@ -1,11 +1,14 @@
 module IGCSpec (spec) where
 
+import Control.Monad (void)
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Maybe
     ( fromJust
     , isJust
+    , isNothing
     )
 import Data.Time (fromGregorian)
+import qualified Pipes as P
 import qualified Pipes.ByteString as P
 import System.IO
     ( IOMode(ReadMode)
@@ -17,13 +20,22 @@ import qualified Codec.IGC as IGC
 
 
 spec :: Spec
-spec =
-    context "when load from a file" $ do
-        let load = withFile "test/test.igc" ReadMode $ \handle -> do
-                       igc <- evalStateT IGC.parser (P.fromHandle handle)
-                       igc `shouldSatisfy` isJust
-                       return $ fromJust igc
+spec = do
+    let load = withFile "test/test.igc" ReadMode $ \handle -> do
+                   igc <- evalStateT IGC.parser $ P.fromHandle handle
+                   igc `shouldSatisfy` isJust
+                   return $ fromJust igc
 
+    describe "parse" $ do
+        it "succeeds in pasing an igc" $ do
+            void load
+
+        it "fails with extra inputs" $ do
+            withFile "test/test.igc" ReadMode $ \handle -> do
+                wpt <- evalStateT IGC.parser $ P.fromHandle handle >> P.yield "\n"
+                wpt `shouldSatisfy` isNothing
+
+    context "when load from a file" $ do
         describe "date" $ do
             it "returns HFDTE" $ do
                 igc <- load
