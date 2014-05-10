@@ -1,6 +1,7 @@
 module SpecUtils
     ( runDB
     , (@==)
+    , (@??)
     ) where
 
 import Control.Applicative ((<*))
@@ -27,7 +28,10 @@ import Database.Persist.Sql
     ( runMigration
     , transactionUndo
     )
-import Test.HUnit ((@?=))
+import Test.HUnit
+    ( (@?=)
+    , assertBool
+    )
 import Yesod.Default.Config
     ( DefaultEnv(Testing)
     , withYamlEnvironment
@@ -53,3 +57,11 @@ runDB action = do
          m ()
 actual @== expected = liftIO $ actual @?= expected
 infix 1 @==
+
+
+(@??) :: (MonadIO m) =>
+         a ->
+         (a -> Bool) ->
+         m ()
+value @?? predicate = liftIO $ assertBool "" $ predicate value
+infix 1 @??
