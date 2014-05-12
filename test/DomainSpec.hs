@@ -1,5 +1,6 @@
 module DomainSpec (spec) where
 
+import qualified Codec.GeoWpt as GeoWpt
 import qualified Codec.IGC as IGC
 import Control.Applicative ((<$>))
 import Control.Monad.IO.Class (liftIO)
@@ -32,6 +33,11 @@ spec = do
                       igc <- evalStateT IGC.parser $ P.fromHandle handle
                       igc `shouldSatisfy` isJust
                       return $ fromJust igc
+
+    let loadWpt = withFile "test/test.wpt" ReadMode $ \handle -> do
+                      wpt <- evalStateT GeoWpt.parser $ P.fromHandle handle
+                      wpt `shouldSatisfy` isJust
+                      return $ fromJust wpt
 
     describe "getFlights" $ do
         context "when there is no flight" $ do
@@ -193,3 +199,89 @@ spec = do
             D.deleteWorkspace workspaceId
             workspaces <- D.getWorkspaces
             length workspaces @== 1
+
+    describe "getWaypoints" $ do
+        context "when there is no waypoint" $ do
+            it "returns no waypoint" $ runDB $ do
+                waypoints <- D.getWaypoints
+                length waypoints @== 0
+
+        it "returns all waypoints" $ runDB $ do
+            wpt <- liftIO loadWpt
+            _ <- D.addWaypoint "Test 1" wpt
+            _ <- D.addWaypoint "Test 2" wpt
+            waypoints <- D.getWaypoints
+            length waypoints @== 2
+
+    describe "getWaypoint" $ do
+        it "returns a waypoint" $ runDB $ do
+            let name = "Test"
+            wpt <- liftIO loadWpt
+            waypointId <- D.addWaypoint name wpt
+            waypoint <- D.getWaypoint waypointId
+            waypoint @?? isJust
+            P.entityKey (fromJust waypoint) @== waypointId
+            M.waypointName (P.entityVal (fromJust waypoint)) @== name
+
+    describe "getWaypointItems" $ do
+        it "returns items" $ runDB $ do
+            wpt <- liftIO loadWpt
+            waypointId <- D.addWaypoint "Test" wpt
+            items <- D.getWaypointItems waypointId
+            length items @== 122
+            let item = P.entityVal $ items !! 43
+            M.waypointItemWaypointId item @== waypointId
+            M.waypointItemName item @== "B44002"
+            M.waypointItemLatitude item @== 36.1041641235352
+            M.waypointItemLongitude item @== 140.08723449707
+            M.waypointItemAltitude item @== 21.0
+            M.waypointItemDescription item @== "KOK"
+
+    describe "addWaypoint" $ do
+        it "adds a waypoint" $ runDB $ do
+            let name = "Test"
+            wpt <- liftIO loadWpt
+            waypointId <- D.addWaypoint name wpt
+            waypoint <- head <$> D.getWaypoints
+            P.entityKey waypoint @== waypointId
+
+    describe "updateWaypoint" $ do
+        it "updates a name of a waypoint"$ runDB $ do
+            let nameBefore = "Test 1"
+            wpt <- liftIO loadWpt
+            waypointId <- D.addWaypoint nameBefore wpt
+            let nameAfter = "Test 2"
+            D.updateWaypoint waypointId (Just nameAfter)
+            waypoint <- D.getWaypoint waypointId
+            waypoint @?? isJust
+            M.waypointName (P.entityVal (fromJust waypoint)) @== nameAfter
+
+        it "doesn't updates a name of a waypoint"$ runDB $ do
+            let name = "Test 1"
+            wpt <- liftIO loadWpt
+            waypointId <- D.addWaypoint name wpt
+            D.updateWaypoint waypointId Nothing
+            waypoint <- D.getWaypoint waypointId
+            waypoint @?? isJust
+            M.waypointName (P.entityVal (fromJust waypoint)) @== name
+
+    describe "deleteWaypoint" $ do
+        it "deletes a waypoint" $ runDB $ do
+            let name = "Test 2"
+            wpt <- liftIO loadWpt
+            waypointId <- D.addWaypoint "Test 1" wpt
+            _ <- D.addWaypoint name wpt
+            D.deleteWaypoint waypointId
+            waypoints <- D.getWaypoints
+            length waypoints @== 1
+            let waypoint = head waypoints
+            M.waypointName (P.entityVal waypoint) @== name
+
+        it "does nothing when there is no such waypoint" $ runDB $ do
+            wpt <- liftIO loadWpt
+            waypointId <- D.addWaypoint "Test 1" wpt
+            _ <- D.addWaypoint "Test 2" wpt
+            D.deleteWaypoint waypointId
+            D.deleteWaypoint waypointId
+            waypoints <- D.getWaypoints
+            length waypoints @== 1
