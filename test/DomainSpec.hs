@@ -108,7 +108,7 @@ spec = do
             P.entityKey flight @== flightId
 
     describe "updateFlight" $ do
-        it "updates a name of a flight"$ runDB $ do
+        it "updates a name of a flight" $ runDB $ do
             let nameBefore = "Test 1"
             igc <- liftIO loadIGC
             flightId <- D.addFlight nameBefore igc
@@ -118,7 +118,7 @@ spec = do
             flight @?? isJust
             M.flightName (P.entityVal (fromJust flight)) @== nameAfter
 
-        it "doesn't updates a name of a flight"$ runDB $ do
+        it "doesn't updates a name of a flight" $ runDB $ do
             let name = "Test 1"
             igc <- liftIO loadIGC
             flightId <- D.addFlight name igc
@@ -178,7 +178,7 @@ spec = do
             M.workspaceName (P.entityVal workspace) @== name
 
     describe "updateWorkspace" $ do
-        it "updates a name of a workspace"$ runDB $ do
+        it "updates a name of a workspace" $ runDB $ do
             let nameBefore = "Test 1"
             workspaceId <- D.addWorkspace nameBefore
             let nameAfter = "Test 2"
@@ -187,13 +187,57 @@ spec = do
             workspace @?? isJust
             M.workspaceName (P.entityVal (fromJust workspace)) @== nameAfter
 
-        it "doesn't updates a name of a workspace"$ runDB $ do
+        it "doesn't updates a name of a workspace" $ runDB $ do
             let name = "Test 1"
             workspaceId <- D.addWorkspace name
             D.updateWorkspace workspaceId Nothing Nothing
             workspace <- D.getWorkspace workspaceId
             workspace @?? isJust
             M.workspaceName (P.entityVal (fromJust workspace)) @== name
+
+        it "updates a route of a workspace" $ runDB $ do
+            workspaceId <- D.addWorkspace "Test"
+            routeId <- addRoute
+            D.updateWorkspace workspaceId Nothing (Just (Just routeId))
+            workspace1 <- D.getWorkspace workspaceId
+            workspace1 @?? isJust
+            M.workspaceRoute (P.entityVal (fromJust workspace1)) @== Just routeId
+            D.updateWorkspace workspaceId Nothing (Just Nothing)
+            workspace2 <- D.getWorkspace workspaceId
+            workspace2 @?? isJust
+            M.workspaceRoute (P.entityVal (fromJust workspace2)) @== Nothing
+
+        it "doesn't update a route of a workspace" $ runDB $ do
+            workspaceId <- D.addWorkspace "Test"
+            routeId <- addRoute
+            D.updateWorkspace workspaceId Nothing (Just (Just routeId))
+            workspace1 <- D.getWorkspace workspaceId
+            workspace1 @?? isJust
+            M.workspaceRoute (P.entityVal (fromJust workspace1)) @== Just routeId
+            D.updateWorkspace workspaceId Nothing Nothing
+            workspace2 <- D.getWorkspace workspaceId
+            workspace2 @?? isJust
+            M.workspaceRoute (P.entityVal (fromJust workspace2)) @== Just routeId
+
+        it "deletes an old route of a workspace" $ runDB $ do
+            workspaceId <- D.addWorkspace "Test"
+            oldRouteId <- addRoute
+            D.updateWorkspace workspaceId Nothing (Just (Just oldRouteId))
+            newRouteId <- addRoute
+            D.updateWorkspace workspaceId Nothing (Just (Just newRouteId))
+            oldRoute <- D.getRoute oldRouteId
+            oldRoute @?? isNothing
+            D.updateWorkspace workspaceId Nothing (Just Nothing)
+            newRoute <- D.getRoute newRouteId
+            newRoute @?? isNothing
+
+        it "doesn't delete an old route of a workspace when setting the same route" $ runDB $ do
+            workspaceId <- D.addWorkspace "Test"
+            routeId <- addRoute
+            D.updateWorkspace workspaceId Nothing (Just (Just routeId))
+            D.updateWorkspace workspaceId Nothing (Just (Just routeId))
+            route <- D.getRoute routeId
+            route @?? isJust
 
     describe "deleteWorkspace" $ do
         it "deletes a workspace" $ runDB $ do
@@ -213,6 +257,14 @@ spec = do
             D.deleteWorkspace workspaceId
             workspaces <- D.getWorkspaces
             length workspaces @== 1
+
+        it "deletes a route of a workspace" $ runDB $ do
+            workspaceId <- D.addWorkspace "Test"
+            routeId <- addRoute
+            D.updateWorkspace workspaceId Nothing (Just (Just routeId))
+            D.deleteWorkspace workspaceId
+            route <- D.getRoute routeId
+            route @?? isNothing
 
     describe "getWaypoints" $ do
         context "when there is no waypoint" $ do
@@ -260,7 +312,7 @@ spec = do
             P.entityKey waypoint @== waypointId
 
     describe "updateWaypoint" $ do
-        it "updates a name of a waypoint"$ runDB $ do
+        it "updates a name of a waypoint" $ runDB $ do
             let nameBefore = "Test 1"
             wpt <- liftIO loadWpt
             waypointId <- D.addWaypoint nameBefore wpt
@@ -270,7 +322,7 @@ spec = do
             waypoint @?? isJust
             M.waypointName (P.entityVal (fromJust waypoint)) @== nameAfter
 
-        it "doesn't updates a name of a waypoint"$ runDB $ do
+        it "doesn't updates a name of a waypoint" $ runDB $ do
             let name = "Test 1"
             wpt <- liftIO loadWpt
             waypointId <- D.addWaypoint name wpt
