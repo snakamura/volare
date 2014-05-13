@@ -8,6 +8,7 @@ import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Maybe
     ( fromJust
     , isJust
+    , isNothing
     )
 import Data.Time
     ( UTCTime(UTCTime)
@@ -38,6 +39,19 @@ spec = do
                       wpt <- evalStateT GeoWpt.parser $ P.fromHandle handle
                       wpt `shouldSatisfy` isJust
                       return $ fromJust wpt
+
+    let addRoute = do wpt <- liftIO loadWpt
+                      waypointId <- D.addWaypoint "Test" wpt
+                      items <- D.getWaypointItems waypointId
+                      let routeItems = [ (P.entityKey (items !! 10), 3000)
+                                       , (P.entityKey (items !! 10), 400)
+                                       , (P.entityKey (items !! 3), 400)
+                                       , (P.entityKey (items !! 33), 400)
+                                       , (P.entityKey (items !! 55), 400)
+                                       , (P.entityKey (items !! 4), 3000)
+                                       ]
+                      D.addRoute routeItems
+
 
     describe "getFlights" $ do
         context "when there is no flight" $ do
@@ -285,3 +299,47 @@ spec = do
             D.deleteWaypoint waypointId
             waypoints <- D.getWaypoints
             length waypoints @== 1
+
+    describe "getRoute" $ do
+        it "returns a route" $ runDB $ do
+            routeId <- addRoute
+            route <- D.getRoute routeId
+            route @?? isJust
+            P.entityKey (fromJust route) @== routeId
+
+    describe "getRouteWithWaypoints" $ do
+        it "returns a route with waypoints" $ runDB $ do
+            routeId <- addRoute
+            route <- D.getRouteWithWaypoints routeId
+            route @?? isJust
+            let D.Route routeId' items = fromJust route
+            routeId' @== routeId
+            length items @== 6
+            let D.RouteItem _ (P.Entity _ item) radius = items !! 1
+            M.waypointItemName item @== "B09012"
+            M.waypointItemLatitude item @== 36.3802833557129
+            M.waypointItemLongitude item @== 140.035491943359
+            M.waypointItemAltitude item @== 124.0
+            M.waypointItemDescription item @== "GOL"
+            radius @== 400
+
+    describe "addRoute" $ do
+        it "adds a route" $ runDB $ do
+            routeId <- addRoute
+            route <- D.getRoute routeId
+            route @?? isJust
+            P.entityKey (fromJust route) @== routeId
+
+    describe "deleteRoute" $ do
+        it "deletes a route" $ runDB $ do
+            routeId <- addRoute
+            D.deleteRoute routeId
+            route <- D.getRoute routeId
+            route @?? isNothing
+
+        it "does nothing when there is no such route" $ runDB $ do
+            routeId <- addRoute
+            D.deleteRoute routeId
+            D.deleteRoute routeId
+            route <- D.getRoute routeId
+            route @?? isNothing

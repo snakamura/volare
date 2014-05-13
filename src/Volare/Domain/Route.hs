@@ -1,5 +1,6 @@
 module Volare.Domain.Route
     ( Route(Route)
+    , RouteItem(RouteItem)
     , getRoute
     , getRouteWithWaypoints
     , addRoute
