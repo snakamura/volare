@@ -14,7 +14,10 @@ module Volare.Domain.Workspace
 
 import Control.Applicative ((<$>))
 import Control.Arrow (first)
-import Control.Monad (join)
+import Control.Monad
+    ( join
+    , when
+    )
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
@@ -80,8 +83,8 @@ updateWorkspace workspaceId name routeId = do
         workspace <- getWorkspace workspaceId
         P.update workspaceId [M.WorkspaceRoute =. newRouteId]
         forM_ (P.entityVal <$> workspace >>= M.workspaceRoute) $ \oldRouteId -> do
-            P.deleteWhere [M.RouteItemRouteId ==. oldRouteId]
-            P.delete oldRouteId
+            when (Just oldRouteId /= newRouteId) $
+                DR.deleteRoute oldRouteId
 
 
 deleteWorkspace :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Workspace) =>
