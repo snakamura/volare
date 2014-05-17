@@ -266,6 +266,67 @@ spec = do
             route <- D.getRoute routeId
             route @?? isNothing
 
+    describe "getWorkspaceFlights" $ do
+        context "when there is no flights" $ do
+            it "returns no flight" $ runDB $ do
+                workspaceId <- D.addWorkspace "Test"
+                workspaceFlights <- D.getWorkspaceFlights workspaceId
+                length workspaceFlights @== 0
+
+        it "returns all flights" $ runDB $ do
+            workspaceId <- D.addWorkspace "Test"
+            igc <- liftIO loadIGC
+            let name = "Test 1"
+            flightId1 <- D.addFlight name igc
+            flightId2 <- D.addFlight "Test 2" igc
+            _ <- D.addWorkspaceFlight workspaceId [flightId1, flightId2]
+            workspaceFlights <- D.getWorkspaceFlights workspaceId
+            length workspaceFlights @== 2
+            let D.WorkspaceFlight flightId flight color = head workspaceFlights
+            flightId @== flightId1
+            M.flightName flight @== name
+            color @== "red"
+
+    describe "addWorkspaceFlight" $ do
+        it "adds a flight to a workspace" $ runDB $ do
+            workspaceId <- D.addWorkspace "Test"
+            igc <- liftIO loadIGC
+            let name = "Test"
+            flightId <- D.addFlight name igc
+            _ <- D.addWorkspaceFlight workspaceId [flightId]
+            workspaceFlights <- D.getWorkspaceFlights workspaceId
+            length workspaceFlights @== 1
+            let D.WorkspaceFlight flightId' flight color = head workspaceFlights
+            flightId' @== flightId
+            M.flightName flight @== name
+            color @== "red"
+
+    describe "deleteWorkspaceFlight" $ do
+        it "removes a flight from a workspace" $ runDB $ do
+            workspaceId <- D.addWorkspace "Test"
+            igc <- liftIO loadIGC
+            let name = "Test 2"
+            flightId1 <- D.addFlight "Test 1" igc
+            flightId2 <- D.addFlight name igc
+            _ <- D.addWorkspaceFlight workspaceId [flightId1, flightId2]
+            D.deleteWorkspaceFlight workspaceId flightId1
+            workspaceFlights <- D.getWorkspaceFlights workspaceId
+            length workspaceFlights @== 1
+            let D.WorkspaceFlight flightId flight color = head workspaceFlights
+            flightId @== flightId2
+            M.flightName flight @== name
+            color @== "blue"
+
+        it "does nothing when there is no such flight in a workspace" $ runDB $ do
+            workspaceId <- D.addWorkspace "Test"
+            igc <- liftIO loadIGC
+            flightId1 <- D.addFlight "Test 1" igc
+            flightId2 <- D.addFlight "Test 2" igc
+            _ <- D.addWorkspaceFlight workspaceId [flightId1]
+            D.deleteWorkspaceFlight workspaceId flightId2
+            workspaceFlights <- D.getWorkspaceFlights workspaceId
+            length workspaceFlights @== 1
+
     describe "getWaypoints" $ do
         context "when there is no waypoint" $ do
             it "returns no waypoint" $ runDB $ do
