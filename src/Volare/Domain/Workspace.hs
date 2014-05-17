@@ -6,7 +6,6 @@ module Volare.Domain.Workspace
     , updateWorkspace
     , deleteWorkspace
     , getWorkspaceFlights
-    , getWorkspaceFlight
     , getWorkspaceCandidateFlights
     , addWorkspaceFlight
     , deleteWorkspaceFlight
