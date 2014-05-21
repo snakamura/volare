@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <tr1/array>
+#include <array>
 #include <cmath>
 #include <functional>
 #include <numeric>
@@ -9,7 +9,6 @@
 
 using namespace netcdf;
 using namespace std;
-using namespace std::tr1;
 
 static const float MIN_LATITUDE = 22.4;
 static const float MAX_LATITUDE = 47.6;
