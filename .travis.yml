@@ -7,7 +7,7 @@ install:
   - createdb volare_test
   - cabal install alex
   - cabal install happy
-  - cabal install --only-dependencies --enable-tests
+  - cabal install --only-dependencies --enable-tests --reorder-goals
   - echo "CREATE USER volare WITH ENCRYPTED PASSWORD 'password'" | psql -U postgres
 
 script:
