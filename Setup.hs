@@ -1,6 +1,9 @@
 module Main (main) where
 
-import Data.Maybe (fromJust)
+import Data.Maybe
+    ( fromJust
+    , fromMaybe
+    )
 import qualified Distribution.PackageDescription as PD
 import Distribution.Simple
     ( Args
@@ -18,6 +21,7 @@ import Distribution.Simple.Setup
     ( CleanFlags
     , ConfigFlags
     , cleanVerbosity
+    , configConfigurationsFlags
     , configVerbosity
     , fromFlag
     )
@@ -38,7 +42,12 @@ volarePreConf :: Args ->
                  IO PD.HookedBuildInfo
 volarePreConf args flags = do
     buildInfo <- preConf simpleUserHooks args flags
-    rawSystemExit (fromFlag $ configVerbosity flags) "/bin/sh" ["-c", "cd msm && make"]
+    let glibcxx = fromMaybe False $ lookup (PD.FlagName "glibcxx") $ configConfigurationsFlags flags
+        macros = if glibcxx then
+                     " GLIBCXX=1"
+                 else
+                     ""
+    rawSystemExit (fromFlag $ configVerbosity flags) "/bin/sh" ["-c", "cd msm && make" ++ macros]
     return buildInfo
 
 

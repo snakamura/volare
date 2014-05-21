@@ -16,6 +16,9 @@ Flag dev
 Flag library-only
     Default: False
 
+Flag glibcxx
+    Default: False
+
 library
     exposed-modules: Codec.GeoWpt
                      Codec.IGC
@@ -57,7 +60,10 @@ library
     hs-source-dirs: src
     includes: msm.h
     include-dirs: msm
-    extra-libraries: msm, netcdf, stdc++
+    if flag(glibcxx)
+        extra-libraries: msm, netcdf, stdc++
+    else
+        extra-libraries: msm, netcdf, c++
     extra-lib-dirs: /usr/lib, /usr/local/lib
 
     default-language: Haskell2010
