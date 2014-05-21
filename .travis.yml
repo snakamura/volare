@@ -9,3 +9,6 @@ install:
   - cabal install happy
   - cabal install --only-dependencies --enable-tests
   - echo "CREATE USER volare WITH ENCRYPTED PASSWORD 'password'" | psql -U postgres
+
+script:
+  - cabal configure --enable-tests -fglibcxx && cabal build && cabal test
