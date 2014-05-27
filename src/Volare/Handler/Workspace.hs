@@ -28,8 +28,7 @@ import Data.Monoid
     )
 import qualified Data.Text as T
 import Database.Persist
-    ( Entity
-    , entityKey
+    ( entityKey
     , entityVal
     )
 import Text.Blaze.Html

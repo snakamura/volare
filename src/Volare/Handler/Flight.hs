@@ -41,7 +41,6 @@ import Database.Persist
     )
 import qualified Pipes.ByteString as P
 import Text.Blaze.Html (toHtml)
-import Text.Printf (printf)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler
     ( invalidArgs
@@ -180,13 +179,3 @@ deleteFlightR :: M.FlightId ->
 deleteFlightR flightId = do
     runDB $ D.deleteFlight flightId
     return $ JSON.toJSON ()
-
-
-formatPosition :: Double ->
-                  String
-formatPosition = printf "%.5f"
-
-
-formatLatitude :: Double ->
-                  String
-formatLatitude = printf "%.0f"
