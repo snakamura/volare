@@ -6,7 +6,7 @@ endif
 
 CC=clang
 CXX=clang++
-CXXFLAGS=-std=c++11 -stdlib=lib$(STDLIB) $(shell nc-config --cflags)
+CXXFLAGS=-fPIC -std=c++11 -stdlib=lib$(STDLIB) $(shell nc-config --cflags)
 
 all: lib sample
 
