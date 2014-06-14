@@ -10,7 +10,7 @@ import Control.Applicative
     , (<|>)
     , many
     )
-import Data.Attoparsec
+import Data.Attoparsec.ByteString
     ( Parser
     , string
     , skipWhile

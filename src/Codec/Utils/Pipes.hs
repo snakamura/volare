@@ -1,6 +1,6 @@
 module Codec.Utils.Pipes (makeParser) where
 
-import qualified Data.Attoparsec as A
+import qualified Data.Attoparsec.ByteString as A
 import qualified Data.ByteString as BL
 import Data.Functor ((<$>))
 import Data.Maybe.HT (toMaybe)

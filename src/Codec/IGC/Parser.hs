@@ -17,7 +17,7 @@ import Data.Time
     , fromGregorian
     , secondsToDiffTime
     )
-import Data.Attoparsec
+import Data.Attoparsec.ByteString
     ( Parser
     , inClass
     , satisfy

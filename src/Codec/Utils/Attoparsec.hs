@@ -12,7 +12,7 @@ import Control.Applicative
     , (<$>)
     , pure
     )
-import Data.Attoparsec
+import Data.Attoparsec.ByteString
     ( Parser
     , inClass
     , option
