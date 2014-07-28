@@ -88,7 +88,7 @@ library
                         TypeSynonymInstances
                         UndecidableInstances
 
-    build-depends: aeson == 0.7.*,
+    build-depends: aeson == 0.8.*,
                    async == 2.0.*,
                    attoparsec == 0.12.*,
                    base == 4.*,
@@ -208,7 +208,7 @@ test-suite spec
                    bytedump == 1.*,
                    bytestring == 0.10.*,
                    cryptohash == 0.11.*,
-                   hspec == 1.10.*,
+                   hspec == 1.11.*,
                    HUnit == 1.2.*,
                    monad-logger == 0.3.*,
                    persistent == 1.3.*,
