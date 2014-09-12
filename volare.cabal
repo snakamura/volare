@@ -97,7 +97,7 @@ library
                    bytestring == 0.10.*,
                    clientsession == 0.9.*,
                    containers == 0.5.*,
-                   conduit == 1.1.*,
+                   conduit == 1.2.*,
                    conduit-extra == 1.1.*,
                    data-default == 0.5.*,
                    directory == 1.2.*,
