@@ -88,13 +88,13 @@ download :: Bool ->
             Int ->
             Consumer B.ByteString IO () ->
             IO ()
-download surface year month day pipe = do
+download surface year month day consumer = do
     let t = if surface then 'S' else 'P'
         url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" t year month day
     req <- Http.parseUrl url
     Http.withManager Http.defaultManagerSettings $ \manager -> do
         withHTTP req manager $ \res -> do
-            runEffect $ Http.responseBody res >-> pipe
+            runEffect $ Http.responseBody res >-> consumer
 
 
 foreign import ccall get_surface_items :: CString ->
