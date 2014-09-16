@@ -149,6 +149,15 @@ allStations =
     , Station 42  1223 (c 36 10.2) (c 138 51.8) "Inafukumiyama"
     , Station 42 47624 (c 36 24.3) (c 139 03.6) "Maebashi"
 
+    , Station 43  0359 (c 36 05.2) (c 139 38.1) "Kuki"
+    , Station 43  0363 (c 35 52.5) (c 139 35.2) "Saitama"
+    , Station 43  0364 (c 35 53.0) (c 139 45.4) "Koshigaya"
+    , Station 43  1009 (c 36 06.3) (c 139 11.0) "Yorii"
+    , Station 43  1070 (c 35 46.4) (c 139 24.8) "Tokorozawa"
+    , Station 43  1232 (c 35 59.1) (c 139 20.1) "Hatoyama"
+    , Station 43 47626 (c 36 09.0) (c 139 22.8) "Kumagaya"
+    , Station 43 47641 (c 35 59.4) (c 139 04.4) "Chichibu"
+
     , Station 62  0600 (c 34 56.9) (c 135 27.3) "Nose"
     , Station 62  0602 (c 34 47.0) (c 135 26.2) "Toyonaka"
     , Station 62  0604 (c 34 40.5) (c 135 40.6) "Ikomayama"
