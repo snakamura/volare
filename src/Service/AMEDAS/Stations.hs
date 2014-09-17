@@ -5,13 +5,13 @@ module Service.AMEDAS.Stations
 
 import Data.List (find)
 
-import Service.AMEDAS.Type (Station(Station))
-import qualified Service.AMEDAS.Type as Type
+import Service.AMEDAS.Types (Station(Station))
+import qualified Service.AMEDAS.Types as Types
 
 
 station :: String ->
            Maybe Station
-station name = find ((== name) . Type.name) allStations
+station name = find ((== name) . Types.name) allStations
 
 
 stations :: (Float, Float) ->

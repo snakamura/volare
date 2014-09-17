@@ -39,7 +39,7 @@ library
                    Codec.IGC.Types
                    Codec.IGC.Utils
                    Service.AMEDAS.Stations
-                   Service.AMEDAS.Type
+                   Service.AMEDAS.Types
                    Volare.Domain.Flight
                    Volare.Domain.Route
                    Volare.Domain.Waypoint

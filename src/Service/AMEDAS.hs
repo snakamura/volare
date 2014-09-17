@@ -1,7 +1,7 @@
 module Service.AMEDAS
-    ( Type.Item(..)
-    , Type.WindDirection(..)
-    , Type.Station(..)
+    ( Types.Item(..)
+    , Types.WindDirection(..)
+    , Types.Station(..)
     , download
     , save
     , load
@@ -55,19 +55,19 @@ import Text.HTML.TagSoup
 import Text.Printf (printf)
 import Text.Read (readMaybe)
 
-import qualified Service.AMEDAS.Type as Type
+import qualified Service.AMEDAS.Types as Types
 import qualified Service.AMEDAS.Stations as Stations
 
 
 download :: (MonadIO m, MonadThrow m) =>
-            Type.Station ->
+            Types.Station ->
             Int ->
             Int ->
             Int ->
-            P.Producer Type.Item m ()
+            P.Producer Types.Item m ()
 download station year month day = do
-    let c = if Type.block station >= 10000 then 's' else 'a'
-        url = printf "http://www.data.jma.go.jp/obd/stats/etrn/view/10min_%c1.php?prec_no=%d&block_no=%04d&year=%d&month=%d&day=%d&view=p1" c (Type.prec station) (Type.block station) year month day
+    let c = if Types.block station >= 10000 then 's' else 'a'
+        url = printf "http://www.data.jma.go.jp/obd/stats/etrn/view/10min_%c1.php?prec_no=%d&block_no=%04d&year=%d&month=%d&day=%d&view=p1" c (Types.prec station) (Types.block station) year month day
     req <- lift $ Http.parseUrl url
     items <- liftIO $ (parseHtml . Http.responseBody) <$> Http.withManager Http.defaultManagerSettings (Http.httpLbs req)
     P.each items
@@ -75,14 +75,14 @@ download station year month day = do
 
 save :: MonadIO m =>
         P.Consumer B.ByteString m () ->
-        P.Consumer Type.Item m ()
+        P.Consumer Types.Item m ()
 save consumer = serialize >-> P.map BU.fromString >-> consumer
 
 
 serialize :: Monad m =>
-             P.Pipe Type.Item String m ()
+             P.Pipe Types.Item String m ()
 serialize = do
-    Type.Item time precipitation temperature windSpeed windDirection sunshine <- P.await
+    Types.Item time precipitation temperature windSpeed windDirection sunshine <- P.await
     P.yield $ show time
     P.yield ","
     for_ precipitation $ P.yield . show
@@ -100,22 +100,22 @@ serialize = do
 
 load :: MonadIO m =>
         P.Producer B.ByteString m () ->
-        P.Producer Type.Item m ()
+        P.Producer Types.Item m ()
 load producer = do
     r <- parsed item producer
     case r of
       Left (e, _) -> liftIO $ throwIO e
       Right () -> return ()
   where
-    item = Type.Item <$> ((read <$> many1 digit) <* char ',')
-                     <*> (optional rational <* char ',')
-                     <*> (optional rational <* char ',')
-                     <*> (optional rational <* char ',')
-                     <*> ((readMaybe <$> many (notChar ',')) <* char ',')
-                     <*> (optional rational <* char '\n')
+    item = Types.Item <$> ((read <$> many1 digit) <* char ',')
+                      <*> (optional rational <* char ',')
+                      <*> (optional rational <* char ',')
+                      <*> (optional rational <* char ',')
+                      <*> ((readMaybe <$> many (notChar ',')) <* char ',')
+                      <*> (optional rational <* char '\n')
 
 parseHtml :: BL.ByteString ->
-             [Type.Item]
+             [Types.Item]
 parseHtml = mapMaybe parseItem
                 . tail
                 . splitWhen (~== TagOpen tr [])
@@ -127,17 +127,17 @@ parseHtml = mapMaybe parseItem
 
 
 makeItem :: [BL.ByteString] ->
-            Maybe Type.Item
+            Maybe Types.Item
 makeItem [time, precipitation, temperature, windSpeed, windDirection, maxWindSpeed, maxWindDirection, sunshine] =
     makeItem [time, "", "", precipitation, temperature, "", windSpeed, windDirection, maxWindSpeed, maxWindDirection, sunshine]
 makeItem [time, _, _, precipitation, temperature, _, windSpeed, windDirection, _, _, sunshine] = do
     time' <- parseTime $ BLU.toString time
-    return $ Type.Item time'
-                       (readMaybe $ BLU.toString precipitation)
-                       (readMaybe $ BLU.toString temperature)
-                       (readMaybe $ BLU.toString windSpeed)
-                       (parseWindDirection $ BLU.toString windDirection)
-                       (readMaybe $ BLU.toString sunshine)
+    return $ Types.Item time'
+                        (readMaybe $ BLU.toString precipitation)
+                        (readMaybe $ BLU.toString temperature)
+                        (readMaybe $ BLU.toString windSpeed)
+                        (parseWindDirection $ BLU.toString windDirection)
+                        (readMaybe $ BLU.toString sunshine)
 makeItem _ = Nothing
 
 
@@ -149,24 +149,24 @@ parseTime s = case break (== ':') s of
 
 
 parseWindDirection :: String ->
-                      Maybe Type.WindDirection
-parseWindDirection "北" = Just Type.N
-parseWindDirection "北北東" = Just Type.NNE
-parseWindDirection "北東" = Just Type.NE
-parseWindDirection "東北東" = Just Type.ENE
-parseWindDirection "東" = Just Type.E
-parseWindDirection "東南東" = Just Type.ESE
-parseWindDirection "南東" = Just Type.SE
-parseWindDirection "南南東" = Just Type.SSE
-parseWindDirection "南" = Just Type.S
-parseWindDirection "南南西" = Just Type.SSW
-parseWindDirection "南西" = Just Type.SW
-parseWindDirection "西南西" = Just Type.WSW
-parseWindDirection "西" = Just Type.W
-parseWindDirection "西北西" = Just Type.WNW
-parseWindDirection "北西" = Just Type.NW
-parseWindDirection "北北西" = Just Type.NNW
-parseWindDirection "静穏" = Just Type.CALM
+                      Maybe Types.WindDirection
+parseWindDirection "北" = Just Types.N
+parseWindDirection "北北東" = Just Types.NNE
+parseWindDirection "北東" = Just Types.NE
+parseWindDirection "東北東" = Just Types.ENE
+parseWindDirection "東" = Just Types.E
+parseWindDirection "東南東" = Just Types.ESE
+parseWindDirection "南東" = Just Types.SE
+parseWindDirection "南南東" = Just Types.SSE
+parseWindDirection "南" = Just Types.S
+parseWindDirection "南南西" = Just Types.SSW
+parseWindDirection "南西" = Just Types.SW
+parseWindDirection "西南西" = Just Types.WSW
+parseWindDirection "西" = Just Types.W
+parseWindDirection "西北西" = Just Types.WNW
+parseWindDirection "北西" = Just Types.NW
+parseWindDirection "北北西" = Just Types.NNW
+parseWindDirection "静穏" = Just Types.CALM
 parseWindDirection _ = Nothing
 
 table, tr, td :: BL.ByteString

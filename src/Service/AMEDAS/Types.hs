@@ -1,4 +1,4 @@
-module Service.AMEDAS.Type
+module Service.AMEDAS.Types
     ( Item(..)
     , WindDirection(..)
     , Station(..)
