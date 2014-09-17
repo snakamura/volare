@@ -15,7 +15,7 @@ import Data.Time
     , fromGregorian
     )
 import qualified Database.Persist as P
-import qualified Pipes.ByteString as P
+import qualified Pipes.ByteString as PB
 import System.IO
     ( IOMode(ReadMode)
     , withFile
@@ -31,12 +31,12 @@ import SpecUtils
 spec :: Spec
 spec = do
     let loadIGC = withFile "test/test.igc" ReadMode $ \handle -> do
-                      igc <- evalStateT IGC.parser $ P.fromHandle handle
+                      igc <- evalStateT IGC.parser $ PB.fromHandle handle
                       igc `shouldSatisfy` isJust
                       return $ fromJust igc
 
     let loadWpt = withFile "test/test.wpt" ReadMode $ \handle -> do
-                      wpt <- evalStateT GeoWpt.parser $ P.fromHandle handle
+                      wpt <- evalStateT GeoWpt.parser $ PB.fromHandle handle
                       wpt `shouldSatisfy` isJust
                       return $ fromJust wpt
 

@@ -13,7 +13,7 @@ import Data.Maybe
 import Data.Time (fromGregorian)
 import qualified Pipes as P
 import qualified Pipes.Attoparsec as P
-import qualified Pipes.ByteString as P
+import qualified Pipes.ByteString as PB
 import System.IO
     ( IOMode(ReadMode)
     , withFile
@@ -26,7 +26,7 @@ import Codec.Utils.Attoparsec (line)
 
 spec :: Spec
 spec = do
-    let withTestFile action = withFile "test/test.igc" ReadMode $ action . P.fromHandle
+    let withTestFile action = withFile "test/test.igc" ReadMode $ action . PB.fromHandle
     let load = withTestFile $ \producer -> do
                    igc <- evalStateT IGC.parser producer
                    igc `shouldSatisfy` isJust

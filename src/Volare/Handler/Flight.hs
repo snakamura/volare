@@ -39,7 +39,7 @@ import Database.Persist
     ( Entity
     , entityVal
     )
-import qualified Pipes.ByteString as P
+import qualified Pipes.ByteString as PB
 import Text.Blaze.Html (toHtml)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler
@@ -95,7 +95,7 @@ instance JSON.FromJSON NewFlight where
 postFlightsR :: Handler JSON.Value
 postFlightsR = do
     NewFlight name igcBytes <- requireJsonBody
-    i <- evalStateT IGC.parser $ P.fromLazy $ BL.fromStrict igcBytes
+    i <- evalStateT IGC.parser $ PB.fromLazy $ BL.fromStrict igcBytes
     case i of
       Just igc -> do
           flight <- runDB $ do
