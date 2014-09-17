@@ -31,21 +31,19 @@ import Data.Attoparsec.ByteString.Char8
     , rational
     )
 import Data.Attoparsec.Combinator (many1)
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.UTF8 as BLU
+import qualified Data.ByteString.UTF8 as BU
 import Data.Foldable (for_)
 import Data.List.Split (splitWhen)
 import Data.Maybe (mapMaybe)
 import qualified Network.HTTP.Client as Http
 import Pipes ((>->))
 import qualified Pipes as P
+import qualified Pipes.Prelude as P
 import Pipes.Attoparsec (parsed)
-import qualified Pipes.ByteString as P
 import Safe (headDef)
-import System.IO
-    ( Handle
-    , hPutStr
-    )
 import Text.HTML.TagSoup
     ( Tag(TagOpen, TagClose)
     , (~==)
@@ -76,11 +74,9 @@ download station year month day = do
 
 
 save :: MonadIO m =>
-        Handle ->
+        P.Consumer B.ByteString m () ->
         P.Consumer Type.Item m ()
-save handle = serialize >-> toHandle
-  where
-    toHandle = P.for P.cat (liftIO . hPutStr handle)
+save consumer = serialize >-> P.map BU.fromString >-> consumer
 
 
 serialize :: Monad m =>
@@ -103,10 +99,10 @@ serialize = do
 
 
 load :: MonadIO m =>
-        Handle ->
+        P.Producer B.ByteString m () ->
         P.Producer Type.Item m ()
-load handle = do
-    r <- parsed item (P.fromHandle handle)
+load producer = do
+    r <- parsed item producer
     case r of
       Left (e, _) -> liftIO $ throwIO e
       Right () -> return ()

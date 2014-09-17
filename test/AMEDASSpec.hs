@@ -4,6 +4,7 @@ import Control.Applicative ((<$>))
 import Data.Maybe (fromJust)
 import Pipes ((>->))
 import qualified Pipes as P
+import qualified Pipes.ByteString as PB
 import qualified Pipes.Prelude as P
 import System.IO
     ( IOMode(ReadMode)
@@ -60,7 +61,7 @@ spec = do
     describe "save" $ do
         it "saves all items" $ do
             withSystemTempFile "amedasspec.csv" $ \path handle -> do
-                P.runEffect $ downloadSimple >-> AMEDAS.save handle
+                P.runEffect $ downloadSimple >-> AMEDAS.save (PB.toHandle handle)
                 hClose handle
                 expected <- readFile "test/amedas_36_0312_20140426.csv"
                 actual <- readFile path
@@ -69,12 +70,12 @@ spec = do
     describe "load" $ do
         it "loads all simple items" $ do
             l <- withFile "test/amedas_36_0312_20140426.csv" ReadMode $ \handle -> do
-                P.toListM $ P.zipWith (==) downloadSimple (AMEDAS.load handle)
+                P.toListM $ P.zipWith (==) downloadSimple (AMEDAS.load $ PB.fromHandle handle)
             length l `shouldBe` 144
             and l `shouldBe` True
 
         it "loads all complex items" $ do
             l <- withFile "test/amedas_40_47646_20140426.csv" ReadMode $ \handle -> do
-                P.toListM $ P.zipWith (==) downloadComplex (AMEDAS.load handle)
+                P.toListM $ P.zipWith (==) downloadComplex (AMEDAS.load $ PB.fromHandle handle)
             length l `shouldBe` 144
             and l `shouldBe` True

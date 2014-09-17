@@ -24,6 +24,7 @@ import Data.Time
     )
 import Pipes ((>->))
 import qualified Pipes as P
+import qualified Pipes.ByteString as PB
 import qualified Pipes.Prelude as P
 import qualified Service.AMEDAS as AMEDAS
 import System.Directory
@@ -81,12 +82,12 @@ loadItems station year month day = do
     let path = printf "./data/amedas/%d/%04d/%04d%02d%02d.csv" (AMEDAS.prec station) (AMEDAS.block station) year month day
     b <- doesFileExist path
     items <- if b then
-                 withFile path ReadMode $ P.toListM . AMEDAS.load
+                 withFile path ReadMode $ P.toListM . AMEDAS.load . PB.fromHandle
              else do
                  createDirectoryIfMissing True $ takeDirectory path
                  items <- P.toListM $ AMEDAS.download station year month day
                  withSystemTempFile "amedas.csv" $ \tempPath handle -> do
-                     P.runEffect $ P.each items >-> AMEDAS.save handle
+                     P.runEffect $ P.each items >-> AMEDAS.save (PB.toHandle handle)
                      hClose handle
                      renameFile tempPath path `catch` \(_ :: IOException) -> return ()
                  return items
