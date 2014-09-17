@@ -28,6 +28,7 @@ library
                      Service.MSM
                      Service.MSM.Barometric
                      Service.MSM.Surface
+                     Service.WINDAS
                      Volare.Application
                      Volare.Config
                      Volare.Domain
