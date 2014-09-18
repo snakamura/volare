@@ -11,7 +11,6 @@ import Control.Monad.Trans.Class (lift)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Foldable (forM_)
-import Data.Functor ((<$>))
 import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -58,13 +57,17 @@ listFiles :: (MonadIO m, MonadThrow m) =>
              Producer T.Text m ()
 listFiles year month day = do
     req <- lift $ Http.parseUrl $ baseURL year month day
-    files <- liftIO $ (parseDirectory . Http.responseBody) <$> Http.withManager Http.defaultManagerSettings (Http.httpLbs req)
-    each files
+    res <- liftIO $ Http.withManager Http.defaultManagerSettings $ Http.httpLbs req
+    each $ parseDirectory $ Http.responseBody res
 
 
 parseDirectory :: BL.ByteString ->
                   [T.Text]
-parseDirectory = map (T.decodeUtf8 . BL.toStrict) . filter (".tar.gz" `BL.isSuffixOf`) . map (fromAttrib "href") . filter (isTagOpenName "a") . parseTags
+parseDirectory = map (T.decodeUtf8 . BL.toStrict)
+                     . filter (".tar.gz" `BL.isSuffixOf`)
+                     . map (fromAttrib "href")
+                     . filter (isTagOpenName "a")
+                     . parseTags
 
 
 baseURL :: Int ->
