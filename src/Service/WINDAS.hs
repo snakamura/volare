@@ -1,5 +1,6 @@
 module Service.WINDAS
-    ( download
+    ( parser
+    , download
     ) where
 
 import Control.Monad.Catch (MonadThrow)
@@ -29,6 +30,8 @@ import Text.HTML.TagSoup
     , isTagOpenName
     , parseTags)
 import Text.Printf (printf)
+
+import Service.WINDAS.Parser (parser)
 
 
 download :: Int ->

@@ -41,6 +41,8 @@ library
                    Codec.IGC.Utils
                    Service.AMEDAS.Stations
                    Service.AMEDAS.Types
+                   Service.WINDAS.Parser
+                   Service.WINDAS.Types
                    Volare.Domain.Flight
                    Volare.Domain.Route
                    Volare.Domain.Waypoint
@@ -107,6 +109,7 @@ library
                    formatting == 5.4.*,
                    http-client == 0.3.*,
                    http-types == 0.8.*,
+                   lens-family == 1.1.*,
                    lifted-base == 0.2.*,
                    monad-control == 0.3.*,
                    monad-logger == 0.3.*,
