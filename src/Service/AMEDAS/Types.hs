@@ -47,7 +47,7 @@ data Station = Station
     , block     :: Int
     , latitude  :: Float
     , longitude :: Float
-    , name      :: String
+    , name      :: T.Text
     } deriving Show
 
 
