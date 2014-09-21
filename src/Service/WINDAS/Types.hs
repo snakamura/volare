@@ -36,5 +36,6 @@ data Station = Station
     { stationId        :: Int
     , stationLatitude  :: Float
     , stationLongitude :: Float
+    , stationMessage   :: Int
     , stationName      :: T.Text
     } deriving (Show, Eq)
