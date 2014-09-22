@@ -1,5 +1,8 @@
 module Service.WINDAS
-    ( parser
+    ( Types.Station(..)
+    , Types.Observation(..)
+    , Types.Item(..)
+    , parser
     , download
     ) where
 
@@ -32,6 +35,7 @@ import Text.HTML.TagSoup
 import Text.Printf (printf)
 
 import Service.WINDAS.Parser (parser)
+import qualified Service.WINDAS.Types as Types
 
 
 download :: Int ->
