@@ -82,11 +82,11 @@ bitParser :: (Functor m, Monad m, MonadThrow m) =>
              P.Parser Bit m [(Station, [Observation])]
 bitParser = do
     skip $ 18 * 8
-    bufr <- drawString 4
+    bufr <- drawText 4
     if bufr == "BUFR" then
         bufrParser
     else do
-        bufr2 <- drawString 4
+        bufr2 <- drawText 4
         if bufr2 == "BUFR" then
             bufrParser
         else
@@ -151,10 +151,10 @@ skip :: (Functor m, Monad m) =>
 skip n = void $ zoom (P.splitAt n) P.drawAll
 
 
-drawString :: (Functor m, Monad m) =>
-              Int ->
-              P.Parser Bit m String
-drawString n = sequence $ replicate n $ drawChar 8
+drawText :: (Functor m, Monad m) =>
+            Int ->
+            P.Parser Bit m T.Text
+drawText n = T.pack <$> sequence (replicate n $ drawChar 8)
 
 
 drawChar :: (Functor m, Monad m) =>
