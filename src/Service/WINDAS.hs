@@ -4,17 +4,25 @@ module Service.WINDAS
     , Types.Item(..)
     , parser
     , download
+    , downloadArchive
+    , Stations.station
+    , Stations.stations
     ) where
 
+import qualified Codec.Archive.Tar as Tar
+import Codec.Compression.GZip (decompress)
+import Control.Exception (throwIO)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class
     ( MonadIO
     , liftIO
     )
 import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.State.Strict (evalStateT)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Data.Foldable (forM_)
+import Data.Functor ((<$>))
+import Data.List (isPrefixOf)
 import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -26,8 +34,13 @@ import Pipes
     , each
     , runEffect
     )
+import qualified Pipes.ByteString as PB
 import Pipes.HTTP (withHTTP)
 import qualified Pipes.Prelude as P
+import System.IO.Error
+    ( doesNotExistErrorType
+    , mkIOError
+    )
 import Text.HTML.TagSoup
     ( fromAttrib
     , isTagOpenName
@@ -36,22 +49,50 @@ import Text.Printf (printf)
 
 import Service.WINDAS.Parser (parser)
 import qualified Service.WINDAS.Types as Types
+import qualified Service.WINDAS.Stations as Stations
 
 
-download :: Int ->
+download :: Types.Station ->
             Int ->
             Int ->
             Int ->
-            Consumer B.ByteString IO () ->
+            Int ->
+            Consumer Types.Observation IO () ->
             IO ()
-download year month day hour consumer = do
+download station year month day hour consumer =
+    downloadArchive year month day hour $ \producer -> do
+        entries <- Tar.read . decompress . BL.fromChunks <$> P.toListM producer
+        case Tar.foldEntries checkEntry Nothing (const Nothing) entries of
+            Just contents -> do
+                stations <- evalStateT parser $ PB.fromLazy contents
+                case lookup station stations of
+                    Just observations -> runEffect $ each observations >-> consumer
+                    Nothing -> throwIO $ mkIOError doesNotExistErrorType "Station not found" Nothing Nothing
+            Nothing -> throwIO $ mkIOError doesNotExistErrorType "Entry not found" Nothing Nothing
+  where
+    checkEntry _ (Just e) = Just e
+    checkEntry entry Nothing | name `isPrefixOf` Tar.entryPath entry
+                             , Tar.NormalFile b _ <- Tar.entryContent entry = Just b
+                             | otherwise = Nothing
+    name = printf "IUPC%02d_RJTD_" $ Types.message station
+
+
+downloadArchive :: Int ->
+                   Int ->
+                   Int ->
+                   Int ->
+                   (Producer B.ByteString IO () -> IO r) ->
+                   IO r
+downloadArchive year month day hour process = do
     file <- P.find isHour $ listFiles year month day
-    forM_ file $ \name -> do
-        let url = baseURL year month day <> T.unpack name
-        req <- Http.parseUrl url
-        liftIO $ Http.withManager Http.defaultManagerSettings $ \manager -> do
-            withHTTP req manager $ \res -> do
-                runEffect $ Http.responseBody res >-> consumer
+    case file of
+        Just name -> do
+            let url = baseURL year month day <> T.unpack name
+            req <- Http.parseUrl url
+            liftIO $ Http.withManager Http.defaultManagerSettings $ \manager -> do
+                withHTTP req manager $ \res -> do
+                    process $ Http.responseBody res
+        Nothing -> throwIO $ mkIOError doesNotExistErrorType "File not found" Nothing Nothing
   where
     isHour file = let s = printf "IUPC00_COMP_%04d%02d%02d%02d" year month day hour
                   in T.pack s `T.isInfixOf` file
