@@ -6,9 +6,15 @@ import Control.Applicative
     ( (*>)
     , (<*)
     )
+import Control.Exception (Exception)
 import Control.Monad
     ( forever
     , void
+    , when
+    )
+import Control.Monad.Catch
+    ( MonadThrow
+    , throwM
     )
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State.Strict
@@ -28,7 +34,9 @@ import qualified Data.ByteString as B
 import Data.Functor ((<$>))
 import Data.List (foldl')
 import Data.Maybe (catMaybes)
+import qualified Data.Text as T
 import Data.Word (Word8)
+import Data.Typeable (Typeable)
 import Lens.Family2.State.Strict (zoom)
 import Pipes ((>->))
 import qualified Pipes as P
@@ -47,15 +55,20 @@ data Bit = Zero
     deriving (Show, Eq, Enum)
 
 
-parser :: (Functor m, Monad m) =>
-          P.Parser B.ByteString m (Either String [(Station, [Observation])])
+data ParseException = ParseException T.Text deriving (Show, Eq, Typeable)
+
+instance Exception ParseException
+
+
+parser :: (Functor m, Monad m, MonadThrow m) =>
+          P.Parser B.ByteString m [(Station, [Observation])]
 parser = do
     producer <- get
     lift $ evalStateT bitParser $ producer >-> bytesToBits
 
 
-bitParser :: (Functor m, Monad m) =>
-             P.Parser Bit m (Either String [(Station, [Observation])])
+bitParser :: (Functor m, Monad m, MonadThrow m) =>
+             P.Parser Bit m [(Station, [Observation])]
 bitParser = do
     skip $ 18 * 8
     bufr <- drawString 4
@@ -66,7 +79,7 @@ bitParser = do
         if bufr2 == "BUFR" then
             bufrParser
         else
-            return $ Left "Invalid format"
+            throwM $ ParseException "Invalid format"
   where
     bufrParser = do
         skip $ 64 - 4 * 8
@@ -80,10 +93,9 @@ bitParser = do
         stations <- zoom (P.splitAt ((len4 - 3) * 8)) $
             skip 8 *> sequence (replicate stationCount stationParser) <* void P.drawAll
         end <- sequence $ replicate 4 $ drawChar 8
-        return $ if end == "7777" then
-                     Right stations
-                 else
-                     Left "Invalid BUFR"
+        when (end /= "7777") $
+            throwM $ ParseException "Invalid BUFR"
+        return stations
     stationParser = do
         block <- drawInt 7
         location <- drawInt 10
@@ -91,10 +103,13 @@ bitParser = do
         _longitude :: Float <- convert 100 (-18000) <$> drawInt 16
         _altitude <- (subtract 400) <$> drawInt 15
         _equipment <- drawInt 4
-        let Just s = station $ block * 1000 + location
-        x <- drawInt 8
-        observations <- sequence $ replicate x observationParser
-        return (s, observations)
+        let s = station $ block * 1000 + location
+        case s of
+            Just s' -> do
+                x <- drawInt 8
+                observations <- sequence $ replicate x observationParser
+                return (s', observations)
+            Nothing -> throwM $ ParseException "Unknown station"
     observationParser = do
         year <- drawInt 12
         month <- drawInt 4
