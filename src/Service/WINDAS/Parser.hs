@@ -50,6 +50,17 @@ import Service.WINDAS.Types
     )
 
 
+-- $setup
+-- >>> import Data.Word (Word32)
+-- >>> import Test.QuickCheck
+-- >>>
+-- >>> instance Arbitrary Bit where arbitrary = toEnum . (`mod` 2) <$> arbitrary
+-- >>> newtype Bits = Bits { getBits :: [Bit] } deriving Show
+-- >>> instance Arbitrary Bits where arbitrary = Bits <$> resize (finiteBitSize (undefined :: Word32)) arbitrary
+-- >>>
+-- >>> let fillBits n bits = replicate (n - length bits) Zero ++ bits
+
+
 data Bit = Zero
          | One
     deriving (Show, Eq, Enum)
@@ -163,6 +174,11 @@ bytesToBits :: Monad m =>
 bytesToBits = forever $ P.await >>= P.each . concatMap toBits . B.unpack
 
 
+-- |
+-- >>> toBits (10 :: Word8)
+-- [Zero,Zero,Zero,Zero,One,Zero,One,Zero]
+--
+-- prop> \n -> fromBits (toBits n) == (n :: Word32)
 toBits :: FiniteBits b =>
           b ->
           [Bit]
@@ -170,6 +186,11 @@ toBits b = let s = finiteBitSize b
            in map (toEnum . fromEnum . testBit b) [s - 1, s - 2 .. 0]
 
 
+-- |
+-- >>> fromBits [Zero,Zero,Zero,Zero,One,Zero,One,Zero] :: Word8
+-- 10
+--
+-- prop> \bits -> toBits (fromBits (getBits bits) :: Word32) == fillBits (finiteBitSize (undefined :: Word32)) (getBits bits)
 fromBits :: Bits b =>
             [Bit] ->
             b
@@ -179,16 +200,25 @@ fromBits bits = foldl' f zeroBits bits
     f b One = setBit (shiftL b 1) 0
 
 
+-- |
+-- >>> charFromBits [One,Zero,Zero,Zero,Zero,Zero,One]
+-- 'A'
 charFromBits :: [Bit] ->
                 Char
 charFromBits = toEnum . fromEnum . word8FromBits
 
 
+-- |
+-- >>> intFromBits [One,Zero,Zero,Zero,Zero,Zero,One]
+-- 65
 intFromBits :: [Bit] ->
                Int
 intFromBits = fromBits
 
 
+-- |
+-- >>> word8FromBits [One,Zero,Zero,Zero,Zero,Zero,One]
+-- 65
 word8FromBits :: [Bit] ->
                  Word8
 word8FromBits bits | length bits <= 8 = fromBits bits
