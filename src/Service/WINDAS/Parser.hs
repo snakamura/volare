@@ -34,8 +34,9 @@ import Pipes ((>->))
 import qualified Pipes as P
 import qualified Pipes.Parse as P
 
+import Service.WINDAS.Stations (station)
 import Service.WINDAS.Types
-    ( Location(Location)
+    ( Station
     , Observation(Observation)
     , Item(Item)
     )
@@ -47,14 +48,14 @@ data Bit = Zero
 
 
 parser :: (Functor m, Monad m) =>
-          P.Parser B.ByteString m (Either String [(Location, [Observation])])
+          P.Parser B.ByteString m (Either String [(Station, [Observation])])
 parser = do
     producer <- get
     lift $ evalStateT bitParser $ producer >-> bytesToBits
 
 
 bitParser :: (Functor m, Monad m) =>
-             P.Parser Bit m (Either String [(Location, [Observation])])
+             P.Parser Bit m (Either String [(Station, [Observation])])
 bitParser = do
     skip $ 18 * 8
     bufr <- drawString 4
@@ -73,27 +74,27 @@ bitParser = do
         skip $ (len1 - 3) * 8
         len3 <- drawInt $ 3 * 8
         skip 8
-        locationCount <- drawInt 16
+        stationCount <- drawInt 16
         skip $ (len3 - (3 + 1 + 2)) * 8
         len4 <- drawInt $ 3 * 8
-        locations <- zoom (P.splitAt ((len4 - 3) * 8)) $
-            skip 8 *> sequence (replicate locationCount locationParser) <* void P.drawAll
+        stations <- zoom (P.splitAt ((len4 - 3) * 8)) $
+            skip 8 *> sequence (replicate stationCount stationParser) <* void P.drawAll
         end <- sequence $ replicate 4 $ drawChar 8
         return $ if end == "7777" then
-                     Right locations
+                     Right stations
                  else
                      Left "Invalid BUFR"
-    locationParser = do
+    stationParser = do
         block <- drawInt 7
-        station <- drawInt 10
-        latitude <- convert 100 (-9000) <$> drawInt 15
-        longitude <- convert 100 (-18000) <$> drawInt 16
-        altitude <- (subtract 400) <$> drawInt 15
+        location <- drawInt 10
+        _latitude :: Float <- convert 100 (-9000) <$> drawInt 15
+        _longitude :: Float <- convert 100 (-18000) <$> drawInt 16
+        _altitude <- (subtract 400) <$> drawInt 15
         _equipment <- drawInt 4
-        let location = Location (block * 1000 + station) latitude longitude altitude
+        let Just s = station $ block * 1000 + location
         x <- drawInt 8
         observations <- sequence $ replicate x observationParser
-        return (location, observations)
+        return (s, observations)
     observationParser = do
         year <- drawInt 12
         month <- drawInt 4

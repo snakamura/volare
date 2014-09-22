@@ -1,18 +1,18 @@
 module Service.WINDAS.Types
-    ( Location(..)
+    ( Station(..)
     , Observation(..)
     , Item(..)
-    , Station(..)
     ) where
 
 import qualified Data.Text as T
 
 
-data Location = Location
-    { locationId        :: Int
-    , locationLatitude  :: Float
-    , locationLongitude :: Float
-    , locationAltitude  :: Int
+data Station = Station
+    { id        :: Int
+    , latitude  :: Float
+    , longitude :: Float
+    , message   :: Int
+    , name      :: T.Text
     } deriving (Show, Eq)
 
 data Observation = Observation
@@ -29,13 +29,4 @@ data Item = Item
     , eastwardWind  :: Float
     , northwardWind :: Float
     , verticalWind  :: Float
-    } deriving (Show, Eq)
-
-
-data Station = Station
-    { stationId        :: Int
-    , stationLatitude  :: Float
-    , stationLongitude :: Float
-    , stationMessage   :: Int
-    , stationName      :: T.Text
     } deriving (Show, Eq)

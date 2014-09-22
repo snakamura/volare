@@ -1,6 +1,17 @@
-module Service.WINDAS.Stations (stations) where
+module Service.WINDAS.Stations
+    ( station
+    , stations
+    ) where
+
+import Data.List (find)
 
 import Service.WINDAS.Types (Station(Station))
+import qualified Service.WINDAS.Types as Types
+
+
+station :: Int ->
+           Maybe Station
+station identifier = find ((== identifier) . Types.id) allStations
 
 
 stations :: (Float, Float) ->
