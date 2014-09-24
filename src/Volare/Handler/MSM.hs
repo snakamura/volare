@@ -12,6 +12,9 @@ import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as JSON
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
+import Formatting ((%))
+import qualified Formatting as F
 import qualified Pipes.ByteString as PB
 import qualified Service.MSM as MSM
 import System.Directory
@@ -22,7 +25,6 @@ import System.Directory
 import System.FilePath (takeDirectory)
 import System.IO (hClose)
 import System.IO.Temp (withSystemTempFile)
-import Text.Printf (printf)
 import Text.Read (readMaybe)
 import Yesod.Core.Handler
     ( lookupGetParam
@@ -75,7 +77,7 @@ dataFile :: Bool ->
             IO FilePath
 dataFile surface year month day = do
     let t = if surface then 's' else 'p'
-        path = printf "./data/msm/%c/%04d%02d%02d.nc" t year month day
+        path = TL.unpack $ F.format ("./data/msm/" % F.char % "/" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % ".nc") t year month day
     b <- doesFileExist path
     unless b $ do
         createDirectoryIfMissing True $ takeDirectory path

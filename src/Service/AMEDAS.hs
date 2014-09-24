@@ -38,6 +38,9 @@ import qualified Data.ByteString.UTF8 as BU
 import Data.Foldable (for_)
 import Data.List.Split (splitWhen)
 import Data.Maybe (mapMaybe)
+import qualified Data.Text.Lazy as TL
+import Formatting ((%))
+import qualified Formatting as F
 import qualified Network.HTTP.Client as Http
 import Pipes ((>->))
 import qualified Pipes as P
@@ -52,7 +55,6 @@ import Text.HTML.TagSoup
     , isTagText
     , parseTags
     )
-import Text.Printf (printf)
 import Text.Read (readMaybe)
 
 import qualified Service.AMEDAS.Types as Types
@@ -67,8 +69,8 @@ download :: (MonadIO m, MonadThrow m) =>
             P.Producer Types.Item m ()
 download station year month day = do
     let c = if Types.block station >= 10000 then 's' else 'a'
-        url = printf "http://www.data.jma.go.jp/obd/stats/etrn/view/10min_%c1.php?prec_no=%d&block_no=%04d&year=%d&month=%d&day=%d&view=p1" c (Types.prec station) (Types.block station) year month day
-    req <- lift $ Http.parseUrl url
+        url = F.format ("http://www.data.jma.go.jp/obd/stats/etrn/view/10min_" % F.char % "1.php?prec_no=" % F.int % "&block_no=" % F.left 4 '0' % "&year=" % F.int % "&month=" % F.int % "&day=" % F.int % "&view=p1") c (Types.prec station) (Types.block station) year month day
+    req <- lift $ Http.parseUrl $ TL.unpack url
     items <- liftIO $ (parseHtml . Http.responseBody) <$> Http.withManager Http.defaultManagerSettings (Http.httpLbs req)
     P.each items
 

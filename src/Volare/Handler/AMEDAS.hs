@@ -12,6 +12,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
 import Data.Time
     ( UTCTime(..)
     , fromGregorian
@@ -22,6 +23,8 @@ import Data.Time
     , toGregorian
     , utcToLocalTime
     )
+import Formatting ((%))
+import qualified Formatting as F
 import Pipes ((>->))
 import qualified Pipes as P
 import qualified Pipes.ByteString as PB
@@ -39,7 +42,6 @@ import System.IO
     , withFile
     )
 import System.IO.Temp (withSystemTempFile)
-import Text.Printf (printf)
 import Text.Read (readMaybe)
 import Yesod.Core.Handler
     ( lookupGetParam
@@ -79,7 +81,7 @@ loadItems :: AMEDAS.Station ->
              Int ->
              IO [Item]
 loadItems station year month day = do
-    let path = printf "./data/amedas/%d/%04d/%04d%02d%02d.csv" (AMEDAS.prec station) (AMEDAS.block station) year month day
+    let path = TL.unpack $ F.format ("./data/amedas/" % F.int % "/" % F.left 4 '0' % "/" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % ".csv") (AMEDAS.prec station) (AMEDAS.block station) year month day
     b <- doesFileExist path
     items <- if b then
                  withFile path ReadMode $ P.toListM . AMEDAS.load . PB.fromHandle
