@@ -22,10 +22,12 @@ import Control.Monad.Trans.State.Strict (evalStateT)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Functor ((<$>))
-import Data.List (isPrefixOf)
 import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
+import qualified Data.Text.Lazy as TL
+import Formatting ((%))
+import qualified Formatting as F
 import qualified Network.HTTP.Client as Http
 import Pipes
     ( Consumer
@@ -45,7 +47,6 @@ import Text.HTML.TagSoup
     ( fromAttrib
     , isTagOpenName
     , parseTags)
-import Text.Printf (printf)
 
 import Service.WINDAS.Parser (parser)
 import qualified Service.WINDAS.Types as Types
@@ -71,10 +72,10 @@ download station year month day hour consumer =
             Nothing -> throwIO $ mkIOError doesNotExistErrorType "Entry not found" Nothing Nothing
   where
     checkEntry _ (Just e) = Just e
-    checkEntry entry Nothing | name `isPrefixOf` Tar.entryPath entry
+    checkEntry entry Nothing | name `TL.isPrefixOf` TL.pack (Tar.entryPath entry)
                              , Tar.NormalFile b _ <- Tar.entryContent entry = Just b
                              | otherwise = Nothing
-    name = printf "IUPC%02d_RJTD_" $ Types.message station
+    name = F.format ("IUPC" % F.left 2 '0' % "_RJTD_") (Types.message station)
 
 
 downloadArchive :: Int ->
@@ -87,15 +88,15 @@ downloadArchive year month day hour process = do
     file <- P.find isHour $ listFiles year month day
     case file of
         Just name -> do
-            let url = baseURL year month day <> T.unpack name
-            req <- Http.parseUrl url
+            let url = baseURL year month day <> TL.fromStrict name
+            req <- Http.parseUrl $ TL.unpack url
             liftIO $ Http.withManager Http.defaultManagerSettings $ \manager -> do
                 withHTTP req manager $ \res -> do
                     process $ Http.responseBody res
         Nothing -> throwIO $ mkIOError doesNotExistErrorType "File not found" Nothing Nothing
   where
-    isHour file = let s = printf "IUPC00_COMP_%04d%02d%02d%02d" year month day hour
-                  in T.pack s `T.isInfixOf` file
+    isHour file = let s = F.sformat ("IUPC00_COMP_" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % F.left 2 '0') year month day hour
+                  in s `T.isInfixOf` file
 
 
 listFiles :: (MonadIO m, MonadThrow m) =>
@@ -104,7 +105,7 @@ listFiles :: (MonadIO m, MonadThrow m) =>
              Int ->
              Producer T.Text m ()
 listFiles year month day = do
-    req <- lift $ Http.parseUrl $ baseURL year month day
+    req <- lift $ Http.parseUrl $ TL.unpack $ baseURL year month day
     res <- liftIO $ Http.withManager Http.defaultManagerSettings $ Http.httpLbs req
     each $ parseDirectory $ Http.responseBody res
 
@@ -121,5 +122,6 @@ parseDirectory = map (T.decodeUtf8 . BL.toStrict)
 baseURL :: Int ->
            Int ->
            Int ->
-           String
-baseURL year month day = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/jma-radar/wprof/original/%04d/%02d/%02d/" year month day
+           TL.Text
+baseURL year month day = let url = "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/jma-radar/wprof/original/"
+                         in F.format (url % F.left 4 '0' % "/" % F.left 2 '0' % "/" % F.left 2 '0' % "/") year month day
