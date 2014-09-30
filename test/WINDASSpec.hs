@@ -1,9 +1,15 @@
 module WINDASSpec (spec) where
 
+import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Crypto.Hash.SHA1 (hashlazy)
 import qualified Data.ByteString.Lazy as BL
 import Data.Functor ((<$>))
+import Data.IORef
+    ( modifyIORef
+    , newIORef
+    , readIORef
+    )
 import Pipes
     ( (>->)
     , await
@@ -36,22 +42,50 @@ spec = do
                 hash <- hashlazy <$> BL.readFile path
                 dumpRawBS hash @== "ef2a8deb36b978fcf3e6973888c94ccbb627fb73"
 
-    describe "download" $ do
-        it "downloads observations for a specified station" $ do
-            let Just station = WINDAS.station 47629
-            WINDAS.download station 2014 9 14 3 $ P.drop 2 >-> do
-                observation <- await
-                WINDAS.year observation @== 2014
-                WINDAS.month observation @== 9
-                WINDAS.day observation @== 14
-                WINDAS.hour observation @== 2
-                WINDAS.minute observation @== 30
-                let items = WINDAS.items observation
-                length items @== 16
-                let item = items !! 9
-                WINDAS.altitude item @== 5240
-                WINDAS.eastwardWind item @== 8.3
-                WINDAS.northwardWind item @== -10.3
+    describe "parseStation" $ do
+        it "parses observations for a specified station" $ do
+            let path = "test/IUPC00_COMP_201409140326300_010_37112.send.tar.gz"
+                Just station = WINDAS.station 47629
+            withFile path ReadMode $ \handle ->
+                runEffect $ WINDAS.parseStation station (PB.fromHandle handle) >-> P.drop 2 >-> do
+                    observation <- await
+                    WINDAS.year observation @== 2014
+                    WINDAS.month observation @== 9
+                    WINDAS.day observation @== 14
+                    WINDAS.hour observation @== 2
+                    WINDAS.minute observation @== 30
+                    let items = WINDAS.items observation
+                    length items @== 16
+                    let item = items !! 9
+                    WINDAS.altitude item @== 5240
+                    WINDAS.eastwardWind item @== 8.3
+                    WINDAS.northwardWind item @== -10.3
+
+    describe "parseAll" $ do
+        it "parses observations for all the stations" $ do
+            r <- newIORef []
+            let path = "test/IUPC00_COMP_201409140326300_010_37112.send.tar.gz"
+                consumer = do
+                    o <- await
+                    liftIO $ modifyIORef r (o:)
+                    consumer
+            withFile path ReadMode $ \handle ->
+                runEffect $ WINDAS.parseAll (PB.fromHandle handle) >-> consumer
+            observations <- reverse <$> readIORef r
+            length observations @== 198
+            let (station, observation) = observations !! 20
+            WINDAS.id station @== 47570
+            WINDAS.year observation @== 2014
+            WINDAS.month observation @== 9
+            WINDAS.day observation @== 14
+            WINDAS.hour observation @== 2
+            WINDAS.minute observation @== 30
+            let items = WINDAS.items observation
+            length items @== 11
+            let item = items !! 7
+            WINDAS.altitude item @== 3350
+            WINDAS.eastwardWind item @== 4.8
+            WINDAS.northwardWind item @== -5.5
 
     describe "parser" $ do
         it "parses a single file" $ do

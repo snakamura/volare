@@ -3,7 +3,10 @@ module Service.WINDAS
     , Types.Observation(..)
     , Types.Item(..)
     , parser
-    , download
+    , downloadStation
+    , parseStation
+    , downloadAll
+    , parseAll
     , downloadArchive
     , Stations.station
     , Stations.stations
@@ -12,15 +15,22 @@ module Service.WINDAS
 import qualified Codec.Archive.Tar as Tar
 import Codec.Compression.GZip (decompress)
 import Control.Exception (throwIO)
-import Control.Monad.Catch (MonadThrow)
+import Control.Monad.Catch
+    ( MonadThrow
+    , throwM
+    )
 import Control.Monad.IO.Class
     ( MonadIO
     , liftIO
     )
-import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.Class
+    ( MonadTrans
+    , lift
+    )
 import Control.Monad.Trans.State.Strict (evalStateT)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
+import Data.Foldable (forM_)
 import Data.Functor ((<$>))
 import Data.Monoid ((<>))
 import qualified Data.Text as T
@@ -53,29 +63,63 @@ import qualified Service.WINDAS.Types as Types
 import qualified Service.WINDAS.Stations as Stations
 
 
-download :: Types.Station ->
-            Int ->
-            Int ->
-            Int ->
-            Int ->
-            Consumer Types.Observation IO () ->
-            IO ()
-download station year month day hour consumer =
+downloadStation :: Types.Station ->
+                   Int ->
+                   Int ->
+                   Int ->
+                   Int ->
+                   Consumer Types.Observation IO () ->
+                   IO ()
+downloadStation station year month day hour consumer =
     downloadArchive year month day hour $ \producer -> do
-        entries <- Tar.read . decompress . BL.fromChunks <$> P.toListM producer
-        case Tar.foldEntries checkEntry Nothing (const Nothing) entries of
-            Just contents -> do
-                stations <- evalStateT parser $ PB.fromLazy contents
-                case lookup station stations of
-                    Just observations -> runEffect $ each observations >-> consumer
-                    Nothing -> throwIO $ mkIOError doesNotExistErrorType "Station not found" Nothing Nothing
-            Nothing -> throwIO $ mkIOError doesNotExistErrorType "Entry not found" Nothing Nothing
+        runEffect $ parseStation station producer >-> consumer
+
+
+parseStation :: (Functor m, Monad m, MonadThrow m) =>
+                Types.Station ->
+                Producer B.ByteString m () ->
+                Producer Types.Observation m ()
+parseStation station producer = do
+    entries <- Tar.read . decompress . BL.fromChunks <$> lift (P.toListM producer)
+    case Tar.foldEntries checkEntry Nothing (const Nothing) entries of
+        Just contents -> do
+            stations <- lift $ evalStateT parser $ PB.fromLazy contents
+            case lookup station stations of
+                Just observations -> each observations
+                Nothing -> lift $ throwM $ mkIOError doesNotExistErrorType "Station not found" Nothing Nothing
+        Nothing -> lift $ throwM $ mkIOError doesNotExistErrorType "Entry not found" Nothing Nothing
   where
     checkEntry _ (Just e) = Just e
     checkEntry entry Nothing | name `TL.isPrefixOf` TL.pack (Tar.entryPath entry)
                              , Tar.NormalFile b _ <- Tar.entryContent entry = Just b
                              | otherwise = Nothing
     name = F.format ("IUPC" % F.left 2 '0' % "_RJTD_") (Types.message station)
+
+
+downloadAll :: Int ->
+               Int ->
+               Int ->
+               Int ->
+               Consumer (Types.Station, Types.Observation) IO () ->
+               IO ()
+downloadAll year month day hour consumer =
+    downloadArchive year month day hour $ \producer -> do
+        runEffect $ parseAll producer >-> consumer
+
+
+parseAll :: (Functor m, Monad m, MonadThrow m) =>
+            Producer B.ByteString m () ->
+            Producer (Types.Station, Types.Observation) m ()
+parseAll producer = do
+    entries <- Tar.read . decompress . BL.fromChunks <$> lift (P.toListM producer)
+    mapEntriesM_ parseEntry entries
+  where
+    parseEntry entry | Tar.NormalFile b _ <- Tar.entryContent entry = parse b
+                     | otherwise = return ()
+    parse contents = do
+        stations <- lift $ evalStateT parser $ PB.fromLazy contents
+        forM_ stations $ \(station, observations) ->
+            each $ map (station, ) observations
 
 
 downloadArchive :: Int ->
@@ -125,3 +169,12 @@ baseURL :: Int ->
            TL.Text
 baseURL year month day = let url = "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/jma-radar/wprof/original/"
                          in F.format (url % F.left 4 '0' % "/" % F.left 2 '0' % "/" % F.left 2 '0' % "/") year month day
+
+
+mapEntriesM_ :: (MonadThrow m, MonadTrans t, Monad (t m), Show e) =>
+                (Tar.Entry -> t m a) ->
+                Tar.Entries e ->
+                t m ()
+mapEntriesM_ f (Tar.Next entry entries) = f entry >> mapEntriesM_ f entries
+mapEntriesM_ _ Tar.Done = return ()
+mapEntriesM_ _ (Tar.Fail e) = lift $ throwM $ userError $ "Invalid tar archive: " ++ show e
