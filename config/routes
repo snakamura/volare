@@ -12,5 +12,6 @@
 /routes/#M.RouteId RouteR GET DELETE
 /msm/surface/#Int/#Int/#Int/#Int SurfaceR GET
 /msm/barometric/#Int/#Int/#Int/#Int BarometricR GET
-/amedas/#Int/#Int/#Int/#Int DataR GET
+/amedas/#Int/#Int/#Int/#Int AMEDASR GET
+/windas/#Int/#Int/#Int/#Int WINDASR GET
 /static StaticR Static volareStatic

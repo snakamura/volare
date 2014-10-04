@@ -38,6 +38,7 @@ import Volare.Handler.MSM
 import Volare.Handler.Root
 import Volare.Handler.Route
 import Volare.Handler.Waypoint
+import Volare.Handler.WINDAS
 import Volare.Handler.Workspace
 import Volare.Model (migrateAll)
 import Volare.Static (staticSite)

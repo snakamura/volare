@@ -57,6 +57,7 @@ library
                    Volare.Handler.Route
                    Volare.Handler.Utils
                    Volare.Handler.Waypoint
+                   Volare.Handler.WINDAS
                    Volare.Handler.Workspace
                    Volare.Static
                    Volare.Widget

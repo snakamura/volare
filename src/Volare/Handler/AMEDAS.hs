@@ -1,8 +1,7 @@
 module Volare.Handler.AMEDAS
-    ( getDataR
+    ( getAMEDASR
     ) where
 
-import Control.Applicative ((<$>))
 import Control.Concurrent.Async (mapConcurrently)
 import Control.Exception
     ( IOException
@@ -11,6 +10,7 @@ import Control.Exception
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
+import Data.Functor ((<$>))
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Data.Time
@@ -51,12 +51,12 @@ import Yesod.Core.Handler
 import Volare.Foundation
 
 
-getDataR :: Int ->
-            Int ->
-            Int ->
-            Int ->
-            Handler JSON.Value
-getDataR year month day hour = do
+getAMEDASR :: Int ->
+              Int ->
+              Int ->
+              Int ->
+              Handler JSON.Value
+getAMEDASR year month day hour = do
     nwLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlat"
     nwLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlng"
     seLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selat"
