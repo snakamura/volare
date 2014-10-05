@@ -16,6 +16,14 @@ import Data.Functor ((<$>))
 import Data.List (groupBy)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
+import Data.Time
+    ( UTCTime(UTCTime)
+    , addUTCTime
+    , fromGregorian
+    , toGregorian
+    , utctDay
+    , utctDayTime
+    )
 import Formatting ((%))
 import qualified Formatting as F
 import Pipes ((>->))
@@ -68,11 +76,15 @@ loadItems :: [WINDAS.Station] ->
              Int ->
              IO [Item]
 loadItems stations year month day hour = do
-    let path = TL.unpack $ F.format ("./data/windas/" % F.left 4 '0' % "/" % F.left 2 '0' % "/" % F.left 2 '0' % "/" % F.left 2 '0' % ".tar.gz") year month day hour
+    let time = UTCTime (fromGregorian (fromIntegral year) month day) (fromIntegral $ hour * 60 * 60)
+        baseTime = addUTCTime (60 * 60) time
+        (y, m, d) = toGregorian $ utctDay baseTime
+        h = floor (utctDayTime baseTime) `div` (60 * 60 :: Int)
+        path = TL.unpack $ F.format ("./data/windas/" % F.left 4 '0' % "/" % F.left 2 '0' % "/" % F.left 2 '0' % "/" % F.left 2 '0' % ".tar.gz") y m d h
     b <- doesFileExist path
     unless b $ do
         createDirectoryIfMissing True $ takeDirectory path
-        WINDAS.downloadArchive year month day hour $ \producer ->
+        WINDAS.downloadArchive (fromIntegral y) m d h $ \producer ->
              withSystemTempFile "windas.tar.gz" $ \tempPath handle -> do
                  P.runEffect $ producer >-> PB.toHandle handle
                  hClose handle
