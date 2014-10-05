@@ -69,7 +69,7 @@ getAMEDASR year month day hour = do
                 (y, m, d) = toGregorian $ localDay jstTime
                 h = todHour $ localTimeOfDay jstTime
                 f (Item _ _ item) = let t = AMEDAS.time item
-                                    in h * 60 <= t && t < (h + 1) * 60
+                                    in h * 60 < t && t <= (h + 1) * 60
                 load station = filter f <$> loadItems station (fromIntegral y) m d
             liftIO $ JSON.toJSON . concat <$> mapConcurrently load (AMEDAS.stations (nwLat, nwLng) (seLat, seLng))
         _ -> notFound

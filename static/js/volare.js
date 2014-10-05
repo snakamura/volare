@@ -1702,7 +1702,8 @@ var volare = volare || {};
         if (!_.isEmpty(this._items)) {
             var self = this;
             var time = this._flights.getCurrentTime() || this._flights.getStartTime();
-            var minute = Math.floor((time.getUTCHours()*60 + time.getMinutes())/10)*10;
+            var amedasTime = new Date(time.getTime() + 10*60*1000);
+            var minute = Math.floor((amedasTime.getUTCHours()*60 + amedasTime.getUTCMinutes())/10)*10;
             _.each(this._items, function(item) {
                 var $elem = item.$elem;
 
