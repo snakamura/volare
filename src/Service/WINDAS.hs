@@ -5,6 +5,8 @@ module Service.WINDAS
     , parser
     , downloadStation
     , parseStation
+    , downloadStations
+    , parseStations
     , downloadAll
     , parseAll
     , downloadArchive
@@ -15,6 +17,7 @@ module Service.WINDAS
 import qualified Codec.Archive.Tar as Tar
 import Codec.Compression.GZip (decompress)
 import Control.Exception (throwIO)
+import Control.Monad (when)
 import Control.Monad.Catch
     ( MonadThrow
     , throwM
@@ -32,6 +35,10 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Foldable (forM_)
 import Data.Functor ((<$>))
+import Data.List
+    ( isInfixOf
+    , nub
+    , sort)
 import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -71,29 +78,45 @@ downloadStation :: Types.Station ->
                    Consumer Types.Observation IO () ->
                    IO ()
 downloadStation station year month day hour consumer =
-    downloadArchive year month day hour $ \producer -> do
-        runEffect $ parseStation station producer >-> consumer
+    downloadStations [station] year month day hour $ P.map snd >-> consumer
 
 
 parseStation :: (Functor m, Monad m, MonadThrow m) =>
                 Types.Station ->
                 Producer B.ByteString m () ->
                 Producer Types.Observation m ()
-parseStation station producer = do
+parseStation station producer = parseStations [station] producer >-> P.map snd
+
+
+downloadStations :: [Types.Station] ->
+                    Int ->
+                    Int ->
+                    Int ->
+                    Int ->
+                    Consumer (Types.Station, Types.Observation) IO () ->
+                    IO ()
+downloadStations stations year month day hour consumer =
+    downloadArchive year month day hour $ \producer -> do
+        runEffect $ parseStations stations producer >-> consumer
+
+
+parseStations :: (Functor m, Monad m, MonadThrow m) =>
+                 [Types.Station] ->
+                 Producer B.ByteString m () ->
+                 Producer (Types.Station, Types.Observation) m ()
+parseStations stations producer = do
     entries <- Tar.read . decompress . BL.fromChunks <$> lift (P.toListM producer)
-    case Tar.foldEntries checkEntry Nothing (const Nothing) entries of
-        Just contents -> do
-            stations <- lift $ evalStateT parser $ PB.fromLazy contents
-            case lookup station stations of
-                Just observations -> each observations
-                Nothing -> lift $ throwM $ mkIOError doesNotExistErrorType "Station not found" Nothing Nothing
-        Nothing -> lift $ throwM $ mkIOError doesNotExistErrorType "Entry not found" Nothing Nothing
+    mapEntriesM_ parseEntry entries
   where
-    checkEntry _ (Just e) = Just e
-    checkEntry entry Nothing | name `TL.isPrefixOf` TL.pack (Tar.entryPath entry)
-                             , Tar.NormalFile b _ <- Tar.entryContent entry = Just b
-                             | otherwise = Nothing
-    name = F.format ("IUPC" % F.left 2 '0' % "_RJTD_") (Types.message station)
+    prefixes = nub $ sort $ map (TL.unpack . F.format ("IUPC" % F.left 2 '0' % "_RJTD_") . Types.message) stations
+    parseEntry entry | Tar.NormalFile b _ <- Tar.entryContent entry
+                     , any (`isInfixOf` Tar.entryPath entry) prefixes = parse b
+                     | otherwise = return ()
+    parse contents = do
+        stations' <- lift $ evalStateT parser $ PB.fromLazy contents
+        forM_ stations' $ \(station, observations) ->
+            when (station `elem` stations) $
+                each $ map (station, ) observations
 
 
 downloadAll :: Int ->
@@ -102,24 +125,13 @@ downloadAll :: Int ->
                Int ->
                Consumer (Types.Station, Types.Observation) IO () ->
                IO ()
-downloadAll year month day hour consumer =
-    downloadArchive year month day hour $ \producer -> do
-        runEffect $ parseAll producer >-> consumer
+downloadAll = downloadStations Stations.allStations
 
 
 parseAll :: (Functor m, Monad m, MonadThrow m) =>
             Producer B.ByteString m () ->
             Producer (Types.Station, Types.Observation) m ()
-parseAll producer = do
-    entries <- Tar.read . decompress . BL.fromChunks <$> lift (P.toListM producer)
-    mapEntriesM_ parseEntry entries
-  where
-    parseEntry entry | Tar.NormalFile b _ <- Tar.entryContent entry = parse b
-                     | otherwise = return ()
-    parse contents = do
-        stations <- lift $ evalStateT parser $ PB.fromLazy contents
-        forM_ stations $ \(station, observations) ->
-            each $ map (station, ) observations
+parseAll  = parseStations Stations.allStations
 
 
 downloadArchive :: Int ->

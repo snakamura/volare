@@ -1,6 +1,7 @@
 module Service.WINDAS.Stations
     ( station
     , stations
+    , allStations
     ) where
 
 import Data.List (find)

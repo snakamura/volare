@@ -78,7 +78,7 @@ loadItems stations year month day hour = do
                  hClose handle
                  renameFile tempPath path `catch` \(_ :: IOException) -> return ()
     observations <- withFile path ReadMode $ \handle ->
-        P.toListM $ WINDAS.parseAll (PB.fromHandle handle) >-> P.filter ((`elem` stations) . fst)
+        P.toListM $ WINDAS.parseStations stations (PB.fromHandle handle)
     return $ map (uncurry Item . (fst . head &&& map snd)) $ groupBy ((==) `on` fst) observations
 
 

@@ -1,15 +1,10 @@
 module WINDASSpec (spec) where
 
-import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Crypto.Hash.SHA1 (hashlazy)
 import qualified Data.ByteString.Lazy as BL
 import Data.Functor ((<$>))
-import Data.IORef
-    ( modifyIORef
-    , newIORef
-    , readIORef
-    )
+import Data.Maybe (catMaybes)
 import Pipes
     ( (>->)
     , await
@@ -61,17 +56,30 @@ spec = do
                     WINDAS.eastwardWind item @== 8.3
                     WINDAS.northwardWind item @== -10.3
 
+    describe "parseStations" $ do
+        it "parses observations for specified stations" $ do
+            let path = "test/IUPC00_COMP_201409140326300_010_37112.send.tar.gz"
+                stations = catMaybes [WINDAS.station 47629, WINDAS.station 47626]
+            observations <- withFile path ReadMode $ P.toListM . WINDAS.parseStations stations . PB.fromHandle
+            length observations @== 12
+            let (station, observation) = observations !! 1
+            WINDAS.id station @== 47626
+            WINDAS.year observation @== 2014
+            WINDAS.month observation @== 9
+            WINDAS.day observation @== 14
+            WINDAS.hour observation @== 2
+            WINDAS.minute observation @== 20
+            let items = WINDAS.items observation
+            length items @== 13
+            let item = items !! 12
+            WINDAS.altitude item @== 4366
+            WINDAS.eastwardWind item @== 4.9
+            WINDAS.northwardWind item @== -11.0
+
     describe "parseAll" $ do
         it "parses observations for all the stations" $ do
-            r <- newIORef []
             let path = "test/IUPC00_COMP_201409140326300_010_37112.send.tar.gz"
-                consumer = do
-                    o <- await
-                    liftIO $ modifyIORef r (o:)
-                    consumer
-            withFile path ReadMode $ \handle ->
-                runEffect $ WINDAS.parseAll (PB.fromHandle handle) >-> consumer
-            observations <- reverse <$> readIORef r
+            observations <- withFile path ReadMode $ P.toListM . WINDAS.parseAll . PB.fromHandle
             length observations @== 198
             let (station, observation) = observations !! 20
             WINDAS.id station @== 47570
