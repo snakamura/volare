@@ -847,6 +847,7 @@ var volare = volare || {};
         this._msmSurfaceOverlay = new MSMSurfaceOverlay(this._flights);
         this._msmBarometricOverlay = new MSMBarometricOverlay(this._flights);
         this._amedasOverlay = new AMEDASOverlay(this._flights);
+        this._windasOverlay = new WINDASOverlay(this._flights);
         this._weatherFlags = 0;
         this._trackType = Map.TrackType.SOLID;
         this._waypoint = null;
@@ -906,6 +907,7 @@ var volare = volare || {};
         this._msmSurfaceOverlay.setFlags(this._map, this._weatherFlags & Map.MSM_SURFACE);
         this._msmBarometricOverlay.setFlags(this._map, this._weatherFlags & Map.MSM_BAROMETRIC);
         this._amedasOverlay.setFlags(this._map, this._weatherFlags & Map.AMEDAS);
+        this._windasOverlay.setFlags(this._map, this._weatherFlags & Map.WINDAS);
 
         $(this).trigger('weatherFlags_changed', this._weatherFlags);
     };
@@ -1056,10 +1058,20 @@ var volare = volare || {};
             Map.MSM_BAROMETRIC |= wind | temperature;
         });
     })();
-    Map.AMEDAS_WIND = 0x1000000;
-    Map.AMEDAS_TEMPERATURE = 0x20000000;
-    Map.AMEDAS_SUNSHINE = 0x40000000;
+    Map.AMEDAS_WIND = 0x100000;
+    Map.AMEDAS_TEMPERATURE = 0x200000;
+    Map.AMEDAS_SUNSHINE = 0x400000;
     Map.AMEDAS = Map.AMEDAS_WIND | Map.AMEDAS_TEMPERATURE | Map.AMEDAS_SUNSHINE;
+    Map.WINDAS = 0x00;
+    (function() {
+        var flag = 0x1000000;
+        _.each([500, 1000, 1500, 2000, 2500, 3000], function(altitude) {
+            var wind = flag;
+            flag <<= 1;
+            Map['WINDAS_' + altitude] = wind;
+            Map.WINDAS |= wind;
+        });
+    })();
 
 
     function Track() {
@@ -1860,6 +1872,135 @@ var volare = volare || {};
     };
 
 
+    function WINDASOverlay(flights) {
+        WeatherOverlay.call(this, flights);
+
+        this._flags = Map.WINDAS;
+        this._clear();
+    }
+    common.inherit(WINDASOverlay, WeatherOverlay);
+
+    WINDASOverlay.prototype.setFlags = function(map, flags) {
+        this._flags = flags;
+        this.setMap(flags ? map : null);
+    };
+
+    WINDASOverlay.prototype._getClassName = function() {
+        return 'windas';
+    };
+
+    WINDASOverlay.prototype._clear = function() {
+        this._time = null;
+        this._bounds = null;
+        this._stations = [];
+    };
+
+    WINDASOverlay.prototype._draw = function() {
+        var map = this.getMap();
+        var bounds = map.getBounds();
+        var projection = this.getProjection();
+        var sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
+        var ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
+
+        var $div = this._$div;
+        $div.empty();
+        $div.css('left', sw.x + 'px');
+        $div.css('top', ne.y + 'px');
+        $div.css('width', (ne.x - sw.x) + 'px');
+        $div.css('height', (sw.y - ne.y) + 'px');
+
+        if (!_.isEmpty(this._stations)) {
+            var self = this;
+            var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+            var windasTime = new Date(time.getTime() + 10*60*1000);
+            var hour = windasTime.getUTCHours();
+            var minute = Math.floor(windasTime.getUTCMinutes()/10)*10;
+            _.each(this._stations, function(station) {
+                var pos = projection.fromLatLngToDivPixel(new LatLng(station.station.latitude, station.station.longitude));
+                _.each(station.observations, function(observation) {
+                    if (observation.hour === hour && observation.minute === minute) {
+                        _.each(self.filterItems(station.station, observation.items), function(item) {
+                            $elem = $('<div class="item"><div class="cell"><img class="wind"></div></div>');
+                            $elem.css('left', (pos.x - 14) + 'px');
+                            $elem.css('top', (pos.y - 10) + 'px');
+
+                            var windSpeed = Math.sqrt(Math.pow(item.northwardWind, 2) + Math.pow(item.eastwardWind, 2));
+                            var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
+                            var windIconIndex = WeatherOverlay.windIconIndex(windSpeed);
+                            var $windImage = $elem.find('.wind');
+                            $windImage[0].src = '/static/image/weather/wind/' + windIconIndex + '.png';
+                            $windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
+
+                            $div.append($elem);
+                        });
+                    }
+                });
+            });
+        }
+    };
+
+    WINDASOverlay.prototype._update = function() {
+        var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+        if (time) {
+            var map = this.getMap();
+            var bounds = map.getBounds();
+            if (!this._bounds || !this._bounds.equals(bounds) ||
+                !this._time || !WeatherOverlay.hoursEquals(this._time, time)) {
+                var self = this;
+                $.getJSON('/windas/' + time.getUTCFullYear() +
+                          '/' + (time.getUTCMonth() + 1) +
+                          '/' + time.getUTCDate() +
+                          '/' + time.getUTCHours() +
+                          '?nwlat=' + bounds.getNorthEast().lat() +
+                          '&nwlng=' + bounds.getSouthWest().lng() +
+                          '&selat=' + bounds.getSouthWest().lat() +
+                          '&selng=' + bounds.getNorthEast().lng(), function(stations) {
+                    self._stations = stations;
+                    self._time = time;
+                    self._bounds = bounds;
+                    self._draw();
+                });
+            }
+            else if (!WeatherOverlay.tenMinutesEquals(this._time, time)) {
+                this._time = time;
+                this._draw();
+            }
+        }
+        else {
+            this._stations = [];
+            this._time = null;
+            this._bounds = null;
+            this._draw();
+        }
+    };
+
+    WINDASOverlay.prototype.filterItems = function(station, items) {
+        var self = this;
+
+        var margin = 200;
+        var altitudes = [500, 1000, 1500, 2000, 2500, 3000];
+        var enabledAltitudes = _.filter(altitudes, function(a) {
+            return (self._flags & Map['WINDAS_' + a]) !== 0;
+        });
+        return _.filter(_.map(enabledAltitudes, function(altitude) {
+            var matchedItems = _.filter(items, function(item) {
+                var a = item.altitude + station.height;
+                return altitude - margin <= a && a < altitude + margin;
+            });
+            if (_.isEmpty(matchedItems)) {
+                return null;
+            }
+            else {
+                return _.first(_.sortBy(matchedItems, function(item) {
+                    return Math.abs(item.altitude - altitude);
+                }));
+            }
+        }), function(item) {
+            return item !== null;
+        });
+    };
+
+
     function Graph(flights, $graph) {
         var $gridCanvas = $('<canvas></canvas>');
         $graph.append($gridCanvas);
@@ -2509,6 +2650,7 @@ var volare = volare || {};
         }
         var $msm = $weather.find('.msm');
         var $amedas = $weather.find('.amedas');
+        var $windas = $weather.find('.windas');
         var items = [
             makeItem($msm.find('.surface_all'), Map.MSM_SURFACE),
             makeItem($msm.find('.surface_wind'), Map.MSM_SURFACE_WIND),
@@ -2517,7 +2659,14 @@ var volare = volare || {};
             makeItem($amedas.find('.all'), Map.AMEDAS),
             makeItem($amedas.find('.wind'), Map.AMEDAS_WIND),
             makeItem($amedas.find('.temperature'), Map.AMEDAS_TEMPERATURE),
-            makeItem($amedas.find('.sunshine'), Map.AMEDAS_SUNSHINE)
+            makeItem($amedas.find('.sunshine'), Map.AMEDAS_SUNSHINE),
+            makeItem($windas.find('.all'), Map.WINDAS),
+            makeItem($windas.find('.windas_500'), Map.WINDAS_500),
+            makeItem($windas.find('.windas_1000'), Map.WINDAS_1000),
+            makeItem($windas.find('.windas_1500'), Map.WINDAS_1500),
+            makeItem($windas.find('.windas_2000'), Map.WINDAS_2000),
+            makeItem($windas.find('.windas_2500'), Map.WINDAS_2500),
+            makeItem($windas.find('.windas_3000'), Map.WINDAS_3000)
         ];
         _.each([1000, 975, 950, 925, 900, 850, 800, 700], function(airPressure) {
             items.push(makeItem($msm.find('.barometric_' + airPressure), Map['MSM_BAROMETRIC_' + airPressure]));

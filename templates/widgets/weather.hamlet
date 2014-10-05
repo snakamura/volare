@@ -97,3 +97,25 @@
       <li>
         <label>
           <input .sunshine type=checkbox>Sunshine
+  <div .windas>
+    <label>
+      <input .all type=checkbox>WINDAS
+    <ul>
+      <li>
+        <label>
+          <input .windas_500 type=checkbox>500m
+      <li>
+        <label>
+          <input .windas_1000 type=checkbox>1,000m
+      <li>
+        <label>
+          <input .windas_1500 type=checkbox>1,500m
+      <li>
+        <label>
+          <input .windas_2000 type=checkbox>2,000m
+      <li>
+        <label>
+          <input .windas_2500 type=checkbox>2,500m
+      <li>
+        <label>
+          <input .windas_3000 type=checkbox>3,000m
