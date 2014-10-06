@@ -8,8 +8,6 @@ module Volare.Domain.Route
     ) where
 
 import Control.Arrow (second)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Trans.Reader (ReaderT)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import Data.Maybe
@@ -21,6 +19,10 @@ import Data.Traversable (forM)
 import Database.Persist ((==.))
 import qualified Database.Persist as P
 
+import Volare.Domain.Types
+    ( Delete
+    , Query
+    , Store)
 import qualified Volare.Model as M
 
 
@@ -43,15 +45,13 @@ instance JSON.ToJSON RouteItem where
                     ]
 
 
-getRoute :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Route) =>
-            P.Key M.Route ->
-            ReaderT backend m (Maybe (P.Entity M.Route))
+getRoute :: P.Key M.Route ->
+            Query M.Route (Maybe (P.Entity M.Route))
 getRoute routeId = P.selectFirst [M.RouteId ==. routeId] []
 
 
-getRouteWithWaypoints :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Route) =>
-                         P.Key M.Route ->
-                         ReaderT backend m (Maybe Route)
+getRouteWithWaypoints :: P.Key M.Route ->
+                         Query M.Route (Maybe Route)
 getRouteWithWaypoints routeId = do
     route <- P.selectFirst [M.RouteId ==. routeId] []
     case route of
@@ -65,9 +65,8 @@ getRouteWithWaypoints routeId = do
     makeRouteItem routeItem waypointItem = RouteItem (P.entityKey routeItem) waypointItem (M.routeItemRadius $ P.entityVal routeItem)
 
 
-addRoute :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Route) =>
-            [(M.WaypointItemId, Int)] ->
-            ReaderT backend m (P.Key M.Route)
+addRoute :: [(M.WaypointItemId, Int)] ->
+            Store M.Route (P.Key M.Route)
 addRoute items = do
     routeId <- P.insert M.Route
     forM_ (zip [0..] items) $ \(index, (waypointItemId, radius)) ->
@@ -75,7 +74,6 @@ addRoute items = do
     return routeId
 
 
-deleteRoute :: (MonadIO m, P.PersistStore backend, P.DeleteCascade M.Route backend) =>
-               P.Key M.Route ->
-               ReaderT backend m ()
+deleteRoute :: P.Key M.Route ->
+               Delete M.Route ()
 deleteRoute = P.deleteCascade

@@ -8,8 +8,6 @@ module Volare.Domain.Waypoint
 ) where
 
 import qualified Codec.GeoWpt as GeoWpt
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Trans.Reader (ReaderT)
 import Data.Foldable (forM_)
 import qualified Data.Text as T
 import Database.Persist
@@ -18,30 +16,30 @@ import Database.Persist
     )
 import qualified Database.Persist as P
 
+import Volare.Domain.Types
+    ( Delete
+    , Query
+    , Store)
 import qualified Volare.Model as M
 
 
-getWaypoints :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
-                ReaderT backend m [P.Entity M.Waypoint]
+getWaypoints :: Query M.Waypoint [P.Entity M.Waypoint]
 getWaypoints = P.selectList [] [P.Asc M.WaypointName]
 
 
-getWaypoint :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
-               P.Key M.Waypoint ->
-               ReaderT backend m (Maybe (P.Entity M.Waypoint))
+getWaypoint :: P.Key M.Waypoint ->
+               Query M.Waypoint (Maybe (P.Entity M.Waypoint))
 getWaypoint waypointId = P.selectFirst [M.WaypointId ==. waypointId] []
 
 
-getWaypointItems :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
-                    P.Key M.Waypoint ->
-                    ReaderT backend m [P.Entity M.WaypointItem]
+getWaypointItems :: P.Key M.Waypoint ->
+                    Query M.Waypoint [P.Entity M.WaypointItem]
 getWaypointItems waypointId = P.selectList [M.WaypointItemWaypointId ==. waypointId] [P.Asc M.WaypointItemName]
 
 
-addWaypoint :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
-               T.Text ->
+addWaypoint :: T.Text ->
                GeoWpt.Wpt ->
-               ReaderT backend m (P.Key M.Waypoint)
+               Store M.Waypoint (P.Key M.Waypoint)
 addWaypoint name wpt = do
     waypointId <- P.insert $ M.Waypoint name
     forM_ (GeoWpt.items wpt) $ \item ->
@@ -54,16 +52,14 @@ addWaypoint name wpt = do
     return waypointId
 
 
-updateWaypoint :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
-                  P.Key M.Waypoint ->
+updateWaypoint :: P.Key M.Waypoint ->
                   Maybe T.Text ->
-                  ReaderT backend m ()
+                  Store M.Waypoint ()
 updateWaypoint waypointId name =
     forM_ name $ \newName ->
         P.update waypointId [M.WaypointName =. newName]
 
 
-deleteWaypoint :: (MonadIO m, P.PersistStore backend, P.DeleteCascade M.Waypoint backend) =>
-                  P.Key M.Waypoint ->
-                  ReaderT backend m ()
+deleteWaypoint :: P.Key M.Waypoint ->
+                  Delete M.Waypoint ()
 deleteWaypoint = P.deleteCascade

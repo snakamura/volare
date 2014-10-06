@@ -12,8 +12,6 @@ import Control.Monad
     ( filterM
     , when
     )
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Trans.Reader (ReaderT)
 import Control.Monad.Trans.State
     ( evalState
     , get
@@ -33,30 +31,30 @@ import Database.Persist
     )
 import qualified Database.Persist as P
 
+import Volare.Domain.Types
+    ( Delete
+    , Query
+    , Store)
 import qualified Volare.Model as M
 
 
-getFlights :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Flight) =>
-              ReaderT backend m [P.Entity M.Flight]
+getFlights :: Query M.Flight [P.Entity M.Flight]
 getFlights = P.selectList [] [P.Desc M.FlightTime]
 
 
-getFlight :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Flight) =>
-             P.Key M.Flight ->
-             ReaderT backend m (Maybe (P.Entity M.Flight))
+getFlight :: P.Key M.Flight ->
+             Query M.Flight (Maybe (P.Entity M.Flight))
 getFlight flightId = P.selectFirst [M.FlightId ==. flightId] []
 
 
-getFlightRecords :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Flight) =>
-                    P.Key M.Flight ->
-                    ReaderT backend m [P.Entity M.Record]
+getFlightRecords :: P.Key M.Flight ->
+                    Query M.Flight [P.Entity M.Record]
 getFlightRecords flightId = P.selectList [M.RecordFlightId ==. flightId] [P.Asc M.RecordIndex]
 
 
-addFlight :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Flight) =>
-             T.Text ->
+addFlight :: T.Text ->
              IGC.IGC ->
-             ReaderT backend m (P.Key M.Flight)
+             Store M.Flight (P.Key M.Flight)
 addFlight name igc = do
     let records = filterRecords $ IGC.records igc
         value selector property = realToFrac $ property $ IGC.position $ selector (comparing (property . IGC.position)) records
@@ -102,16 +100,14 @@ addFlight name igc = do
         return v
 
 
-updateFlight :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Flight) =>
-                P.Key M.Flight ->
+updateFlight :: P.Key M.Flight ->
                 Maybe T.Text ->
-                ReaderT backend m ()
+                Store M.Flight ()
 updateFlight flightId name =
     forM_ name $ \newName ->
         P.update flightId [M.FlightName =. newName]
 
 
-deleteFlight :: (MonadIO m, P.PersistStore backend, P.DeleteCascade M.Flight backend) =>
-                P.Key M.Flight ->
-                ReaderT backend m ()
+deleteFlight :: P.Key M.Flight ->
+                Delete M.Flight ()
 deleteFlight = P.deleteCascade

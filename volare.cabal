@@ -46,6 +46,7 @@ library
                    Service.WINDAS.Types
                    Volare.Domain.Flight
                    Volare.Domain.Route
+                   Volare.Domain.Types
                    Volare.Domain.Waypoint
                    Volare.Domain.Workspace
                    Volare.Foundation
