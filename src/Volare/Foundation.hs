@@ -12,7 +12,7 @@ import Database.Persist.Class
     ( PersistConfigPool
     , runPool
     )
-import Database.Persist.Sql (SqlPersistT)
+import Database.Persist.Sql (SqlBackend)
 import Text.Blaze.Html (Html)
 import Text.Julius
     ( Javascript(..)
@@ -74,7 +74,7 @@ instance Yesod Volare where
 
 
 instance YesodPersist Volare where
-    type YesodPersistBackend Volare = SqlPersistT
+    type YesodPersistBackend Volare = SqlBackend
 
     runDB action = do
         persistConfig <- volarePersistConfig <$> getYesod

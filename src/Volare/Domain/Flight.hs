@@ -12,6 +12,8 @@ import Control.Monad
     ( filterM
     , when
     )
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Trans.Reader (ReaderT)
 import Control.Monad.Trans.State
     ( evalState
     , get
@@ -34,27 +36,27 @@ import qualified Database.Persist as P
 import qualified Volare.Model as M
 
 
-getFlights :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Flight) =>
-              m [P.Entity M.Flight]
+getFlights :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+              ReaderT backend m [P.Entity M.Flight]
 getFlights = P.selectList [] [P.Desc M.FlightTime]
 
 
-getFlight :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Flight) =>
-             M.FlightId ->
-             m (Maybe (P.Entity M.Flight))
+getFlight :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+             P.Key M.Flight ->
+             ReaderT backend m (Maybe (P.Entity M.Flight))
 getFlight flightId = P.selectFirst [M.FlightId ==. flightId] []
 
 
-getFlightRecords :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Record) =>
-                    M.FlightId ->
-                    m [P.Entity M.Record]
+getFlightRecords :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+                    P.Key M.Flight ->
+                    ReaderT backend m [P.Entity M.Record]
 getFlightRecords flightId = P.selectList [M.RecordFlightId ==. flightId] [P.Asc M.RecordIndex]
 
 
-addFlight :: (P.PersistStore m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Flight) =>
+addFlight :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
              T.Text ->
              IGC.IGC ->
-             m M.FlightId
+             ReaderT backend m (P.Key M.Flight)
 addFlight name igc = do
     let records = filterRecords $ IGC.records igc
         value selector property = realToFrac $ property $ IGC.position $ selector (comparing (property . IGC.position)) records
@@ -100,16 +102,16 @@ addFlight name igc = do
         return v
 
 
-updateFlight :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Flight) =>
-                M.FlightId ->
+updateFlight :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+                P.Key M.Flight ->
                 Maybe T.Text ->
-                m ()
+                ReaderT backend m ()
 updateFlight flightId name =
     forM_ name $ \newName ->
         P.update flightId [M.FlightName =. newName]
 
 
-deleteFlight :: (P.PersistQuery m, P.PersistMonadBackend m ~ P.PersistEntityBackend M.Flight) =>
-                M.FlightId ->
-                m ()
+deleteFlight :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+                P.Key M.Flight ->
+                ReaderT backend m ()
 deleteFlight = P.deleteCascade
