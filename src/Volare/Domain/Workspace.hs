@@ -54,18 +54,18 @@ import qualified Volare.Domain.Flight as DF
 import qualified Volare.Domain.Route as DR
 import qualified Volare.Model as M
 
-getWorkspaces :: (MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+getWorkspaces :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Workspace) =>
                  ReaderT backend m [P.Entity M.Workspace]
 getWorkspaces = P.selectList [] [P.Desc M.WorkspaceCreated]
 
 
-getWorkspace :: (MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+getWorkspace :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Workspace) =>
                 P.Key M.Workspace ->
                 ReaderT backend m (Maybe (P.Entity M.Workspace))
 getWorkspace workspaceId = P.selectFirst [M.WorkspaceId ==. workspaceId] []
 
 
-addWorkspace :: (MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+addWorkspace :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Workspace) =>
                 T.Text ->
                 ReaderT backend m (P.Key M.Workspace)
 addWorkspace name = do
@@ -73,7 +73,7 @@ addWorkspace name = do
     P.insert $ M.Workspace name created Nothing
 
 
-updateWorkspace :: (MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+updateWorkspace :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Workspace) =>
                    P.Key M.Workspace ->
                    Maybe T.Text ->
                    Maybe (Maybe M.RouteId) ->
@@ -89,7 +89,7 @@ updateWorkspace workspaceId name routeId = do
                 DR.deleteRoute oldRouteId
 
 
-deleteWorkspace :: (MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+deleteWorkspace :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Workspace) =>
                    P.Key M.Workspace ->
                    ReaderT backend m ()
 deleteWorkspace workspaceId = do
@@ -109,7 +109,7 @@ instance JSON.ToJSON WorkspaceFlight where
                     ]
 
 
-getWorkspaceFlights :: (Functor m, MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+getWorkspaceFlights :: (Functor m, MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.WorkspaceFlight) =>
                        P.Key M.Workspace ->
                        ReaderT backend m [WorkspaceFlight]
 getWorkspaceFlights workspaceId = do
@@ -119,7 +119,7 @@ getWorkspaceFlights workspaceId = do
     name (WorkspaceFlight _ flight _) = M.flightName flight
 
 
-getWorkspaceFlight :: (Functor m, MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+getWorkspaceFlight :: (Functor m, MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.WorkspaceFlight) =>
                       P.Key M.WorkspaceFlight ->
                       ReaderT backend m (Maybe WorkspaceFlight)
 getWorkspaceFlight workspaceFlightId = do
@@ -127,7 +127,7 @@ getWorkspaceFlight workspaceFlightId = do
     join <$> mapM getWorkspaceFlight' workspaceFlight
 
 
-getWorkspaceFlight' :: (Functor m, MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+getWorkspaceFlight' :: (Functor m, MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.WorkspaceFlight) =>
                        P.Entity M.WorkspaceFlight ->
                        ReaderT backend m (Maybe WorkspaceFlight)
 getWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight workspaceFlight
@@ -136,7 +136,7 @@ getWorkspaceFlight' workspaceFlight = fmap makeWorkspaceFlight <$> getFlight wor
     makeWorkspaceFlight (P.Entity flightId flight, color) = WorkspaceFlight flightId flight color
 
 
-getWorkspaceCandidateFlights :: (Functor m, MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+getWorkspaceCandidateFlights :: (Functor m, MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Workspace) =>
                                 P.Key M.Workspace ->
                                 ReaderT backend m [P.Entity M.Flight]
 getWorkspaceCandidateFlights workspaceId = do
@@ -151,7 +151,7 @@ getWorkspaceCandidateFlights workspaceId = do
              in filter (not . included) <$> P.selectList [M.FlightTime >=. start, M.FlightTime <=. end] [P.Asc M.FlightName]
 
 
-addWorkspaceFlight :: (Functor m, MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+addWorkspaceFlight :: (Functor m, MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.WorkspaceFlight) =>
                       P.Key M.Workspace ->
                       [P.Key M.Flight] ->
                       ReaderT backend m [WorkspaceFlight]
@@ -163,7 +163,7 @@ addWorkspaceFlight workspaceId flightIds = do
     return $ catMaybes flights
 
 
-deleteWorkspaceFlight :: (MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+deleteWorkspaceFlight :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.WorkspaceFlight) =>
                          P.Key M.Workspace ->
                          P.Key M.Flight ->
                          ReaderT backend m ()
@@ -172,7 +172,7 @@ deleteWorkspaceFlight workspaceId flightId =
                    M.WorkspaceFlightFlightId ==. flightId]
 
 
-nextColor :: (Functor m, MonadIO m, backend ~ P.PersistEntityBackend M.Workspace) =>
+nextColor :: (Functor m, MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Workspace) =>
              P.Key M.Workspace ->
              ReaderT backend m T.Text
 nextColor workspaceId = do

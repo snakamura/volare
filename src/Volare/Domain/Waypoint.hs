@@ -21,24 +21,24 @@ import qualified Database.Persist as P
 import qualified Volare.Model as M
 
 
-getWaypoints :: (MonadIO m, backend ~ P.PersistEntityBackend M.Waypoint) =>
+getWaypoints :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
                 ReaderT backend m [P.Entity M.Waypoint]
 getWaypoints = P.selectList [] [P.Asc M.WaypointName]
 
 
-getWaypoint :: (MonadIO m, backend ~ P.PersistEntityBackend M.Waypoint) =>
+getWaypoint :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
                P.Key M.Waypoint ->
                ReaderT backend m (Maybe (P.Entity M.Waypoint))
 getWaypoint waypointId = P.selectFirst [M.WaypointId ==. waypointId] []
 
 
-getWaypointItems :: (MonadIO m, backend ~ P.PersistEntityBackend M.Waypoint) =>
+getWaypointItems :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
                     P.Key M.Waypoint ->
                     ReaderT backend m [P.Entity M.WaypointItem]
 getWaypointItems waypointId = P.selectList [M.WaypointItemWaypointId ==. waypointId] [P.Asc M.WaypointItemName]
 
 
-addWaypoint :: (MonadIO m, backend ~ P.PersistEntityBackend M.Waypoint) =>
+addWaypoint :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
                T.Text ->
                GeoWpt.Wpt ->
                ReaderT backend m (P.Key M.Waypoint)
@@ -54,7 +54,7 @@ addWaypoint name wpt = do
     return waypointId
 
 
-updateWaypoint :: (MonadIO m, backend ~ P.PersistEntityBackend M.Waypoint) =>
+updateWaypoint :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Waypoint) =>
                   P.Key M.Waypoint ->
                   Maybe T.Text ->
                   ReaderT backend m ()
@@ -63,7 +63,7 @@ updateWaypoint waypointId name =
         P.update waypointId [M.WaypointName =. newName]
 
 
-deleteWaypoint :: (MonadIO m, backend ~ P.PersistEntityBackend M.Waypoint) =>
+deleteWaypoint :: (MonadIO m, P.PersistStore backend, P.DeleteCascade M.Waypoint backend) =>
                   P.Key M.Waypoint ->
                   ReaderT backend m ()
 deleteWaypoint = P.deleteCascade

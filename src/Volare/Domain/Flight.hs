@@ -36,24 +36,24 @@ import qualified Database.Persist as P
 import qualified Volare.Model as M
 
 
-getFlights :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+getFlights :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Flight) =>
               ReaderT backend m [P.Entity M.Flight]
 getFlights = P.selectList [] [P.Desc M.FlightTime]
 
 
-getFlight :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+getFlight :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Flight) =>
              P.Key M.Flight ->
              ReaderT backend m (Maybe (P.Entity M.Flight))
 getFlight flightId = P.selectFirst [M.FlightId ==. flightId] []
 
 
-getFlightRecords :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+getFlightRecords :: (MonadIO m, P.PersistQuery backend, backend ~ P.PersistEntityBackend M.Flight) =>
                     P.Key M.Flight ->
                     ReaderT backend m [P.Entity M.Record]
 getFlightRecords flightId = P.selectList [M.RecordFlightId ==. flightId] [P.Asc M.RecordIndex]
 
 
-addFlight :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+addFlight :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Flight) =>
              T.Text ->
              IGC.IGC ->
              ReaderT backend m (P.Key M.Flight)
@@ -102,7 +102,7 @@ addFlight name igc = do
         return v
 
 
-updateFlight :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+updateFlight :: (MonadIO m, P.PersistStore backend, backend ~ P.PersistEntityBackend M.Flight) =>
                 P.Key M.Flight ->
                 Maybe T.Text ->
                 ReaderT backend m ()
@@ -111,7 +111,7 @@ updateFlight flightId name =
         P.update flightId [M.FlightName =. newName]
 
 
-deleteFlight :: (MonadIO m, backend ~ P.PersistEntityBackend M.Flight) =>
+deleteFlight :: (MonadIO m, P.PersistStore backend, P.DeleteCascade M.Flight backend) =>
                 P.Key M.Flight ->
                 ReaderT backend m ()
 deleteFlight = P.deleteCascade
