@@ -2,11 +2,17 @@ language: haskell
 ghc:
   - 7.8
 
+before_install:
+  - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
+  - travis_retry sudo apt-get update
+  - travis_retry sudo apt-get install --force-yes happy-1.19.4 alex-3.1.3 cabal-install-1.20
+  - export PATH=/opt/alex/3.1.3/bin:/opt/happy/1.19.4/bin:/opt/cabal/1.20/bin:$PATH
+  - cabal update
+  - cabal install Cabal
+
 install:
   - sudo apt-get install libnetcdf-dev netcdf-bin postgresql libpq-dev
   - createdb volare_test
-  - cabal install alex
-  - cabal install happy
   - cabal install --only-dependencies --enable-tests --reorder-goals
   - echo "CREATE USER volare WITH ENCRYPTED PASSWORD 'password'" | psql -U postgres
 
