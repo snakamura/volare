@@ -11,7 +11,6 @@ module Volare.Domain.Workspace
     , deleteWorkspaceFlight
     ) where
 
-import Control.Arrow (first)
 import Control.Monad
     ( join
     , when
@@ -19,6 +18,7 @@ import Control.Monad
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
+import Data.Bifunctor (first)
 import Data.Foldable (forM_)
 import Data.Functor ((<$>))
 import Data.List

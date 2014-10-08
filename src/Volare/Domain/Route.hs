@@ -7,9 +7,9 @@ module Volare.Domain.Route
     , deleteRoute
     ) where
 
-import Control.Arrow (second)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
+import Data.Bifunctor (second)
 import Data.Maybe
     ( fromJust
     , isJust
