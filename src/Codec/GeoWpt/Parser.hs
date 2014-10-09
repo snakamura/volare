@@ -6,7 +6,6 @@ import Control.Applicative
     ( (<*>)
     , (*>)
     , (<*)
-    , (<$>)
     , (<|>)
     , many
     )
@@ -18,6 +17,7 @@ import Data.Attoparsec.ByteString
     , takeWhile
     )
 import Data.Attoparsec.Combinator (many1)
+import Data.Functor ((<$>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Prelude hiding

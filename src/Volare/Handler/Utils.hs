@@ -8,7 +8,7 @@ module Volare.Handler.Utils
     , maybeNotFound
     ) where
 
-import Control.Applicative ((<$>))
+import Data.Functor ((<$>))
 import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Read as T

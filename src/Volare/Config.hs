@@ -3,7 +3,7 @@ module Volare.Config
     , parseConfig
     ) where
 
-import Control.Applicative ((<$>))
+import Data.Functor ((<$>))
 import qualified Data.Text as T
 import Data.Yaml
     ( Object

@@ -6,7 +6,6 @@ import Control.Applicative
     ( (<*>)
     , (*>)
     , (<*)
-    , (<$>)
     , (<|>)
     , many
     )
@@ -23,6 +22,7 @@ import Data.Attoparsec.ByteString
     , satisfy
     , string
     )
+import Data.Functor ((<$>))
 
 import Codec.IGC.Types
     ( IGC(IGC)

@@ -11,8 +11,7 @@ module Service.AMEDAS
     ) where
 
 import Control.Applicative
-    ( (<$>)
-    , (<*>)
+    ( (<*>)
     , (<*)
     , many
     , optional
@@ -36,6 +35,7 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import qualified Data.ByteString.UTF8 as BU
 import Data.Foldable (for_)
+import Data.Functor ((<$>))
 import Data.List.Split (splitWhen)
 import Data.Maybe (mapMaybe)
 import qualified Data.Text.Lazy as TL

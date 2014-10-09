@@ -11,8 +11,7 @@ module Volare.Handler.Workspace
     ) where
 
 import Control.Applicative
-    ( (<$>)
-    , (<*>)
+    ( (<*>)
     , pure
     )
 import Data.Aeson
@@ -22,6 +21,7 @@ import Data.Aeson
 import qualified Data.Aeson as JSON
 import qualified Data.Aeson.Types as JSON
 import qualified Data.HashMap.Strict as HashMap
+import Data.Functor ((<$>))
 import Data.Monoid
     ( (<>)
     , mempty

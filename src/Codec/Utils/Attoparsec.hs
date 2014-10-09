@@ -9,7 +9,6 @@ module Codec.Utils.Attoparsec
 import Control.Applicative
     ( (<*>)
     , (*>)
-    , (<$>)
     , pure
     )
 import Data.Attoparsec.ByteString
@@ -20,6 +19,7 @@ import Data.Attoparsec.ByteString
     , skipWhile
     , word8
     )
+import Data.Functor ((<$>))
 
 
 line :: Parser ()
