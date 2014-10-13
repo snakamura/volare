@@ -15,7 +15,6 @@ module Service.WINDAS
     ) where
 
 import qualified Codec.Archive.Tar as Tar
-import Codec.Compression.GZip (decompress)
 import Control.Exception (throwIO)
 import Control.Monad (when)
 import Control.Monad.Catch
@@ -54,6 +53,7 @@ import Pipes
     , runEffect
     )
 import qualified Pipes.ByteString as PB
+import Pipes.GZip (decompress)
 import Pipes.HTTP (withHTTP)
 import qualified Pipes.Prelude as P
 import System.IO.Error
@@ -81,7 +81,7 @@ downloadStation station year month day hour consumer =
     downloadStations [station] year month day hour $ P.map snd >-> consumer
 
 
-parseStation :: (Functor m, Monad m, MonadThrow m) =>
+parseStation :: (Functor m, Monad m, MonadIO m, MonadThrow m) =>
                 Types.Station ->
                 Producer B.ByteString m () ->
                 Producer Types.Observation m ()
@@ -100,12 +100,12 @@ downloadStations stations year month day hour consumer =
         runEffect $ parseStations stations producer >-> consumer
 
 
-parseStations :: (Functor m, Monad m, MonadThrow m) =>
+parseStations :: (Functor m, Monad m, MonadIO m, MonadThrow m) =>
                  [Types.Station] ->
                  Producer B.ByteString m () ->
                  Producer (Types.Station, Types.Observation) m ()
 parseStations stations producer = do
-    entries <- Tar.read . decompress . BL.fromChunks <$> lift (P.toListM producer)
+    entries <- Tar.read . BL.fromChunks <$> lift (P.toListM $ decompress producer)
     mapEntriesM_ parseEntry entries
   where
     prefixes = nub $ sort $ map (TL.unpack . F.format ("IUPC" % F.left 2 '0' % "_RJTD_") . Types.message) stations
@@ -128,7 +128,7 @@ downloadAll :: Int ->
 downloadAll = downloadStations Stations.allStations
 
 
-parseAll :: (Functor m, Monad m, MonadThrow m) =>
+parseAll :: (Functor m, Monad m, MonadIO m, MonadThrow m) =>
             Producer B.ByteString m () ->
             Producer (Types.Station, Types.Observation) m ()
 parseAll  = parseStations Stations.allStations

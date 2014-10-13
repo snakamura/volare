@@ -128,6 +128,7 @@ library
                    pipes == 4.1.*,
                    pipes-attoparsec == 0.5.*,
                    pipes-bytestring == 2.1.*,
+                   pipes-zlib == 0.4.*,
                    pipes-http >= 1.0.1 && < 1.1,
                    pipes-parse == 3.0.*,
                    resourcet == 1.1.*,
@@ -154,8 +155,7 @@ library
                    yesod-core == 1.4.*,
                    yesod-form == 1.4.*,
                    yesod-persistent == 1.4.*,
-                   yesod-static == 1.4.*,
-                   zlib == 0.5.*
+                   yesod-static == 1.4.*
 
     if flag(dev) || flag(library-only)
         cpp-options: -DDEVELOPMENT
