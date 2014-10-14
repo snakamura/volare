@@ -44,3 +44,8 @@ div.file_selector div span {
     text-align: center;
     line-height: 20px;
 }
+
+
+[data-ng-cloak] {
+    display: none !important;
+}
