@@ -1,71 +1,55 @@
-$(function() {
-    var waypoints = new Waypoints();
-    $(waypoints).on('waypoint_added', function(event, waypoint, index) {
-        var $tr = $('<tr>' +
-                    '<td class="name"><a></a></td>' +
-                    '</tr>');
-        $tr.find('.name a').attr('href', '/waypoints/' + waypoint.id).text(waypoint.name);
-
-        var $rows = $('#waypoints tbody tr');
-        if ($rows.length > index)
-            $($rows[index]).before($tr);
-        else
-            $('#waypoints tbody').append($tr);
-    });
-
-    $.getJSON('/waypoints', function(ws) {
-        _.each(ws, _.bind(waypoints.addWaypoint, waypoints));
-    });
-
-    function addFiles(files) {
-        _.each(files, function(file) {
-            var reader = new FileReader();
-            $(reader).on('loadend', function(event) {
-                $.postJSON('/waypoints', {
-                    name: common.basename(file.name),
-                    wpt: reader.result
-                }, function(waypoint) {
-                    if (files.length == 1)
-                        document.location.href = '/waypoints/' + waypoint.id;
-                    else
-                        waypoints.addWaypoint(waypoint);
-                });
+(function() {
+    var app = angular.module('Waypoints', []);
+    app.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
+        $scope.waypoints = [];
+        $scope.addWaypoint = function(waypoint) {
+            var index = _.sortedIndex(this.waypoints, waypoint, function(waypoint) {
+                return waypoint.name;
             });
-            reader.readAsText(file);
+            this.waypoints.splice(index, 0, waypoint);
+        };
+
+        $http.get('/waypoints').success(function(waypoints) {
+            $scope.waypoints = waypoints;
         });
-    }
 
-    $('#add_waypoint').on('change', function(event) {
-        addFiles(event.target.files);
-        return false;
-    });
+        function addFiles(files) {
+            _.each(files, function(file) {
+                var reader = new FileReader();
+                $(reader).on('loadend', function(event) {
+                    $http.post('/waypoints', {
+                        name: common.basename(file.name),
+                        wpt: reader.result
+                    }).success(function(waypoint) {
+                        if (files.length == 1)
+                            document.location.href = '/waypoints/' + waypoint.id;
+                        else
+                            $scope.addWaypoint(waypoint);
+                    });
+                });
+                reader.readAsText(file);
+            });
+        }
 
-    var $dropTarget = $('#waypoints');
-    $dropTarget.on('dragenter', function(event) {
-        event.preventDefault();
-        event.originalEvent.dataTransfer.dropEffect = 'copy';
-    });
-    $dropTarget.on('dragleave', function(event) {
-        event.preventDefault();
-    });
-    $dropTarget.on('dragover', function(event) {
-        event.preventDefault();
-    });
-    $dropTarget.on('drop', function(event) {
-        event.preventDefault();
-        addFiles(event.originalEvent.dataTransfer.files);
-    });
-
-
-    function Waypoints() {
-        this._waypoints = [];
-    }
-
-    Waypoints.prototype.addWaypoint = function(waypoint) {
-        var index = _.sortedIndex(this._waypoints, waypoint, function(waypoint) {
-            return waypoint.name;
+        $('#add_waypoint').on('change', function(event) {
+            addFiles(event.target.files);
+            return false;
         });
-        this._waypoints.splice(index, 0, waypoint);
-        $(this).trigger('waypoint_added', [waypoint, index]);
-    };
-});
+
+        var $dropTarget = $('#waypoints');
+        $dropTarget.on('dragenter', function(event) {
+            event.preventDefault();
+            event.originalEvent.dataTransfer.dropEffect = 'copy';
+        });
+        $dropTarget.on('dragleave', function(event) {
+            event.preventDefault();
+        });
+        $dropTarget.on('dragover', function(event) {
+            event.preventDefault();
+        });
+        $dropTarget.on('drop', function(event) {
+            event.preventDefault();
+            addFiles(event.originalEvent.dataTransfer.files);
+        });
+    }]);
+}());
