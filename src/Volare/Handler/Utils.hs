@@ -2,6 +2,7 @@ module Volare.Handler.Utils
     ( addJQuery
     , addJQueryUI
     , addUnderscore
+    , addAngular
     , addGoogleMapsApi
     , addCommonLibraries
     , lookupIntegralGetParam
@@ -51,6 +52,10 @@ addUnderscore = do
     addScript $ StaticR S.js_underscore_string_min_js
 
 
+addAngular :: Widget
+addAngular = addScriptRemote "//ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min.js"
+
+
 addGoogleMapsApi :: Widget
 addGoogleMapsApi = do
     googleApiKey <- Config.googleApiKey <$> getConfig
@@ -64,6 +69,7 @@ addCommonLibraries = do
     addJQueryUI
     addBootstrap
     addUnderscore
+    addAngular
 
 
 lookupIntegralGetParam :: (MonadHandler m, Integral a) =>
