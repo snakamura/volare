@@ -4,7 +4,7 @@
   <div .file_selector>
     <div .btn .btn-default>
       <span>Add Flight
-    <input #add_flight type=file multiple>
+    <input #add_flight type=file multiple accept=.igc>
 
 <table #flights .table .table-striped dropzone=copy>
   <thead>

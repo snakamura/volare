@@ -4,7 +4,7 @@
   <div .file_selector>
     <div .btn .btn-default>
       <span>Add Waypoints
-    <input #add_waypoint type=file multiple>
+    <input #add_waypoint type=file multiple accept=.wpt>
 
 <table #waypoints .table .table-striped>
   <thead>
