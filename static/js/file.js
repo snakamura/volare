@@ -30,7 +30,6 @@
                     event.preventDefault();
                 });
                 element.on('drop', function(event) {
-                    console.log(event.originalEvent.dataTransfer.files);
                     event.preventDefault();
                     handler(scope, {
                         $event: event,
