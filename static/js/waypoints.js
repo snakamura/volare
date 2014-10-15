@@ -1,5 +1,5 @@
 (function() {
-    var app = angular.module('Waypoints', []);
+    var app = angular.module('Waypoints', ['File']);
 
     app.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
         $scope.waypoints = [];
@@ -33,46 +33,6 @@
                 });
                 reader.readAsText(file);
             });
-        };
-    }]);
-
-    app.directive('volareFile', ['$parse', function($parse) {
-        return {
-            link: function(scope, element, attrs) {
-                var handler = $parse(attrs['volareFile'])
-                element.bind('change', function(event) {
-                    handler(scope, {
-                        $event: event,
-                        $files: event.target.files
-                    });
-                });
-            }
-        };
-    }]);
-
-    app.directive('volareDrop', ['$parse', function($parse) {
-        return {
-            link: function(scope, element, attrs) {
-                var handler = $parse(attrs['volareDrop'])
-                element.bind('dragenter', function(event) {
-                    event.preventDefault();
-                    event.originalEvent.dataTransfer.dropEffect = 'copy';
-                });
-                element.bind('dragleave', function(event) {
-                    event.preventDefault();
-                });
-                element.bind('dragover', function(event) {
-                    event.preventDefault();
-                });
-                element.bind('drop', function(event) {
-                    console.log(event.originalEvent.dataTransfer.files);
-                    event.preventDefault();
-                    handler(scope, {
-                        $event: event,
-                        $files: event.originalEvent.dataTransfer.files
-                    });
-                });
-            }
         };
     }]);
 }());

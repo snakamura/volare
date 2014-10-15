@@ -64,6 +64,7 @@ getWaypointsR =
             setTitle "Waypoints - Volare"
             addCommonLibraries
             addScript $ StaticR S.js_common_js
+            addScript $ StaticR S.js_file_js
             addScript $ StaticR S.js_waypoints_js
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "waypoints/index")
