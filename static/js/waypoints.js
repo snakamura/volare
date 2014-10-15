@@ -1,7 +1,7 @@
 (function() {
-    var app = angular.module('Waypoints', ['File']);
+    var waypoints = angular.module('volare.waypoints', ['volare.file']);
 
-    app.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
+    waypoints.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
         $scope.waypoints = [];
         $scope.addWaypoint = function(waypoint) {
             var index = _.sortedIndex(this.waypoints, waypoint, function(waypoint) {
@@ -15,7 +15,7 @@
         });
     }]);
 
-    app.controller('WaypointsUploadController', ['$scope', '$http', function($scope, $http) {
+    waypoints.controller('WaypointsUploadController', ['$scope', '$http', function($scope, $http) {
         $scope.addFiles = function(files) {
             var self = this;
             _.each(files, function(file) {

@@ -1,6 +1,6 @@
 ^{W.navigation W.WAYPOINTS}
 
-<div data-ng-app=Waypoints data-ng-controller=WaypointsController>
+<div data-ng-app=volare.waypoints data-ng-controller=WaypointsController>
   <div .container-fluid .actionbar>
     <div .file_selector>
       <div .btn .btn-default>

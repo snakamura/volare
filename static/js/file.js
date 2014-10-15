@@ -1,5 +1,5 @@
 (function() {
-    var file = angular.module('File', []);
+    var file = angular.module('volare.file', []);
 
     file.directive('volareFile', ['$parse', function($parse) {
         return {
