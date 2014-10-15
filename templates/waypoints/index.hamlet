@@ -5,13 +5,13 @@
     <div .file_selector>
       <div .btn .btn-default>
         <span>Add Waypoints
-      <input type=file multiple accept=.wpt data-volare-file=addFiles($files)>
+      <input type=file multiple accept=.wpt data-ng-controller=WaypointsUploadController data-volare-file=addFiles($files)>
 
   <table .table .table-striped>
     <thead>
       <tr>
         <th>Name
-    <tbody data-ng-cloak data-volare-drop=addFiles($files)>
+    <tbody data-ng-cloak data-ng-controller=WaypointsUploadController data-volare-drop=addFiles($files)>
       <tr data-ng-repeat="waypoint in waypoints">
         <td .name>
           <a data-ng-href="/waypoints/{{ waypoint.id }}">{{ waypoint.name }}

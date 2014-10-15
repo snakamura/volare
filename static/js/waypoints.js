@@ -9,6 +9,13 @@
             });
             this.waypoints.splice(index, 0, waypoint);
         };
+
+        $http.get('/waypoints').success(function(waypoints) {
+            $scope.waypoints = waypoints;
+        });
+    }]);
+
+    app.controller('WaypointsUploadController', ['$scope', '$http', function($scope, $http) {
         $scope.addFiles = function(files) {
             var self = this;
             _.each(files, function(file) {
@@ -21,16 +28,12 @@
                         if (files.length == 1)
                             document.location.href = '/waypoints/' + waypoint.id;
                         else
-                            self.addWaypoint(waypoint);
+                            self.$parent.addWaypoint(waypoint);
                     });
                 });
                 reader.readAsText(file);
             });
         };
-
-        $http.get('/waypoints').success(function(waypoints) {
-            $scope.waypoints = waypoints;
-        });
     }]);
 
     app.directive('volareFile', ['$parse', function($parse) {
