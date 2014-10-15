@@ -4,7 +4,7 @@
     file.directive('volareFile', ['$parse', function($parse) {
         return {
             link: function(scope, element, attrs) {
-                var handler = $parse(attrs['volareFile'])
+                var handler = $parse(attrs['volareFile']);
                 element.bind('change', function(event) {
                     handler(scope, {
                         $event: event,
@@ -18,7 +18,7 @@
     file.directive('volareDrop', ['$parse', function($parse) {
         return {
             link: function(scope, element, attrs) {
-                var handler = $parse(attrs['volareDrop'])
+                var handler = $parse(attrs['volareDrop']);
                 element.bind('dragenter', function(event) {
                     event.preventDefault();
                     event.originalEvent.dataTransfer.dropEffect = 'copy';
