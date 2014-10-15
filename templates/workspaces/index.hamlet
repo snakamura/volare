@@ -7,5 +7,5 @@
         <th>Name
     <tbody data-ng-cloak>
       <tr data-ng-repeat="workspace in workspaces">
-        <td .name>
+        <td>
           <a data-ng-href="/workspaces/{{ workspace.id }}">{{ workspace.name }}

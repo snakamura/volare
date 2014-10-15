@@ -13,5 +13,5 @@
         <th>Name
     <tbody data-ng-cloak data-ng-controller=WaypointsUploadController data-volare-drop=addFiles($files)>
       <tr data-ng-repeat="waypoint in waypoints">
-        <td .name>
+        <td>
           <a data-ng-href="/waypoints/{{ waypoint.id }}">{{ waypoint.name }}
