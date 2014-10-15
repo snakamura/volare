@@ -1,18 +1,7 @@
 (function() {
     var app = angular.module('Waypoints', []);
+
     app.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
-        $scope.waypoints = [];
-        $scope.addWaypoint = function(waypoint) {
-            var index = _.sortedIndex(this.waypoints, waypoint, function(waypoint) {
-                return waypoint.name;
-            });
-            this.waypoints.splice(index, 0, waypoint);
-        };
-
-        $http.get('/waypoints').success(function(waypoints) {
-            $scope.waypoints = waypoints;
-        });
-
         function addFiles(files) {
             _.each(files, function(file) {
                 var reader = new FileReader();
@@ -31,9 +20,17 @@
             });
         }
 
-        $('#add_waypoint').on('change', function(event) {
-            addFiles(event.target.files);
-            return false;
+        $scope.waypoints = [];
+        $scope.addWaypoint = function(waypoint) {
+            var index = _.sortedIndex(this.waypoints, waypoint, function(waypoint) {
+                return waypoint.name;
+            });
+            this.waypoints.splice(index, 0, waypoint);
+        };
+        $scope.addFiles = addFiles;
+
+        $http.get('/waypoints').success(function(waypoints) {
+            $scope.waypoints = waypoints;
         });
 
         var $dropTarget = $('#waypoints');
@@ -51,5 +48,21 @@
             event.preventDefault();
             addFiles(event.originalEvent.dataTransfer.files);
         });
+    }]);
+
+    app.directive('volareFile', ['$parse', '$timeout', function($parse, $timeout) {
+        return {
+            link: function(scope, element, attrs) {
+                var handler = $parse(attrs['volareFile'])
+                element.bind('change', function(event) {
+                    $timeout(function() {
+                        handler(scope, {
+                            $event: event,
+                            $files: event.target.files
+                        });
+                    });
+                });
+            }
+        };
     }]);
 }());
