@@ -1,11 +1,11 @@
 ^{W.navigation W.WORKSPACES}
 
-<table .table .table-striped>
-  <thead>
-    <tr>
-      <th>Name
-  <tbody>
-    $forall workspace <- workspaces
+<div data-ng-app=volare.workspaces data-ng-controller=WorkspacesController>
+  <table .table .table-striped>
+    <thead>
       <tr>
-        <td>
-          <a href=@{WorkspaceR $ entityKey workspace}>#{M.workspaceName $ entityVal workspace}
+        <th>Name
+    <tbody data-ng-cloak>
+      <tr data-ng-repeat="workspace in workspaces">
+        <td .name>
+          <a data-ng-href="/workspaces/{{ workspace.id }}">{{ workspace.name }}

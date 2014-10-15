@@ -27,14 +27,8 @@ import Data.Monoid
     , mempty
     )
 import qualified Data.Text as T
-import Database.Persist
-    ( entityKey
-    , entityVal
-    )
-import Text.Blaze.Html
-    ( Html
-    , toHtml
-    )
+import Database.Persist (entityVal)
+import Text.Blaze.Html (toHtml)
 import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler
     ( provideRep
@@ -69,15 +63,17 @@ instance JSON.FromJSON NewWorkspace where
     parseJSON _ = mempty
 
 
-getWorkspacesR :: Handler Html
-getWorkspacesR = do
-    workspaces <- runDB D.getWorkspaces
-    defaultLayout $ do
-        setTitle "Workspaces - Volare"
-        addCommonLibraries
-        addScript $ StaticR S.js_common_js
-        addStylesheet $ StaticR S.css_common_css
-        $(widgetFile "workspaces/index")
+getWorkspacesR :: Handler TypedContent
+getWorkspacesR =
+    selectRep $ do
+        provideRep $ defaultLayout $ do
+            setTitle "Workspaces - Volare"
+            addCommonLibraries
+            addScript $ StaticR S.js_common_js
+            addScript $ StaticR S.js_workspaces_js
+            addStylesheet $ StaticR S.css_common_css
+            $(widgetFile "workspaces/index")
+        provideRep $ runDB $ JSON.toJSON <$> D.getWorkspaces
 
 
 postWorkspacesR :: Handler JSON.Value
