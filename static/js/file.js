@@ -5,7 +5,7 @@
         return {
             link: function(scope, element, attrs) {
                 var handler = $parse(attrs['volareFile']);
-                element.bind('change', function(event) {
+                element.on('change', function(event) {
                     handler(scope, {
                         $event: event,
                         $files: event.target.files
@@ -19,17 +19,17 @@
         return {
             link: function(scope, element, attrs) {
                 var handler = $parse(attrs['volareDrop']);
-                element.bind('dragenter', function(event) {
+                element.on('dragenter', function(event) {
                     event.preventDefault();
                     event.originalEvent.dataTransfer.dropEffect = 'copy';
                 });
-                element.bind('dragleave', function(event) {
+                element.on('dragleave', function(event) {
                     event.preventDefault();
                 });
-                element.bind('dragover', function(event) {
+                element.on('dragover', function(event) {
                     event.preventDefault();
                 });
-                element.bind('drop', function(event) {
+                element.on('drop', function(event) {
                     console.log(event.originalEvent.dataTransfer.files);
                     event.preventDefault();
                     handler(scope, {
