@@ -75,6 +75,7 @@ getFlightsR =
             setTitle "Flights - Volare"
             addCommonLibraries
             addScript $ StaticR S.js_common_js
+            addScript $ StaticR S.js_file_js
             addScript $ StaticR S.js_flights_js
             addStylesheet $ StaticR S.css_common_css
             addStylesheet $ StaticR S.css_flights_css

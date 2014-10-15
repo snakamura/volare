@@ -1,15 +1,21 @@
 ^{W.navigation W.FLIGHTS}
 
-<div .container-fluid .actionbar>
-  <div .file_selector>
-    <div .btn .btn-default>
-      <span>Add Flight
-    <input #add_flight type=file multiple accept=.igc>
+<div data-ng-app=volare.flights data-ng-controller=FlightsController>
+  <div .container-fluid .actionbar>
+    <div .file_selector>
+      <div .btn .btn-default>
+        <span>Add Flight
+      <input type=file multiple accept=.igc data-ng-controller=FlightsUploadController data-volare-file=addFiles($files)>
 
-<table #flights .table .table-striped dropzone=copy>
-  <thead>
-    <tr>
-      <th>Name
-      <th>Time
-      <th>Duration
-  <tbody>
+  <table #flights .table .table-striped>
+    <thead>
+      <tr>
+        <th>Name
+        <th>Time
+        <th>Duration
+    <tbody data-ng-cloak data-ng-controller=FlightsUploadController data-volare-drop=addFiles($files)>
+      <tr data-ng-repeat="flight in flights">
+        <td>
+          <a data-ng-href="/flights/{{ flight.id }}">{{ flight.name }}
+        <td>{{ flight.time | date:'yyyy-MM-dd HH:mm:ss' }}
+        <td>{{ flight.duration | duration }}
