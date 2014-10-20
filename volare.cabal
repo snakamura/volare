@@ -223,7 +223,7 @@ test-suite spec
                    bytedump == 1.*,
                    bytestring == 0.10.*,
                    cryptohash == 0.11.*,
-                   hspec == 1.11.*,
+                   hspec == 1.12.*,
                    HUnit == 1.2.*,
                    monad-logger == 0.3.*,
                    persistent == 2.1.*,
