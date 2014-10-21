@@ -1,5 +1,5 @@
 (function() {
-    var waypoint = angular.module('volare.waypoint', ['volare.name']);
+    var waypoint = angular.module('volare.waypoint', ['volare.name', 'volare.layout']);
 
     waypoint.controller('WaypointController', ['$scope', '$http', function($scope, $http) {
         $scope.items = [];
@@ -71,14 +71,6 @@
                         map.fitBounds(bounds);
                     }
                 });
-
-                function layout() {
-                    element.width($(document).width());
-                    var mapPosition = element.position();
-                    element.height($(document).height() - mapPosition.top);
-                }
-                $(window).on('resize', layout);
-                layout();
             }
         };
     }]);

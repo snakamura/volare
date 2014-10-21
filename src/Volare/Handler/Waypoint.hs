@@ -114,6 +114,7 @@ getWaypointR waypointId =
                 addGoogleMapsApi
                 addScript $ StaticR S.js_common_js
                 addScript $ StaticR S.js_name_js
+                addScript $ StaticR S.js_layout_js
                 addScript $ StaticR S.js_waypoint_js
                 addStylesheet $ StaticR S.css_common_css
                 addStylesheet $ StaticR S.css_name_css
