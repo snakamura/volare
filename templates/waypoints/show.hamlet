@@ -1,8 +1,7 @@
 ^{W.navigation W.WAYPOINTS}
 
-<h1 data-ng-app=volare.waypoint data-ng-controller=WaypointNameController>
-  <volare-name update=update($name) delete=delete()>
+<div data-ng-app=volare.waypoint data-ng-controller=WaypointController>
+  <h1 data-ng-controller=WaypointNameController>
+    <volare-name update=update($name) delete=delete()>
 
-<div #map>
-
-<div #chart>
+  <volare-waypoint>
