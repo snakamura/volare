@@ -1,49 +1,42 @@
 ^{W.navigation W.FLIGHTS}
 
-<h1>
-  <span #show_name>
-    <span #name>#{M.flightName flight}
-    <span>
-      <span .action .edit .glyphicon .glyphicon-edit>
-      <span .action .delete .glyphicon .glyphicon-trash>
-    <span>
-      <span #new_workspace .action .glyphicon .glyphicon-book>
-  <span #edit_name>
-    <input type=text name=name value=#{M.flightName flight}>
-    <span>
-      <span .action .save .glyphicon .glyphicon-ok>
+<div data-ng-app=volare.flight data-ng-controller=FlightController>
+  <h1 data-ng-controller=FlightNameController>
+    <volare-name update=update($name) delete=delete()>
+      <span>
+        <span .action .glyphicon .glyphicon-book data-ng-click="newWorkspace()">
 
-<div #player>
+  <div #player>
 
-<div #map>
+  <div #map>
 
-<div #sidebar>
-  <ul .nav .nav-tabs>
-    <li .active>
-      <a href="#tab_graphs" data-toggle="tab">Graphs
-    <li>
-      <a href="#tab_options" data-toggle="tab">Options
+  <div #sidebar>
+    <ul .nav .nav-tabs>
+      <li .active>
+        <a href="#tab_graphs" data-toggle="tab">Graphs
+      <li>
+        <a href="#tab_options" data-toggle="tab">Options
 
-  <div .tab-content>
-    <div #tab_graphs .tab-pane .active>
-      <table #properties>
-        <tr>
-          <th>Time
-          <td #time>
-        <tr>
-          <th>Duration
-          <td #duration>
-        <tr>
-          <th>Max Altitude
-          <td #max_altitude>
+    <div .tab-content>
+      <div #tab_graphs .tab-pane .active>
+        <table #properties>
+          <tr>
+            <th>Time
+            <td #time>
+          <tr>
+            <th>Duration
+            <td #duration>
+          <tr>
+            <th>Max Altitude
+            <td #max_altitude>
 
-      <div #altitude .graph>
-      <div #ground_speed .graph>
-      <div #vertical_speed .graph>
+        <div #altitude .graph>
+        <div #ground_speed .graph>
+        <div #vertical_speed .graph>
 
-    <div #tab_options .tab-pane>
-      ^{W.options}
-      ^{W.waypoint}
-      ^{W.weather}
+      <div #tab_options .tab-pane>
+        ^{W.options}
+        ^{W.waypoint}
+        ^{W.weather}
 
-<div #chart>
+  <div #chart>

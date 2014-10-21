@@ -133,9 +133,11 @@ getFlightR flightId =
                 addCommonLibraries
                 addGoogleMapsApi
                 addScript $ StaticR S.js_common_js
+                addScript $ StaticR S.js_name_js
                 addScript $ StaticR S.js_volare_js
                 addScript $ StaticR S.js_flight_js
                 addStylesheet $ StaticR S.css_common_css
+                addStylesheet $ StaticR S.css_name_css
                 addStylesheet $ StaticR S.css_volare_css
                 addStylesheet $ StaticR S.css_flight_css
                 $(widgetFile "flights/show")

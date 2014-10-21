@@ -5,6 +5,7 @@
         return {
             restrict: 'E',
             replace: true,
+            transclude: true,
             template: '<span class="volare_name">' +
                         '<span class="show_name">' +
                           '<span class="name"></span>' +
@@ -12,6 +13,7 @@
                             '<span class="action edit glyphicon glyphicon-edit"></span>' +
                             '<span class="action delete glyphicon glyphicon-trash"></span>' +
                           '</span>' +
+                          '<span ng-transclude></span>' +
                         '</span>' +
                         '<span class="edit_name">' +
                           '<input type="text" name="name" value="">' +

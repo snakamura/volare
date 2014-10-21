@@ -1,49 +1,57 @@
-$(function() {
-    var flights = new volare.Flights();
-    var player = new volare.Player(flights, $('#player'));
-    var map = new volare.Map(flights, $('#map'));
-    map.setTrackType(volare.Map.TrackType.ALTITUDE);
-    var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
-    var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
-    var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
-    var chart = new volare.Chart(flights, $('#chart'));
-    var optionsControl = new volare.OptionsControl(flights, map, $('#options'));
-    var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
-    var weatherControl = new volare.WeatherControl(map, $('#weather'));
+(function() {
+    var flight = angular.module('volare.flight', ['volare.name']);
 
-    $(flights).on('flight_added', function(event, flight) {
-        $('#time').text(common.formatTime(flight.getTime()));
-        $('#duration').text(common.formatDuration(flight.getDuration()));
-        $('#max_altitude').text(common.formatAltitude(flight.getMaxAltitude()));
-    });
-    flights.addFlight(flightId, 'red');
+    flight.controller('FlightController', ['$scope', '$http', '$name', function($scope, $http, $name) {
+        var flights = new volare.Flights();
+        var player = new volare.Player(flights, $('#player'));
+        var map = new volare.Map(flights, $('#map'));
+        map.setTrackType(volare.Map.TrackType.ALTITUDE);
+        var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
+        var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
+        var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
+        var chart = new volare.Chart(flights, $('#chart'));
+        var optionsControl = new volare.OptionsControl(flights, map, $('#options'));
+        var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
+        var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
-    common.makeNameEditable(function(name) {
-        $.putJSON('', {
-            name: name
-        }, function(flight) {
-        });
-    });
-
-    $('#show_name span.delete').on('click', function(event) {
-        if (confirm('Are you sure to delete this flight?')) {
-            $.deleteJSON('', function() {
-                document.location.href = '/flights';
+        $scope.name = $name;
+        $scope.newWorkspace = function() {
+            $http.post('/workspaces', {
+                name: this.name
+            }).success(function(workspace) {
+                $http.post('/workspaces/' + workspace.id + '/flights', {
+                    flightIds: [flights.getPrimaryFlight().getId()]
+                }).success(function(flights) {
+                    document.location.href = '/workspaces/' + workspace.id;
+                });
             });
-        }
-    });
+        };
 
-    $('#new_workspace').on('click', function(event) {
-        $.postJSON('/workspaces', {
-            name: $('#name').text()
-        }, function(workspace) {
-            $.postJSON('/workspaces/' + workspace.id + '/flights', {
-                flightIds: [flights.getPrimaryFlight().getId()]
-            }, function(flights) {
-                document.location.href = '/workspaces/' + workspace.id;
-            });
+        $(flights).on('flight_added', function(event, flight) {
+            $('#time').text(common.formatTime(flight.getTime()));
+            $('#duration').text(common.formatDuration(flight.getDuration()));
+            $('#max_altitude').text(common.formatAltitude(flight.getMaxAltitude()));
         });
-    });
+        flights.addFlight(flightId, 'red');
 
-    volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
-});
+        volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
+    }]);
+
+    flight.controller('FlightNameController', ['$scope', '$http', function($scope, $http) {
+        $scope.update = function(name) {
+            var self = this;
+            $http.put('', {
+                name: name
+            }).success(function(flight) {
+                self.name = flight.name;
+            });
+        };
+        $scope.delete = function() {
+            if (confirm('Are you sure to delete this flight?')) {
+                $http.delete('').success(function() {
+                    document.location.href = '/flights';
+                });
+            }
+        };
+    }]);
+}());
