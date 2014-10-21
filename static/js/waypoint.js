@@ -1,3 +1,23 @@
+(function() {
+    var waypoint = angular.module('volare.waypoint', ['volare.name']);
+
+    waypoint.controller('WaypointNameController', ['$scope', '$http', function($scope, $http) {
+        $scope.update = function(name) {
+            $http.put('', {
+                name: name
+            }).success(function(waypoint) {
+            });
+        };
+        $scope.delete = function() {
+            if (confirm('Are you sure to delete these waypoints?')) {
+                $http.delete('').success(function() {
+                    document.location.href = '/waypoints';
+                });
+            }
+        };
+    }]);
+}());
+
 $(function() {
     var $map = $('#map');
     var map = new google.maps.Map($map[0], {
@@ -36,20 +56,5 @@ $(function() {
         });
 
         map.fitBounds(bounds);
-    });
-
-    common.makeNameEditable(function(name) {
-        $.putJSON('', {
-            name: name
-        }, function(waypoint) {
-        });
-    });
-
-    $('#show_name span.delete').on('click', function(event) {
-        if (confirm('Are you sure to delete these waypoints?')) {
-            $.deleteJSON('', function() {
-                document.location.href = '/waypoints';
-            });
-        }
     });
 });

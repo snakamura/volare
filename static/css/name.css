@@ -1,0 +1,18 @@
+.volare_name .action {
+    font-size: 15px;
+    font-weight: normal;
+    cursor: pointer;
+    margin: 2px;
+}
+
+.volare_name .action:first-child {
+    margin-left: 10px;
+}
+
+.volare_name .edit_name {
+    display: none;
+}
+
+.volare_name .edit_name input {
+    font-size: 100%;
+}

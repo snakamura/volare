@@ -1,15 +1,7 @@
 ^{W.navigation W.WAYPOINTS}
 
-<h1>
-  <span #show_name>
-    <span #name>#{M.waypointName waypoint}
-    <span>
-      <span .action .edit .glyphicon .glyphicon-edit>
-      <span .action .delete .glyphicon .glyphicon-trash>
-  <span #edit_name>
-    <input type=text name=name value=#{M.waypointName waypoint}>
-    <span>
-      <span .action .save .glyphicon .glyphicon-ok>
+<h1 data-ng-app=volare.waypoint data-ng-controller=WaypointNameController>
+  <volare-name name=#{M.waypointName waypoint} update=update($name) delete=delete()>
 
 <div #map>
 
