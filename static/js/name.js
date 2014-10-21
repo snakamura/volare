@@ -21,7 +21,6 @@
                         '</span>' +
                       '</span>',
             link: function(scope, element, attrs) {
-                var name = attrs['name']
                 var updateHandler = $parse(attrs['update']);
                 var deleteHandler = $parse(attrs['delete']);
 
@@ -30,8 +29,10 @@
                 var editName = element.find('.edit_name');
                 var inputName = editName.find('input');
 
-                displayName.text(name);
-                inputName.val(name);
+                scope.$watch('name', function(name) {
+                    displayName.text(name);
+                    inputName.val(name);
+                });
 
                 function startEditingName() {
                     showName.hide();
@@ -40,11 +41,10 @@
                 }
 
                 function finishEditingName() {
-                    var name = inputName.val();
-                    displayName.text(name);
                     editName.hide();
                     showName.show();
 
+                    var name = inputName.val();
                     updateHandler(scope, {
                         $name: name
                     });

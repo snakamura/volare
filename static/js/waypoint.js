@@ -1,11 +1,14 @@
 (function() {
     var waypoint = angular.module('volare.waypoint', ['volare.name']);
 
-    waypoint.controller('WaypointNameController', ['$scope', '$http', function($scope, $http) {
+    waypoint.controller('WaypointNameController', ['$scope', '$http', '$name', function($scope, $http, $name) {
+        $scope.name = $name;
         $scope.update = function(name) {
+            var self = this;
             $http.put('', {
                 name: name
             }).success(function(waypoint) {
+                self.name = waypoint.name;
             });
         };
         $scope.delete = function() {
