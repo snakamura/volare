@@ -3,6 +3,7 @@ module Volare.Handler.Utils
     , addJQueryUI
     , addUnderscore
     , addAngular
+    , addAngularUIBootstrap
     , addGoogleMapsApi
     , addCommonLibraries
     , lookupIntegralGetParam
@@ -54,6 +55,10 @@ addUnderscore = do
 
 addAngular :: Widget
 addAngular = addScriptRemote "//ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min.js"
+
+
+addAngularUIBootstrap :: Widget
+addAngularUIBootstrap = addScript $ StaticR S.js_ui_bootstrap_tpls_0_11_2_min_js
 
 
 addGoogleMapsApi :: Widget
