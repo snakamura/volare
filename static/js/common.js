@@ -69,32 +69,4 @@ var common = common || {};
     common.formatDistance = function(distance) {
         return _.sprintf('%.1f', distance/1000);
     };
-
-    common.makeNameEditable = function(update) {
-        var $showName = $('#show_name');
-        var $editName = $('#edit_name');
-        var $inputName = $('#edit_name input');
-
-        function startEditingName() {
-            $showName.hide();
-            $editName.show();
-            $inputName.focus();
-        }
-
-        function finishEditingName() {
-            var name = $inputName.val();
-            $('#name').text(name);
-            $editName.hide();
-            $showName.show();
-
-            update(name);
-        }
-
-        $('#show_name span.edit').on('click', startEditingName);
-        $('#edit_name span.save').on('click', finishEditingName);
-        $inputName.on('keyup', function(event) {
-            if (event.keyCode == 0x0d)
-                finishEditingName();
-        });
-    };
 })();
