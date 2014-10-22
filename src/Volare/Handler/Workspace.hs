@@ -46,7 +46,8 @@ import Yesod.Persist (runDB)
 import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils
-    ( addCommonLibraries
+    ( addAngularUIBootstrap
+    , addCommonLibraries
     , addGoogleMapsApi
     , maybeNotFound
     )
@@ -95,6 +96,7 @@ getWorkspaceR workspaceId =
                 setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
                 addCommonLibraries
                 addGoogleMapsApi
+                addAngularUIBootstrap
                 addScript $ StaticR S.js_common_js
                 addScript $ StaticR S.js_name_js
                 addScript $ StaticR S.js_volare_js

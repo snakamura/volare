@@ -35,6 +35,10 @@ var volare = volare || {};
         _.each(this._flights, iterator, context);
     };
 
+    Flights.prototype.mapFlight = function(iterator, context) {
+        return _.map(this._flights, iterator, context);
+    };
+
     Flights.prototype.getPrimaryFlight = function() {
         return _.find(this._flights, function(flight) {
             return flight.isVisible();

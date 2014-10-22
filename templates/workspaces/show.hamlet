@@ -32,22 +32,28 @@
 
   <div #chart>
 
-<div #add_flight_modal .modal .fade>
-  <div .modal-dialog>
-    <div .modal-content>
-      <div .modal-header>
-        <h4 .modal-title>Add flights
-      <div .modal-body>
-      <div .modal-footer>
-        <button type=button .btn .btn-default data-dismiss=modal>Cancel
-        <button type=button .btn .btn-primary>Add
+  <script type=text/ng-template id=addFlight.html>
+    <div .modal-header>
+      <h4 .modal-title>Add flights
+    <div .modal-body>
+      <ul>
+        <li data-ng-repeat="flight in flights">
+          <label>
+            <input type=checkbox name=flights value="{{ flight.id }}" data-ng-model=flight.selected>
+            <span>{{ flight.name }}
+    <div .modal-footer>
+      <button type=button .btn .btn-default ng-click=cancel()>Cancel
+      <button type=button .btn .btn-primary ng-click=ok()>Add
 
-<div #remove_flight_modal .modal .fade>
-  <div .modal-dialog>
-    <div .modal-content>
-      <div .modal-header>
-        <h4 .modal-title>Remove flights
-      <div .modal-body>
-      <div .modal-footer>
-        <button type=button .btn .btn-default data-dismiss=modal>Cancel
-        <button type=button .btn .btn-primary>Remove
+  <script type=text/ng-template id=removeFlight.html>
+    <div .modal-header>
+      <h4 .modal-title>Remove flights
+    <div .modal-body>
+      <ul>
+        <li data-ng-repeat="flight in flights">
+          <label>
+            <input type=checkbox name=flights value="{{ flight.id }}" data-ng-model=flight.selected>
+            <span>{{ flight.name }}
+    <div .modal-footer>
+      <button type=button .btn .btn-default ng-click=cancel()>Cancel
+      <button type=button .btn .btn-primary ng-click=ok()>Remove

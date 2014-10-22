@@ -1,7 +1,7 @@
 (function() {
-    var workspace = angular.module('volare.workspace', ['volare.name']);
+    var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name']);
 
-    workspace.controller('WorkspaceController', ['$scope', '$http', '$name', function($scope, $http, $name) {
+    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', '$name', function($scope, $http, $modal, $name) {
         var flights = new volare.Flights();
         flights.setInterval(10);
         var player = new volare.Player(flights, $('#player'));
@@ -17,78 +17,54 @@
 
         $scope.name = $name;
         $scope.addFlight = function() {
-            var $modal = $('#add_flight_modal');
-            var $body = $modal.find('.modal-body');
-            $body.text('Loading...');
-            $modal.modal({
-                backdrop: 'static'
+            var modal = $modal.open({
+                templateUrl: 'addFlight.html',
+                controller: 'WorkspaceAddFlightController',
+                backdrop: 'static',
+                resolve: {
+                    $workspaceId: function() {
+                        return workspaceId;
+                    }
+                }
             });
-            $.getJSON('/workspaces/' + workspaceId + '/candidates', function(flights) {
-                $body.empty();
-                var $ul = $('<ul></ul>');
-                $body.append($ul);
-                _.each(flights, function(flight) {
-                    var $e = $('<li><label><input type="checkbox" name="flights"><span></span></label></li>');
-                    $e.find('input').prop('value', flight.id);
-                    $e.find('span').text(flight.name);
-                    $ul.append($e);
-                });
+            modal.result.then(function(flightIds) {
+                if (flightIds.length !== 0) {
+                    $http.post('/workspaces/' + workspaceId + '/flights', {
+                        flightIds: flightIds
+                    }).success(function(fs) {
+                        _.each(fs, function(flight) {
+                            flights.addFlight(flight.id, flight.color);
+                        });
+                    });
+                }
             });
         };
-        $('#add_flight_modal .btn-primary').on('click', function() {
-            var $modal = $('#add_flight_modal');
-            var flightIds = _.map($modal.find('input:checked[type=checkbox]'), function(checkbox) {
-                return parseInt(checkbox.value, 10);
-            });
-            if (flightIds.length === 0) {
-                $modal.modal('hide');
-                return;
-            }
-
-            $.postJSON('/workspaces/' + workspaceId + '/flights', {
-                flightIds: flightIds
-            }, function(fs) {
-                _.each(fs, function(flight) {
-                    flights.addFlight(flight.id, flight.color);
-                });
-                $modal.modal('hide');
-            });
-        });
-
         $scope.removeFlight = function() {
-            var $modal = $('#remove_flight_modal');
-            var $body = $modal.find('.modal-body');
-            $body.empty();
-            var $ul = $('<ul></ul>');
-            $body.append($ul);
-            flights.eachFlight(function(flight) {
-                var $e = $('<li><label><input type="checkbox" name="flights"><span></span></label></li>');
-                $e.find('input').prop('value', flight.getId());
-                $e.find('span').text(flight.getName());
-                $ul.append($e);
+            var modal = $modal.open({
+                templateUrl: 'removeFlight.html',
+                controller: 'WorkspaceRemoveFlightController',
+                backdrop: 'static',
+                resolve: {
+                    $flights: function() {
+                        return flights.mapFlight(function(flight) {
+                            return {
+                                id: flight.getId(),
+                                name: flight.getName()
+                            };
+                        });
+                    }
+                }
             });
-            $modal.modal({
-                backdrop: 'static'
+            modal.result.then(function(flightIds) {
+                if (flightIds.length !== 0) {
+                    _.each(flightIds, function(flightId) {
+                        $http.delete('/workspaces/' + workspaceId + '/flights/' + flightId).success(function() {
+                            flights.removeFlight(flightId);
+                        });
+                    });
+                }
             });
         };
-        $('#remove_flight_modal .btn-primary').on('click', function() {
-            var $modal = $('#remove_flight_modal');
-            var flightIds = _.map($modal.find('input:checked[type=checkbox]'), function(checkbox) {
-                return parseInt(checkbox.value, 10);
-            });
-            if (flightIds.length === 0) {
-                $modal.modal('hide');
-                return;
-            }
-
-            _.each(flightIds, function(flightId) {
-                $.deleteJSON('/workspaces/' + workspaceId + '/flights/' + flightId, function() {
-                    flights.removeFlight(flightId);
-                });
-            });
-
-            $modal.modal('hide');
-        });
 
         $(map).on('route_changed', function() {
             var route = map.getRoute();
@@ -147,6 +123,36 @@
                     document.location.href = '/workspaces';
                 });
             }
+        };
+    }]);
+
+    workspace.controller('WorkspaceAddFlightController', ['$scope', '$http', '$workspaceId', function($scope, $http, $workspaceId) {
+        $scope.flights = [];
+        $scope.ok = function() {
+            var flightIds = _.pluck(_.filter(this.flights, function(flight) {
+                return flight.selected;
+            }), 'id');
+            this.$close(flightIds);
+        };
+        $scope.cancel = function() {
+            this.$dismiss('cancel');
+        };
+
+        $http.get('/workspaces/' + $workspaceId + '/candidates').success(function(flights) {
+            $scope.flights = flights;
+        });
+    }]);
+
+    workspace.controller('WorkspaceRemoveFlightController', ['$scope', '$flights', function($scope, $flights) {
+        $scope.flights = $flights;
+        $scope.ok = function() {
+            var flightIds = _.pluck(_.filter(this.flights, function(flight) {
+                return flight.selected;
+            }), 'id');
+            this.$close(flightIds);
+        };
+        $scope.cancel = function() {
+            this.$dismiss('cancel');
         };
     }]);
 }());
