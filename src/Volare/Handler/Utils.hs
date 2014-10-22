@@ -49,8 +49,8 @@ addBootstrap = do
 
 addUnderscore :: Widget
 addUnderscore = do
-    addScript $ StaticR S.js_underscore_1_7_0_min_js
-    addScript $ StaticR S.js_underscore_string_2_3_0_min_js
+    addScript $ StaticR S.lib_underscore_underscore_min_js
+    addScript $ StaticR S.lib_underscore_string_dist_underscore_string_min_js
 
 
 addAngular :: Widget
@@ -58,7 +58,7 @@ addAngular = addScriptRemote "//ajax.googleapis.com/ajax/libs/angularjs/1.3.0/an
 
 
 addAngularUIBootstrap :: Widget
-addAngularUIBootstrap = addScript $ StaticR S.js_ui_bootstrap_tpls_0_11_2_min_js
+addAngularUIBootstrap = addScript $ StaticR S.lib_angular_ui_bootstrap_bower_ui_bootstrap_tpls_min_js
 
 
 addGoogleMapsApi :: Widget
