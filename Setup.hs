@@ -10,6 +10,7 @@ import Distribution.Simple
     , confHook
     , defaultMainWithHooks
     , postClean
+    , preBuild
     , preConf
     , simpleUserHooks
     )
@@ -18,8 +19,10 @@ import Distribution.Simple.LocalBuildInfo
     , localPkgDescr
     )
 import Distribution.Simple.Setup
-    ( CleanFlags
+    ( BuildFlags
+    , CleanFlags
     , ConfigFlags
+    , buildVerbosity
     , cleanVerbosity
     , configConfigurationsFlags
     , configVerbosity
@@ -33,6 +36,7 @@ main :: IO ()
 main = defaultMainWithHooks simpleUserHooks {
            preConf = volarePreConf,
            confHook = volareConfHook,
+           preBuild = volarePreBuild,
            postClean = volarePostClean
        }
 
@@ -69,6 +73,15 @@ volareConfHook (description, buildInfo) flags = do
             }
         }
     }
+
+
+volarePreBuild :: Args ->
+                  BuildFlags ->
+                  IO PD.HookedBuildInfo
+volarePreBuild args flags = do
+    buildInfo <- preBuild simpleUserHooks args flags
+    rawSystemExit (fromFlag $ buildVerbosity flags) "bower" ["install"]
+    return buildInfo
 
 
 volarePostClean :: Args ->
