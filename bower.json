@@ -1,9 +1,20 @@
 {
-    "name": "volare",
-    "version": "0.0.1",
-    "dependencies": {
-        "underscore": "~1.7.0",
-        "underscore.string": "~2.3.3",
-        "angular-ui-bootstrap-bower": "~0.11.2"
+  "name": "volare",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular-ui-bootstrap-bower": "~0.11.2",
+    "easy-markerwithlabel": "~0.0.1",
+    "requirejs": "~2.1.15",
+    "requirejs-text": "~2.0.12",
+    "underscore": "~1.7.0",
+    "underscore.string": "~2.3.3"
+  },
+  "exportsOverride": {
+    "underscore.string": {
+      "": "lib/underscore.string.js"
+    },
+    "requirejs-text": {
+      "": "text.js"
     }
+  }
 }

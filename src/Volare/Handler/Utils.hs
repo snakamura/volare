@@ -49,8 +49,8 @@ addBootstrap = do
 
 addUnderscore :: Widget
 addUnderscore = do
-    addScript $ StaticR S.lib_underscore_underscore_min_js
-    addScript $ StaticR S.lib_underscore_string_dist_underscore_string_min_js
+    addScript $ StaticR S.js_lib_underscore_underscore_js
+    addScript $ StaticR S.js_lib_underscore_string_underscore_string_js
 
 
 addAngular :: Widget
@@ -58,14 +58,14 @@ addAngular = addScriptRemote "//ajax.googleapis.com/ajax/libs/angularjs/1.3.0/an
 
 
 addAngularUIBootstrap :: Widget
-addAngularUIBootstrap = addScript $ StaticR S.lib_angular_ui_bootstrap_bower_ui_bootstrap_tpls_min_js
+addAngularUIBootstrap = addScript $ StaticR S.js_lib_angular_ui_bootstrap_bower_ui_bootstrap_tpls_js
 
 
 addGoogleMapsApi :: Widget
 addGoogleMapsApi = do
     googleApiKey <- Config.googleApiKey <$> getConfig
     addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
-    addScript $ StaticR S.js_markerwithlabel_js
+    addScript $ StaticR S.js_lib_easy_markerwithlabel_markerwithlabel_js
 
 
 addCommonLibraries :: Widget

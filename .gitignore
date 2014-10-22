@@ -2,3 +2,5 @@ dist
 yesod-devel
 cabal.sandbox.config
 .cabal-sandbox
+node_modules
+bower_components
