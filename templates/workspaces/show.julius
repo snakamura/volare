@@ -1,2 +1,2 @@
+angular.module('volare.workspace').constant('$id', #{workspaceId});
 angular.module('volare.workspace').constant('$name', #{M.workspaceName workspace});
-var workspaceId = #{workspaceId};

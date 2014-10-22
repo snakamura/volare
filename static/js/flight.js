@@ -1,7 +1,7 @@
 (function() {
     var flight = angular.module('volare.flight', ['volare.name']);
 
-    flight.controller('FlightController', ['$scope', '$http', '$name', function($scope, $http, $name) {
+    flight.controller('FlightController', ['$scope', '$http', '$id', '$name', function($scope, $http, $id, $name) {
         var flights = new volare.Flights();
         var player = new volare.Player(flights, $('#player'));
         var map = new volare.Map(flights, $('#map'));
@@ -32,7 +32,7 @@
             $('#duration').text(common.formatDuration(flight.getDuration()));
             $('#max_altitude').text(common.formatAltitude(flight.getMaxAltitude()));
         });
-        flights.addFlight(flightId, 'red');
+        flights.addFlight($id, 'red');
 
         volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);

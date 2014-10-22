@@ -1,2 +1,2 @@
+angular.module('volare.flight').constant('$id', #{flightId});
 angular.module('volare.flight').constant('$name', #{M.flightName flight});
-var flightId = #{flightId};

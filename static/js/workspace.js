@@ -1,7 +1,7 @@
 (function() {
     var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name']);
 
-    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', '$name', function($scope, $http, $modal, $name) {
+    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', '$id', '$name', function($scope, $http, $modal, $id, $name) {
         var flights = new volare.Flights();
         flights.setInterval(10);
         var player = new volare.Player(flights, $('#player'));
@@ -23,13 +23,13 @@
                 backdrop: 'static',
                 resolve: {
                     $workspaceId: function() {
-                        return workspaceId;
+                        return $id;
                     }
                 }
             });
             modal.result.then(function(flightIds) {
                 if (flightIds.length !== 0) {
-                    $http.post('/workspaces/' + workspaceId + '/flights', {
+                    $http.post('/workspaces/' + $id + '/flights', {
                         flightIds: flightIds
                     }).success(function(fs) {
                         _.each(fs, function(flight) {
@@ -58,7 +58,7 @@
             modal.result.then(function(flightIds) {
                 if (flightIds.length !== 0) {
                     _.each(flightIds, function(flightId) {
-                        $http.delete('/workspaces/' + workspaceId + '/flights/' + flightId).success(function() {
+                        $http.delete('/workspaces/' + $id + '/flights/' + flightId).success(function() {
                             flights.removeFlight(flightId);
                         });
                     });
@@ -92,14 +92,14 @@
             }
         });
 
-        $.getJSON('/workspaces/' + workspaceId, function(workspace) {
+        $.getJSON('/workspaces/' + $id, function(workspace) {
             if (workspace.route) {
                 $.getJSON('/routes/' + workspace.route, function(route) {
                     map.setRoute(volare.Route.wrap(route));
                 });
             }
         });
-        $.getJSON('/workspaces/' + workspaceId + '/flights', function(fs) {
+        $.getJSON('/workspaces/' + $id + '/flights', function(fs) {
             _.each(fs, function(flight) {
                 flights.addFlight(flight.id, flight.color);
             });
