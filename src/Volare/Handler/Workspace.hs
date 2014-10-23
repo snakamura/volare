@@ -37,7 +37,7 @@ import Yesod.Core.Handler
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget
-    ( addScript
+    ( addScriptAttrs
     , addStylesheet
     , setTitle
     )
@@ -46,9 +46,9 @@ import Yesod.Persist (runDB)
 import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils
-    ( addAngularUIBootstrap
-    , addCommonLibraries
+    ( addBootstrap
     , addGoogleMapsApi
+    , addJQueryUI
     , maybeNotFound
     )
 import qualified Volare.Model as M
@@ -69,9 +69,8 @@ getWorkspacesR =
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle "Workspaces - Volare"
-            addCommonLibraries
-            addScript $ StaticR S.js_common_js
-            addScript $ StaticR S.js_workspaces_js
+            addBootstrap
+            addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/workspaces")]
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "workspaces/index")
         provideRep $ runDB $ JSON.toJSON <$> D.getWorkspaces
@@ -94,13 +93,10 @@ getWorkspaceR workspaceId =
         selectRep $ do
             provideRep $ defaultLayout $ do
                 setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
-                addCommonLibraries
+                addBootstrap
                 addGoogleMapsApi
-                addAngularUIBootstrap
-                addScript $ StaticR S.js_common_js
-                addScript $ StaticR S.js_name_js
-                addScript $ StaticR S.js_volare_js
-                addScript $ StaticR S.js_workspace_js
+                addJQueryUI
+                addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/workspace")]
                 addStylesheet $ StaticR S.css_common_css
                 addStylesheet $ StaticR S.css_name_css
                 addStylesheet $ StaticR S.css_volare_css

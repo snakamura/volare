@@ -1,6 +1,9 @@
-var volare = volare || {};
+define(function(require) {
+    var _ = require('underscore');
+    var $ = require('jquery');
+    require('jquery-ui');
+    var common = require('volare/common');
 
-(function() {
     var LatLng = google.maps.LatLng;
     var LatLngBounds = google.maps.LatLngBounds;
 
@@ -2727,21 +2730,23 @@ var volare = volare || {};
         layout();
     }
 
-    volare.Flights = Flights;
-    volare.Flight = Flight;
-    volare.Waypoint = Waypoint;
-    volare.WaypointItem = WaypointItem;
-    volare.Route = Route;
-    volare.RouteItem = RouteItem;
-    volare.Player = Player;
-    volare.Map = Map;
-    volare.AltitudeGraph = AltitudeGraph;
-    volare.GroundSpeedGraph = GroundSpeedGraph;
-    volare.VerticalSpeedGraph = VerticalSpeedGraph;
-    volare.Chart = Chart;
-    volare.OptionsControl = OptionsControl;
-    volare.WaypointControl = WaypointControl;
-    volare.RouteControl = RouteControl;
-    volare.WeatherControl = WeatherControl;
-    volare.setupLayout = setupLayout;
-})();
+    return {
+        Flights: Flights,
+        Flight: Flight,
+        Waypoint: Waypoint,
+        WaypointItem: WaypointItem,
+        Route: Route,
+        RouteItem: RouteItem,
+        Player: Player,
+        Map: Map,
+        AltitudeGraph: AltitudeGraph,
+        GroundSpeedGraph: GroundSpeedGraph,
+        VerticalSpeedGraph: VerticalSpeedGraph,
+        Chart: Chart,
+        OptionsControl: OptionsControl,
+        WaypointControl: WaypointControl,
+        RouteControl: RouteControl,
+        WeatherControl: WeatherControl,
+        setupLayout: setupLayout
+    }
+});

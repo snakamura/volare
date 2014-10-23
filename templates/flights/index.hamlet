@@ -1,6 +1,6 @@
 ^{W.navigation W.FLIGHTS}
 
-<div data-ng-app=volare.flights data-ng-controller=FlightsController>
+<div data-ng-controller=FlightsController>
   <div .container-fluid .actionbar>
     <div .file_selector>
       <div .btn .btn-default>

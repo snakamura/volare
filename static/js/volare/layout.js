@@ -1,4 +1,7 @@
-(function() {
+define(function(require) {
+    var $ = require('jquery');
+    var angular = require('angular');
+
     var layout = angular.module('volare.layout', []);
 
     layout.directive('volareFill', [function() {
@@ -14,4 +17,6 @@
             }
         };
     }]);
-}());
+
+    return layout;
+});

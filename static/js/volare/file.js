@@ -1,4 +1,6 @@
-(function() {
+define(function(require) {
+    var angular = require('angular');
+
     var file = angular.module('volare.file', []);
 
     file.directive('volareFile', ['$parse', function($parse) {
@@ -39,4 +41,6 @@
             }
         };
     }]);
-}());
+
+    return file;
+});

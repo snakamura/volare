@@ -1,4 +1,6 @@
-(function() {
+define(function(require) {
+    var angular = require('angular');
+
     var name = angular.module('volare.name', []);
 
     name.directive('volareName', ['$parse', function($parse) {
@@ -64,4 +66,6 @@
             }
         };
     }]);
-}());
+
+    return name;
+});

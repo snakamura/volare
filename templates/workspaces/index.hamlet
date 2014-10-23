@@ -1,6 +1,6 @@
 ^{W.navigation W.WORKSPACES}
 
-<div data-ng-app=volare.workspaces data-ng-controller=WorkspacesController>
+<div data-ng-controller=WorkspacesController>
   <table .table .table-striped>
     <thead>
       <tr>

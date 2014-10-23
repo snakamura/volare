@@ -48,7 +48,7 @@ import Yesod.Core.Handler
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget
-    ( addScript
+    ( addScriptAttrs
     , addStylesheet
     , setTitle
     )
@@ -57,8 +57,9 @@ import Yesod.Persist (runDB)
 import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils
-    ( addCommonLibraries
+    ( addBootstrap
     , addGoogleMapsApi
+    , addJQueryUI
     , lookupIntegralGetParam
     , maybeNotFound
     )
@@ -73,10 +74,8 @@ getFlightsR =
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle "Flights - Volare"
-            addCommonLibraries
-            addScript $ StaticR S.js_common_js
-            addScript $ StaticR S.js_file_js
-            addScript $ StaticR S.js_flights_js
+            addBootstrap
+            addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/flights")]
             addStylesheet $ StaticR S.css_common_css
             addStylesheet $ StaticR S.css_flights_css
             $(widgetFile "flights/index")
@@ -130,12 +129,10 @@ getFlightR flightId =
         selectRep $ do
             provideRep $ defaultLayout $ do
                 setTitle $ toHtml $ M.flightName flight <> " - Flight - Volare"
-                addCommonLibraries
+                addBootstrap
                 addGoogleMapsApi
-                addScript $ StaticR S.js_common_js
-                addScript $ StaticR S.js_name_js
-                addScript $ StaticR S.js_volare_js
-                addScript $ StaticR S.js_flight_js
+                addJQueryUI
+                addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/flight")]
                 addStylesheet $ StaticR S.css_common_css
                 addStylesheet $ StaticR S.css_name_css
                 addStylesheet $ StaticR S.css_volare_css
