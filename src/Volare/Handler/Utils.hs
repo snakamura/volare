@@ -1,29 +1,27 @@
 module Volare.Handler.Utils
     ( addJQueryUI
     , addBootstrap
-    , addGoogleMapsApi
+    , addGoogleApiKey
     , lookupIntegralGetParam
     , maybeNotFound
     ) where
 
 import Data.Functor ((<$>))
-import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
+import Text.Julius (julius)
 import Yesod.Core
     ( MonadHandler
     , notFound
     )
 import Yesod.Core.Handler (lookupGetParam)
 import Yesod.Core.Widget
-    ( addScript
-    , addScriptRemote
-    , addStylesheetRemote
+    ( addStylesheetRemote
+    , toWidget
     )
 
 import qualified Volare.Config as Config
 import Volare.Foundation
-import qualified Volare.Static as S
 
 
 addJQueryUI :: Widget
@@ -36,11 +34,10 @@ addBootstrap = do
     addStylesheetRemote "//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"
 
 
-addGoogleMapsApi :: Widget
-addGoogleMapsApi = do
+addGoogleApiKey :: Widget
+addGoogleApiKey = do
     googleApiKey <- Config.googleApiKey <$> getConfig
-    addScriptRemote $ "//maps.googleapis.com/maps/api/js?key=" <> googleApiKey <> "&sensor=false"
-    addScript $ StaticR S.js_lib_easy_markerwithlabel_markerwithlabel_js
+    toWidget [julius|var googleApiKey = #{googleApiKey};|]
 
 
 lookupIntegralGetParam :: (MonadHandler m, Integral a) =>

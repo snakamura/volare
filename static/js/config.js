@@ -3,10 +3,12 @@ require.config({
     paths: {
         'angular': '//ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min',
         'angular-ui-bootstrap': 'lib/angular-ui-bootstrap-bower/ui-bootstrap-tpls',
+        'async': 'lib/requirejs-plugins/async',
         'bootstrap': '//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min',
         'domReady': 'lib/domReady/domReady',
         'jquery': '//code.jquery.com/jquery-2.1.1.min',
         'jquery-ui': '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min',
+        'markerwithlabel': 'lib/easy-markerwithlabel/markerwithlabel',
         'underscore': 'lib/underscore/underscore',
         'underscore.string': 'lib/underscore.string/underscore.string',
         'volare': 'volare'
@@ -21,8 +23,16 @@ require.config({
         },
         'bootstrap': {
             deps: ['jquery']
+        },
+        'markerwithlabel': {
+            deps: ['google'],
+            exports: 'MarkerWithLabel'
         }
     }
+});
+
+define('google', ['async!http://maps.google.com/maps/api/js?v=3&key=' + googleApiKey + '&sensor=false'], function() {
+    return window.google;
 });
 
 function bootstrap(name) {

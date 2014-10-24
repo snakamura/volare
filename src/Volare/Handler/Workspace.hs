@@ -47,7 +47,7 @@ import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils
     ( addBootstrap
-    , addGoogleMapsApi
+    , addGoogleApiKey
     , addJQueryUI
     , maybeNotFound
     )
@@ -94,7 +94,7 @@ getWorkspaceR workspaceId =
             provideRep $ defaultLayout $ do
                 setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
                 addBootstrap
-                addGoogleMapsApi
+                addGoogleApiKey
                 addJQueryUI
                 addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/workspace")]
                 addStylesheet $ StaticR S.css_common_css

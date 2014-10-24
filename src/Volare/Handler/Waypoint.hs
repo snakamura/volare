@@ -48,7 +48,7 @@ import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils
     ( addBootstrap
-    , addGoogleMapsApi
+    , addGoogleApiKey
     , maybeNotFound
     )
 import qualified Volare.Model as M
@@ -109,7 +109,7 @@ getWaypointR waypointId =
             provideRep $ defaultLayout $ do
                 setTitle $ toHtml $ M.waypointName waypoint <> " - Waypoints - Volare"
                 addBootstrap
-                addGoogleMapsApi
+                addGoogleApiKey
                 addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/waypoint")]
                 addStylesheet $ StaticR S.css_common_css
                 addStylesheet $ StaticR S.css_name_css

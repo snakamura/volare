@@ -2,6 +2,8 @@ define(function(require) {
     var _ = require('underscore');
     var $ = require('jquery');
     require('jquery-ui');
+    var google = require('google');
+    var MarkerWithLabel = require('markerwithlabel');
     var common = require('volare/common');
 
     var LatLng = google.maps.LatLng;

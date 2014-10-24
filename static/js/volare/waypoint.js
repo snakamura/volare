@@ -1,6 +1,8 @@
 define(function(require) {
     var _ = require('underscore');
     var angular = require('angular');
+    var google = require('google');
+    var MarkerWithLabel = require('markerwithlabel');
     require('volare/name');
     require('volare/layout');
 
