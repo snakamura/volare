@@ -1,6 +1,6 @@
 ^{W.navigation W.WORKSPACES}
 
-<div data-ng-controller=WorkspaceController>
+<div data-ng-controller=WorkspaceController data-ng-cloak>
   <h1 data-ng-controller=WorkspaceNameController>
     <volare-name update=update($name) delete=delete()>
       <span>
