@@ -71,6 +71,15 @@ define(function(require) {
 
         formatDistance: function(distance) {
             return _.sprintf('%.1f', distance/1000);
+        },
+
+        loadCss: function(url) {
+            var link = $('<link>', {
+                type: 'text/css',
+                rel: 'stylesheet',
+                href: url
+            });
+            $('head').append(link);
         }
     };
 });

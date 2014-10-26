@@ -98,7 +98,6 @@ getWorkspaceR workspaceId =
                 addJQueryUI
                 addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/workspace")]
                 addStylesheet $ StaticR S.css_common_css
-                addStylesheet $ StaticR S.css_name_css
                 addStylesheet $ StaticR S.css_volare_css
                 addStylesheet $ StaticR S.css_workspace_css
                 $(widgetFile "workspaces/show")

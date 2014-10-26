@@ -112,7 +112,6 @@ getWaypointR waypointId =
                 addGoogleApiKey
                 addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/waypoint")]
                 addStylesheet $ StaticR S.css_common_css
-                addStylesheet $ StaticR S.css_name_css
                 addStylesheet $ StaticR S.css_waypoint_css
                 $(widgetFile "waypoints/show")
             provideRep $ do
