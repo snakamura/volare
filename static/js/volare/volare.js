@@ -6,6 +6,8 @@ define(function(require) {
     var MarkerWithLabel = require('markerwithlabel');
     var common = require('volare/common');
 
+    common.loadCss('/static/css/volare.css');
+
     var LatLng = google.maps.LatLng;
     var LatLngBounds = google.maps.LatLngBounds;
 
