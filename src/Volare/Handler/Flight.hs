@@ -48,8 +48,7 @@ import Yesod.Core.Handler
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget
-    ( addScriptAttrs
-    , addStylesheet
+    ( addStylesheet
     , setTitle
     )
 import Yesod.Persist (runDB)
@@ -60,6 +59,7 @@ import Volare.Handler.Utils
     ( addBootstrap
     , addGoogleApiKey
     , addJQueryUI
+    , addRequireJS
     , lookupIntegralGetParam
     , maybeNotFound
     )
@@ -75,9 +75,8 @@ getFlightsR =
         provideRep $ defaultLayout $ do
             setTitle "Flights - Volare"
             addBootstrap
-            addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/flights")]
+            addRequireJS "flights"
             addStylesheet $ StaticR S.css_common_css
-            addStylesheet $ StaticR S.css_flights_css
             $(widgetFile "flights/index")
         provideRep $ runDB $ JSON.toJSON <$> D.getFlights
 
@@ -132,9 +131,8 @@ getFlightR flightId =
                 addBootstrap
                 addGoogleApiKey
                 addJQueryUI
-                addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/flight")]
+                addRequireJS "flight"
                 addStylesheet $ StaticR S.css_common_css
-                addStylesheet $ StaticR S.css_flight_css
                 $(widgetFile "flights/show")
             provideRep $ do
                 records <- runDB $ D.getFlightRecords flightId

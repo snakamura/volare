@@ -37,8 +37,7 @@ import Yesod.Core.Handler
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget
-    ( addScriptAttrs
-    , addStylesheet
+    ( addStylesheet
     , setTitle
     )
 import Yesod.Persist (runDB)
@@ -49,6 +48,7 @@ import Volare.Handler.Utils
     ( addBootstrap
     , addGoogleApiKey
     , addJQueryUI
+    , addRequireJS
     , maybeNotFound
     )
 import qualified Volare.Model as M
@@ -70,7 +70,7 @@ getWorkspacesR =
         provideRep $ defaultLayout $ do
             setTitle "Workspaces - Volare"
             addBootstrap
-            addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/workspaces")]
+            addRequireJS "workspaces"
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "workspaces/index")
         provideRep $ runDB $ JSON.toJSON <$> D.getWorkspaces
@@ -96,9 +96,8 @@ getWorkspaceR workspaceId =
                 addBootstrap
                 addGoogleApiKey
                 addJQueryUI
-                addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/workspace")]
+                addRequireJS "workspace"
                 addStylesheet $ StaticR S.css_common_css
-                addStylesheet $ StaticR S.css_workspace_css
                 $(widgetFile "workspaces/show")
             provideRep $ return $ JSON.toJSON workspaceEntity
 

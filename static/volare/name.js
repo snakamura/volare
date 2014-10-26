@@ -2,7 +2,7 @@ define(function(require) {
     var angular = require('angular');
     var common = require('volare/common');
 
-    common.loadCss('/static/css/name.css');
+    common.loadCss(require.toUrl('./name.css'));
 
     var name = angular.module('volare.name', []);
 

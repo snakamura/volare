@@ -38,8 +38,7 @@ import Yesod.Core.Handler
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget
-    ( addScriptAttrs
-    , addStylesheet
+    ( addStylesheet
     , setTitle
     )
 import Yesod.Persist (runDB)
@@ -49,6 +48,7 @@ import Volare.Foundation
 import Volare.Handler.Utils
     ( addBootstrap
     , addGoogleApiKey
+    , addRequireJS
     , maybeNotFound
     )
 import qualified Volare.Model as M
@@ -63,7 +63,7 @@ getWaypointsR =
         provideRep $ defaultLayout $ do
             setTitle "Waypoints - Volare"
             addBootstrap
-            addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/waypoints")]
+            addRequireJS "waypoints"
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "waypoints/index")
         provideRep $ runDB $ JSON.toJSON <$> D.getWaypoints
@@ -110,9 +110,8 @@ getWaypointR waypointId =
                 setTitle $ toHtml $ M.waypointName waypoint <> " - Waypoints - Volare"
                 addBootstrap
                 addGoogleApiKey
-                addScriptAttrs (StaticR S.js_lib_requirejs_require_js) [("data-main", "/static/js/waypoint")]
+                addRequireJS "waypoint"
                 addStylesheet $ StaticR S.css_common_css
-                addStylesheet $ StaticR S.css_waypoint_css
                 $(widgetFile "waypoints/show")
             provideRep $ do
                 items <- runDB $ D.getWaypointItems waypointId

@@ -5,6 +5,8 @@ define(function(require) {
     require('volare/name');
     var volare = require('volare/volare');
 
+    common.loadCss(require.toUrl('./flight.css'));
+
     var flight = angular.module('volare.flight', ['volare.name']);
 
     flight.controller('FlightController', ['$scope', '$http', function($scope, $http) {

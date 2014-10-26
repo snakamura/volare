@@ -6,6 +6,8 @@ define(function(require) {
     require('volare/name');
     var volare = require('volare/volare');
 
+    common.loadCss(require.toUrl('./workspace.css'));
+
     var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name']);
 
     workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {

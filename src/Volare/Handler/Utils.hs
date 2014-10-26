@@ -1,5 +1,6 @@
 module Volare.Handler.Utils
-    ( addJQueryUI
+    ( addRequireJS
+    , addJQueryUI
     , addBootstrap
     , addGoogleApiKey
     , lookupIntegralGetParam
@@ -7,6 +8,7 @@ module Volare.Handler.Utils
     ) where
 
 import Data.Functor ((<$>))
+import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
 import Text.Julius (julius)
@@ -16,12 +18,19 @@ import Yesod.Core
     )
 import Yesod.Core.Handler (lookupGetParam)
 import Yesod.Core.Widget
-    ( addStylesheetRemote
+    ( addScriptAttrs
+    , addStylesheetRemote
     , toWidget
     )
 
 import qualified Volare.Config as Config
 import Volare.Foundation
+import qualified Volare.Static as S
+
+
+addRequireJS :: T.Text ->
+                Widget
+addRequireJS name = addScriptAttrs (StaticR S.lib_requirejs_require_js) [("data-main", "/static/js/" <> name)]
 
 
 addJQueryUI :: Widget

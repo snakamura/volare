@@ -3,8 +3,11 @@ define(function(require) {
     var angular = require('angular');
     var google = require('google');
     var MarkerWithLabel = require('markerwithlabel');
+    var common = require('volare/common');
     require('volare/name');
     require('volare/layout');
+
+    common.loadCss(require.toUrl('./waypoint.css'));
 
     var waypoint = angular.module('volare.waypoint', ['volare.name', 'volare.layout']);
 

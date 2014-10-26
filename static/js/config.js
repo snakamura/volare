@@ -1,5 +1,5 @@
 require.config({
-    baseUrl: '/static/js',
+    baseUrl: '/static',
     paths: {
         'angular': '//ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min',
         'angular-ui-bootstrap': 'lib/angular-ui-bootstrap-bower/ui-bootstrap-tpls',
