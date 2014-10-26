@@ -10,8 +10,7 @@ require.config({
         'jquery-ui': '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min',
         'markerwithlabel': 'lib/easy-markerwithlabel/markerwithlabel',
         'underscore': 'lib/underscore/underscore',
-        'underscore.string': 'lib/underscore.string/underscore.string',
-        'volare': 'volare'
+        'underscore.string': 'lib/underscore.string/underscore.string'
     },
     shim: {
         'angular': {
@@ -29,10 +28,6 @@ require.config({
             exports: 'MarkerWithLabel'
         }
     }
-});
-
-define('google', ['async!http://maps.google.com/maps/api/js?v=3&key=' + googleApiKey + '&sensor=false'], function() {
-    return window.google;
 });
 
 function bootstrap(name) {
