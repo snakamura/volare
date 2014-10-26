@@ -1,4 +1,4 @@
-define(['require', 'underscore', 'jquery', 'jquery-ui', 'google', 'markerwithlabel', 'volare/common'], function(require, _, $, __, google, MarkerWithLabel, common) {
+define(['require', 'underscore', 'jquery', 'jquery-ui', 'google', 'markerwithlabel', 'volare/common'], function(require, _, $, __, google, markerWithLabel, common) {
     common.loadCss(require.toUrl('./volare.css'));
 
     var LatLng = google.maps.LatLng;
@@ -949,7 +949,7 @@ define(['require', 'underscore', 'jquery', 'jquery-ui', 'google', 'markerwithlab
         if (waypoint) {
             var self = this;
             _.each(waypoint.getItems(), function(item) {
-                var marker = new MarkerWithLabel({
+                var marker = new markerWithLabel.MarkerWithLabel({
                     map: self._map,
                     position: item.getPosition(),
                     title: item.getName(),
@@ -983,7 +983,7 @@ define(['require', 'underscore', 'jquery', 'jquery-ui', 'google', 'markerwithlab
             _.each(route.getItems(), function(routeItem) {
                 var waypointItem = routeItem.getWaypointItem();
                 var position = waypointItem.getPosition();
-                var marker = new MarkerWithLabel({
+                var marker = new markerWithLabel.MarkerWithLabel({
                     map: self._map,
                     position: position,
                     title: waypointItem.getName(),

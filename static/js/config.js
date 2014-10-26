@@ -25,7 +25,11 @@ require.config({
         },
         'markerwithlabel': {
             deps: ['google'],
-            exports: 'MarkerWithLabel'
+            init: function() {
+                return {
+                    MarkerWithLabel: MarkerWithLabel
+                }
+            }
         }
     }
 });

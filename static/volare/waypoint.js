@@ -1,4 +1,4 @@
-define(['require', 'underscore', 'angular', 'google', 'markerwithlabel', 'volare/common', 'volare/name', 'volare/layout'], function(require, _, angular, google, MarkerWithLabel, common) {
+define(['require', 'underscore', 'angular', 'google', 'markerwithlabel', 'volare/common', 'volare/name', 'volare/layout'], function(require, _, angular, google, markerWithLabel, common) {
     common.loadCss(require.toUrl('./waypoint.css'));
 
     var waypoint = angular.module('volare.waypoint', ['volare.name', 'volare.layout']);
@@ -54,7 +54,7 @@ define(['require', 'underscore', 'angular', 'google', 'markerwithlabel', 'volare
                             if (item.name !== item.description) {
                                 label += ' (' + item.description + ')';
                             }
-                            var marker = new MarkerWithLabel({
+                            var marker = new markerWithLabel.MarkerWithLabel({
                                 map: map,
                                 position: position,
                                 title: item.name,
