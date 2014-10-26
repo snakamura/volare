@@ -1,7 +1,4 @@
-define(function(require) {
-    var angular = require('angular');
-    var common = require('volare/common');
-
+define(['require', 'angular', 'volare/common'], function(require, angular, common) {
     common.loadCss(require.toUrl('./name.css'));
 
     var name = angular.module('volare.name', []);

@@ -1,8 +1,4 @@
-define(function(require) {
-    var _ = require('underscore');
-    var _s = require('underscore.string');
-    var $ = require('jquery');
-
+define(['underscore', 'underscore.string', 'jquery'], function(_, _s, $) {
     _.mixin(_s.exports());
 
     $.ajaxSetup({

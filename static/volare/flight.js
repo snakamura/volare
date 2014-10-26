@@ -1,10 +1,4 @@
-define(function(require) {
-    var angular = require('angular');
-    require('bootstrap');
-    var common = require('volare/common');
-    require('volare/name');
-    var volare = require('volare/volare');
-
+define(['require', 'angular', 'bootstrap', 'volare/volare', 'volare/common', 'volare/name'], function(require, angular, __, volare, common, name) {
     common.loadCss(require.toUrl('./flight.css'));
 
     var flight = angular.module('volare.flight', ['volare.name']);

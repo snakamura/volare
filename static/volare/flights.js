@@ -1,9 +1,4 @@
-define(function(require) {
-    var _ = require('underscore');
-    var angular = require('angular');
-    var common = require('volare/common');
-    require('volare/file');
-
+define(['underscore', 'angular', 'volare/common', 'volare/file'], function(_, angular, common, __) {
     var flights = angular.module('volare.flights', ['volare.file']);
 
     function initFlight(flight) {

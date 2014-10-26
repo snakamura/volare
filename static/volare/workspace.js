@@ -1,11 +1,4 @@
-define(function(require) {
-    var angular = require('angular');
-    require('angular-ui-bootstrap');
-    require('bootstrap');
-    var common = require('volare/common');
-    require('volare/name');
-    var volare = require('volare/volare');
-
+define(['require', 'angular', 'angular-ui-bootstrap', 'bootstrap', 'volare/volare', 'volare/common', 'volare/name'], function(require, angular, __, __, volare, common) {
     common.loadCss(require.toUrl('./workspace.css'));
 
     var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name']);

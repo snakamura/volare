@@ -1,6 +1,4 @@
-define(function(require) {
-    var angular = require('angular');
-
+define(['angular'], function(angular) {
     var file = angular.module('volare.file', []);
 
     file.directive('volareFile', ['$parse', function($parse) {

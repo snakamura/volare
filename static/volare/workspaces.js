@@ -1,6 +1,4 @@
-define(function(require) {
-    var angular = require('angular');
-
+define(['angular'], function(angular) {
     var workspaces = angular.module('volare.workspaces', []);
 
     workspaces.controller('WorkspacesController', ['$scope', '$http', function($scope, $http) {

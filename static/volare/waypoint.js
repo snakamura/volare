@@ -1,12 +1,4 @@
-define(function(require) {
-    var _ = require('underscore');
-    var angular = require('angular');
-    var google = require('google');
-    var MarkerWithLabel = require('markerwithlabel');
-    var common = require('volare/common');
-    require('volare/name');
-    require('volare/layout');
-
+define(['require', 'underscore', 'angular', 'google', 'markerwithlabel', 'volare/common', 'volare/name', 'volare/layout'], function(require, _, angular, google, MarkerWithLabel, common) {
     common.loadCss(require.toUrl('./waypoint.css'));
 
     var waypoint = angular.module('volare.waypoint', ['volare.name', 'volare.layout']);

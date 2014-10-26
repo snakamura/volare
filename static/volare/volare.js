@@ -1,11 +1,4 @@
-define(function(require) {
-    var _ = require('underscore');
-    var $ = require('jquery');
-    require('jquery-ui');
-    var google = require('google');
-    var MarkerWithLabel = require('markerwithlabel');
-    var common = require('volare/common');
-
+define(['require', 'underscore', 'jquery', 'jquery-ui', 'google', 'markerwithlabel', 'volare/common'], function(require, _, $, __, google, MarkerWithLabel, common) {
     common.loadCss(require.toUrl('./volare.css'));
 
     var LatLng = google.maps.LatLng;
