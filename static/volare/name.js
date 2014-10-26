@@ -11,22 +11,7 @@ define(function(require) {
             restrict: 'E',
             replace: true,
             transclude: true,
-            template: '<span class="volare_name">' +
-                        '<span class="show_name">' +
-                          '<span class="name"></span>' +
-                          '<span>' +
-                            '<span class="action edit glyphicon glyphicon-edit"></span>' +
-                            '<span class="action delete glyphicon glyphicon-trash"></span>' +
-                          '</span>' +
-                          '<span ng-transclude></span>' +
-                        '</span>' +
-                        '<span class="edit_name">' +
-                          '<input type="text" name="name" value="">' +
-                          '<span>' +
-                            '<span class="action save glyphicon glyphicon-ok"></span>' +
-                          '</span>' +
-                        '</span>' +
-                      '</span>',
+            templateUrl: require.toUrl('./name.html'),
             link: function(scope, element, attrs) {
                 var updateHandler = $parse(attrs['update']);
                 var deleteHandler = $parse(attrs['delete']);
