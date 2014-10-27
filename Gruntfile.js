@@ -1,15 +1,15 @@
 module.exports = function(grunt) {
-    var requirejs = {};
-    ['flight', 'flights', 'workspace', 'workspaces', 'waypoint', 'waypoints'].forEach(function(page) {
-        requirejs[page] = {
-            options: {
-                name: 'js/' + page,
-                baseUrl: 'static',
-                mainConfigFile: 'static/js/config.js',
-                out: 'static_build/js/' + page + '.js',
-                findNestedDependencies: true
-            }
-        };
+    var fs = require('fs');
+    var _ = require('underscore');
+
+    var mainJavascriptFiles = fs.readdirSync('static/js');
+    var mainModules = _.map(_.filter(mainJavascriptFiles, function(file) {
+        return file !== 'config.js';
+    }), function(file) {
+        var name = file.replace(/\..*$/, '');
+        return {
+            'name': 'js/' + name
+        }
     });
 
     grunt.initConfig({
@@ -26,7 +26,25 @@ module.exports = function(grunt) {
             }
         },
 
-        requirejs: requirejs
+        requirejs: {
+            build: {
+                options: {
+                    baseUrl: 'static',
+                    mainConfigFile: 'static/js/config.js',
+                    dir: 'static_build',
+                    findNestedDependencies: true,
+                    removeCombined: true,
+                    optimizeCss: 'standard',
+                    paths: {
+                        'angular': 'empty:',
+                        'bootstrap': 'empty:',
+                        'jquery': 'empty:',
+                        'jquery-ui': 'empty:'
+                    },
+                    modules: mainModules
+                }
+            }
+        }
     });
 
     grunt.loadNpmTasks('grunt-bower-task');
