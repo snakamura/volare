@@ -35,6 +35,8 @@ module.exports = function(grunt) {
                     findNestedDependencies: true,
                     removeCombined: true,
                     optimizeCss: 'standard',
+                    preserveLicenseComments: false,
+                    fileExclusionRegExp: /\.git/,
                     paths: {
                         'angular': 'empty:',
                         'bootstrap': 'empty:',
