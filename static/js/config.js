@@ -34,12 +34,10 @@ require.config({
     }
 });
 
-function bootstrap(name) {
-    require([name], function(module) {
-        require(['angular', 'domReady'], function(angular, domReady) {
-            domReady(function() {
-                angular.bootstrap(document, [module.name]);
-            });
+function bootstrap(module) {
+    require(['angular', 'domReady'], function(angular, domReady) {
+        domReady(function() {
+            angular.bootstrap(document, [module.name]);
         });
     });
-};
+}

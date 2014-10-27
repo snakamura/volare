@@ -1,3 +1,3 @@
 require(['./config'], function(config) {
-    bootstrap('volare/waypoints');
+    require(['volare/waypoints'], bootstrap);
 });

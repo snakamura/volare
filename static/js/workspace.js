@@ -1,3 +1,3 @@
 require(['./config'], function(config) {
-    bootstrap('volare/workspace');
+    require(['volare/workspace'], bootstrap);
 });
