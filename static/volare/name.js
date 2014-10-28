@@ -1,8 +1,8 @@
-define(['require',
-        'angular',
+define(['angular',
         'volare/common',
-        'text!volare/name.css'],
-       function(require, angular, common, css) {
+        'text!volare/name.css',
+        'text!volare/name.html'],
+       function(angular, common, css, template) {
     common.loadCssInline(css);
 
     var name = angular.module('volare.name', []);
@@ -12,7 +12,7 @@ define(['require',
             restrict: 'E',
             replace: true,
             transclude: true,
-            templateUrl: require.toUrl('./name.html'),
+            template: template,
             link: function(scope, element, attrs) {
                 var updateHandler = $parse(attrs['update']);
                 var deleteHandler = $parse(attrs['delete']);

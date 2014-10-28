@@ -1,8 +1,8 @@
-define(['require',
-        'angular',
+define(['angular',
         'volare/common',
-        'text!volare/file.css'],
-       function(require, angular, common, css) {
+        'text!volare/file.css',
+        'text!volare/file.html'],
+       function(angular, common, css, template) {
     common.loadCssInline(css);
 
     var file = angular.module('volare.file', []);
@@ -12,7 +12,7 @@ define(['require',
             restrict: 'E',
             replace: true,
             transclude: true,
-            templateUrl: require.toUrl('./file.html'),
+            template: template,
             link: function(scope, element, attrs) {
                 var changeHandler = $parse(attrs['change']);
 
