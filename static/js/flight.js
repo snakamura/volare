@@ -1,3 +1,3 @@
 require(['./config'], function(config) {
-    require(['volare/flight'], bootstrap);
+    require(['volare/flight'], config.bootstrap);
 });

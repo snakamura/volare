@@ -34,13 +34,12 @@ require.config({
     }
 });
 
-function bootstrap(module) {
-    require(['angular', 'domReady'], function(angular, domReady) {
-        domReady(function() {
-            angular.bootstrap(document, [module.name]);
+define('./config', {
+    bootstrap: function(module) {
+        require(['angular', 'domReady'], function(angular, domReady) {
+            domReady(function() {
+                angular.bootstrap(document, [module.name]);
+            });
         });
-    });
-}
-
-define('./config', function() {
+    }
 });
