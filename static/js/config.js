@@ -41,3 +41,6 @@ function bootstrap(module) {
         });
     });
 }
+
+define('./config', function() {
+});
