@@ -1,4 +1,13 @@
-define(['require', 'underscore', 'angular', 'google', 'markerwithlabel', 'volare/common', 'volare/name', 'volare/layout', 'text!volare/waypoint.css'], function(require, _, angular, google, markerWithLabel, common, __, __, css) {
+define(['require',
+        'underscore',
+        'angular',
+        'google',
+        'markerwithlabel',
+        'volare/common',
+        'volare/name',
+        'volare/layout',
+        'text!volare/waypoint.css'],
+       function(require, _, angular, google, markerWithLabel, common, __, __, css) {
     common.loadCssInline(css);
 
     var waypoint = angular.module('volare.waypoint', ['volare.name', 'volare.layout']);

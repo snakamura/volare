@@ -1,4 +1,8 @@
-define(['require', 'angular', 'volare/common', 'text!volare/name.css'], function(require, angular, common, css) {
+define(['require',
+        'angular',
+        'volare/common',
+        'text!volare/name.css'],
+       function(require, angular, common, css) {
     common.loadCssInline(css);
 
     var name = angular.module('volare.name', []);

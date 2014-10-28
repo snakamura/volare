@@ -1,4 +1,6 @@
-define(['jquery', 'angular'], function($, angular) {
+define(['jquery',
+        'angular'],
+       function($, angular) {
     var layout = angular.module('volare.layout', []);
 
     layout.directive('volareFill', [function() {

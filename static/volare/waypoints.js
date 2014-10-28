@@ -1,4 +1,8 @@
-define(['underscore', 'angular', 'volare/common', 'volare/file'], function(_, angular, common) {
+define(['underscore',
+        'angular',
+        'volare/common',
+        'volare/file'],
+       function(_, angular, common, __) {
     var waypoints = angular.module('volare.waypoints', ['volare.file']);
 
     waypoints.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {

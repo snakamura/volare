@@ -1,4 +1,11 @@
-define(['require', 'angular', 'bootstrap', 'volare/volare', 'volare/common', 'volare/name', 'text!volare/flight.css'], function(require, angular, __, volare, common, name, css) {
+define(['require',
+        'angular',
+        'bootstrap',
+        'volare/volare',
+        'volare/common',
+        'volare/name',
+        'text!volare/flight.css'],
+       function(require, angular, __, volare, common, __, css) {
     common.loadCssInline(css);
 
     var flight = angular.module('volare.flight', ['volare.name']);

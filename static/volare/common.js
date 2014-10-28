@@ -1,4 +1,7 @@
-define(['underscore', 'underscore.string', 'jquery'], function(_, _s, $) {
+define(['underscore',
+        'underscore.string',
+        'jquery'],
+       function(_, _s, $) {
     _.mixin(_s.exports());
 
     $.ajaxSetup({
