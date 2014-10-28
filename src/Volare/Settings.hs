@@ -36,7 +36,10 @@ development = False
 
 
 staticDir :: FilePath
-staticDir = "static"
+staticDir = if development then
+                "static"
+            else
+                "static_build"
 
 
 widgetFile :: String ->
