@@ -1,12 +1,25 @@
-define(['angular'], function(angular) {
+define(['require',
+        'angular',
+        'volare/common',
+        'text!volare/file.css'],
+       function(require, angular, common, css) {
+    common.loadCssInline(css);
+
     var file = angular.module('volare.file', []);
 
     file.directive('volareFile', ['$parse', function($parse) {
         return {
+            restrict: 'E',
+            replace: true,
+            transclude: true,
+            templateUrl: require.toUrl('./file.html'),
             link: function(scope, element, attrs) {
-                var handler = $parse(attrs['volareFile']);
-                element.on('change', function(event) {
-                    handler(scope, {
+                var changeHandler = $parse(attrs['change']);
+
+                var input = element.find('input');
+                input.attr('accept', attrs['accept']);
+                input.on('change', function(event) {
+                    changeHandler(scope, {
                         $event: event,
                         $files: event.target.files
                     });

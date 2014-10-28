@@ -1,17 +1,15 @@
 ^{W.navigation W.WAYPOINTS}
 
-<div data-ng-controller=WaypointsController>
+<div data-ng-controller=WaypointsController data-ng-cloak>
   <div .container-fluid .actionbar>
-    <div .file_selector>
-      <div .btn .btn-default>
-        <span>Add Waypoints
-      <input type=file multiple accept=.wpt data-ng-controller=WaypointsUploadController data-volare-file=addFiles($files)>
+    <volare-file accept=.wpt change=addFiles($files) data-ng-controller=WaypointsUploadController>
+      <span>Add Waypoints
 
   <table .table .table-striped>
     <thead>
       <tr>
         <th>Name
-    <tbody data-ng-cloak data-ng-controller=WaypointsUploadController data-volare-drop=addFiles($files)>
+    <tbody data-ng-controller=WaypointsUploadController data-volare-drop=addFiles($files)>
       <tr data-ng-repeat="waypoint in waypoints">
         <td>
           <a data-ng-href="/waypoints/{{ waypoint.id }}">{{ waypoint.name }}
