@@ -41,6 +41,9 @@ module.exports = function(grunt) {
                     preserveLicenseComments: false,
                     fileExclusionRegExp: /\.git/,
                     wrapShim: true,
+                    stubModules: [
+                        'text'
+                    ],
                     paths: {
                         'angular': 'empty:',
                         'bootstrap': 'empty:',
