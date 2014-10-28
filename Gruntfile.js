@@ -2,6 +2,9 @@ module.exports = function(grunt) {
     var fs = require('fs');
     var _ = require('underscore');
 
+    var bowerTargetDir = 'static/lib';
+    var requirejsTargetDir = 'static_build';
+
     var mainJavascriptFiles = fs.readdirSync('static/js');
     var mainModules = _.map(_.filter(mainJavascriptFiles, function(file) {
         return file !== 'config.js';
@@ -16,7 +19,7 @@ module.exports = function(grunt) {
         bower: {
             install: {
                 options: {
-                    targetDir: 'static/lib',
+                    targetDir: bowerTargetDir,
                     layout: 'byType',
                     install: true,
                     verbose: false,
@@ -31,7 +34,7 @@ module.exports = function(grunt) {
                 options: {
                     baseUrl: 'static',
                     mainConfigFile: 'static/js/config.js',
-                    dir: 'static_build',
+                    dir: requirejsTargetDir,
                     findNestedDependencies: true,
                     removeCombined: true,
                     optimizeCss: 'standard',
@@ -46,9 +49,15 @@ module.exports = function(grunt) {
                     modules: mainModules
                 }
             }
+        },
+
+        clean: {
+            bower: ['bower_components', bowerTargetDir],
+            requirejs: [requirejsTargetDir]
         }
     });
 
     grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
+    grunt.loadNpmTasks('grunt-contrib-clean');
 };

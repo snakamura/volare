@@ -118,10 +118,10 @@ volarePostClean :: Args ->
                    IO ()
 volarePostClean args flags description _ = do
     rawSystemExit (fromFlag $ cleanVerbosity flags) "/bin/sh" ["-c", "cd msm && make clean"]
-    safeRemoveDirectory "bower_components"
+    b <- doesDirectoryExist "node_modules"
+    when b $
+        rawSystemExit (fromFlag $ cleanVerbosity flags) "grunt" ["clean"]
     safeRemoveDirectory "node_modules"
-    safeRemoveDirectory "static/lib"
-    safeRemoveDirectory "static_build"
     postClean simpleUserHooks args flags description ()
 
 
