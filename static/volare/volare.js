@@ -1462,7 +1462,7 @@ define(['require',
                     var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
                     var windIconIndex = WeatherOverlay.windIconIndex(windSpeed);
                     var $windImage = $elem.find('.wind');
-                    $windImage[0].src = '/static/image/weather/wind/' + windIconIndex + '.png';
+                    $windImage[0].src = require.toUrl('./image/weather/wind/' + windIconIndex + '.png');
                     $windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
                     $windImage.css('visibility', self._isWindVisible(item) ? 'visible' : 'hidden');
 
@@ -1734,7 +1734,7 @@ define(['require',
                     var $windImage = $elem.find('.wind');
                     var windAngle = AMEDASOverlay.windAngle(item.windDirection);
                     if (!_.isNull(windAngle)) {
-                        $windImage[0].src = '/static/image/weather/wind/' + windIconIndex + '.png';
+                        $windImage[0].src = require.toUrl('./image/weather/wind/' + windIconIndex + '.png');
                         $windImage.css('transform', 'rotate(' + (-windAngle) + 'deg)');
                         $windImage.css('visibility', self._flags & Map.AMEDAS_WIND ? 'visible' : 'hidden');
                     }
@@ -1941,7 +1941,7 @@ define(['require',
                             var windAngle = Math.atan2(item.northwardWind, item.eastwardWind);
                             var windIconIndex = WeatherOverlay.windIconIndex(windSpeed);
                             var $windImage = $elem.find('.wind');
-                            $windImage[0].src = '/static/image/weather/wind/' + windIconIndex + '.png';
+                            $windImage[0].src = require.toUrl('./image/weather/wind/' + windIconIndex + '.png');
                             $windImage.css('transform', 'rotate(' + (-windAngle*180/Math.PI) + 'deg)');
 
                             $div.append($elem);
