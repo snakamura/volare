@@ -40,6 +40,7 @@ module.exports = function(grunt) {
                     optimizeCss: 'standard',
                     preserveLicenseComments: false,
                     fileExclusionRegExp: /\.git/,
+                    wrapShim: true,
                     paths: {
                         'angular': 'empty:',
                         'bootstrap': 'empty:',
