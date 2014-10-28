@@ -9,6 +9,7 @@ require.config({
         'jquery': '//code.jquery.com/jquery-2.1.1.min',
         'jquery-ui': '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min',
         'markerwithlabel': 'lib/easy-markerwithlabel/markerwithlabel',
+        'text': 'lib/requirejs-text/text',
         'underscore': 'lib/underscore/underscore',
         'underscore.string': 'lib/underscore.string/underscore.string'
     },

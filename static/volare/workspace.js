@@ -1,5 +1,5 @@
-define(['require', 'angular', 'angular-ui-bootstrap', 'bootstrap', 'volare/volare', 'volare/common', 'volare/name'], function(require, angular, __, __, volare, common) {
-    common.loadCss(require.toUrl('./workspace.css'));
+define(['require', 'angular', 'angular-ui-bootstrap', 'bootstrap', 'volare/volare', 'volare/common', 'volare/name', 'text!volare/workspace.css'], function(require, angular, __, __, volare, common, __, css) {
+    common.loadCssInline(css);
 
     var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name']);
 

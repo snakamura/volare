@@ -76,6 +76,12 @@ define(['underscore', 'underscore.string', 'jquery'], function(_, _s, $) {
                 href: url
             });
             $('head').append(link);
+        },
+
+        loadCssInline: function(css) {
+            var style = $('<style>');
+            style.text(css);
+            $('head').append(style);
         }
     };
 });

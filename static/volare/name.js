@@ -1,5 +1,5 @@
-define(['require', 'angular', 'volare/common'], function(require, angular, common) {
-    common.loadCss(require.toUrl('./name.css'));
+define(['require', 'angular', 'volare/common', 'text!volare/name.css'], function(require, angular, common, css) {
+    common.loadCssInline(css);
 
     var name = angular.module('volare.name', []);
 
