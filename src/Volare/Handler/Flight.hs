@@ -56,7 +56,7 @@ import Yesod.Persist (runDB)
 import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils
-    ( addBootstrap
+    ( addCommonLibraries
     , addGoogleApiKey
     , addJQueryUI
     , addRequireJS
@@ -74,7 +74,7 @@ getFlightsR =
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle "Flights - Volare"
-            addBootstrap
+            addCommonLibraries
             addRequireJS "flights"
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "flights/index")
@@ -128,7 +128,7 @@ getFlightR flightId =
         selectRep $ do
             provideRep $ defaultLayout $ do
                 setTitle $ toHtml $ M.flightName flight <> " - Flight - Volare"
-                addBootstrap
+                addCommonLibraries
                 addGoogleApiKey
                 addJQueryUI
                 addRequireJS "flight"

@@ -46,7 +46,7 @@ import Yesod.Persist (runDB)
 import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils
-    ( addBootstrap
+    ( addCommonLibraries
     , addGoogleApiKey
     , addRequireJS
     , maybeNotFound
@@ -62,7 +62,7 @@ getWaypointsR =
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle "Waypoints - Volare"
-            addBootstrap
+            addCommonLibraries
             addRequireJS "waypoints"
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "waypoints/index")
@@ -108,7 +108,7 @@ getWaypointR waypointId =
         selectRep $ do
             provideRep $ defaultLayout $ do
                 setTitle $ toHtml $ M.waypointName waypoint <> " - Waypoints - Volare"
-                addBootstrap
+                addCommonLibraries
                 addGoogleApiKey
                 addRequireJS "waypoint"
                 addStylesheet $ StaticR S.css_common_css

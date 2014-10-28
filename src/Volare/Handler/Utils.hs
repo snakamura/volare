@@ -1,8 +1,10 @@
 module Volare.Handler.Utils
     ( addRequireJS
+    , addNormalize
     , addJQueryUI
     , addBootstrap
     , addGoogleApiKey
+    , addCommonLibraries
     , lookupIntegralGetParam
     , maybeNotFound
     ) where
@@ -19,6 +21,7 @@ import Yesod.Core
 import Yesod.Core.Handler (lookupGetParam)
 import Yesod.Core.Widget
     ( addScriptAttrs
+    , addStylesheet
     , addStylesheetRemote
     , toWidget
     )
@@ -31,6 +34,10 @@ import qualified Volare.Static as S
 addRequireJS :: T.Text ->
                 Widget
 addRequireJS name = addScriptAttrs (StaticR S.lib_requirejs_require_js) [("data-main", "/static/js/" <> name)]
+
+
+addNormalize :: Widget
+addNormalize = addStylesheet $ StaticR S.lib_normalize_css_normalize_css
 
 
 addJQueryUI :: Widget
@@ -47,6 +54,12 @@ addGoogleApiKey :: Widget
 addGoogleApiKey = do
     googleApiKey <- Config.googleApiKey <$> getConfig
     toWidget [julius|var googleApiKey = #{googleApiKey};|]
+
+
+addCommonLibraries :: Widget
+addCommonLibraries = do
+    addNormalize
+    addBootstrap
 
 
 lookupIntegralGetParam :: (MonadHandler m, Integral a) =>

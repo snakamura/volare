@@ -45,7 +45,7 @@ import Yesod.Persist (runDB)
 import qualified Volare.Domain as D
 import Volare.Foundation
 import Volare.Handler.Utils
-    ( addBootstrap
+    ( addCommonLibraries
     , addGoogleApiKey
     , addJQueryUI
     , addRequireJS
@@ -69,7 +69,7 @@ getWorkspacesR =
     selectRep $ do
         provideRep $ defaultLayout $ do
             setTitle "Workspaces - Volare"
-            addBootstrap
+            addCommonLibraries
             addRequireJS "workspaces"
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "workspaces/index")
@@ -93,7 +93,7 @@ getWorkspaceR workspaceId =
         selectRep $ do
             provideRep $ defaultLayout $ do
                 setTitle $ toHtml $ M.workspaceName workspace <> " - Workspace - Volare"
-                addBootstrap
+                addCommonLibraries
                 addGoogleApiKey
                 addJQueryUI
                 addRequireJS "workspace"
