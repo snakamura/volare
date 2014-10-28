@@ -1,5 +1,9 @@
 module Main (main) where
 
+import Control.Monad
+    ( unless
+    , when
+    )
 import Data.Maybe
     ( fromJust
     , fromMaybe
@@ -7,6 +11,8 @@ import Data.Maybe
 import qualified Distribution.PackageDescription as PD
 import Distribution.Simple
     ( Args
+    , UserHooks
+    , buildHook
     , confHook
     , defaultMainWithHooks
     , postClean
@@ -16,19 +22,25 @@ import Distribution.Simple
     )
 import Distribution.Simple.LocalBuildInfo
     ( LocalBuildInfo
+    , configFlags
     , localPkgDescr
     )
 import Distribution.Simple.Setup
     ( BuildFlags
     , CleanFlags
     , ConfigFlags
+    , buildVerbosity
     , cleanVerbosity
     , configConfigurationsFlags
     , configVerbosity
     , fromFlag
     )
 import Distribution.Simple.Utils (rawSystemExit)
-import System.Directory (getCurrentDirectory)
+import System.Directory
+    ( doesDirectoryExist
+    , getCurrentDirectory
+    , removeDirectoryRecursive
+    )
 
 
 main :: IO ()
@@ -36,6 +48,7 @@ main = defaultMainWithHooks simpleUserHooks {
            preConf = volarePreConf,
            confHook = volareConfHook,
            postConf = volarePostConf,
+           buildHook = volareBuildHook,
            postClean = volarePostClean
        }
 
@@ -85,6 +98,19 @@ volarePostConf args flags description localBuildInfo = do
     postConf simpleUserHooks args flags description localBuildInfo
 
 
+volareBuildHook :: PD.PackageDescription ->
+                   LocalBuildInfo ->
+                   UserHooks ->
+                   BuildFlags ->
+                   IO ()
+volareBuildHook description localBuildInfo hooks flags = do
+    let f = configConfigurationsFlags $ configFlags localBuildInfo
+        dev = fromMaybe False (lookup (PD.FlagName "dev") f) || fromMaybe False (lookup (PD.FlagName "library-only") f)
+    unless dev $
+        rawSystemExit (fromFlag $ buildVerbosity flags) "grunt" ["requirejs"]
+    buildHook simpleUserHooks description localBuildInfo hooks flags
+
+
 volarePostClean :: Args ->
                    CleanFlags ->
                    PD.PackageDescription ->
@@ -92,4 +118,16 @@ volarePostClean :: Args ->
                    IO ()
 volarePostClean args flags description _ = do
     rawSystemExit (fromFlag $ cleanVerbosity flags) "/bin/sh" ["-c", "cd msm && make clean"]
+    safeRemoveDirectory "bower_components"
+    safeRemoveDirectory "node_modules"
+    safeRemoveDirectory "static/lib"
+    safeRemoveDirectory "static_build"
     postClean simpleUserHooks args flags description ()
+
+
+safeRemoveDirectory :: FilePath ->
+                       IO ()
+safeRemoveDirectory path = do
+    b <- doesDirectoryExist path
+    when b $
+        removeDirectoryRecursive path
