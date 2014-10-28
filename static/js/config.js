@@ -6,6 +6,7 @@ require.config({
         'async': 'lib/requirejs-plugins/async',
         'bootstrap': '//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min',
         'domReady': 'lib/domReady/domReady',
+        'google': 'ext/google',
         'jquery': '//code.jquery.com/jquery-2.1.1.min',
         'jquery-ui': '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min',
         'markerwithlabel': 'lib/easy-markerwithlabel/markerwithlabel',
