@@ -11,6 +11,6 @@
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-contrib-requirejs": "~0.4.4",
     "load-grunt-tasks": "~1.0.0",
-    "underscore": "~1.7.0"
+    "lodash": "~2.4.1"
   }
 }

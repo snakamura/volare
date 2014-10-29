@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
     var fs = require('fs');
-    var _ = require('underscore');
+    var _ = require('lodash');
 
     var mainJavascriptFiles = fs.readdirSync('static/js');
     var mainModules = _.map(mainJavascriptFiles, function(file) {
