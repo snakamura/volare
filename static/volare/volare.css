@@ -48,7 +48,7 @@ div#map div.weather.amedas div.cell {
 
 div#map div.label {
     width: auto;
-    height: 'auto';
+    height: auto;
     background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 2px 5px;
@@ -92,7 +92,7 @@ div#options ul {
 }
 
 div#options li {
-    display: inline;
+    display: inline-block;
     margin: 0 8px 0 0;
 }
 
@@ -160,7 +160,7 @@ div#weather ul {
 }
 
 div#weather li {
-    display: inline;
+    display: inline-block;
     margin: 0 8px 0 0;
 }
 
