@@ -1,11 +1,15 @@
-define(['require',
+/* global $id, $name */
+
+define(['jquery',
         'angular',
         'bootstrap',
         'volare/volare',
         'volare/common',
         'volare/name',
         'text!volare/flight.css'],
-       function(require, angular, __, volare, common, __, css) {
+       function($, angular, __b, volare, common, __n, css) {
+    'use strict';
+
     common.loadCssInline(css);
 
     var flight = angular.module('volare.flight', ['volare.name']);
@@ -56,7 +60,7 @@ define(['require',
             });
         };
         $scope.delete = function() {
-            if (confirm('Are you sure to delete this flight?')) {
+            if (window.confirm('Are you sure to delete this flight?')) {
                 $http.delete('').success(function() {
                     document.location.href = '/flights';
                 });

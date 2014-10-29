@@ -1,4 +1,8 @@
+/* global $id, $name */
+
 define(['require',
+        'underscore',
+        'jquery',
         'angular',
         'angular-ui-bootstrap',
         'bootstrap',
@@ -6,7 +10,9 @@ define(['require',
         'volare/common',
         'volare/name',
         'text!volare/workspace.css'],
-       function(require, angular, __, __, volare, common, __, css) {
+       function(require, _, $, angular, __aub, __b, volare, common, __n, css) {
+    'use strict';
+
     common.loadCssInline(css);
 
     var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name']);
@@ -128,7 +134,7 @@ define(['require',
             });
         };
         $scope.delete = function() {
-            if (confirm('Are you sure to delete this workspace?')) {
+            if (window.confirm('Are you sure to delete this workspace?')) {
                 $http.delete('').success(function() {
                     document.location.href = '/workspaces';
                 });

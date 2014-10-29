@@ -3,6 +3,8 @@ define(['angular',
         'text!volare/file.css',
         'text!volare/file.html'],
        function(angular, common, css, template) {
+    'use strict';
+
     common.loadCssInline(css);
 
     var file = angular.module('volare.file', []);
@@ -14,10 +16,10 @@ define(['angular',
             transclude: true,
             template: template,
             link: function(scope, element, attrs) {
-                var changeHandler = $parse(attrs['change']);
+                var changeHandler = $parse(attrs.change);
 
                 var input = element.find('input');
-                input.attr('accept', attrs['accept']);
+                input.attr('accept', attrs.accept);
                 input.on('change', function(event) {
                     changeHandler(scope, {
                         $event: event,
@@ -30,8 +32,9 @@ define(['angular',
 
     file.directive('volareDrop', ['$parse', function($parse) {
         return {
+            restrict: 'A',
             link: function(scope, element, attrs) {
-                var handler = $parse(attrs['volareDrop']);
+                var handler = $parse(attrs.volareDrop);
                 element.on('dragenter', function(event) {
                     event.preventDefault();
                     event.originalEvent.dataTransfer.dropEffect = 'copy';

@@ -3,6 +3,8 @@ define(['angular',
         'text!volare/name.css',
         'text!volare/name.html'],
        function(angular, common, css, template) {
+    'use strict';
+
     common.loadCssInline(css);
 
     var name = angular.module('volare.name', []);
@@ -14,8 +16,8 @@ define(['angular',
             transclude: true,
             template: template,
             link: function(scope, element, attrs) {
-                var updateHandler = $parse(attrs['update']);
-                var deleteHandler = $parse(attrs['delete']);
+                var updateHandler = $parse(attrs.update);
+                var deleteHandler = $parse(attrs.delete);
 
                 var showName = element.find('.show_name');
                 var displayName = showName.find('.name');
@@ -49,7 +51,7 @@ define(['angular',
                 });
                 editName.find('span.save').on('click', finishEditingName);
                 inputName.on('keyup', function(event) {
-                    if (event.keyCode == 0x0d)
+                    if (event.keyCode === 0x0d)
                         finishEditingName();
                 });
             }

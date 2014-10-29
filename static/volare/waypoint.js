@@ -7,7 +7,9 @@ define(['require',
         'volare/name',
         'volare/layout',
         'text!volare/waypoint.css'],
-       function(require, _, angular, google, markerWithLabel, common, __, __, css) {
+       function(require, _, angular, google, markerWithLabel, common, __n, __l, css) {
+    'use strict';
+
     common.loadCssInline(css);
 
     var waypoint = angular.module('volare.waypoint', ['volare.name', 'volare.layout']);
@@ -30,7 +32,7 @@ define(['require',
             });
         };
         $scope.delete = function() {
-            if (confirm('Are you sure to delete these waypoints?')) {
+            if (window.confirm('Are you sure to delete these waypoints?')) {
                 $http.delete('').success(function() {
                     document.location.href = '/waypoints';
                 });

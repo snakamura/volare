@@ -2,6 +2,8 @@ define(['underscore',
         'underscore.string',
         'jquery'],
        function(_, _s, $) {
+    'use strict';
+
     _.mixin(_s.exports());
 
     $.ajaxSetup({

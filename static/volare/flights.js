@@ -1,8 +1,11 @@
 define(['underscore',
+        'jquery',
         'angular',
         'volare/common',
         'volare/file'],
-       function(_, angular, common, __) {
+       function(_, $, angular, common, __) {
+    'use strict';
+
     var flights = angular.module('volare.flights', ['volare.file']);
 
     function initFlight(flight) {
@@ -36,7 +39,7 @@ define(['underscore',
                         name: common.basename(file.name),
                         igc: reader.result
                     }).success(function(flight) {
-                        if (files.length == 1)
+                        if (files.length === 1)
                             document.location.href = '/flights/' + flight.id;
                         else
                             self.$parent.addFlight(flight);

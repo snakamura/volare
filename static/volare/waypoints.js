@@ -1,8 +1,11 @@
 define(['underscore',
+        'jquery',
         'angular',
         'volare/common',
         'volare/file'],
-       function(_, angular, common, __) {
+       function(_, $, angular, common, __) {
+    'use strict';
+
     var waypoints = angular.module('volare.waypoints', ['volare.file']);
 
     waypoints.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
@@ -29,7 +32,7 @@ define(['underscore',
                         name: common.basename(file.name),
                         wpt: reader.result
                     }).success(function(waypoint) {
-                        if (files.length == 1)
+                        if (files.length === 1)
                             document.location.href = '/waypoints/' + waypoint.id;
                         else
                             self.$parent.addWaypoint(waypoint);

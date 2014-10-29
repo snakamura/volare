@@ -6,7 +6,9 @@ define(['require',
         'markerwithlabel',
         'volare/common',
         'text!volare/volare.css'],
-       function(require, _, $, __, google, markerWithLabel, common, css) {
+       function(require, _, $, __ju, google, markerWithLabel, common, css) {
+    'use strict';
+
     common.loadCssInline(css);
 
     var LatLng = google.maps.LatLng;
@@ -339,27 +341,31 @@ define(['require',
             var circling = true;
             var firstHalf = true;
             var circle = 0;
-            for (var n = 1; n < directions.length && circling; ++n) {
-                var f = true;
-                if (clockwise) {
-                    circling = Math.sin(directions[n] - directions[n - 1]) >= 0;
-                    f = Math.sin(directions[n] - directions[0]) >= 0;
+            (function() {
+                for (var n = 1; n < directions.length && circling; ++n) {
+                    var f = true;
+                    if (clockwise) {
+                        circling = Math.sin(directions[n] - directions[n - 1]) >= 0;
+                        f = Math.sin(directions[n] - directions[0]) >= 0;
+                    }
+                    else {
+                        circling = Math.sin(directions[n] - directions[n - 1]) <= 0;
+                        f = Math.sin(directions[n] - directions[0]) <= 0;
+                    }
+                    if (f && !firstHalf)
+                        ++circle;
+                    firstHalf = f;
                 }
-                else {
-                    circling = Math.sin(directions[n] - directions[n - 1]) <= 0;
-                    f = Math.sin(directions[n] - directions[0]) <= 0;
-                }
-                if (f && !firstHalf)
-                    ++circle;
-                firstHalf = f;
-            }
+            }());
             if (circling && circle > 0)
                 return Flight.STATUS_CIRCLING;
 
             var gliding = true;
-            for (var n = 1; n < directions.length && gliding; ++n) {
-                gliding = Math.cos(directions[n] - directions[n - 1]) >= 0;
-            }
+            (function() {
+                for (var n = 1; n < directions.length && gliding; ++n) {
+                    gliding = Math.cos(directions[n] - directions[n - 1]) >= 0;
+                }
+            }());
             if (gliding)
                 return Flight.STATUS_GLIDING;
 
@@ -379,21 +385,27 @@ define(['require',
         if (status !== Flight.STATUS_GLIDING)
             return null;
 
+        var self = this;
+
         var start = time;
-        while (true) {
-            var t = new Date(start.getTime() - 1000);
-            if (this.getStatusAt(t) !== status)
-                break;
-            start = t;
-        }
+        (function() {
+            while (true) {
+                var t = new Date(start.getTime() - 1000);
+                if (self.getStatusAt(t) !== status)
+                    break;
+                start = t;
+            }
+        }());
 
         var end = time;
-        while (true) {
-            var t = new Date(end.getTime() + 1000);
-            if (this.getStatusAt(t) !== status)
-                break;
-            end = t;
-        }
+        (function() {
+            while (true) {
+                var t = new Date(end.getTime() + 1000);
+                if (self.getStatusAt(t) !== status)
+                    break;
+                end = t;
+            }
+        }());
 
         var startIndex = this._getRecordIndexAt(start);
         var endIndex = this._getRecordIndexAt(end);
@@ -415,21 +427,27 @@ define(['require',
         if (status !== Flight.STATUS_CIRCLING)
             return null;
 
+        var self = this;
+
         var start = time;
-        while (true) {
-            var t = new Date(start.getTime() - 1000);
-            if (this.getStatusAt(t) !== status)
-                break;
-            start = t;
-        }
+        (function() {
+            while (true) {
+                var t = new Date(start.getTime() - 1000);
+                if (self.getStatusAt(t) !== status)
+                    break;
+                start = t;
+            }
+        })();
 
         var end = time;
-        while (true) {
-            var t = new Date(end.getTime() + 1000);
-            if (this.getStatusAt(t) !== status)
-                break;
-            end = t;
-        }
+        (function() {
+            while (true) {
+                var t = new Date(end.getTime() + 1000);
+                if (self.getStatusAt(t) !== status)
+                    break;
+                end = t;
+            }
+        }());
 
         var startIndex = this._getRecordIndexAt(start);
         var endIndex = this._getRecordIndexAt(end);
@@ -845,7 +863,7 @@ define(['require',
 
     Player.formatTime = function(time) {
         if (time)
-            return _.sprintf("%02d:%02d:%02d", time.getHours(), time.getMinutes(), time.getSeconds());
+            return _.sprintf('%02d:%02d:%02d', time.getHours(), time.getMinutes(), time.getSeconds());
         else
             return '';
     };
@@ -1041,7 +1059,7 @@ define(['require',
         case Map.TrackType.VERTICAL_SPEED:
             return new GradientColorVerticalSpeedTrack(this._map, this._flights, flight);
         default:
-            throw "Never happens.";
+            throw 'Never happens.';
         }
     };
 
@@ -1090,15 +1108,15 @@ define(['require',
     }
 
     Track.prototype.clear = function() {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     Track.prototype.setRecords = function(records) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     Track.prototype.setCurrentRecords = function(records) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     Track.OPACITY_CURRENT = 1;
@@ -1169,15 +1187,15 @@ define(['require',
     };
 
     GradientColorTrack.prototype.getMax = function(flights) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     GradientColorTrack.prototype.getMin = function(flights) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     GradientColorTrack.prototype.getValue = function(record) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     GradientColorTrack.prototype._setRecords = function(polylines, opacity, records) {
@@ -1349,19 +1367,19 @@ define(['require',
     };
 
     WeatherOverlay.prototype._getClassName = function() {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     WeatherOverlay.prototype._clear = function() {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     WeatherOverlay.prototype._draw = function() {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     WeatherOverlay.prototype._update = function() {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     WeatherOverlay.prototype.draw = function() {
@@ -1369,15 +1387,15 @@ define(['require',
     };
 
     WeatherOverlay.hoursEquals = function(time1, time2) {
-        return time1.getUTCFullYear() == time2.getUTCFullYear() &&
-            time1.getUTCMonth() == time2.getUTCMonth() &&
-            time1.getUTCDate() == time2.getUTCDate() &&
-            time1.getUTCHours() == time2.getUTCHours();
+        return time1.getUTCFullYear() === time2.getUTCFullYear() &&
+            time1.getUTCMonth() === time2.getUTCMonth() &&
+            time1.getUTCDate() === time2.getUTCDate() &&
+            time1.getUTCHours() === time2.getUTCHours();
     };
 
     WeatherOverlay.tenMinutesEquals = function(time1, time2) {
         return WeatherOverlay.hoursEquals(time1, time2) &&
-            Math.floor(time1.getUTCMinutes() / 10) == Math.floor(time2.getUTCMinutes() / 10);
+            Math.floor(time1.getUTCMinutes() / 10) === Math.floor(time2.getUTCMinutes() / 10);
     };
 
     WeatherOverlay.windIconIndex = function(windSpeed) {
@@ -1545,39 +1563,39 @@ define(['require',
     };
 
     MSMOverlay.prototype._getName = function() {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     MSMOverlay.prototype._getItemKey = function(item) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     MSMOverlay.prototype._setFlags = function(flags) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     MSMOverlay.prototype._isItemVisible = function(item) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     MSMOverlay.prototype._isWindVisible = function(item) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     MSMOverlay.prototype._isTemperatureVisible = function(item) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     MSMOverlay.prototype._isCloudAmountVisible = function(item) {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     MSMOverlay.prototype._getLatitudeStep = function() {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
     MSMOverlay.prototype._getLongitudeStep = function() {
-        throw "This method must be overridden.";
+        throw 'This method must be overridden.';
     };
 
 
@@ -1719,7 +1737,7 @@ define(['require',
             _.each(this._items, function(item) {
                 var $elem = item.$elem;
 
-                if (item.time != minute)
+                if (item.time !== minute)
                     return;
 
                 if ($elem) {
@@ -1933,7 +1951,7 @@ define(['require',
                 _.each(station.observations, function(observation) {
                     if (observation.hour === hour && observation.minute === minute) {
                         _.each(self.filterItems(station.station, observation.items), function(item) {
-                            $elem = $('<div class="item"><div class="cell"><img class="wind"></div></div>');
+                            var $elem = $('<div class="item"><div class="cell"><img class="wind"></div></div>');
                             $elem.css('left', (pos.x - 14) + 'px');
                             $elem.css('top', (pos.y - 10) + 'px');
 
@@ -2123,8 +2141,7 @@ define(['require',
         context.textAlign = 'end';
         var step = this._getValueStep();
         for (var value = this._getMin(); value < this._getMax(); value += step) {
-            var b = this._isPrimaryValue(value);
-            context.strokeStyle = b ? 'black' : 'gray';
+            context.strokeStyle = this._isPrimaryValue(value) ? 'black' : 'gray';
 
             var y = this.getY(value);
             context.beginPath();
@@ -2171,7 +2188,7 @@ define(['require',
     Graph.OPACITY_ALL = 0.3;
 
     Graph.formatTime = function(time) {
-        return _.sprintf("%02d:%02d", time.getHours(), time.getMinutes());
+        return _.sprintf('%02d:%02d', time.getHours(), time.getMinutes());
     };
 
 
@@ -2753,5 +2770,5 @@ define(['require',
         RouteControl: RouteControl,
         WeatherControl: WeatherControl,
         setupLayout: setupLayout
-    }
+    };
 });
