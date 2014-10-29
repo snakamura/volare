@@ -98,5 +98,5 @@ module.exports = function(grunt) {
 
     require('load-grunt-tasks')(grunt);
 
-    grunt.registerTask('build', ['requirejs:build', 'clean:build']);
+    grunt.registerTask('build', ['jshint', 'csslint', 'requirejs:build', 'clean:build']);
 };
