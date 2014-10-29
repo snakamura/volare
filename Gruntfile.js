@@ -6,9 +6,7 @@ module.exports = function(grunt) {
     var requirejsTargetDir = 'static_build';
 
     var mainJavascriptFiles = fs.readdirSync('static/js');
-    var mainModules = _.map(_.filter(mainJavascriptFiles, function(file) {
-        return file !== 'config.js';
-    }), function(file) {
+    var mainModules = _.map(mainJavascriptFiles, function(file) {
         var name = file.replace(/\..*$/, '');
         return {
             'name': 'js/' + name
@@ -33,7 +31,7 @@ module.exports = function(grunt) {
             build: {
                 options: {
                     baseUrl: 'static',
-                    mainConfigFile: 'static/js/config.js',
+                    mainConfigFile: 'static/config.js',
                     dir: requirejsTargetDir,
                     findNestedDependencies: true,
                     removeCombined: true,
