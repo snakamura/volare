@@ -45,9 +45,15 @@ module.exports = function(grunt) {
                     ],
                     paths: {
                         'angular': 'empty:',
+                        'angular-ui-bootstrap': 'empty:',
+                        'async': 'empty:',
                         'bootstrap': 'empty:',
+                        'domReady': 'empty:',
                         'jquery': 'empty:',
-                        'jquery-ui': 'empty:'
+                        'jquery-ui': 'empty:',
+                        'text': 'lib/requirejs-text/text',
+                        'underscore': 'empty:',
+                        'underscore.string': 'empty:'
                     },
                     modules: '<%= requirejsModules %>'
                 }

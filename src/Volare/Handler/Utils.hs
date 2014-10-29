@@ -20,24 +20,22 @@ import Yesod.Core
     )
 import Yesod.Core.Handler (lookupGetParam)
 import Yesod.Core.Widget
-    ( addScriptAttrs
-    , addStylesheet
+    ( addScriptRemoteAttrs
     , addStylesheetRemote
     , toWidget
     )
 
 import qualified Volare.Config as Config
 import Volare.Foundation
-import qualified Volare.Static as S
 
 
 addRequireJS :: T.Text ->
                 Widget
-addRequireJS name = addScriptAttrs (StaticR S.lib_requirejs_require_js) [("data-main", "/static/js/" <> name)]
+addRequireJS name = addScriptRemoteAttrs "//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.15/require.min.js" [("data-main", "/static/js/" <> name)]
 
 
 addNormalize :: Widget
-addNormalize = addStylesheet $ StaticR S.lib_normalize_css_normalize_css
+addNormalize = addStylesheetRemote "//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css"
 
 
 addJQueryUI :: Widget

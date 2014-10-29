@@ -5,17 +5,17 @@
         baseUrl: '/static',
         paths: {
             'angular': '//ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min',
-            'angular-ui-bootstrap': 'lib/angular-ui-bootstrap-bower/ui-bootstrap-tpls',
-            'async': 'lib/requirejs-plugins/async',
+            'angular-ui-bootstrap': '//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.11.2/ui-bootstrap-tpls.min',
+            'async': '//cdnjs.cloudflare.com/ajax/libs/requirejs-plugins/1.0.3/async.min',
             'bootstrap': '//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min',
-            'domReady': 'lib/domReady/domReady',
+            'domReady': '//cdnjs.cloudflare.com/ajax/libs/require-domReady/2.0.1/domReady.min',
             'google': 'ext/google',
             'jquery': '//code.jquery.com/jquery-2.1.1.min',
             'jquery-ui': '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min',
             'markerwithlabel': 'lib/easy-markerwithlabel/markerwithlabel',
-            'text': 'lib/requirejs-text/text',
-            'underscore': 'lib/underscore/underscore',
-            'underscore.string': 'lib/underscore.string/underscore.string'
+            'text': '//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min',
+            'underscore': '//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min',
+            'underscore.string': '//cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.3/underscore.string.min'
         },
         shim: {
             'angular': {
