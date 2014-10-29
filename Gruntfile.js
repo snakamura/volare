@@ -2,9 +2,6 @@ module.exports = function(grunt) {
     var fs = require('fs');
     var _ = require('underscore');
 
-    var bowerTargetDir = 'static/lib';
-    var requirejsTargetDir = 'static_build';
-
     var mainJavascriptFiles = fs.readdirSync('static/js');
     var mainModules = _.map(mainJavascriptFiles, function(file) {
         var name = file.replace(/\..*$/, '');
@@ -14,10 +11,14 @@ module.exports = function(grunt) {
     });
 
     grunt.initConfig({
+        bowerTargetDir: 'static/lib',
+        requirejsTargetDir: 'static_build',
+        requirejsModules: mainModules,
+
         bower: {
             install: {
                 options: {
-                    targetDir: bowerTargetDir,
+                    targetDir: '<%= bowerTargetDir %>',
                     layout: 'byType',
                     install: true,
                     verbose: false,
@@ -32,7 +33,7 @@ module.exports = function(grunt) {
                 options: {
                     baseUrl: 'static',
                     mainConfigFile: 'static/config.js',
-                    dir: requirejsTargetDir,
+                    dir: '<%= requirejsTargetDir %>',
                     findNestedDependencies: true,
                     removeCombined: true,
                     optimizeCss: 'standard',
@@ -48,14 +49,19 @@ module.exports = function(grunt) {
                         'jquery': 'empty:',
                         'jquery-ui': 'empty:'
                     },
-                    modules: mainModules
+                    modules: '<%= requirejsModules %>'
                 }
             }
         },
 
         clean: {
-            bower: ['bower_components', bowerTargetDir],
-            requirejs: [requirejsTargetDir]
+            bower: [
+                'bower_components',
+                '<%= bowerTargetDir %>'
+            ],
+            requirejs: [
+                '<%= requirejsTargetDir %>'
+            ]
         }
     });
 
