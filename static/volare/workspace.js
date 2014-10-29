@@ -92,30 +92,30 @@ define(['require',
                             radius: routeItem.getRadius()
                         };
                     });
-                    $.postJSON('/routes', r, function(route) {
-                        $.putJSON('', {
+                    $http.post('/routes', r).success(function(route) {
+                        $http.put('', {
                             routeId: route.id
-                        }, function(workspace) {
+                        }).success(function(workspace) {
                         });
                     });
                 }
             }
             else {
-                $.putJSON('', {
+                $http.put('', {
                     routeId: null
-                }, function(workspace) {
+                }).success(function(workspace) {
                 });
             }
         });
 
-        $.getJSON('/workspaces/' + $id, function(workspace) {
+        $http.get('/workspaces/' + $id).success(function(workspace) {
             if (workspace.route) {
-                $.getJSON('/routes/' + workspace.route, function(route) {
+                $http.get('/routes/' + workspace.route).success(function(route) {
                     map.setRoute(volare.Route.wrap(route));
                 });
             }
         });
-        $.getJSON('/workspaces/' + $id + '/flights', function(fs) {
+        $http.get('/workspaces/' + $id + '/flights').success(function(fs) {
             _.each(fs, function(flight) {
                 flights.addFlight(flight.id, flight.color);
             });
