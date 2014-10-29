@@ -68,6 +68,18 @@ module.exports = function(grunt) {
             }
         },
 
+        csslint: {
+            all: {
+                src: [
+                    'static/css/*.css',
+                    'static/volare/**/*.css'
+                ],
+                options: {
+                    csslintrc: '.csslintrc',
+                },
+            }
+        },
+
         clean: {
             bower: [
                 'bower_components',

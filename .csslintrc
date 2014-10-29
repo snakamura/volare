@@ -1,0 +1,10 @@
+{
+    "adjoining-classes": false,
+    "box-model": false,
+    "box-sizing": false,
+    "fallback-colors": false,
+    "ids": false,
+    "important": false,
+    "overqualified-elements": false,
+    "unqualified-attributes": false
+}
