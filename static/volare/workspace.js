@@ -1,7 +1,7 @@
 /* global $id, $name */
 
 define(['require',
-        'underscore',
+        'lodash',
         'jquery',
         'angular',
         'angular-ui-bootstrap',

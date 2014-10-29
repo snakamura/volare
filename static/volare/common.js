@@ -1,4 +1,4 @@
-define(['underscore',
+define(['lodash',
         'underscore.string',
         'jquery'],
        function(_, _s, $) {

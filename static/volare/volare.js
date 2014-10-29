@@ -1,5 +1,5 @@
 define(['require',
-        'underscore',
+        'lodash',
         'jquery',
         'jquery-ui',
         'google',

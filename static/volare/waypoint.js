@@ -1,5 +1,5 @@
 define(['require',
-        'underscore',
+        'lodash',
         'angular',
         'google',
         'markerwithlabel',

@@ -51,8 +51,8 @@ module.exports = function(grunt) {
                         'domReady': 'empty:',
                         'jquery': 'empty:',
                         'jquery-ui': 'empty:',
+                        'lodash': 'empty:',
                         'text': 'lib/requirejs-text/text',
-                        'underscore': 'empty:',
                         'underscore.string': 'empty:'
                     },
                     modules: '<%= requirejsModules %>'

@@ -1,4 +1,4 @@
-define(['underscore',
+define(['lodash',
         'jquery',
         'angular',
         'volare/common',
