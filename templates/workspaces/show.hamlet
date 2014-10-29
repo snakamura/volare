@@ -30,7 +30,7 @@
         ^{W.route}
         ^{W.weather}
 
-  <div #chart>
+  <volare-chart .chart flights=flights>
 
   <script type=text/ng-template id=addFlight.html>
     <div .modal-header>

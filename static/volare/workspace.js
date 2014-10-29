@@ -9,13 +9,14 @@ define(['require',
         'volare/volare',
         'volare/common',
         'volare/name',
+        'volare/chart',
         'text!volare/workspace.css'],
-       function(require, _, $, angular, __aub, __b, volare, common, __n, css) {
+       function(require, _, $, angular, __aub, __b, volare, common, __n, __c, css) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name']);
+    var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name', 'volare.chart']);
 
     workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {
         var flights = new volare.Flights();
@@ -25,13 +26,13 @@ define(['require',
         var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
         var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
         var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
-        var chart = new volare.Chart(flights, $('#chart'));
         var optionsControl = new volare.OptionsControl(flights, map, $('#options'));
         var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
         var routeControl = new volare.RouteControl(map, $('#route'));
         var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
         $scope.name = $name;
+        $scope.flights = flights;
         $scope.addFlight = function() {
             var modal = $modal.open({
                 templateUrl: 'addFlight.html',
@@ -121,7 +122,7 @@ define(['require',
             });
         });
 
-        volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
+        volare.setupLayout(flights, $('#map'), $('#sidebar'), $('.chart'));
     }]);
 
     workspace.controller('WorkspaceNameController', ['$scope', '$http', function($scope, $http) {

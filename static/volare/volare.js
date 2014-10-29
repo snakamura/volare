@@ -49,6 +49,12 @@ define(['require',
         return _.map(this._flights, iterator, context);
     };
 
+    Flights.prototype.getFlight = function(id) {
+        return _.find(this._flights, function(flight) {
+            return flight.getId() === id;
+        });
+    };
+
     Flights.prototype.getPrimaryFlight = function() {
         return _.find(this._flights, function(flight) {
             return flight.isVisible();
@@ -272,8 +278,10 @@ define(['require',
     };
 
     Flight.prototype.setVisible = function(visible) {
-        this._visible = visible;
-        $(this).trigger('visible_changed', visible);
+        if (visible !== this._visible) {
+            this._visible = visible;
+            $(this).trigger('visible_changed', visible);
+        }
     };
 
     Flight.prototype.getStartTime = function() {
@@ -2391,128 +2399,6 @@ define(['require',
     };
 
 
-    function Chart(flights, $chart) {
-        this._flights = flights;
-        this._$chart = $chart;
-
-        var self = this;
-        this._$chart.html('<table><thead>' +
-                            '<tr>' +
-                              '<th class="visible"><input type="checkbox" checked></th>' +
-                              '<th class="name">Name</th>' +
-                              '<th class="color">Color</th>' +
-                              '<th class="latitude">Latitude</th>' +
-                              '<th class="longitude">Longitude</th>' +
-                              '<th class="altitude">Altitude</th>' +
-                              '<th class="ground_speed">Ground Speed</th>' +
-                              '<th class="vertical_speed">Vertical Speed</th>' +
-                              '<th class="status">Status</th>' +
-                              '<th class="ld">L/D</th>' +
-                              '<th class="average_climb">Average Climb</th>' +
-                            '</tr>' +
-                          '</thead><tbody></tbody></table>');
-        this._$chart.find('th.visible input').on('change', function(event) {
-            var $checkboxes = self._$chart.find('td.visible input');
-            _.each($checkboxes, function(checkbox) {
-                $(checkbox).prop('checked', event.target.checked).change();
-            });
-        });
-
-        var row = _.template('<tr class="flight_<%- getId() %>">' +
-                               '<td class="visible"><input type="checkbox"></td>' +
-                               '<td class="name"><%- getName() %></td>' +
-                               '<td class="color"><div style="background:<%- getColor() %>"></div></td>' +
-                               '<td class="latitude"></td>' +
-                               '<td class="longitude"></td>' +
-                               '<td class="altitude"></td>' +
-                               '<td class="ground_speed"></td>' +
-                               '<td class="vertical_speed"></td>' +
-                               '<td class="status"></td>' +
-                               '<td class="ld"></td>' +
-                               '<td class="average_climb"></td>' +
-                             '</tr>');
-        $(this._flights).on('flight_added', function(event, flight, index) {
-            var $tr = $(row(flight));
-            $tr.find('td.visible input').on('change', function(event) {
-                flight.setVisible(event.target.checked);
-            });
-            var tbody = self._$chart.find('tbody');
-            if (tbody.find('tr')[index])
-                $(tbody.find('tr')[index]).before($tr);
-            else
-                tbody.append($tr);
-            self._update();
-        });
-        $(this._flights).on('flight_removed', function(event, flight) {
-            var $tr = self._$chart.find('.flight_' + flight.getId());
-            $tr.remove();
-        });
-        $(this._flights).on('currenttime_changed', _.bind(this._update, this));
-    }
-
-    Chart.prototype._update = function() {
-        var time = this._flights.getCurrentTime();
-        var self = this;
-        this._flights.eachFlight(function(flight) {
-            var position = flight.getPositionAt(time);
-            var $tr = self._$chart.find('.flight_' + flight.getId());
-            $tr.find('input').prop('checked', flight.isVisible());
-            $tr.find('td.latitude').text(Chart.formatPosition(position.latitude));
-            $tr.find('td.longitude').text(Chart.formatPosition(position.longitude));
-            $tr.find('td.altitude').text(Chart.formatAltitude(position.altitude));
-            $tr.find('td.ground_speed').text(Chart.formatSpeed(flight.getGroundSpeedAt(time)));
-            $tr.find('td.vertical_speed').text(Chart.formatVerticalSpeed(flight.getVerticalSpeedAt(time)));
-            $tr.find('td.status').text(Chart.formatStatus(flight.getStatusAt(time)));
-            $tr.find('td.ld').text(Chart.formatLD(flight.getLD(time)));
-            $tr.find('td.average_climb').text(Chart.formatAverageClimb(flight.getAverageClimb(time)));
-        });
-    };
-
-    Chart.formatPosition = function(position) {
-        return _.sprintf('%.5f', position);
-    };
-
-    Chart.formatAltitude = function(altitude) {
-        return _.numberFormat(altitude) + 'm';
-    };
-
-    Chart.formatSpeed = function(speed) {
-        return _.sprintf('%.1fkm/h', speed*3600/1000);
-    };
-
-    Chart.formatVerticalSpeed = function(speed) {
-        return _.sprintf('%.1fm/s', speed);
-    };
-
-    Chart.formatStatus = function(status) {
-        switch (status) {
-        case Flight.STATUS_UNKNOWN:
-            break;
-        case Flight.STATUS_CIRCLING:
-            return 'Circling';
-        case Flight.STATUS_GLIDING:
-            return 'Gliding';
-        default:
-            break;
-        }
-        return '-';
-    };
-
-    Chart.formatLD = function(ld) {
-        if (!ld)
-            return '-';
-        else
-            return _.sprintf('%.1f', ld);
-    };
-
-    Chart.formatAverageClimb = function(averageClimb) {
-        if (!averageClimb)
-            return '-';
-        else
-            return this.formatVerticalSpeed(averageClimb);
-    };
-
-
     function OptionsControl(flights, map, $options) {
         var radio = $options.find('.gradient');
         var values = ['solid', 'altitude', 'ground_speed', 'vertical_speed'];
@@ -2740,11 +2626,13 @@ define(['require',
 
     function setupLayout(flights, $map, $sidebar, $chart) {
         function layout() {
-            $map.width($(document).width() - ($sidebar.width() + 10));
-            var mapPosition = $map.position();
-            var chartPosition = $chart.position();
-            $map.height(chartPosition.top - mapPosition.top - 20);
-            $sidebar.height($map.height() + 10);
+            _.defer(function() {
+                $map.width($(document).width() - ($sidebar.width() + 10));
+                var mapPosition = $map.position();
+                var chartPosition = $chart.position();
+                $map.height(chartPosition.top - mapPosition.top - 20);
+                $sidebar.height($map.height() + 10);
+            });
         }
         $(flights).on('flight_added', layout);
         $(flights).on('flight_removed', layout);
@@ -2764,7 +2652,6 @@ define(['require',
         AltitudeGraph: AltitudeGraph,
         GroundSpeedGraph: GroundSpeedGraph,
         VerticalSpeedGraph: VerticalSpeedGraph,
-        Chart: Chart,
         OptionsControl: OptionsControl,
         WaypointControl: WaypointControl,
         RouteControl: RouteControl,

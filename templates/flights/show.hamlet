@@ -39,4 +39,4 @@
         ^{W.waypoint}
         ^{W.weather}
 
-  <div #chart>
+  <volare-chart .chart flights=flights>

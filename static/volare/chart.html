@@ -1,0 +1,40 @@
+<div class="chart">
+  <table>
+    <thead>
+      <tr>
+        <th class="visible">
+          <input type="checkbox" checked data-ng-model="visible" data-ng-change="changeVisible(visible)">
+        </th>
+        <th class="name">Name</th>
+        <th class="color">Color</th>
+        <th class="latitude">Latitude</th>
+        <th class="longitude">Longitude</th>
+        <th class="altitude">Altitude</th>
+        <th class="ground_speed">Ground Speed</th>
+        <th class="vertical_speed">Vertical Speed</th>
+        <th class="status">Status</th>
+        <th class="ld">L/D</th>
+        <th class="average_climb">Average Climb</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-ng-repeat="flight in flights">
+        <td class="visible">
+          <input type="checkbox" data-ng-model="flight.visible">
+        </td>
+        <td class="name">{{ flight.name }}</td>
+        <td class="color">
+          <div style="background:{{ flight.color }}"></div>
+        </td>
+        <td class="latitude">{{ flight.latitude | position }}</td>
+        <td class="longitude">{{ flight.longitude | position }}</td>
+        <td class="altitude">{{ flight.altitude | altitude }}</td>
+        <td class="ground_speed">{{ flight.groundSpeed | speed }}</td>
+        <td class="vertical_speed">{{ flight.verticalSpeed | verticalSpeed }}</td>
+        <td class="status">{{ flight.status | status }}</td>
+        <td class="ld">{{ flight.ld | ld }}</td>
+        <td class="average_climb">{{ flight.averageClimb | averageClimb }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
