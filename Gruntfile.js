@@ -70,9 +70,7 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-bower-task');
-    grunt.loadNpmTasks('grunt-contrib-requirejs');
-    grunt.loadNpmTasks('grunt-contrib-clean');
+    require('load-grunt-tasks')(grunt);
 
     grunt.registerTask('build', ['requirejs:build', 'clean:build']);
 };
