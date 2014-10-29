@@ -61,6 +61,11 @@ module.exports = function(grunt) {
             ],
             requirejs: [
                 '<%= requirejsTargetDir %>'
+            ],
+            build: [
+                '<%= requirejsTargetDir %>/build.txt',
+                '<%= requirejsTargetDir %>/lib/{angular,requirejs-plugins}',
+                '<%= requirejsTargetDir %>/volare/*.{css,html}'
             ]
         }
     });
@@ -68,4 +73,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-clean');
+
+    grunt.registerTask('build', ['requirejs:build', 'clean:build']);
 };

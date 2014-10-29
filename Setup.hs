@@ -107,7 +107,7 @@ volareBuildHook description localBuildInfo hooks flags = do
     let f = configConfigurationsFlags $ configFlags localBuildInfo
         dev = fromMaybe False (lookup (PD.FlagName "dev") f) || fromMaybe False (lookup (PD.FlagName "library-only") f)
     unless dev $
-        rawSystemExit (fromFlag $ buildVerbosity flags) "grunt" ["requirejs"]
+        rawSystemExit (fromFlag $ buildVerbosity flags) "grunt" ["build"]
     buildHook simpleUserHooks description localBuildInfo hooks flags
 
 
