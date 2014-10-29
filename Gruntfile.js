@@ -54,6 +54,20 @@ module.exports = function(grunt) {
             }
         },
 
+        jshint: {
+            all: {
+                src: [
+                    'static/*.js',
+                    'static/ext/**/*.js',
+                    'static/js/*.js',
+                    'static/volare/**/*.js'
+                ],
+                options: {
+                    jshintrc: true
+                }
+            }
+        },
+
         clean: {
             bower: [
                 'bower_components',

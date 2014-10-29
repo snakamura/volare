@@ -1,0 +1,20 @@
+{
+    "camelcase": true,
+//    "curly": true,
+    "eqeqeq": true,
+    "immed": true,
+    "latedef": true,
+    "newcap": true,
+    "noarg": true,
+    "quotmark": true,
+    "undef": true,
+    "unused": false,
+    "strict": true,
+
+    "browser": true,
+
+    "predef": [
+        "define",
+        "require"
+    ]
+}
