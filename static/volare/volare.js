@@ -771,112 +771,6 @@ define(['require',
     };
 
 
-    function Player(flights, $player) {
-        this._flights = flights;
-        this._$player = $player;
-
-        this._timer = null;
-
-        var self = this;
-
-        this._$player.html('<div>' +
-                           '<div class="btn-group">' +
-                           '<button class="btn btn-default play"><span class="glyphicon glyphicon-play"></span></button>' +
-                           '<button class="btn btn-default stop"><span class="glyphicon glyphicon-stop"></span></button>' +
-                           '</div>' +
-                           '<span class="time"></span>' +
-                           '</div>' +
-                           '<div class="slider"></div>');
-
-        this._$player.find('.play').on('click', _.bind(this.play, this));
-        this._$player.find('.stop').on('click', _.bind(this.stop, this));
-        this._$player.find('.slider').slider({
-            range: 'min',
-            min: 0,
-            max: 100
-        }).on('slide', function(event, ui) {
-            self._flights.setCurrentTime(new Date(ui.value));
-        });
-
-        $(this._flights).on('currenttime_changed', function() {
-            self._updateButtons();
-            self._updateSliderValue();
-            self._updateTime();
-        });
-        $(this._flights).on('properties_changed', function() {
-            self._updateSliderRange();
-            self._updateTime();
-        });
-
-        this._updateButtons();
-        this._updateSliderRange();
-        this._updateTime();
-    }
-
-    Player.prototype.play = function() {
-        if (!this._timer) {
-            var self = this;
-            this._flights.setCurrentTime(this._flights.getCurrentTime() || this._flights.getStartTime());
-            this._timer = setInterval(function() {
-                var time = new Date(self._flights.getCurrentTime().getTime() + 10*1000);
-                if (time > self._flights.getEndTime())
-                    self.stop();
-                else
-                    self._flights.setCurrentTime(time, true);
-            }, 100);
-        }
-        else {
-            clearInterval(this._timer);
-            this._timer = null;
-        }
-
-        this._updateButtons();
-    };
-
-    Player.prototype.stop = function() {
-        if (this._timer) {
-            clearInterval(this._timer);
-            this._timer = null;
-        }
-        this._flights.setCurrentTime(null);
-
-        this._updateButtons();
-    };
-
-    Player.prototype._updateButtons = function() {
-        this._$player.find('.play span').addClass(this._timer ? 'glyphicon-pause' : 'glyphicon-play');
-        this._$player.find('.play span').removeClass(this._timer ? 'glyphicon-play' : 'glyphicon-pause');
-        this._$player.find('.stop').prop('disabled', !this._timer && !this._flights.getCurrentTime());
-    };
-
-    Player.prototype._updateSliderRange = function() {
-        var $slider = this._$player.find('.slider');
-        $slider.slider('option', 'min', this._flights.getStartTime() ? this._flights.getStartTime().getTime() : 0);
-        $slider.slider('option', 'max', this._flights.getEndTime() ? this._flights.getEndTime().getTime() : 0);
-
-        this._updateSliderValue();
-    };
-
-    Player.prototype._updateSliderValue = function() {
-        var $slider = this._$player.find('.slider');
-        var time = this._flights.getCurrentTime();
-        $slider.slider('value', time ? time.getTime() : $slider.slider('option', 'min'));
-    };
-
-    Player.prototype._updateTime = function() {
-        var timeLabel = this._$player.find('.time');
-        var time = this._flights.getCurrentTime() || this._flights.getStartTime();
-        timeLabel.text(Player.formatTime(time));
-    };
-
-    Player.formatTime = function(time) {
-        if (time)
-            return _.sprintf('%02d:%02d:%02d', time.getHours(), time.getMinutes(), time.getSeconds());
-        else
-            return '';
-    };
-
-
     function Map(flights, $map) {
         this._flights = flights;
         this._map = new google.maps.Map($map[0], {
@@ -2647,7 +2541,6 @@ define(['require',
         WaypointItem: WaypointItem,
         Route: Route,
         RouteItem: RouteItem,
-        Player: Player,
         Map: Map,
         AltitudeGraph: AltitudeGraph,
         GroundSpeedGraph: GroundSpeedGraph,

@@ -10,18 +10,18 @@ define(['require',
         'volare/common',
         'volare/name',
         'volare/chart',
+        'volare/player',
         'text!volare/workspace.css'],
-       function(require, _, $, angular, __aub, __b, volare, common, __n, __c, css) {
+       function(require, _, $, angular, __aub, __b, volare, common, __n, __c, __p, css) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name', 'volare.chart']);
+    var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name', 'volare.chart', 'volare.player']);
 
     workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {
         var flights = new volare.Flights();
         flights.setInterval(10);
-        var player = new volare.Player(flights, $('#player'));
         var map = new volare.Map(flights, $('#map'));
         var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
         var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));

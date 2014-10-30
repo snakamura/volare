@@ -1,0 +1,14 @@
+<div>
+  <div>
+    <div class="btn-group">
+      <button class="btn btn-default play" data-ng-click="play()">
+        <span class="glyphicon glyphicon-play"></span>
+      </button>
+      <button class="btn btn-default stop" data-ng-click="stop()">
+        <span class="glyphicon glyphicon-stop"></span>
+      </button>
+    </div>
+    <span class="time">{{ time || start | time }}</span>
+  </div>
+  <div class="slider"></div>
+</div>

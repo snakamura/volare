@@ -81,9 +81,6 @@ define(['lodash',
                 });
                 $(modelFlights).on('currenttime_changed', function() {
                     update(true);
-                    // TODO
-                    // Remove this when it uses $interval
-                    $scope.$apply();
                 });
                 update();
             }

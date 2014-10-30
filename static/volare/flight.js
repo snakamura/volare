@@ -7,17 +7,17 @@ define(['jquery',
         'volare/common',
         'volare/name',
         'volare/chart',
+        'volare/player',
         'text!volare/flight.css'],
-       function($, angular, __b, volare, common, __n, __c, css) {
+       function($, angular, __b, volare, common, __n, __c, __p, css) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var flight = angular.module('volare.flight', ['volare.name', 'volare.chart']);
+    var flight = angular.module('volare.flight', ['volare.name', 'volare.chart', 'volare.player']);
 
     flight.controller('FlightController', ['$scope', '$http', function($scope, $http) {
         var flights = new volare.Flights();
-        var player = new volare.Player(flights, $('#player'));
         var map = new volare.Map(flights, $('#map'));
         map.setTrackType(volare.Map.TrackType.ALTITUDE);
         var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
