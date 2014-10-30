@@ -21,7 +21,9 @@ before_install:
 install:
   - travis_retry cabal install --only-dependencies --enable-tests --reorder-goals
 
-script:
+before_script:
   - createdb volare_test
   - echo "CREATE USER volare WITH ENCRYPTED PASSWORD 'password'" | psql -U postgres
+
+script:
   - cabal configure --enable-tests -fglibcxx && cabal build && cabal test
