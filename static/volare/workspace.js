@@ -5,7 +5,6 @@ define(['require',
         'jquery',
         'angular',
         'angular-ui-bootstrap',
-        'bootstrap',
         'volare/volare',
         'volare/common',
         'volare/name',
@@ -13,7 +12,7 @@ define(['require',
         'volare/options',
         'volare/player',
         'text!volare/workspace.css'],
-       function(require, _, $, angular, __aub, __b, volare, common, __n, __c, __o, __p, css) {
+       function(require, _, $, angular, __aub, volare, common, __n, __c, __o, __p, css) {
     'use strict';
 
     common.loadCssInline(css);
