@@ -165,8 +165,10 @@ define(['require',
     };
 
     Flights.prototype.setCurrentTime = function(time, play) {
-        this._currentTime = time;
-        $(this).trigger('currenttime_changed', [time, play]);
+        if (time !== this._currentTime) {
+            this._currentTime = time;
+            $(this).trigger('currenttime_changed', [time, play]);
+        }
     };
 
     Flights.prototype.getInterval = function() {
@@ -174,9 +176,11 @@ define(['require',
     };
 
     Flights.prototype.setInterval = function(interval) {
-        this._interval = interval;
-        this._reload();
-        $(this).trigger('interval_changed', this._interval);
+        if (interval !== this._interval) {
+            this._interval = interval;
+            this._reload();
+            $(this).trigger('interval_changed', this._interval);
+        }
     };
 
     Flights.prototype._reload = function() {
