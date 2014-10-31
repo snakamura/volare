@@ -8,13 +8,14 @@ define(['jquery',
         'volare/chart',
         'volare/options',
         'volare/player',
+        'volare/weather',
         'text!volare/flight.css'],
-       function($, angular, volare, common, __n, __c, __o, __p, css) {
+       function($, angular, volare, common, __n, __c, __o, __p, __w, css) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var flight = angular.module('volare.flight', ['volare.name', 'volare.chart', 'volare.options', 'volare.player']);
+    var flight = angular.module('volare.flight', ['volare.name', 'volare.chart', 'volare.options', 'volare.player', 'volare.weather']);
 
     flight.controller('FlightController', ['$scope', '$http', function($scope, $http) {
         var flights = new volare.Flights();
@@ -24,7 +25,6 @@ define(['jquery',
         var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
         var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
         var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
-        var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
         $scope.name = $name;
         $scope.flights = flights;

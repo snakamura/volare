@@ -11,13 +11,14 @@ define(['require',
         'volare/chart',
         'volare/options',
         'volare/player',
+        'volare/weather',
         'text!volare/workspace.css'],
-       function(require, _, $, angular, __aub, volare, common, __n, __c, __o, __p, css) {
+       function(require, _, $, angular, __aub, volare, common, __n, __c, __o, __p, __w, css) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name', 'volare.chart', 'volare.options', 'volare.player']);
+    var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name', 'volare.chart', 'volare.options', 'volare.player', 'volare.weather']);
 
     workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {
         var flights = new volare.Flights();
@@ -28,7 +29,6 @@ define(['require',
         var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
         var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
         var routeControl = new volare.RouteControl(map, $('#route'));
-        var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
         $scope.name = $name;
         $scope.flights = flights;

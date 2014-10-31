@@ -3,7 +3,6 @@ module Volare.Widget
     , navigation
     , waypoint
     , route
-    , weather
     ) where
 
 import qualified Data.Text as T
@@ -32,7 +31,3 @@ waypoint = $(widgetFile "widgets/waypoint")
 
 route :: Widget
 route = $(widgetFile "widgets/route")
-
-
-weather :: Widget
-weather = $(widgetFile "widgets/weather")

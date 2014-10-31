@@ -28,7 +28,7 @@
         <volare-options flights=flights map=map>
         ^{W.waypoint}
         ^{W.route}
-        ^{W.weather}
+        <volare-weather map=map>
 
   <volare-chart .chart flights=flights>
 

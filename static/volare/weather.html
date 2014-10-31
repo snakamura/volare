@@ -1,0 +1,47 @@
+<div class="weather">
+  <div class="msm">
+    <label><input type="checkbox" data-ng-checked="check(flags.msm.surface)" data-ng-click="toggle(WeatherFlag.MSM.SURFACE.ALL)">MSM (Surface)</label>
+    <ul>
+      <li>
+        <label><input type="checkbox" data-ng-model="flags.msm.surface.wind">Wind</label>
+      </li>
+      <li>
+        <label><input type="checkbox" data-ng-model="flags.msm.surface.temperature">Temperature</label>
+      </li>
+      <li>
+        <label><input type=checkbox data-ng-model="flags.msm.surface.cloudAmount">Cloud Amount</label>
+      </li>
+    </ul>
+    <label data-ng-repeat-start="altitude in msmAltitudes"><input type="checkbox" data-ng-checked="check(flags.msm.barometric[altitude])" data-ng-click="toggle(WeatherFlag.MSM.BAROMETRIC[altitude].ALL)">MSM ({{ altitude | number }}hPa)</label>
+    <ul data-ng-repeat-end>
+      <li>
+        <label><input type="checkbox" data-ng-model="flags.msm.barometric[altitude].wind">Wind</label>
+      </li>
+      <li>
+        <label><input type="checkbox" data-ng-model="flags.msm.barometric[altitude].temperature">Temperature</label>
+      </li>
+    </ul>
+  </div>
+  <div class="amedas">
+    <label><input type="checkbox" data-ng-checked="check(flags.amedas)" data-ng-click="toggle(WeatherFlag.AMEDAS.ALL)">AMEDAS</label>
+    <ul>
+      <li>
+        <label><input type="checkbox" data-ng-model="flags.amedas.wind">Wind</label>
+      </li>
+      <li>
+        <label><input type="checkbox" data-ng-model="flags.amedas.temperature">Temperature</label>
+      </li>
+      <li>
+        <label><input type="checkbox" data-ng-model="flags.amedas.sunshine">Sunshine</label>
+      </li>
+    </ul>
+  </div>
+  <div class="windas">
+    <label><input type="checkbox" data-ng-checked="check(flags.windas)" data-ng-click="toggle(WeatherFlag.WINDAS.ALL)">WINDAS</label>
+    <ul>
+      <li data-ng-repeat="altitude in windasAltitudes">
+        <label><input type="checkbox" data-ng-model="flags.windas[altitude]">{{ altitude | number }}m</label>
+      </li>
+    </ul>
+  </div>
+</div>

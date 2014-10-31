@@ -1262,7 +1262,7 @@ define(['require',
     common.inherit(WeatherOverlay, google.maps.OverlayView);
 
     WeatherOverlay.prototype.onAdd = function() {
-        var $div = $('<div class="weather ' + this._getClassName() + '"></div>');
+        var $div = $('<div class="weatherOverlay ' + this._getClassName() + '"></div>');
 
         var panes = this.getPanes();
         panes.overlayLayer.appendChild($div[0]);
@@ -2458,55 +2458,6 @@ define(['require',
     }
 
 
-    function WeatherControl(map, $weather) {
-        function makeItem($elem, flags) {
-            return {
-                $elem: $elem,
-                flags: flags
-            };
-        }
-        var $msm = $weather.find('.msm');
-        var $amedas = $weather.find('.amedas');
-        var $windas = $weather.find('.windas');
-        var items = [
-            makeItem($msm.find('.surface_all'), Map.WeatherFlag.MSM.SURFACE.ALL),
-            makeItem($msm.find('.surface_wind'), Map.WeatherFlag.MSM.SURFACE.WIND),
-            makeItem($msm.find('.surface_temperature'), Map.WeatherFlag.MSM.SURFACE.TEMPERATURE),
-            makeItem($msm.find('.surface_cloud_amount'), Map.WeatherFlag.MSM.SURFACE.CLOUD_AMOUNT),
-            makeItem($amedas.find('.all'), Map.WeatherFlag.AMEDAS.ALL),
-            makeItem($amedas.find('.wind'), Map.WeatherFlag.AMEDAS.WIND),
-            makeItem($amedas.find('.temperature'), Map.WeatherFlag.AMEDAS.TEMPERATURE),
-            makeItem($amedas.find('.sunshine'), Map.WeatherFlag.AMEDAS.SUNSHINE),
-            makeItem($windas.find('.all'), Map.WeatherFlag.WINDAS.ALL),
-            makeItem($windas.find('.windas_500'), Map.WeatherFlag.WINDAS[500]),
-            makeItem($windas.find('.windas_1000'), Map.WeatherFlag.WINDAS[1000]),
-            makeItem($windas.find('.windas_1500'), Map.WeatherFlag.WINDAS[1500]),
-            makeItem($windas.find('.windas_2000'), Map.WeatherFlag.WINDAS[2000]),
-            makeItem($windas.find('.windas_2500'), Map.WeatherFlag.WINDAS[2500]),
-            makeItem($windas.find('.windas_3000'), Map.WeatherFlag.WINDAS[3000])
-        ];
-        _.each([1000, 975, 950, 925, 900, 850, 800, 700], function(airPressure) {
-            items.push(makeItem($msm.find('.barometric_' + airPressure), Map.WeatherFlag.MSM.BAROMETRIC[airPressure].ALL));
-            items.push(makeItem($msm.find('.barometric_' + airPressure + '_wind'), Map.WeatherFlag.MSM.BAROMETRIC[airPressure].WIND));
-            items.push(makeItem($msm.find('.barometric_' + airPressure + '_temperature'), Map.WeatherFlag.MSM.BAROMETRIC[airPressure].TEMPERATURE));
-        });
-        _.each(items, function(item) {
-            item.$elem.on('click', function(event) {
-                map.setWeatherFlags($(event.target).prop('checked') ? item.flags : 0, item.flags);
-            });
-        });
-        function update(flags) {
-            _.each(items, function(item) {
-                item.$elem.prop('checked', flags & item.flags);
-            });
-        }
-        $(map).on('weatherFlags_changed', function(event, flags) {
-            update(flags);
-        });
-        update(map.getWeatherFlags());
-    }
-
-
     var Util = {};
 
     Util.distance = function(latitude1, longitude1, latitude2, longitude2) {
@@ -2554,7 +2505,6 @@ define(['require',
         VerticalSpeedGraph: VerticalSpeedGraph,
         WaypointControl: WaypointControl,
         RouteControl: RouteControl,
-        WeatherControl: WeatherControl,
         setupLayout: setupLayout
     };
 });
