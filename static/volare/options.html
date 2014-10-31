@@ -1,0 +1,25 @@
+<div class="options">
+  <label>Options</label>
+  <ul>
+    <li>
+      <label>Track</label>
+    </li>
+    <li>
+      <label><input type="radio" name="type" value="{{ TrackType.SOLID }}" data-ng-model="trackType">Solid</label>
+    </li>
+    <li>
+      <label><input type="radio" name="type" value="{{ TrackType.ALTITUDE }}" data-ng-model="trackType">Altitude</label>
+    </li>
+    <li>
+      <label><input type="radio" name="type" value="{{ TrackType.GROUND_SPEED }}" data-ng-model="trackType">GS</label>
+    </li>
+    <li>
+      <label><input type="radio" name="type" value="{{ TrackType.VERTICAL_SPEED }}" data-ng-model="trackType">VS</label>
+    </li>
+  </ul>
+  <ul>
+    <li>
+      <label><input type="checkbox" data-ng-model="thinOut" data-ng-true-value="1" data-ng-false=value="0">Thin out tracks</label>
+    </li>
+  </ul>
+</div>

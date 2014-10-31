@@ -35,7 +35,7 @@
         <div #vertical_speed .graph>
 
       <div #tab_options .tab-pane>
-        ^{W.options}
+        <volare-options flights=flights map=map>
         ^{W.waypoint}
         ^{W.weather}
 

@@ -176,7 +176,7 @@ define(['require',
     Flights.prototype.setInterval = function(interval) {
         this._interval = interval;
         this._reload();
-        $(this).trigger('interval_changed');
+        $(this).trigger('interval_changed', this._interval);
     };
 
     Flights.prototype._reload = function() {
@@ -860,7 +860,7 @@ define(['require',
             flight.__track = track;
         });
 
-        $(this).trigger('trackType_changed', this._weatherFlags);
+        $(this).trigger('trackType_changed', this._trackType);
 
     };
 
@@ -2293,30 +2293,6 @@ define(['require',
     };
 
 
-    function OptionsControl(flights, map, $options) {
-        var radio = $options.find('.gradient');
-        var values = ['solid', 'altitude', 'ground_speed', 'vertical_speed'];
-        function updateGradient() {
-            radio.val([values[map.getTrackType()]]);
-        }
-        radio.on('click', function(event) {
-            map.setTrackType(values.indexOf($(event.target).val()));
-
-        });
-        $(map).on('trackType_changed', updateGradient);
-        updateGradient();
-
-        function updateThinOut() {
-            $options.find('.thinout').prop('checked', flights.getInterval());
-        }
-        $options.find('.thinout').on('click', function(event) {
-            flights.setInterval($(event.target).prop('checked') ? 10 : 0);
-        });
-        $(flights).on('interval_changed', updateThinOut);
-        updateThinOut();
-    }
-
-
     function WaypointControl(map, $waypoint) {
         var $select = $waypoint.find('select');
         $select.on('change', function(event) {
@@ -2545,7 +2521,6 @@ define(['require',
         AltitudeGraph: AltitudeGraph,
         GroundSpeedGraph: GroundSpeedGraph,
         VerticalSpeedGraph: VerticalSpeedGraph,
-        OptionsControl: OptionsControl,
         WaypointControl: WaypointControl,
         RouteControl: RouteControl,
         WeatherControl: WeatherControl,

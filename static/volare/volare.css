@@ -64,30 +64,6 @@ div.graph canvas {
     position: absolute;
 }
 
-div#options {
-    width: 302px;
-    margin: 10px;
-}
-
-div#options div {
-    margin: 0 0 10px 0;
-}
-
-div#options ul {
-    margin: 0;
-    padding: 0 0 0 10px;
-    list-style-type: none;
-}
-
-div#options li {
-    display: inline-block;
-    margin: 0 8px 0 0;
-}
-
-div#options input {
-    margin: 0 3px 0 0;
-}
-
 div#waypoint {
     width: 302px;
     margin: 10px;

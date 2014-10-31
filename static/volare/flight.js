@@ -7,14 +7,15 @@ define(['jquery',
         'volare/common',
         'volare/name',
         'volare/chart',
+        'volare/options',
         'volare/player',
         'text!volare/flight.css'],
-       function($, angular, __b, volare, common, __n, __c, __p, css) {
+       function($, angular, __b, volare, common, __n, __c, __o, __p, css) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var flight = angular.module('volare.flight', ['volare.name', 'volare.chart', 'volare.player']);
+    var flight = angular.module('volare.flight', ['volare.name', 'volare.chart', 'volare.options', 'volare.player']);
 
     flight.controller('FlightController', ['$scope', '$http', function($scope, $http) {
         var flights = new volare.Flights();
@@ -23,12 +24,12 @@ define(['jquery',
         var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
         var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
         var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
-        var optionsControl = new volare.OptionsControl(flights, map, $('#options'));
         var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
         var weatherControl = new volare.WeatherControl(map, $('#weather'));
 
         $scope.name = $name;
         $scope.flights = flights;
+        $scope.map = map;
         $scope.newWorkspace = function() {
             $http.post('/workspaces', {
                 name: this.name
