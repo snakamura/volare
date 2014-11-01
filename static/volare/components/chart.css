@@ -1,4 +1,4 @@
-div.chart {
+div.component.chart {
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -9,35 +9,35 @@ div.chart {
     overflow-y: auto;
 }
 
-div.chart table {
+div.component.chart table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
 }
 
-div.chart table th, div.chart table td {
+div.component.chart table th, div.component.chart table td {
     border: 1px solid gray;
     padding: 2px 5px;
 }
 
-div.chart table th:not(.visible) {
+div.component.chart table th:not(.visible) {
     width: 80px;
     font-size: 60%;
 }
 
-div.chart table th.visible {
+div.component.chart table th.visible {
     width: 20px;
 }
 
-div.chart table th.name {
+div.component.chart table th.name {
     width: inherit;
 }
 
-div.chart table th.color {
+div.component.chart table th.color {
     width: 50px;
 }
 
-div.chart table td {
+div.component.chart table td {
     font-family: monospace;
     text-align: right;
     white-space: nowrap;
@@ -45,17 +45,17 @@ div.chart table td {
     font-size: 80%;
 }
 
-div.chart table td.name {
+div.component.chart table td.name {
     font-family: sans-self;
     text-align: left;
 }
 
-div.chart table td.color div {
+div.component.chart table td.color div {
     width: 40px;
     height: 5px;
     margin: 0 auto;
 }
 
-div.chart table td.status {
+div.component.chart table td.status {
     text-align: center;
 }

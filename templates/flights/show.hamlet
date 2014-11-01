@@ -6,7 +6,7 @@
       <span>
         <span .action .glyphicon .glyphicon-book data-ng-click="newWorkspace()">
 
-  <volare-player .player flights=flights>
+  <volare-player flights=flights>
 
   <div #map>
 

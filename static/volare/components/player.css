@@ -1,11 +1,11 @@
-div.player {
+div.component.player {
     margin: 10px;
 }
 
-div.player span.time {
+div.component.player span.time {
     margin: 0 0 0 10px;
 }
 
-div.player .slider {
+div.component.player .slider {
     margin: 10px;
 }

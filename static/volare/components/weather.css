@@ -1,23 +1,23 @@
-div.weather {
+div.component.weather {
     width: 302px;
     margin: 10px;
 }
 
-div.weather div {
+div.component.weather div {
     margin: 0 0 10px 0;
 }
 
-div.weather ul {
+div.component.weather ul {
     margin: 0;
     padding: 0 0 0 10px;
     list-style-type: none;
 }
 
-div.weather li {
+div.component.weather li {
     display: inline-block;
     margin: 0 8px 0 0;
 }
 
-div.weather input {
+div.component.weather input {
     margin: 0 3px 0 0;
 }

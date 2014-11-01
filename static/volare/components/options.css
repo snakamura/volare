@@ -1,23 +1,23 @@
-div.options {
+div.component.options {
     width: 302px;
     margin: 10px;
 }
 
-div.options div {
+div.component.options div {
     margin: 0 0 10px 0;
 }
 
-div.options ul {
+div.component.options ul {
     margin: 0;
     padding: 0 0 0 10px;
     list-style-type: none;
 }
 
-div.options li {
+div.component.options li {
     display: inline-block;
     margin: 0 8px 0 0;
 }
 
-div.options input {
+div.component.options input {
     margin: 0 3px 0 0;
 }

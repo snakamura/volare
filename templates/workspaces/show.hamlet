@@ -7,7 +7,7 @@
         <span .action .glyphicon .glyphicon-plus data-ng-click="addFlight()">
         <span .action .glyphicon .glyphicon-minus data-ng-click="removeFlight()">
 
-  <volare-player .player flights=flights>
+  <volare-player flights=flights>
 
   <div #map>
 
