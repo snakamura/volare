@@ -1,9 +1,10 @@
-define(['lodash',
-        'jquery',
-        'angular',
-        'volare/common',
-        'volare/file'],
-       function(_, $, angular, common, __) {
+define([
+    'lodash',
+    'jquery',
+    'angular',
+    'volare/common',
+    'volare/file'
+], function(_, $, angular, common, __) {
     'use strict';
 
     var flights = angular.module('volare.flights', ['volare.file']);

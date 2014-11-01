@@ -1,16 +1,17 @@
-define(['lodash',
-        'jquery',
-        'angular',
-        'volare/common',
-        'volare/volare',
-        'text!volare/chart.css',
-        'text!volare/chart.html'],
-       function(_, $, angular, common, volare, css, template) {
+define([
+    'lodash',
+    'jquery',
+    'angular',
+    'volare/common',
+    'volare/volare',
+    'text!./chart.css',
+    'text!./chart.html'
+], function(_, $, angular, common, volare, css, template) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var chart = angular.module('volare.chart', []);
+    var chart = angular.module('volare.components.chart', []);
 
     chart.directive('volareChart', [function() {
         return {

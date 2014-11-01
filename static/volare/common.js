@@ -1,7 +1,8 @@
-define(['lodash',
-        'underscore.string',
-        'jquery'],
-       function(_, _s, $) {
+define([
+    'lodash',
+    'underscore.string',
+    'jquery'
+], function(_, _s, $) {
     'use strict';
 
     _.mixin(_s.exports());

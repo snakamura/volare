@@ -1,16 +1,17 @@
-define(['lodash',
-        'jquery',
-        'angular',
-        'volare/volare',
-        'volare/common',
-        'text!volare/weather.css',
-        'text!volare/weather.html'],
-       function(_, $, angular, volare, common, css, template) {
+define([
+    'lodash',
+    'jquery',
+    'angular',
+    'volare/volare',
+    'volare/common',
+    'text!./weather.css',
+    'text!./weather.html'
+], function(_, $, angular, volare, common, css, template) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var weather = angular.module('volare.weather', []);
+    var weather = angular.module('volare.components.weather', []);
 
     weather.directive('volareWeather', [function() {
         return {

@@ -1,16 +1,17 @@
-define(['lodash',
-        'jquery',
-        'angular',
-        'volare/volare',
-        'volare/common',
-        'text!volare/options.css',
-        'text!volare/options.html'],
-       function(_, $, angular, volare, common, css, template) {
+define([
+    'lodash',
+    'jquery',
+    'angular',
+    'volare/volare',
+    'volare/common',
+    'text!./options.css',
+    'text!./options.html'
+], function(_, $, angular, volare, common, css, template) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var options = angular.module('volare.options', []);
+    var options = angular.module('volare.components.options', []);
 
     options.directive('volareOptions', [function() {
         return {

@@ -1,13 +1,14 @@
-define(['require',
-        'lodash',
-        'angular',
-        'google',
-        'markerwithlabel',
-        'volare/common',
-        'volare/name',
-        'volare/layout',
-        'text!volare/waypoint.css'],
-       function(require, _, angular, google, markerWithLabel, common, __n, __l, css) {
+define([
+    'require',
+    'lodash',
+    'angular',
+    'google',
+    'markerwithlabel',
+    'volare/common',
+    'volare/name',
+    'volare/layout',
+    'text!./waypoint.css'
+], function(require, _, angular, google, markerWithLabel, common, __n, __l, css) {
     'use strict';
 
     common.loadCssInline(css);

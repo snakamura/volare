@@ -1,6 +1,7 @@
-define(['jquery',
-        'angular'],
-       function($, angular) {
+define([
+    'jquery',
+    'angular'
+], function($, angular) {
     'use strict';
 
     var layout = angular.module('volare.layout', []);

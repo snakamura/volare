@@ -1,21 +1,28 @@
 /* global $id, $name */
 
-define(['jquery',
-        'angular',
-        'volare/volare',
-        'volare/common',
-        'volare/name',
-        'volare/chart',
-        'volare/options',
-        'volare/player',
-        'volare/weather',
-        'text!volare/flight.css'],
-       function($, angular, volare, common, __n, __c, __o, __p, __w, css) {
+define([
+    'jquery',
+    'angular',
+    'volare/volare',
+    'volare/common',
+    'volare/name',
+    'volare/components/chart',
+    'volare/components/options',
+    'volare/components/player',
+    'volare/components/weather',
+    'text!./flight.css'
+], function($, angular, volare, common, __n, __c, __o, __p, __w, css) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var flight = angular.module('volare.flight', ['volare.name', 'volare.chart', 'volare.options', 'volare.player', 'volare.weather']);
+    var flight = angular.module('volare.flight', [
+        'volare.name',
+        'volare.components.chart',
+        'volare.components.options',
+        'volare.components.player',
+        'volare.components.weather'
+    ]);
 
     flight.controller('FlightController', ['$scope', '$http', function($scope, $http) {
         var flights = new volare.Flights();

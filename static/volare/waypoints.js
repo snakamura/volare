@@ -1,9 +1,10 @@
-define(['lodash',
-        'jquery',
-        'angular',
-        'volare/common',
-        'volare/file'],
-       function(_, $, angular, common, __) {
+define([
+    'lodash',
+    'jquery',
+    'angular',
+    'volare/common',
+    'volare/file'
+], function(_, $, angular, common, __f) {
     'use strict';
 
     var waypoints = angular.module('volare.waypoints', ['volare.file']);

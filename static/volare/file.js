@@ -1,8 +1,9 @@
-define(['angular',
-        'volare/common',
-        'text!volare/file.css',
-        'text!volare/file.html'],
-       function(angular, common, css, template) {
+define([
+    'angular',
+    'volare/common',
+    'text!./file.css',
+    'text!./file.html'
+], function(angular, common, css, template) {
     'use strict';
 
     common.loadCssInline(css);

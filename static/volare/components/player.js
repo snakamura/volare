@@ -1,16 +1,17 @@
-define(['lodash',
-        'jquery',
-        'angular',
-        'bootstrap',
-        'volare/common',
-        'text!volare/player.css',
-        'text!volare/player.html'],
-        function(_, $, angular, __b, common, css, template) {
+define([
+    'lodash',
+    'jquery',
+    'angular',
+    'bootstrap',
+    'volare/common',
+    'text!./player.css',
+    'text!./player.html'
+], function(_, $, angular, __b, common, css, template) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var player = angular.module('volare.player', []);
+    var player = angular.module('volare.components.player', []);
 
     player.directive('volarePlayer', ['$interval', function($interval) {
         return {

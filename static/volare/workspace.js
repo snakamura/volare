@@ -1,24 +1,32 @@
 /* global $id, $name */
 
-define(['require',
-        'lodash',
-        'jquery',
-        'angular',
-        'angular-ui-bootstrap',
-        'volare/volare',
-        'volare/common',
-        'volare/name',
-        'volare/chart',
-        'volare/options',
-        'volare/player',
-        'volare/weather',
-        'text!volare/workspace.css'],
-       function(require, _, $, angular, __aub, volare, common, __n, __c, __o, __p, __w, css) {
+define([
+    'require',
+    'lodash',
+    'jquery',
+    'angular',
+    'angular-ui-bootstrap',
+    'volare/volare',
+    'volare/common',
+    'volare/name',
+    'volare/components/chart',
+    'volare/components/options',
+    'volare/components/player',
+    'volare/components/weather',
+    'text!./workspace.css'
+], function(require, _, $, angular, __aub, volare, common, __n, __c, __o, __p, __w, css) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var workspace = angular.module('volare.workspace', ['ui.bootstrap', 'volare.name', 'volare.chart', 'volare.options', 'volare.player', 'volare.weather']);
+    var workspace = angular.module('volare.workspace', [
+        'ui.bootstrap',
+        'volare.name',
+        'volare.components.chart',
+        'volare.components.options',
+        'volare.components.player',
+        'volare.components.weather'
+    ]);
 
     workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {
         var flights = new volare.Flights();

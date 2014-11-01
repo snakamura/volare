@@ -1,4 +1,6 @@
-define(['angular'], function(angular) {
+define([
+    'angular'
+], function(angular) {
     'use strict';
 
     var workspaces = angular.module('volare.workspaces', []);
