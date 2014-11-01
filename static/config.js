@@ -32,7 +32,8 @@
                 deps: ['google'],
                 init: function() {
                     return {
-                        MarkerWithLabel: window.MarkerWithLabel
+                        /* global MarkerWithLabel */
+                        MarkerWithLabel: MarkerWithLabel
                     };
                 }
             }
