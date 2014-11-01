@@ -19,16 +19,16 @@
 
     <div .tab-content>
       <div #tab_graphs .tab-pane .active>
-        <table #properties>
+        <table .properties data-ng-controller=FlightPropertiesController>
           <tr>
             <th>Time
-            <td #time>
+            <td>{{ time | time }}
           <tr>
             <th>Duration
-            <td #duration>
+            <td>{{ duration | duration }}
           <tr>
             <th>Max Altitude
-            <td #max_altitude>
+            <td>{{ maxAltitude | altitude }}
 
         <div #altitude .graph>
         <div #ground_speed .graph>

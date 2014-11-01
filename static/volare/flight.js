@@ -50,11 +50,6 @@ define([
             });
         };
 
-        $(flights).on('flight_added', function(event, flight) {
-            $('#time').text(common.formatTime(flight.getTime()));
-            $('#duration').text(common.formatDuration(flight.getDuration()));
-            $('#max_altitude').text(common.formatAltitude(flight.getMaxAltitude()));
-        });
         flights.addFlight($id, 'red');
 
         volare.setupLayout(flights, $('#map'), $('#sidebar'), $('.chart'));
@@ -77,6 +72,20 @@ define([
             }
         };
     }]);
+
+    flight.controller('FlightPropertiesController', ['$scope', function($scope) {
+        $($scope.flights).on('flight_added', function(event, flight) {
+            $scope.time = flight.getTime();
+            $scope.duration = flight.getDuration();
+            $scope.maxAltitude = flight.getMaxAltitude();
+        });
+    }]);
+
+    flight.filter('duration', function() {
+        return function(duration) {
+            return duration ? common.formatDuration(duration) : '';
+        };
+    });
 
     return flight;
 });
