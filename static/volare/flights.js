@@ -5,7 +5,7 @@ define([
     'volare/common',
     'volare/file',
     'volare/filters'
-], function(_, $, angular, common, __f1, __f2) {
+], function(_, $, angular, common) {
     'use strict';
 
     var flights = angular.module('volare.flights', [

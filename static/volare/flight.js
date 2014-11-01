@@ -2,10 +2,10 @@
 
 define([
     'jquery',
-    'bootstrap',
     'angular',
-    'volare/volare',
     'volare/common',
+    'volare/volare',
+    'text!./flight.css',
     'volare/filters',
     'volare/name',
     'volare/components/chart',
@@ -13,20 +13,20 @@ define([
     'volare/components/player',
     'volare/components/waypoint',
     'volare/components/weather',
-    'text!./flight.css'
-], function($, __b, angular, volare, common, __f, __n, __c, __o, __p, __w1, __w2, css) {
+    'bootstrap'
+], function($, angular, common, volare, css) {
     'use strict';
 
     common.loadCssInline(css);
 
     var flight = angular.module('volare.flight', [
-        'volare.filters',
-        'volare.name',
         'volare.components.chart',
         'volare.components.options',
         'volare.components.player',
         'volare.components.waypoint',
-        'volare.components.weather'
+        'volare.components.weather',
+        'volare.filters',
+        'volare.name'
     ]);
 
     flight.controller('FlightController', ['$scope', '$http', function($scope, $http) {

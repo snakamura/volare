@@ -4,10 +4,12 @@ define([
     'angular',
     'volare/common',
     'volare/file'
-], function(_, $, angular, common, __f) {
+], function(_, $, angular, common) {
     'use strict';
 
-    var waypoints = angular.module('volare.waypoints', ['volare.file']);
+    var waypoints = angular.module('volare.waypoints', [
+        'volare.file'
+    ]);
 
     waypoints.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
         $scope.waypoints = [];

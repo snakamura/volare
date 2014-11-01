@@ -1,13 +1,13 @@
 define([
     'lodash',
     'jquery',
-    'jquery-ui',
     'angular',
     'volare/common',
-    'volare/filters',
     'text!./player.css',
-    'text!./player.html'
-], function(_, $, __ju, angular, common, __f, css, template) {
+    'text!./player.html',
+    'jquery-ui',
+    'volare/filters'
+], function(_, $, angular, common, css, template) {
     'use strict';
 
     common.loadCssInline(css);

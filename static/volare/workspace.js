@@ -4,31 +4,31 @@ define([
     'require',
     'lodash',
     'jquery',
-    'bootstrap',
     'angular',
-    'angular-ui-bootstrap',
-    'volare/volare',
     'volare/common',
-    'volare/name',
+    'volare/volare',
+    'text!./workspace.css',
+    'bootstrap',
+    'angular-ui-bootstrap',
     'volare/components/chart',
     'volare/components/options',
     'volare/components/player',
     'volare/components/waypoint',
     'volare/components/weather',
-    'text!./workspace.css'
-], function(require, _, $, __b, angular, __aub, volare, common, __n, __c, __o, __p, __w1, __w2, css) {
+    'volare/name'
+], function(require, _, $, angular, common, volare, css) {
     'use strict';
 
     common.loadCssInline(css);
 
     var workspace = angular.module('volare.workspace', [
         'ui.bootstrap',
-        'volare.name',
         'volare.components.chart',
         'volare.components.options',
         'volare.components.player',
         'volare.components.waypoint',
-        'volare.components.weather'
+        'volare.components.weather',
+        'volare.name'
     ]);
 
     workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {

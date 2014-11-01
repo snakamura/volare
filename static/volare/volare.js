@@ -2,12 +2,12 @@ define([
     'require',
     'lodash',
     'jquery',
-    'bootstrap',
     'google',
     'markerwithlabel',
     'volare/common',
-    'text!./volare.css'
-], function(require, _, $, __b, google, markerWithLabel, common, css) {
+    'text!./volare.css',
+    'bootstrap'
+], function(require, _, $, google, markerWithLabel, common, css) {
     'use strict';
 
     common.loadCssInline(css);

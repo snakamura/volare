@@ -4,10 +4,10 @@ define([
     'angular',
     'volare/common',
     'volare/volare',
-    'volare/filters',
     'text!./chart.css',
-    'text!./chart.html'
-], function(_, $, angular, common, volare, __f, css, template) {
+    'text!./chart.html',
+    'volare/filters'
+], function(_, $, angular, common, volare, css, template) {
     'use strict';
 
     common.loadCssInline(css);
