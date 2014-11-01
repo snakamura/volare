@@ -58,11 +58,8 @@ define([
 
                     var time = modelFlights.getCurrentTime();
                     modelFlights.eachFlight(function(modelFlight, index) {
-                        var position = modelFlight.getPositionAt(time);
                         var flight = $scope.flights[index];
-                        flight.latitude = position.latitude;
-                        flight.longitude = position.longitude;
-                        flight.altitude = position.altutide;
+                        flight.position = modelFlight.getPositionAt(time);
                         flight.groundSpeed = modelFlight.getGroundSpeedAt(time);
                         flight.verticalSpeed = modelFlight.getVerticalSpeedAt(time);
                         flight.status = modelFlight.getStatusAt(time);

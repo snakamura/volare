@@ -26,9 +26,9 @@
         <td class="color">
           <div style="background:{{ flight.color }}"></div>
         </td>
-        <td class="latitude">{{ flight.latitude | position }}</td>
-        <td class="longitude">{{ flight.longitude | position }}</td>
-        <td class="altitude">{{ flight.altitude | altitude }}</td>
+        <td class="latitude">{{ flight.position.latitude | position }}</td>
+        <td class="longitude">{{ flight.position.longitude | position }}</td>
+        <td class="altitude">{{ flight.position.altitude | altitude }}</td>
         <td class="ground_speed">{{ flight.groundSpeed | speed }}</td>
         <td class="vertical_speed">{{ flight.verticalSpeed | verticalSpeed }}</td>
         <td class="status">{{ flight.status | status }}</td>
