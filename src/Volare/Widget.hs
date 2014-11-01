@@ -1,7 +1,6 @@
 module Volare.Widget
     ( Page(..)
     , navigation
-    , waypoint
     , route
     ) where
 
@@ -23,10 +22,6 @@ navigation page = $(widgetFile "widgets/navigation")
   where
     classes p | p == page = "active" :: T.Text
               | otherwise = ""
-
-
-waypoint :: Widget
-waypoint = $(widgetFile "widgets/waypoint")
 
 
 route :: Widget

@@ -1,0 +1,8 @@
+div.component.waypoint {
+    width: 302px;
+    margin: 10px;
+}
+
+div.component.waypoint select {
+    margin: 0 0 0 5px;
+}

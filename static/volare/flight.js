@@ -9,9 +9,10 @@ define([
     'volare/components/chart',
     'volare/components/options',
     'volare/components/player',
+    'volare/components/waypoint',
     'volare/components/weather',
     'text!./flight.css'
-], function($, angular, volare, common, __n, __c, __o, __p, __w, css) {
+], function($, angular, volare, common, __n, __c, __o, __p, __w1, __w2, css) {
     'use strict';
 
     common.loadCssInline(css);
@@ -21,6 +22,7 @@ define([
         'volare.components.chart',
         'volare.components.options',
         'volare.components.player',
+        'volare.components.waypoint',
         'volare.components.weather'
     ]);
 
@@ -31,7 +33,6 @@ define([
         var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
         var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
         var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
-        var waypointControl = new volare.WaypointControl(map, $('#waypoint'));
 
         $scope.name = $name;
         $scope.flights = flights;

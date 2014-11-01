@@ -64,15 +64,6 @@ div.graph canvas {
     position: absolute;
 }
 
-div#waypoint {
-    width: 302px;
-    margin: 10px;
-}
-
-div#waypoint select {
-    margin: 0 0 0 5px;
-}
-
 div#route {
     width: 302px;
     margin: 10px;

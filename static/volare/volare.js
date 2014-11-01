@@ -897,7 +897,7 @@ define([
 
         this._waypoint = waypoint;
 
-        $(this).trigger('waypoint_changed', waypoint);
+        $(this).trigger('waypoint_changed', this._waypoint);
     };
 
     Map.prototype.getRoute = function() {
@@ -2325,35 +2325,6 @@ define([
     };
 
 
-    function WaypointControl(map, $waypoint) {
-        var $select = $waypoint.find('select');
-        $select.on('change', function(event) {
-            var waypointId = $select.val();
-            if (waypointId !== '0') {
-                $.getJSON('/waypoints/' + waypointId, function(w) {
-                    map.setWaypoint(Waypoint.wrap(w));
-                });
-            }
-            else {
-                map.setWaypoint(null);
-            }
-        });
-        $(map).on('waypoint_changed', function() {
-            var waypoint = map.getWaypoint();
-            $select.val(waypoint ? waypoint.getId() : 0);
-        });
-
-        $.getJSON('/waypoints', function(waypoints) {
-            _.each(waypoints, function(waypoint) {
-                var $option = $('<option>');
-                $option.attr('value', waypoint.id);
-                $option.text(waypoint.name);
-                $select.append($option);
-            });
-        });
-    }
-
-
     function RouteControl(map, $route) {
         var $edit = $route.find('.edit');
         $edit.on('click', function() {
@@ -2504,7 +2475,6 @@ define([
         AltitudeGraph: AltitudeGraph,
         GroundSpeedGraph: GroundSpeedGraph,
         VerticalSpeedGraph: VerticalSpeedGraph,
-        WaypointControl: WaypointControl,
         RouteControl: RouteControl,
         setupLayout: setupLayout
     };
