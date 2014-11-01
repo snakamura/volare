@@ -2,6 +2,7 @@
 
 define([
     'jquery',
+    'bootstrap',
     'angular',
     'volare/volare',
     'volare/common',
@@ -12,7 +13,7 @@ define([
     'volare/components/waypoint',
     'volare/components/weather',
     'text!./flight.css'
-], function($, angular, volare, common, __n, __c, __o, __p, __w1, __w2, css) {
+], function($, __b, angular, volare, common, __n, __c, __o, __p, __w1, __w2, css) {
     'use strict';
 
     common.loadCssInline(css);

@@ -4,6 +4,7 @@ define([
     'require',
     'lodash',
     'jquery',
+    'bootstrap',
     'angular',
     'angular-ui-bootstrap',
     'volare/volare',
@@ -15,7 +16,7 @@ define([
     'volare/components/waypoint',
     'volare/components/weather',
     'text!./workspace.css'
-], function(require, _, $, angular, __aub, volare, common, __n, __c, __o, __p, __w1, __w2, css) {
+], function(require, _, $, __b, angular, __aub, volare, common, __n, __c, __o, __p, __w1, __w2, css) {
     'use strict';
 
     common.loadCssInline(css);
