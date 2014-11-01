@@ -4,14 +4,17 @@ define([
     'jquery-ui',
     'angular',
     'volare/common',
+    'volare/filters',
     'text!./player.css',
     'text!./player.html'
-], function(_, $, __ju, angular, common, css, template) {
+], function(_, $, __ju, angular, common, __f, css, template) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var player = angular.module('volare.components.player', []);
+    var player = angular.module('volare.components.player', [
+        'volare.filters'
+    ]);
 
     player.directive('volarePlayer', ['$interval', function($interval) {
         return {
@@ -108,12 +111,6 @@ define([
             }
         };
     }]);
-
-    player.filter('time', function() {
-        return function(time) {
-            return time ? _.sprintf('%02d:%02d:%02d', time.getHours(), time.getMinutes(), time.getSeconds()) : '';
-        };
-    });
 
     return player;
 });

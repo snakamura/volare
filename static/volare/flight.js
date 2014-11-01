@@ -6,6 +6,7 @@ define([
     'angular',
     'volare/volare',
     'volare/common',
+    'volare/filters',
     'volare/name',
     'volare/components/chart',
     'volare/components/options',
@@ -13,12 +14,13 @@ define([
     'volare/components/waypoint',
     'volare/components/weather',
     'text!./flight.css'
-], function($, __b, angular, volare, common, __n, __c, __o, __p, __w1, __w2, css) {
+], function($, __b, angular, volare, common, __f, __n, __c, __o, __p, __w1, __w2, css) {
     'use strict';
 
     common.loadCssInline(css);
 
     var flight = angular.module('volare.flight', [
+        'volare.filters',
         'volare.name',
         'volare.components.chart',
         'volare.components.options',
@@ -80,12 +82,6 @@ define([
             $scope.maxAltitude = flight.getMaxAltitude();
         });
     }]);
-
-    flight.filter('duration', function() {
-        return function(duration) {
-            return duration ? common.formatDuration(duration) : '';
-        };
-    });
 
     return flight;
 });

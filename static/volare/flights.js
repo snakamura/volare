@@ -3,11 +3,15 @@ define([
     'jquery',
     'angular',
     'volare/common',
-    'volare/file'
-], function(_, $, angular, common, __) {
+    'volare/file',
+    'volare/filters'
+], function(_, $, angular, common, __f1, __f2) {
     'use strict';
 
-    var flights = angular.module('volare.flights', ['volare.file']);
+    var flights = angular.module('volare.flights', [
+        'volare.file',
+        'volare.filters'
+    ]);
 
     function initFlight(flight) {
         flight.time = new Date(flight.time);
@@ -50,12 +54,6 @@ define([
             });
         };
     }]);
-
-    flights.filter('duration', function() {
-        return function(duration) {
-            return common.formatDuration(duration);
-        };
-    });
 
     return flights;
 });

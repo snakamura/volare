@@ -4,14 +4,17 @@ define([
     'angular',
     'volare/common',
     'volare/volare',
+    'volare/filters',
     'text!./chart.css',
     'text!./chart.html'
-], function(_, $, angular, common, volare, css, template) {
+], function(_, $, angular, common, volare, __f, css, template) {
     'use strict';
 
     common.loadCssInline(css);
 
-    var chart = angular.module('volare.components.chart', []);
+    var chart = angular.module('volare.components.chart', [
+        'volare.filters'
+    ]);
 
     chart.directive('volareChart', [function() {
         return {
@@ -85,30 +88,6 @@ define([
         };
     }]);
 
-    chart.filter('position', function() {
-        return function(position) {
-            return _.sprintf('%.5f', position);
-        };
-    });
-
-    chart.filter('altitude', function() {
-        return function(altitude) {
-            return _.numberFormat(altitude) + 'm';
-        };
-    });
-
-    chart.filter('speed', function() {
-        return function(speed) {
-            return _.sprintf('%.1fkm/h', speed*3600/1000);
-        };
-    });
-
-    chart.filter('verticalSpeed', function() {
-        return function(speed) {
-            return _.sprintf('%.1fm/s', speed);
-        };
-    });
-
     chart.filter('status', function() {
         return function(status) {
         switch (status) {
@@ -127,7 +106,7 @@ define([
 
     chart.filter('ld', function() {
         return function(ld) {
-            return !ld ? '-' : _.sprintf('%.1f', ld);
+            return ld ? _.sprintf('%.1f', ld) : '-';
         };
     });
 
