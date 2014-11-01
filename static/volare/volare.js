@@ -2325,111 +2325,6 @@ define([
     };
 
 
-    function RouteControl(map, $route) {
-        var $edit = $route.find('.edit');
-        $edit.on('click', function() {
-            var $modal = $('#edit_route_modal');
-
-            var $tbody = $modal.find('table.waypoints tbody');
-            var waypoint = null;
-
-            function addRow() {
-                var $tr = $('<tr>' +
-                            '<td class="name"><select><option value="0">(Select)</option></select></td>' +
-                            '<td class="radius"><input type="number" value="400">m</td>' +
-                            '</tr>');
-                var $select = $tr.find('select');
-                _.each(waypoint.getItems(), function(item) {
-                    var $option = $('<option>');
-                    $option.attr('value', item.getId());
-                    $option.text(item.getLabel());
-                    $select.append($option);
-                });
-                $select.on('change', function() {
-                    var $lastSelect = $tbody.find('tr:last-child select');
-                    if ($lastSelect.val() !== '0')
-                        addRow();
-                });
-                $tbody.append($tr);
-            }
-
-            var $select = $modal.find('select.waypoint');
-            $select.on('change', function(event) {
-                var waypointId = $select.val();
-                if (waypointId !== '0') {
-                    $.getJSON('/waypoints/' + waypointId, function(w) {
-                        $tbody.empty();
-                        waypoint = Waypoint.wrap(w);
-                        addRow();
-                    });
-                }
-                else {
-                    $tbody.empty();
-                    waypoint = null;
-                }
-            });
-
-            $modal.find('.btn-primary').on('click', function() {
-                var route = new Route();
-                _.each($tbody.find('tr'), function(tr) {
-                    var waypointItemId = parseInt($(tr).find('td.name select').val(), 10);
-                    if (waypointItemId !== 0) {
-                        var radius = parseInt($(tr).find('td.radius input').val(), 10) || 400;
-                        route.addItem(waypoint.getItem(waypointItemId), radius);
-                    }
-                });
-                map.setRoute(route.getItems().length !== 0 ? route : null);
-
-                $modal.modal('hide');
-            });
-
-            $.getJSON('/waypoints', function(waypoints) {
-                _.each(waypoints, function(w) {
-                    var waypoint = Waypoint.wrap(w);
-                    var $option = $('<option>');
-                    $option.attr('value', waypoint.getId());
-                    $option.text(waypoint.getName());
-                    $select.append($option);
-                });
-            });
-
-            $modal.on('hidden.bs.modal', function() {
-                _.each($select.find('option'), function(option) {
-                    if ($(option).val() !== '0')
-                        $(option).remove();
-                });
-
-                $tbody.empty();
-                waypoint = null;
-
-                $modal.find('*').off();
-            });
-
-            $modal.modal({
-                backdrop: 'static'
-            });
-        });
-
-        $(map).on('route_changed', function() {
-            var route = map.getRoute();
-            var s = '';
-            if (route) {
-                var items = route.getItems();
-                s += items[0].getWaypointItem().getName();
-                for (var n = 1; n < items.length; ++n) {
-                    var item = items[n];
-                    s += ' - (';
-                    s += common.formatDistance(WaypointItem.distance(items[n - 1].getWaypointItem(), item.getWaypointItem()));
-                    s += ') - ';
-                    s += item.getWaypointItem().getName();
-                }
-            }
-
-            $route.find('span').text(s);
-        });
-    }
-
-
     var Util = {};
 
     Util.distance = function(latitude1, longitude1, latitude2, longitude2) {
@@ -2475,7 +2370,6 @@ define([
         AltitudeGraph: AltitudeGraph,
         GroundSpeedGraph: GroundSpeedGraph,
         VerticalSpeedGraph: VerticalSpeedGraph,
-        RouteControl: RouteControl,
         setupLayout: setupLayout
     };
 });

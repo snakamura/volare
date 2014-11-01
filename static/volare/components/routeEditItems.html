@@ -1,0 +1,35 @@
+<div class="modal-header">
+  <h4 class="modal-title">Edit Route</h4>
+</div>
+<div class="modal-body edit_route_modal">
+  <label>
+    Waypoints:
+    <select class="waypoint" data-ng-model="waypoint" data-ng-options="waypoint.name for waypoint in waypoints">
+      <option value="">(Select)</option>
+    </select>
+  </label>
+  <table class="waypoints table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Radius</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-ng-repeat="item in items">
+        <td class="name">
+          <select data-ng-model="item.waypointItem" data-ng-options="waypointItem.getName() for waypointItem in waypointItems" data-ng-change="addItem()">
+            <option value="">(Select)</option>
+          </select>
+        </td>
+        <td class="radius">
+          <input type="number" data-ng-model="item.radius">m
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" data-ng-click="cancel()">Cancel</button>
+  <button type="button" class="btn btn-primary" data-ng-click="save()">Save</button>
+</div>

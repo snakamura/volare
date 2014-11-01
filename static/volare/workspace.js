@@ -15,6 +15,7 @@ define([
     'volare/components/chart',
     'volare/components/options',
     'volare/components/player',
+    'volare/components/route',
     'volare/components/waypoint',
     'volare/components/weather',
     'volare/name'
@@ -28,6 +29,7 @@ define([
         'volare.components.chart',
         'volare.components.options',
         'volare.components.player',
+        'volare.components.route',
         'volare.components.waypoint',
         'volare.components.weather',
         'volare.name'
@@ -40,7 +42,6 @@ define([
         var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
         var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
         var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
-        var routeControl = new volare.RouteControl(map, $('#route'));
 
         $scope.name = $name;
         $scope.flights = flights;

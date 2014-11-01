@@ -57,10 +57,6 @@ define([
             return name.replace(/\.[^.]*$/, '');
         },
 
-        formatDistance: function(distance) {
-            return _.sprintf('%.1f', distance/1000);
-        },
-
         loadCss: function(url) {
             var link = $('<link>', {
                 type: 'text/css',

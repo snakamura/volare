@@ -1,0 +1,35 @@
+div.component.route {
+    width: 302px;
+    margin: 10px;
+}
+
+div.component.route label {
+    margin: 0 5px 0 0;
+}
+
+div.component.route button {
+    margin: 0 0 0 5px;
+}
+
+
+div.edit_route_modal select.waypoint {
+    margin: 0 0 0 5px;
+}
+
+div.edit_route_modal table.waypoints {
+    table-layout: fixed;
+}
+
+div.edit_route_modal table.waypoints th.name {
+    width: 75%;
+}
+
+div.edit_route_modal table.waypoints td {
+    vertical-align: middle;
+}
+
+div.edit_route_modal table.waypoints td.radius input {
+    width: 5em;
+    margin: 0 3px 0 0;
+    text-align: right;
+}

@@ -27,7 +27,7 @@
       <div #tab_options .tab-pane>
         <volare-options flights=flights map=map>
         <volare-waypoint map=map>
-        ^{W.route}
+        <volare-route map=map>
         <volare-weather map=map>
 
   <volare-chart .chart flights=flights>
