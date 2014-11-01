@@ -1,0 +1,17 @@
+<div class="modal-header">
+  <h4 class="modal-title">Add flights</h4>
+</div>
+<div class="modal-body">
+  <ul>
+    <li data-ng-repeat="flight in flights">
+      <label>
+        <input type="checkbox" name="flights" value="{{ flight.id }}" data-ng-model="flight.selected">
+        <span>{{ flight.name }}</span>
+      </label>
+    </li>
+  </ul>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" data-ng-click="cancel()">Cancel</button>
+  <button type="button" class="btn btn-primary" data-ng-click="add()">Add</button>
+</div>

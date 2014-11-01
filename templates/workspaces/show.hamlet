@@ -31,29 +31,3 @@
         <volare-weather map=map>
 
   <volare-chart .chart flights=flights>
-
-  <script type=text/ng-template id=addFlight.html>
-    <div .modal-header>
-      <h4 .modal-title>Add flights
-    <div .modal-body>
-      <ul>
-        <li data-ng-repeat="flight in flights">
-          <label>
-            <input type=checkbox name=flights value="{{ flight.id }}" data-ng-model=flight.selected>
-            <span>{{ flight.name }}
-    <div .modal-footer>
-      <button type=button .btn .btn-default ng-click=cancel()>Cancel
-      <button type=button .btn .btn-primary ng-click=ok()>Add
-
-  <script type=text/ng-template id=removeFlight.html>
-    <div .modal-header>
-      <h4 .modal-title>Remove flights
-    <div .modal-body>
-      <ul>
-        <li data-ng-repeat="flight in flights">
-          <label>
-            <input type=checkbox name=flights value="{{ flight.id }}" data-ng-model=flight.selected>
-            <span>{{ flight.name }}
-    <div .modal-footer>
-      <button type=button .btn .btn-default ng-click=cancel()>Cancel
-      <button type=button .btn .btn-primary ng-click=ok()>Remove

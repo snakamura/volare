@@ -8,6 +8,8 @@ define([
     'volare/common',
     'volare/volare',
     'text!./workspace.css',
+    'text!./workspaceAddFlight.html',
+    'text!./workspaceRemoveFlight.html',
     'bootstrap',
     'angular-ui-bootstrap',
     'volare/components/chart',
@@ -16,7 +18,7 @@ define([
     'volare/components/waypoint',
     'volare/components/weather',
     'volare/name'
-], function(require, _, $, angular, common, volare, css) {
+], function(require, _, $, angular, common, volare, css, workspaceAddFlightTemplate, workspaceRemoveFlightTemplate) {
     'use strict';
 
     common.loadCssInline(css);
@@ -45,7 +47,7 @@ define([
         $scope.map = map;
         $scope.addFlight = function() {
             var modal = $modal.open({
-                templateUrl: 'addFlight.html',
+                template: workspaceAddFlightTemplate,
                 controller: 'WorkspaceAddFlightController',
                 backdrop: 'static',
                 resolve: {
@@ -68,7 +70,7 @@ define([
         };
         $scope.removeFlight = function() {
             var modal = $modal.open({
-                templateUrl: 'removeFlight.html',
+                template: workspaceRemoveFlightTemplate,
                 controller: 'WorkspaceRemoveFlightController',
                 backdrop: 'static',
                 resolve: {
@@ -155,7 +157,7 @@ define([
 
     workspace.controller('WorkspaceAddFlightController', ['$scope', '$http', '$workspaceId', function($scope, $http, $workspaceId) {
         $scope.flights = [];
-        $scope.ok = function() {
+        $scope.add = function() {
             var flightIds = _.pluck(_.filter(this.flights, function(flight) {
                 return flight.selected;
             }), 'id');
@@ -172,7 +174,7 @@ define([
 
     workspace.controller('WorkspaceRemoveFlightController', ['$scope', '$flights', function($scope, $flights) {
         $scope.flights = $flights;
-        $scope.ok = function() {
+        $scope.remove = function() {
             var flightIds = _.pluck(_.filter(this.flights, function(flight) {
                 return flight.selected;
             }), 'id');
