@@ -9,10 +9,6 @@
     margin-left: 10px;
 }
 
-.volare_name .edit_name {
-    display: none;
-}
-
 .volare_name .edit_name input {
     font-size: 100%;
 }

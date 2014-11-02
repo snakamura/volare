@@ -1,59 +1,47 @@
 define([
+    'lodash',
     'angular',
     'volare/common',
     'text!./name.css',
     'text!./name.html'
-], function(angular, common, css, template) {
+], function(_, angular, common, css, template) {
     'use strict';
 
     common.loadCssInline(css);
 
     var name = angular.module('volare.name', []);
 
-    name.directive('volareName', ['$parse', function($parse) {
+    name.directive('volareName', [function() {
         return {
             restrict: 'E',
             replace: true,
             transclude: true,
             template: template,
-            link: function(scope, element, attrs) {
-                var updateHandler = $parse(attrs.update);
-                var deleteHandler = $parse(attrs.delete);
-
-                var showName = element.find('.show_name');
-                var displayName = showName.find('.name');
-                var editName = element.find('.edit_name');
-                var inputName = editName.find('input');
-
-                scope.$watch('name', function(name) {
-                    displayName.text(name);
-                    inputName.val(name);
-                });
-
-                function startEditingName() {
-                    showName.hide();
-                    editName.show();
-                    inputName.focus();
-                }
-
-                function finishEditingName() {
-                    editName.hide();
-                    showName.show();
-
-                    var name = inputName.val();
-                    updateHandler(scope, {
-                        $name: name
-                    });
-                }
-
-                showName.find('span.edit').on('click', startEditingName);
-                showName.find('span.delete').on('click', function() {
-                    deleteHandler(scope, {});
-                });
-                editName.find('span.save').on('click', finishEditingName);
-                inputName.on('keyup', function(event) {
+            scope: {
+                name: '=',
+                update: '=',
+                delete: '='
+            },
+            controller: function($scope) {
+                $scope.editing = false;
+                $scope.edit = function() {
+                    $scope.editing = true;
+                };
+                $scope.save = function() {
+                    $scope.editing = false;
+                    $scope.update($scope.name);
+                };
+                $scope.keydown = function(event) {
                     if (event.keyCode === 0x0d)
-                        finishEditingName();
+                        this.save();
+                };
+            },
+            link: function(scope, element, attrs) {
+                var inputName = element.find('input');
+
+                scope.$watch('editing', function(editing) {
+                    if (editing)
+                        _.defer(_.bind(inputName.focus, inputName));
                 });
             }
         };

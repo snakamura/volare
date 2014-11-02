@@ -1,16 +1,16 @@
 <span class="volare_name"
-  ><span class="show_name"
-    ><span class="name"></span
+  ><span data-ng-hide="editing"
+    ><span>{{ name }}</span
     ><span
-      ><span class="action edit glyphicon glyphicon-edit"></span
-      ><span class="action delete glyphicon glyphicon-trash"></span
+      ><span class="action glyphicon glyphicon-edit" data-ng-click="edit()"></span
+      ><span class="action glyphicon glyphicon-trash" data-ng-click="delete()"></span
     ></span
     ><span ng-transclude></span
   ></span
-  ><span class="edit_name"
-    ><input type="text" name="name" value=""
+  ><span data-ng-show="editing"
+    ><input type="text" name="name" data-ng-model="name" data-ng-keydown="keydown($event)"
     ><span
-      ><span class="action save glyphicon glyphicon-ok"></span
+      ><span class="action glyphicon glyphicon-ok" data-ng-click="save()"></span
     ></span
   ></span
 ></span>
