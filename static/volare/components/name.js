@@ -9,7 +9,7 @@ define([
 
     common.loadCssInline(css);
 
-    var name = angular.module('volare.name', []);
+    var name = angular.module('volare.components.name', []);
 
     name.directive('volareName', [function() {
         return {

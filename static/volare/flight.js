@@ -7,8 +7,8 @@ define([
     'volare/volare',
     'text!./flight.css',
     'volare/filters',
-    'volare/name',
     'volare/components/chart',
+    'volare/components/name',
     'volare/components/options',
     'volare/components/player',
     'volare/components/waypoint',
@@ -21,12 +21,12 @@ define([
 
     var flight = angular.module('volare.flight', [
         'volare.components.chart',
+        'volare.components.name',
         'volare.components.options',
         'volare.components.player',
         'volare.components.waypoint',
         'volare.components.weather',
-        'volare.filters',
-        'volare.name'
+        'volare.filters'
     ]);
 
     flight.controller('FlightController', ['$scope', '$http', function($scope, $http) {

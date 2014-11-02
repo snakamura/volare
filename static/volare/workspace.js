@@ -13,12 +13,12 @@ define([
     'bootstrap',
     'angular-ui-bootstrap',
     'volare/components/chart',
+    'volare/components/name',
     'volare/components/options',
     'volare/components/player',
     'volare/components/route',
     'volare/components/waypoint',
-    'volare/components/weather',
-    'volare/name'
+    'volare/components/weather'
 ], function(require, _, $, angular, common, volare, css, workspaceAddFlightTemplate, workspaceRemoveFlightTemplate) {
     'use strict';
 
@@ -27,12 +27,12 @@ define([
     var workspace = angular.module('volare.workspace', [
         'ui.bootstrap',
         'volare.components.chart',
+        'volare.components.name',
         'volare.components.options',
         'volare.components.player',
         'volare.components.route',
         'volare.components.waypoint',
-        'volare.components.weather',
-        'volare.name'
+        'volare.components.weather'
     ]);
 
     workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {
