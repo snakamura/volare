@@ -13,6 +13,7 @@ define([
     'bootstrap',
     'angular-ui-bootstrap',
     'volare/components/chart',
+    'volare/components/graph/altitude',
     'volare/components/name',
     'volare/components/options',
     'volare/components/player',
@@ -27,6 +28,7 @@ define([
     var workspace = angular.module('volare.workspace', [
         'ui.bootstrap',
         'volare.components.chart',
+        'volare.components.graph.altitude',
         'volare.components.name',
         'volare.components.options',
         'volare.components.player',
@@ -39,7 +41,6 @@ define([
         var flights = new volare.Flights();
         flights.setInterval(10);
         var map = new volare.Map(flights, $('#map'));
-        var altitudeGraph = new volare.AltitudeGraph(flights, $('#altitude'));
         var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
         var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
 

@@ -20,7 +20,7 @@
 
     <div .tab-content>
       <div #tab_graphs .tab-pane .active>
-        <div #altitude .graph>
+        <volare-altitude-graph flights=flights>
         <div #ground_speed .graph>
         <div #vertical_speed .graph>
 

@@ -1,0 +1,189 @@
+define([
+    'lodash',
+    'jquery',
+    'angular',
+    'volare/components/graph',
+    'text!./altitude.html'
+], function(_, $, angular, graph, template) {
+    'use strict';
+
+    var altitude = angular.module('volare.components.graph.altitude', [
+        'volare.components.graph'
+    ]);
+
+    altitude.directive('volareAltitudeGraph', [function() {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: template,
+            scope: {
+                flights: '='
+            },
+            controller: ['$scope', function($scope) {
+                var flights = $scope.flights;
+
+                function update() {
+                    $scope.range = {
+                        start: flights.getStartTime(),
+                        end: flights.getEndTime(),
+                        min: 0,
+                        max: flights.getMaxAltitude(),
+                        steps: []
+                    };
+                    $scope.range.steps = _.map(_.range($scope.range.min, $scope.range.max + 1, 200), function(value) {
+                        return {
+                            value: value,
+                            label: _.numberFormat(value) + 'm',
+                            primary: value % 1000 === 0
+                        };
+                    });
+
+                    $scope.strokes = {
+                    };
+                    updateStrokes();
+                    updateCurrentStrokes();
+                }
+
+                function updateStrokes() {
+                    $scope.strokes.all = getStrokes();
+                }
+
+                function updateCurrentStrokes() {
+                    $scope.strokes.current = getStrokes(flights.getCurrentTime(), true, false);
+                    $scope.strokes.diff = [];
+                }
+
+                function updateDiffStrokes() {
+                    $scope.strokes.diff = getStrokes(flights.getCurrentTime(), true, true);
+                }
+
+                function getStrokes(currentTime, withContext, partial) {
+                    var strokes = [];
+                    flights.eachFlight(function(flight) {
+                        if (flight.isVisible()) {
+                            var graphContext = null;
+                            if (withContext) {
+                                graphContext = flight.getExtra('currentAltitudeGraphContext');
+                                if (!graphContext) {
+                                    graphContext = new AltitudeGraphContext();
+                                    flight.setExtra('currentAltitudeGraphContext', graphContext);
+                                }
+                                if (!partial)
+                                    graphContext.reset();
+                            }
+
+                            var stroke = {
+                                color: flight.getColor(),
+                                points: []
+                            };
+
+                            var startIndex = 0;
+                            var startTime = null;
+                            var startAltitude = 0;
+                            if (graphContext && graphContext.isSet()) {
+                                startIndex = graphContext.getIndex();
+                                startTime = graphContext.getTime();
+                                startAltitude = graphContext.getAltitude();
+                            }
+                            else {
+                                startTime = flight.getStartTime();
+                                startAltitude = flight.getRecord(0).altitude;
+                            }
+
+                            stroke.points.push({
+                                time: startTime,
+                                value: startAltitude
+                            });
+
+                            var lastTime = startTime;
+                            var lastAltitude = startAltitude;
+                            var n = startIndex;
+                            for (; n < flight.getRecordCount(); ++n) {
+                                var record = flight.getRecord(n);
+                                var time = record.time;
+                                if (currentTime && time > currentTime)
+                                    break;
+
+                                stroke.points.push({
+                                    time: time,
+                                    value: record.altitude
+                                });
+
+                                lastTime = time;
+                                lastAltitude = record.altitude;
+                            }
+                            if (currentTime && flight.getStartTime() <= currentTime) {
+                                stroke.points.push({
+                                    time: currentTime,
+                                    value: lastAltitude
+                                });
+                            }
+
+                            if (graphContext)
+                                graphContext.set(lastAltitude, n > 0 ? n - 1 : n, lastTime);
+
+                            strokes.push(stroke);
+                        }
+                    });
+                    return strokes;
+                }
+
+                update();
+
+                var visibleChangedListener = update;
+                $(flights).on('flight_added', function(event, flight) {
+                    update();
+                    $(flight).on('visible_changed', visibleChangedListener);
+                });
+                $(flights).on('flight_removed', function(event, flight) {
+                    $(flight).off('visible_changed', visibleChangedListener);
+                    update();
+                });
+                $(flights).on('currenttime_changed', function(event, time, play) {
+                    if (play)
+                        updateDiffStrokes();
+                    else
+                        updateCurrentStrokes();
+                });
+            }]
+        };
+    }]);
+
+
+    function AltitudeGraphContext() {
+        this._set = false;
+        this._altitude = 0;
+        this._index = 0;
+        this._time = null;
+    }
+
+    AltitudeGraphContext.prototype.isSet = function() {
+        return this._set;
+    };
+
+    AltitudeGraphContext.prototype.getAltitude = function() {
+        return this._altitude;
+    };
+
+    AltitudeGraphContext.prototype.getIndex = function() {
+        return this._index;
+    };
+
+    AltitudeGraphContext.prototype.getTime = function() {
+        return this._time;
+    };
+
+    AltitudeGraphContext.prototype.set = function(altitude, index, time) {
+        this._set = true;
+        this._altitude = altitude;
+        this._index = index;
+        this._time = time;
+    };
+
+    AltitudeGraphContext.prototype.reset = function() {
+        this._set = false;
+    };
+
+
+    return altitude;
+});

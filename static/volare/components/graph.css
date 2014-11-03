@@ -1,0 +1,10 @@
+div.graph {
+    width: 300px;
+    height: 200px;
+    border: 1px gray solid;
+    margin: 10px;
+}
+
+div.graph canvas {
+    position: absolute;
+}

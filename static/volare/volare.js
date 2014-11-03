@@ -310,6 +310,14 @@ define([
         return this._minAltitude;
     };
 
+    Flight.prototype.getRecord = function(index) {
+        return this._records[index];
+    };
+
+    Flight.prototype.getRecordCount = function() {
+        return this._records.length;
+    };
+
     Flight.prototype.getPositionAt = function(time) {
         var records = this._records;
         if (!time)
@@ -472,6 +480,16 @@ define([
         return (endRecord.altitude - startRecord.altitude)/((endRecord.time.getTime() - startRecord.time.getTime())/1000);
     };
 
+    Flight.prototype.getExtra = function(name) {
+        return this._extra ? this._extra[name] : undefined;
+    };
+
+    Flight.prototype.setExtra = function(name, value) {
+        if (!this._extra)
+            this._extra = {};
+        this._extra[name] = value;
+    };
+
     Flight.prototype.updateTrack = function(track, currentTime, currentOnly) {
         if (this._visible) {
             var records = this._records;
@@ -490,50 +508,6 @@ define([
             if (!currentOnly)
                 track.setRecords([]);
             track.setCurrentRecords([]);
-        }
-    };
-
-    Flight.prototype.drawAltitude = function(graph, context, currentTime, altitudeGraphContext) {
-        if (this._visible) {
-            context.strokeStyle = this._color;
-            context.lineWidth = 2;
-
-            var startIndex = 0;
-            var startTime = null;
-            var startAltitude = 0;
-            if (altitudeGraphContext && altitudeGraphContext.isSet()) {
-                startIndex = altitudeGraphContext.getIndex();
-                startTime = altitudeGraphContext.getTime();
-                startAltitude = altitudeGraphContext.getAltitude();
-            }
-            else {
-                startTime = this.getStartTime();
-                startAltitude = this._records[0].altitude;
-            }
-
-            context.beginPath();
-            context.moveTo(graph.getX(startTime), graph.getY(startAltitude));
-
-            var lastTime = startTime;
-            var lastAltitude = startAltitude;
-            var n = startIndex;
-            for (; n < this._records.length; ++n) {
-                var record = this._records[n];
-                var time = record.time;
-                if (currentTime && time > currentTime)
-                    break;
-
-                context.lineTo(graph.getX(time), graph.getY(record.altitude));
-
-                lastTime = time;
-                lastAltitude = record.altitude;
-            }
-            if (currentTime && this.getStartTime() <= currentTime)
-                context.lineTo(graph.getX(currentTime), graph.getY(lastAltitude));
-            context.stroke();
-
-            if (altitudeGraphContext)
-                altitudeGraphContext.set(lastAltitude, n > 0 ? n - 1 : n, lastTime);
         }
     };
 
@@ -2118,79 +2092,6 @@ define([
     };
 
 
-    function AltitudeGraph(flights, $canvas) {
-        Graph.call(this, flights, $canvas);
-    }
-    common.inherit(AltitudeGraph, Graph);
-
-    AltitudeGraph.prototype._drawFlights = function(context, currentTime, withGraphContext, partial) {
-        var self = this;
-        this._flights.eachFlight(function(flight) {
-            var graphContext = null;
-            if (withGraphContext) {
-                flight.__currentAltitudeGraphContext = flight.__currentAltitudeGraphContext || new AltitudeGraphContext();
-                graphContext = flight.__currentAltitudeGraphContext;
-                if (!partial)
-                    graphContext.reset();
-            }
-            flight.drawAltitude(self, context, currentTime, graphContext);
-        });
-    };
-
-    AltitudeGraph.prototype._getMax = function() {
-        return this._flights.getMaxAltitude();
-    };
-
-    AltitudeGraph.prototype._isPrimaryValue = function(value) {
-        return value % 1000 === 0;
-    };
-
-    AltitudeGraph.prototype._getValueStep = function() {
-        return AltitudeGraph.ALTITUDE_STEP;
-    };
-
-    AltitudeGraph.prototype._formatValue = function(value) {
-        return _.numberFormat(value) + 'm';
-    };
-
-    AltitudeGraph.ALTITUDE_STEP = 200;
-
-
-    function AltitudeGraphContext() {
-        this._set = false;
-        this._altitude = 0;
-        this._index = 0;
-        this._time = null;
-    }
-
-    AltitudeGraphContext.prototype.isSet = function() {
-        return this._set;
-    };
-
-    AltitudeGraphContext.prototype.getAltitude = function() {
-        return this._altitude;
-    };
-
-    AltitudeGraphContext.prototype.getIndex = function() {
-        return this._index;
-    };
-
-    AltitudeGraphContext.prototype.getTime = function() {
-        return this._time;
-    };
-
-    AltitudeGraphContext.prototype.set = function(altitude, index, time) {
-        this._set = true;
-        this._altitude = altitude;
-        this._index = index;
-        this._time = time;
-    };
-
-    AltitudeGraphContext.prototype.reset = function() {
-        this._set = false;
-    };
-
-
     function GroundSpeedGraph(flights, $canvas) {
         Graph.call(this, flights, $canvas);
     }
@@ -2359,7 +2260,6 @@ define([
         Route: Route,
         RouteItem: RouteItem,
         Map: Map,
-        AltitudeGraph: AltitudeGraph,
         GroundSpeedGraph: GroundSpeedGraph,
         VerticalSpeedGraph: VerticalSpeedGraph,
         setupLayout: setupLayout
