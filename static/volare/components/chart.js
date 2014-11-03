@@ -24,7 +24,7 @@ define([
             scope: {
                 modelFlights: '=flights'
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
                 var modelFlights = $scope.modelFlights;
 
                 $scope.flights = [];
@@ -84,7 +84,7 @@ define([
                     update(true);
                 });
                 update();
-            }
+            }]
         };
     }]);
 

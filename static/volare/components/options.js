@@ -22,7 +22,7 @@ define([
                 modelFlights: '=flights',
                 map: '='
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
                 var modelFlights = $scope.modelFlights;
                 var map = $scope.map;
 
@@ -48,7 +48,7 @@ define([
 
                 updateTrackType();
                 updateThinOut();
-            }
+            }]
         };
     }]);
 

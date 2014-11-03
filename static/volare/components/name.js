@@ -22,7 +22,7 @@ define([
                 update: '&',
                 delete: '&'
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
                 $scope.editing = false;
                 $scope.edit = function() {
                     $scope.editing = true;
@@ -37,7 +37,7 @@ define([
                     if (event.keyCode === 0x0d)
                         this.save();
                 };
-            },
+            }],
             link: function(scope, element, attrs) {
                 var inputName = element.find('input');
 

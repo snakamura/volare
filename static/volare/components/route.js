@@ -23,7 +23,7 @@ define([
             scope: {
                 map: '='
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
                 var map = $scope.map;
 
                 $scope.route = map.getRoute();
@@ -41,7 +41,7 @@ define([
                 $(map).on('route_changed', function() {
                     $scope.route = map.getRoute();
                 });
-            }
+            }]
         };
     }]);
 

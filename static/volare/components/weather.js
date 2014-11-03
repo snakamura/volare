@@ -21,7 +21,7 @@ define([
             scope: {
                 map: '='
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
                 var map = $scope.map;
 
                 var WeatherFlag = volare.Map.WeatherFlag;
@@ -70,7 +70,7 @@ define([
                 $(map).on('weatherFlags_changed', updateFlags);
 
                 updateFlags();
-            }
+            }]
         };
     }]);
 

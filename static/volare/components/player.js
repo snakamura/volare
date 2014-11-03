@@ -24,7 +24,7 @@ define([
             scope: {
                 modelFlights: '=flights'
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
                 var modelFlights = $scope.modelFlights;
                 var timer = null;
 
@@ -77,7 +77,7 @@ define([
 
                 updateProperties();
                 updateTime();
-            },
+            }],
             link: function(scope, element, attrs) {
                 var slider = element.find('.slider');
                 slider.slider({

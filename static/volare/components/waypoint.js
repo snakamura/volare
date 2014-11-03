@@ -21,7 +21,7 @@ define([
             scope: {
                 map: '='
             },
-            controller: function($scope) {
+            controller: ['$scope', function($scope) {
                 var map = $scope.map;
 
                 $scope.waypoints = [];
@@ -47,7 +47,7 @@ define([
                 $http.get('/waypoints').success(function(waypoints) {
                     $scope.waypoints = waypoints;
                 });
-            }
+            }]
         };
     }]);
 
