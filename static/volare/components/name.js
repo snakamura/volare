@@ -18,9 +18,9 @@ define([
             transclude: true,
             template: template,
             scope: {
-                name: '=',
-                update: '=',
-                delete: '='
+                name: '@',
+                update: '&',
+                delete: '&'
             },
             controller: function($scope) {
                 $scope.editing = false;
@@ -29,7 +29,9 @@ define([
                 };
                 $scope.save = function() {
                     $scope.editing = false;
-                    $scope.update($scope.name);
+                    $scope.update({
+                        $name: $scope.name
+                    });
                 };
                 $scope.keydown = function(event) {
                     if (event.keyCode === 0x0d)

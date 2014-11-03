@@ -2,7 +2,7 @@
 
 <div data-ng-controller=FlightController data-ng-cloak>
   <h1 data-ng-controller=FlightNameController>
-    <volare-name name=name update=update delete=delete>
+    <volare-name name="{{ name }}" update=update($name) delete=delete()>
       <span>
         <span .action .glyphicon .glyphicon-book data-ng-click="newWorkspace()">
 
