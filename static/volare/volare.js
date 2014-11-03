@@ -2009,14 +2009,6 @@ define([
         });
     }
 
-    Graph.prototype.getContext = function(time) {
-        return this._context;
-    };
-
-    Graph.prototype.getCurrentContext = function(time) {
-        return this._currentContext;
-    };
-
     Graph.prototype.getX = function(time) {
         return (time - this._flights.getStartTime())/this._flights.getDuration()*(this._width - (Graph.MARGIN.left + Graph.MARGIN.right)) + Graph.MARGIN.left;
     };
