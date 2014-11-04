@@ -9,6 +9,7 @@ define([
     'volare/filters',
     'volare/components/chart',
     'volare/components/graph/altitude',
+    'volare/components/graph/groundSpeed',
     'volare/components/name',
     'volare/components/options',
     'volare/components/player',
@@ -23,6 +24,7 @@ define([
     var flight = angular.module('volare.flight', [
         'volare.components.chart',
         'volare.components.graph.altitude',
+        'volare.components.graph.groundSpeed',
         'volare.components.name',
         'volare.components.options',
         'volare.components.player',
@@ -35,7 +37,6 @@ define([
         var flights = new volare.Flights();
         var map = new volare.Map(flights, $('#map'));
         map.setTrackType(volare.Map.TrackType.ALTITUDE);
-        var groundSpeedGraph = new volare.GroundSpeedGraph(flights, $('#ground_speed'));
         var verticalSpeedGraph = new volare.VerticalSpeedGraph(flights, $('#vertical_speed'));
 
         $scope.name = $name;

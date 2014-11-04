@@ -31,7 +31,7 @@
             <td>{{ maxAltitude | altitude }}
 
         <volare-altitude-graph flights=flights>
-        <div #ground_speed .graph>
+        <volare-ground-speed-graph flights=flights>
         <div #vertical_speed .graph>
 
       <div #tab_options .tab-pane>
