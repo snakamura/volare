@@ -113,15 +113,17 @@ define([
                 };
 
                 scope.drawStroke = function(context, stroke) {
-                    context.strokeStyle = stroke.color;
-                    context.lineWidth = 2;
+                    if (stroke.points.length >= 2) {
+                        context.strokeStyle = stroke.color;
+                        context.lineWidth = 2;
 
-                    context.beginPath();
-                    context.moveTo(this.getX(stroke.points[0].time), this.getY(stroke.points[0].value));
-                    for (var n = 1; n < stroke.points.length; ++n) {
-                        context.lineTo(this.getX(stroke.points[n].time), this.getY(stroke.points[n].value));
+                        context.beginPath();
+                        context.moveTo(this.getX(stroke.points[0].time), this.getY(stroke.points[0].value));
+                        for (var n = 1; n < stroke.points.length; ++n) {
+                            context.lineTo(this.getX(stroke.points[n].time), this.getY(stroke.points[n].value));
+                        }
+                        context.stroke();
                     }
-                    context.stroke();
                 };
 
                 scope.$watch('range', function(range) {
