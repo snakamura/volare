@@ -24,10 +24,10 @@ define([
                 function getRange() {
                     var min = 0;
                     var max = flights.getMaxAltitude();
-                    var steps = _.map(_.range(min, max + 1, 200), function(value) {
+                    var steps = _.map(_.range(min, max + 1, 100), function(value) {
                         return {
                             value: value,
-                            label: _.numberFormat(value) + 'm',
+                            label: value % 200 === 0 ? _.numberFormat(value) + 'm' : '',
                             primary: value % 1000 === 0
                         };
                     });

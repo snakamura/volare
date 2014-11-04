@@ -25,10 +25,10 @@ define([
                 function getRange() {
                     var min = 0;
                     var max = 120;
-                    var steps = _.map(_.range(min, max + 1, 10), function(value) {
+                    var steps = _.map(_.range(min, max, 10), function(value) {
                         return {
                             value: value,
-                            label: _.numberFormat(value) + 'km/h',
+                            label: value % 20 === 0 ? _.numberFormat(value) + 'km/h' : '',
                             primary: value % 50 === 0
                         };
                     });
