@@ -1,9 +1,9 @@
 define([
     'lodash',
     'angular',
-    'volare/components/graph',
-    'text!./altitude.html'
-], function(_, angular, graph, template) {
+    'text!./altitude.html',
+    'volare/components/graph'
+], function(_, angular, template) {
     'use strict';
 
     var altitude = angular.module('volare.components.graph.altitude', [

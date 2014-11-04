@@ -2,9 +2,9 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/components/graph',
-    'text!./groundSpeed.html'
-], function(_, $, angular, graph, template) {
+    'text!./groundSpeed.html',
+    'volare/components/graph'
+], function(_, $, angular, template) {
     'use strict';
 
     var groundSpeed = angular.module('volare.components.graph.groundSpeed', [
