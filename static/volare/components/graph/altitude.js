@@ -1,17 +1,16 @@
 define([
     'lodash',
-    'jquery',
     'angular',
     'volare/components/graph',
     'text!./altitude.html'
-], function(_, $, angular, graph, template) {
+], function(_, angular, graph, template) {
     'use strict';
 
     var altitude = angular.module('volare.components.graph.altitude', [
         'volare.components.graph'
     ]);
 
-    altitude.directive('volareAltitudeGraph', [function() {
+    altitude.directive('volareAltitudeGraph', ['graph', function(graph) {
         return {
             restrict: 'E',
             replace: true,
@@ -22,39 +21,21 @@ define([
             controller: ['$scope', function($scope) {
                 var flights = $scope.flights;
 
-                function update() {
-                    $scope.range = {
-                        start: flights.getStartTime(),
-                        end: flights.getEndTime(),
-                        min: 0,
-                        max: flights.getMaxAltitude(),
-                        steps: []
-                    };
-                    $scope.range.steps = _.map(_.range($scope.range.min, $scope.range.max + 1, 200), function(value) {
+                function getRange() {
+                    var min = 0;
+                    var max = flights.getMaxAltitude();
+                    var steps = _.map(_.range(min, max + 1, 200), function(value) {
                         return {
                             value: value,
                             label: _.numberFormat(value) + 'm',
                             primary: value % 1000 === 0
                         };
                     });
-
-                    $scope.strokes = {
+                    return {
+                        min: min,
+                        max: max,
+                        steps: steps
                     };
-                    updateStrokes();
-                    updateCurrentStrokes();
-                }
-
-                function updateStrokes() {
-                    $scope.strokes.all = getStrokes();
-                }
-
-                function updateCurrentStrokes() {
-                    $scope.strokes.current = getStrokes(flights.getCurrentTime(), true, false);
-                    $scope.strokes.diff = [];
-                }
-
-                function updateDiffStrokes() {
-                    $scope.strokes.diff = getStrokes(flights.getCurrentTime(), true, true);
                 }
 
                 function getStrokes(currentTime, withContext, partial) {
@@ -128,23 +109,7 @@ define([
                     return strokes;
                 }
 
-                update();
-
-                var visibleChangedListener = update;
-                $(flights).on('flight_added', function(event, flight) {
-                    update();
-                    $(flight).on('visible_changed', visibleChangedListener);
-                });
-                $(flights).on('flight_removed', function(event, flight) {
-                    $(flight).off('visible_changed', visibleChangedListener);
-                    update();
-                });
-                $(flights).on('currenttime_changed', function(event, time, play) {
-                    if (play)
-                        updateDiffStrokes();
-                    else
-                        updateCurrentStrokes();
-                });
+                graph.init($scope, flights, getRange, getStrokes);
             }]
         };
     }]);

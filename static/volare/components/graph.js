@@ -1,10 +1,11 @@
 define([
     'lodash',
+    'jquery',
     'angular',
     'volare/common',
     'text!./graph.css',
     'text!./graph.html'
-], function(_, angular, common, css, template) {
+], function(_, $, angular, common, css, template) {
     'use strict';
 
     common.loadCssInline(css);
@@ -148,6 +149,54 @@ define([
             }
         };
     }]);
+
+    graph.service('graph', function() {
+        return {
+            init: function(scope, flights, getRange, getStrokes) {
+                function update() {
+                    scope.range = getRange();
+                    scope.range.start = flights.getStartTime();
+                    scope.range.end = flights.getEndTime();
+
+                    scope.strokes = {
+                    };
+                    updateStrokes();
+                    updateCurrentStrokes();
+                }
+
+                function updateStrokes() {
+                    scope.strokes.all = getStrokes();
+                }
+
+                function updateCurrentStrokes() {
+                    scope.strokes.current = getStrokes(flights.getCurrentTime(), true, false);
+                    scope.strokes.diff = [];
+                }
+
+                function updateDiffStrokes() {
+                    scope.strokes.diff = getStrokes(flights.getCurrentTime(), true, true);
+                }
+
+                update();
+
+                var visibleChangedListener = update;
+                $(flights).on('flight_added', function(event, flight) {
+                    update();
+                    $(flight).on('visible_changed', visibleChangedListener);
+                });
+                $(flights).on('flight_removed', function(event, flight) {
+                    $(flight).off('visible_changed', visibleChangedListener);
+                    update();
+                });
+                $(flights).on('currenttime_changed', function(event, time, play) {
+                    if (play)
+                        updateDiffStrokes();
+                    else
+                        updateCurrentStrokes();
+                });
+            }
+        };
+    });
 
     return graph;
 });
