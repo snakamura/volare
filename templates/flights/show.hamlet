@@ -32,7 +32,7 @@
 
         <volare-altitude-graph flights=flights>
         <volare-ground-speed-graph flights=flights>
-        <div #vertical_speed .graph>
+        <volare-vertical-speed-graph flights=flights>
 
       <div #tab_options .tab-pane>
         <volare-options flights=flights map=map>
