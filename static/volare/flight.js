@@ -3,9 +3,9 @@
 define([
     'jquery',
     'angular',
-    'volare/common',
     'volare/volare',
     'text!./flight.css',
+    'bootstrap',
     'volare/filters',
     'volare/components/chart',
     'volare/components/graph/altitude',
@@ -16,11 +16,9 @@ define([
     'volare/components/player',
     'volare/components/waypoint',
     'volare/components/weather',
-    'bootstrap'
-], function($, angular, common, volare, css) {
+    'volare/util'
+], function($, angular, volare, css) {
     'use strict';
-
-    common.loadCssInline(css);
 
     var flight = angular.module('volare.flight', [
         'volare.components.chart',
@@ -32,10 +30,13 @@ define([
         'volare.components.player',
         'volare.components.waypoint',
         'volare.components.weather',
-        'volare.filters'
+        'volare.filters',
+        'volare.util'
     ]);
 
-    flight.controller('FlightController', ['$scope', '$http', function($scope, $http) {
+    flight.controller('FlightController', ['$scope', '$http', 'util', function($scope, $http, util) {
+        util.loadCssInline(css);
+
         var flights = new volare.Flights();
         var map = new volare.Map(flights, $('#map'));
         map.setTrackType(volare.Map.TrackType.ALTITUDE);

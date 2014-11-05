@@ -1,19 +1,22 @@
 define([
     'lodash',
+    'underscore.string',
     'jquery',
     'angular',
     'volare/volare',
-    'volare/common',
     'text!./weather.css',
-    'text!./weather.html'
-], function(_, $, angular, volare, common, css, template) {
+    'text!./weather.html',
+    'volare/util'
+], function(_, _s, $, angular, volare, css, template) {
     'use strict';
 
-    common.loadCssInline(css);
+    var weather = angular.module('volare.components.weather', [
+        'volare.util'
+    ]);
 
-    var weather = angular.module('volare.components.weather', []);
+    weather.directive('volareWeather', ['util', function(util) {
+        util.loadCssInline(css);
 
-    weather.directive('volareWeather', [function() {
         return {
             restrict: 'E',
             replace: true,
@@ -40,7 +43,7 @@ define([
                 function fromFlags(flags, flag) {
                     if (_.isObject(flag)) {
                         return _.reduce(_.omit(flag, 'ALL'), function(weatherFlags, v, k) {
-                            return weatherFlags | fromFlags(flags[_.camelize(k.toLowerCase())], v);
+                            return weatherFlags | fromFlags(flags[_s.camelize(k.toLowerCase())], v);
                         }, 0);
                     }
                     else {
@@ -51,7 +54,7 @@ define([
                 function toFlags(weatherFlags, flag) {
                     if (_.isObject(flag)) {
                         return _.transform(_.omit(flag, 'ALL'), function(o, v, k) {
-                            o[_.camelize(k.toLowerCase())] = toFlags(weatherFlags, v);
+                            o[_s.camelize(k.toLowerCase())] = toFlags(weatherFlags, v);
                         });
                     }
                     else {

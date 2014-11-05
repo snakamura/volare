@@ -1,10 +1,11 @@
 define([
     'lodash',
+    'underscore.string',
     'angular',
     'text!./verticalSpeed.html',
     'volare/components/graph',
     'volare/components/graph/speed'
-], function(_, angular, template) {
+], function(_, _s, angular, template) {
     'use strict';
 
     var verticalSpeed = angular.module('volare.components.graph.verticalSpeed', [
@@ -29,7 +30,7 @@ define([
                     var steps = _.map(_.range(min, max, 1), function(value) {
                         return {
                             value: value,
-                            label: _.numberFormat(value) + 'm/s',
+                            label: _s.numberFormat(value) + 'm/s',
                             primary: value === 0
                         };
                     });

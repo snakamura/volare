@@ -1,11 +1,8 @@
 define([
     'lodash',
-    'underscore.string',
     'jquery'
-], function(_, _s, $) {
+], function(_, $) {
     'use strict';
-
-    _.mixin(_s.exports());
 
     $.ajaxSetup({
         accept: 'application/json; charset=utf-8'
@@ -51,10 +48,6 @@ define([
                 w['_' + key] = value;
             });
             return w;
-        },
-
-        basename: function(name) {
-            return name.replace(/\.[^.]*$/, '');
         },
 
         loadCss: function(url) {

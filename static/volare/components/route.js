@@ -1,21 +1,24 @@
 define([
     'lodash',
+    'underscore.string',
     'jquery',
     'angular',
     'volare/volare',
-    'volare/common',
     'text!./route.css',
     'text!./route.html',
     'text!./routeEditItems.html',
-    'angular-ui-bootstrap'
-], function(_, $, angular, volare, common, css, template, routeEditItemsTemplate) {
+    'angular-ui-bootstrap',
+    'volare/util'
+], function(_, _s, $, angular, volare, css, template, routeEditItemsTemplate) {
     'use strict';
 
-    common.loadCssInline(css);
+    var route = angular.module('volare.components.route', [
+        'volare.util'
+    ]);
 
-    var route = angular.module('volare.components.route', []);
+    route.directive('volareRoute', ['$modal', 'util', function($modal, util) {
+        util.loadCssInline(css);
 
-    route.directive('volareRoute', ['$modal', function($modal) {
         return {
             restrict: 'E',
             replace: true,
@@ -90,7 +93,7 @@ define([
 
     route.filter('route', function() {
         function formatDistance(distance) {
-            return _.sprintf('%.1fkm', distance/1000);
+            return _s.sprintf('%.1fkm', distance/1000);
         }
         return function(route) {
             var s = '';

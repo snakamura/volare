@@ -3,17 +3,19 @@ define([
     'jquery',
     'angular',
     'volare/volare',
-    'volare/common',
     'text!./waypoint.css',
-    'text!./waypoint.html'
-], function(_, $, angular, volare, common, css, template) {
+    'text!./waypoint.html',
+    'volare/util'
+], function(_, $, angular, volare, css, template) {
     'use strict';
 
-    common.loadCssInline(css);
+    var waypoint = angular.module('volare.components.waypoint', [
+        'volare.util'
+    ]);
 
-    var waypoint = angular.module('volare.components.waypoint', []);
+    waypoint.directive('volareWaypoint', ['$http', 'util', function($http, util) {
+        util.loadCssInline(css);
 
-    waypoint.directive('volareWaypoint', ['$http', function($http) {
         return {
             restrict: 'E',
             replace: true,

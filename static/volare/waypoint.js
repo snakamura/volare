@@ -4,21 +4,22 @@ define([
     'angular',
     'google',
     'markerwithlabel',
-    'volare/common',
     'text!./waypoint.css',
     'volare/components/name',
-    'volare/layout'
-], function(require, _, angular, google, markerWithLabel, common, css) {
+    'volare/layout',
+    'volare/util'
+], function(require, _, angular, google, markerWithLabel, css) {
     'use strict';
-
-    common.loadCssInline(css);
 
     var waypoint = angular.module('volare.waypoint', [
         'volare.components.name',
-        'volare.layout'
+        'volare.layout',
+        'volare.util'
     ]);
 
-    waypoint.controller('WaypointController', ['$scope', '$http', function($scope, $http) {
+    waypoint.controller('WaypointController', ['$scope', '$http', 'util', function($scope, $http, util) {
+        util.loadCssInline(css);
+
         $scope.items = [];
         $http.get('').success(function(waypoint) {
             $scope.name = waypoint.name;

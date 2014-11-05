@@ -2,21 +2,22 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/common',
     'text!./player.css',
     'text!./player.html',
     'jquery-ui',
-    'volare/filters'
-], function(_, $, angular, common, css, template) {
+    'volare/filters',
+    'volare/util'
+], function(_, $, angular, css, template) {
     'use strict';
 
-    common.loadCssInline(css);
-
     var player = angular.module('volare.components.player', [
-        'volare.filters'
+        'volare.filters',
+        'volare.util'
     ]);
 
-    player.directive('volarePlayer', ['$interval', function($interval) {
+    player.directive('volarePlayer', ['$interval', 'util', function($interval, util) {
+        util.loadCssInline(css);
+
         return {
             restrict: 'E',
             replace: true,

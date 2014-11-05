@@ -1,16 +1,18 @@
 define([
     'angular',
-    'volare/common',
     'text!./file.css',
-    'text!./file.html'
-], function(angular, common, css, template) {
+    'text!./file.html',
+    'volare/util'
+], function(angular, css, template) {
     'use strict';
 
-    common.loadCssInline(css);
+    var file = angular.module('volare.file', [
+        'volare.util'
+    ]);
 
-    var file = angular.module('volare.file', []);
+    file.directive('volareFile', ['$parse', 'util', function($parse, util) {
+        util.loadCssInline(css);
 
-    file.directive('volareFile', ['$parse', function($parse) {
         return {
             restrict: 'E',
             replace: true,

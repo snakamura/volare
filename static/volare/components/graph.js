@@ -1,18 +1,21 @@
 define([
     'lodash',
+    'underscore.string',
     'jquery',
     'angular',
-    'volare/common',
     'text!./graph.css',
-    'text!./graph.html'
-], function(_, $, angular, common, css, template) {
+    'text!./graph.html',
+    'volare/util'
+], function(_, _s, $, angular, css, template) {
     'use strict';
 
-    common.loadCssInline(css);
+    var graph = angular.module('volare.components.graph', [
+        'volare.util'
+    ]);
 
-    var graph = angular.module('volare.components.graph', []);
+    graph.directive('volareGraph', ['util', function(util) {
+        util.loadCssInline(css);
 
-    graph.directive('volareGraph', [function() {
         return {
             restrict: 'E',
             replace: true,
@@ -35,7 +38,7 @@ define([
                 var opacityAll = 0.3;
 
                 function formatTime(time) {
-                    return _.sprintf('%02d:%02d', time.getHours(), time.getMinutes());
+                    return _s.sprintf('%02d:%02d', time.getHours(), time.getMinutes());
                 }
 
                 var canvases = element.children('canvas');

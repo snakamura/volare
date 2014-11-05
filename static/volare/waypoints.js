@@ -2,13 +2,14 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/common',
-    'volare/file'
-], function(_, $, angular, common) {
+    'volare/file',
+    'volare/util'
+], function(_, $, angular) {
     'use strict';
 
     var waypoints = angular.module('volare.waypoints', [
-        'volare.file'
+        'volare.file',
+        'volare.util'
     ]);
 
     waypoints.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
@@ -25,14 +26,14 @@ define([
         });
     }]);
 
-    waypoints.controller('WaypointsUploadController', ['$scope', '$http', function($scope, $http) {
+    waypoints.controller('WaypointsUploadController', ['$scope', '$http', 'util', function($scope, $http, util) {
         $scope.addFiles = function(files) {
             var self = this;
             _.each(files, function(file) {
                 var reader = new FileReader();
                 $(reader).on('loadend', function(event) {
                     $http.post('/waypoints', {
-                        name: common.basename(file.name),
+                        name: util.basename(file.name),
                         wpt: reader.result
                     }).success(function(waypoint) {
                         if (files.length === 1)

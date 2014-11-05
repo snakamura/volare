@@ -1,10 +1,11 @@
 define([
     'lodash',
+    'underscore.string',
     'angular',
     'text!./groundSpeed.html',
     'volare/components/graph',
     'volare/components/graph/speed'
-], function(_, angular, template) {
+], function(_, _s, angular, template) {
     'use strict';
 
     var groundSpeed = angular.module('volare.components.graph.groundSpeed', [
@@ -29,7 +30,7 @@ define([
                     var steps = _.map(_.range(min, max, 10), function(value) {
                         return {
                             value: value,
-                            label: value % 20 === 0 ? _.numberFormat(value) + 'km/h' : '',
+                            label: value % 20 === 0 ? _s.numberFormat(value) + 'km/h' : '',
                             primary: value % 50 === 0
                         };
                     });

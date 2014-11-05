@@ -1,9 +1,10 @@
 define([
     'lodash',
+    'underscore.string',
     'angular',
     'text!./altitude.html',
     'volare/components/graph'
-], function(_, angular, template) {
+], function(_, _s, angular, template) {
     'use strict';
 
     var altitude = angular.module('volare.components.graph.altitude', [
@@ -27,7 +28,7 @@ define([
                     var steps = _.map(_.range(min, max + 1, 100), function(value) {
                         return {
                             value: value,
-                            label: value % 200 === 0 ? _.numberFormat(value) + 'm' : '',
+                            label: value % 200 === 0 ? _s.numberFormat(value) + 'm' : '',
                             primary: value % 1000 === 0
                         };
                     });

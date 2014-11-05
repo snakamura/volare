@@ -1,22 +1,24 @@
 define([
     'lodash',
+    'underscore.string',
     'jquery',
     'angular',
-    'volare/common',
     'volare/volare',
     'text!./chart.css',
     'text!./chart.html',
-    'volare/filters'
-], function(_, $, angular, common, volare, css, template) {
+    'volare/filters',
+    'volare/util'
+], function(_, _s, $, angular, volare, css, template) {
     'use strict';
 
-    common.loadCssInline(css);
-
     var chart = angular.module('volare.components.chart', [
-        'volare.filters'
+        'volare.filters',
+        'volare.util'
     ]);
 
-    chart.directive('volareChart', [function() {
+    chart.directive('volareChart', ['util', function(util) {
+        util.loadCssInline(css);
+
         return {
             restrict: 'E',
             replace: true,
@@ -106,13 +108,13 @@ define([
 
     chart.filter('ld', function() {
         return function(ld) {
-            return ld ? _.sprintf('%.1f', ld) : '-';
+            return ld ? _s.sprintf('%.1f', ld) : '-';
         };
     });
 
     chart.filter('averageClimb', function() {
         return function(averageClimb) {
-            return !averageClimb ? '-' : _.sprintf('%.1fm/s', averageClimb);
+            return !averageClimb ? '-' : _s.sprintf('%.1fm/s', averageClimb);
         };
     });
 

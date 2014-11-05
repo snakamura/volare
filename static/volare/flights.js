@@ -2,15 +2,16 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/common',
     'volare/file',
-    'volare/filters'
-], function(_, $, angular, common) {
+    'volare/filters',
+    'volare/util'
+], function(_, $, angular) {
     'use strict';
 
     var flights = angular.module('volare.flights', [
         'volare.file',
-        'volare.filters'
+        'volare.filters',
+        'volare.util'
     ]);
 
     function initFlight(flight) {
@@ -34,14 +35,14 @@ define([
         });
     }]);
 
-    flights.controller('FlightsUploadController', ['$scope', '$http', function($scope, $http) {
+    flights.controller('FlightsUploadController', ['$scope', '$http', 'util', function($scope, $http, util) {
         $scope.addFiles = function(files) {
             var self = this;
             _.each(files, function(file) {
                 var reader = new FileReader();
                 $(reader).on('loadend', function(event) {
                     $http.post('/flights', {
-                        name: common.basename(file.name),
+                        name: util.basename(file.name),
                         igc: reader.result
                     }).success(function(flight) {
                         if (files.length === 1)

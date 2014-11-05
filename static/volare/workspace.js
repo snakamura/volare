@@ -5,13 +5,12 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/common',
     'volare/volare',
     'text!./workspace.css',
     'text!./workspaceAddFlight.html',
     'text!./workspaceRemoveFlight.html',
-    'bootstrap',
     'angular-ui-bootstrap',
+    'bootstrap',
     'volare/components/chart',
     'volare/components/graph/altitude',
     'volare/components/graph/groundSpeed',
@@ -21,11 +20,10 @@ define([
     'volare/components/player',
     'volare/components/route',
     'volare/components/waypoint',
-    'volare/components/weather'
-], function(require, _, $, angular, common, volare, css, workspaceAddFlightTemplate, workspaceRemoveFlightTemplate) {
+    'volare/components/weather',
+    'volare/util'
+], function(require, _, $, angular, volare, css, workspaceAddFlightTemplate, workspaceRemoveFlightTemplate) {
     'use strict';
-
-    common.loadCssInline(css);
 
     var workspace = angular.module('volare.workspace', [
         'ui.bootstrap',
@@ -38,10 +36,13 @@ define([
         'volare.components.player',
         'volare.components.route',
         'volare.components.waypoint',
-        'volare.components.weather'
+        'volare.components.weather',
+        'volare.util'
     ]);
 
-    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {
+    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', 'util', function($scope, $http, $modal, util) {
+        util.loadCssInline(css);
+
         var flights = new volare.Flights();
         flights.setInterval(10);
         var map = new volare.Map(flights, $('#map'));

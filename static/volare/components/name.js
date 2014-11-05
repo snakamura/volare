@@ -1,17 +1,19 @@
 define([
     'lodash',
     'angular',
-    'volare/common',
     'text!./name.css',
-    'text!./name.html'
-], function(_, angular, common, css, template) {
+    'text!./name.html',
+    'volare/util'
+], function(_, angular, css, template) {
     'use strict';
 
-    common.loadCssInline(css);
+    var name = angular.module('volare.components.name', [
+        'volare.util'
+    ]);
 
-    var name = angular.module('volare.components.name', []);
+    name.directive('volareName', ['util', function(util) {
+        util.loadCssInline(css);
 
-    name.directive('volareName', [function() {
         return {
             restrict: 'E',
             replace: true,

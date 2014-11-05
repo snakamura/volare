@@ -3,17 +3,19 @@ define([
     'jquery',
     'angular',
     'volare/volare',
-    'volare/common',
     'text!./options.css',
-    'text!./options.html'
-], function(_, $, angular, volare, common, css, template) {
+    'text!./options.html',
+    'volare/util'
+], function(_, $, angular, volare, css, template) {
     'use strict';
 
-    common.loadCssInline(css);
+    var options = angular.module('volare.components.options', [
+        'volare.util'
+    ]);
 
-    var options = angular.module('volare.components.options', []);
+    options.directive('volareOptions', ['util', function(util) {
+        util.loadCssInline(css);
 
-    options.directive('volareOptions', [function() {
         return {
             restrict: 'E',
             replace: true,
