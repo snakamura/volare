@@ -8,7 +8,7 @@ define([
         'volare.components.graph'
     ]);
 
-    speed.service('speedGraph', ['graph', function(graph) {
+    speed.factory('speedGraph', ['graph', function(graph) {
         return {
             init: function(scope, flights, contextName, getRange, getValue) {
                 function getStrokes(currentTime, withContext, partial) {

@@ -150,7 +150,7 @@ define([
         };
     }]);
 
-    graph.service('graph', function() {
+    graph.factory('graph', function() {
         return {
             init: function(scope, flights, getRange, getStrokes) {
                 function update() {
