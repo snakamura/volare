@@ -2,14 +2,14 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/file',
-    'volare/util'
+    'volare/util',
+    'volare/util/file'
 ], function(_, $, angular) {
     'use strict';
 
     var waypoints = angular.module('volare.waypoints', [
-        'volare.file',
-        'volare.util'
+        'volare.util',
+        'volare.util.file'
     ]);
 
     waypoints.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {

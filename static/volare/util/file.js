@@ -6,7 +6,7 @@ define([
 ], function(angular, css, template) {
     'use strict';
 
-    var file = angular.module('volare.file', [
+    var file = angular.module('volare.util.file', [
         'volare.util'
     ]);
 

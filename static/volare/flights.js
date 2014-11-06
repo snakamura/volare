@@ -2,16 +2,16 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/file',
     'volare/filters',
-    'volare/util'
+    'volare/util',
+    'volare/util/file'
 ], function(_, $, angular) {
     'use strict';
 
     var flights = angular.module('volare.flights', [
-        'volare.file',
         'volare.filters',
-        'volare.util'
+        'volare.util',
+        'volare.util.file'
     ]);
 
     function initFlight(flight) {
