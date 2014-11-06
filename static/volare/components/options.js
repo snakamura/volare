@@ -25,10 +25,10 @@ define([
                 flights: '=',
                 map: '='
             },
-            controller: ['$scope', 'trackType', function($scope, trackType) {
+            controller: ['$scope', 'Map', function($scope, Map) {
                 var flights = $scope.flights;
 
-                $scope.TrackType = trackType;
+                $scope.TrackType = Map.TrackType;
                 $scope.$watch('map', function(map) {
                     $scope.$watch('trackType', function(trackType) {
                         map.setTrackType(_.parseInt(trackType));

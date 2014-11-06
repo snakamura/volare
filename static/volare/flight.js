@@ -36,7 +36,7 @@ define([
         'volare.util'
     ]);
 
-    flight.controller('FlightController', ['$scope', '$http', 'trackType', 'util', function($scope, $http, trackType, util) {
+    flight.controller('FlightController', ['$scope', '$http', 'Map', 'util', function($scope, $http, Map, util) {
         util.loadCssInline(css);
 
         var flights = new volare.Flights();
@@ -57,7 +57,7 @@ define([
 
         $scope.$watch('map', function(map) {
             if (map)
-                map.setTrackType(trackType.ALTITUDE);
+                map.setTrackType(Map.TrackType.ALTITUDE);
         });
 
         flights.addFlight($id, 'red');

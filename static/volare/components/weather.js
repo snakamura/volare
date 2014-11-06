@@ -25,8 +25,8 @@ define([
             scope: {
                 map: '='
             },
-            controller: ['$scope', 'weatherFlag', function($scope, weatherFlag) {
-                var WeatherFlag = weatherFlag;
+            controller: ['$scope', 'Map', function($scope, Map) {
+                var WeatherFlag = Map.WeatherFlag;
 
                 $scope.WeatherFlag = WeatherFlag;
                 $scope.msmAltitudes = [1000, 975, 950, 925, 900, 850, 800, 700];

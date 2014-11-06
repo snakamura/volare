@@ -15,7 +15,7 @@ define([
         'volare.util'
     ]);
 
-    map.directive('volareMap', ['util', function(util) {
+    map.directive('volareMap', ['Map', 'util', function(Map, util) {
         util.loadCssInline(css);
 
         return {
@@ -36,16 +36,7 @@ define([
         };
     }]);
 
-    map.factory('trackType', function() {
-        return Map.TrackType;
-    });
-
-    map.factory('weatherFlag', function() {
-        return Map.WeatherFlag;
-    });
-
-
-    var Map = (function() {
+    map.factory('Map', function() {
         var LatLng = google.maps.LatLng;
         var LatLngBounds = google.maps.LatLngBounds;
 
@@ -1253,8 +1244,7 @@ define([
         };
 
         return Map;
-    }());
-
+    });
 
     return map;
 });
