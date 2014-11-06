@@ -74,15 +74,9 @@ define([
                     });
                 }
 
-                $(flights).on('flight_added', function(event, flight, index) {
-                    update(false);
-                });
-                $(flights).on('flight_removed', function(event, flight) {
-                    update(false);
-                });
-                $(flights).on('currenttime_changed', function() {
-                    update(true);
-                });
+                $(flights).on('flight_added', _.bind(update, null, false));
+                $(flights).on('flight_removed', _.bind(update, null, false));
+                $(flights).on('currenttime_changed', _.bind(update, null, true));
                 update(false);
             }]
         };
