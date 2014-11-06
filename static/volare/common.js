@@ -31,17 +31,6 @@ define([
     };
 
     return {
-        inherit: (function() {
-            var Proxy = function() {
-            };
-            return function(clazz, parent) {
-                Proxy.prototype = parent.prototype;
-                clazz.prototype = new Proxy();
-                clazz.super_ = parent.prototype;
-                clazz.prototype.constructor = clazz;
-            };
-        }()),
-
         wrap: function(proto, o) {
             var w = Object.create(proto);
             _.each(o, function(value, key) {

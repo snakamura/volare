@@ -5,10 +5,9 @@ define([
     'angular',
     'google',
     'markerwithlabel',
-    'volare/common',
     'text!./map.css',
     'volare/util'
-], function(require, _, $, angular, google, markerWithLabel, common, css) {
+], function(require, _, $, angular, google, markerWithLabel, css) {
     'use strict';
 
     var map = angular.module('volare.components.map', [
@@ -36,7 +35,7 @@ define([
         };
     }]);
 
-    map.factory('Map', function() {
+    map.factory('Map', ['util', function(util) {
         var LatLng = google.maps.LatLng;
         var LatLngBounds = google.maps.LatLngBounds;
 
@@ -345,7 +344,7 @@ define([
                 strokeColor: color
             });
         }
-        common.inherit(SolidColorTrack, Track);
+        util.inherit(SolidColorTrack, Track);
 
         SolidColorTrack.prototype.clear = function() {
             this._polyline.setMap(null);
@@ -376,7 +375,7 @@ define([
             this._polylines = [];
             this._currentPolylines = [];
         }
-        common.inherit(GradientColorTrack, Track);
+        util.inherit(GradientColorTrack, Track);
 
         GradientColorTrack.prototype.clear = function() {
             _.each(this._polylines, function(polyline) {
@@ -473,7 +472,7 @@ define([
         function GradientColorAltitudeTrack(map, flights) {
             GradientColorTrack.call(this, map, flights);
         }
-        common.inherit(GradientColorAltitudeTrack, GradientColorTrack);
+        util.inherit(GradientColorAltitudeTrack, GradientColorTrack);
 
         GradientColorAltitudeTrack.prototype.getMax = function(flights) {
             return flights.getMaxAltitude();
@@ -493,7 +492,7 @@ define([
 
             this._flight = flight;
         }
-        common.inherit(GradientColorGroundSpeedTrack, GradientColorTrack);
+        util.inherit(GradientColorGroundSpeedTrack, GradientColorTrack);
 
         GradientColorGroundSpeedTrack.prototype.getMax = function(flights) {
             return 80;
@@ -513,7 +512,7 @@ define([
 
             this._flight = flight;
         }
-        common.inherit(GradientColorVerticalSpeedTrack, GradientColorTrack);
+        util.inherit(GradientColorVerticalSpeedTrack, GradientColorTrack);
 
         GradientColorVerticalSpeedTrack.prototype.getMax = function(flights) {
             return 3;
@@ -535,7 +534,7 @@ define([
             this._$div = null;
             this._idleListener = null;
         }
-        common.inherit(WeatherOverlay, google.maps.OverlayView);
+        util.inherit(WeatherOverlay, google.maps.OverlayView);
 
         WeatherOverlay.prototype.getCurrentTime = function() {
             return this._currentTime;
@@ -638,7 +637,7 @@ define([
 
             this._clear();
         }
-        common.inherit(MSMOverlay, WeatherOverlay);
+        util.inherit(MSMOverlay, WeatherOverlay);
 
         MSMOverlay.prototype.setFlags = function(map, flags) {
             this._setFlags(flags);
@@ -813,7 +812,7 @@ define([
 
             this._flags = Map.WeatherFlag.MSM.SURFACE.ALL;
         }
-        common.inherit(MSMSurfaceOverlay, MSMOverlay);
+        util.inherit(MSMSurfaceOverlay, MSMOverlay);
 
         MSMSurfaceOverlay.prototype._getName = function() {
             return 'surface';
@@ -860,7 +859,7 @@ define([
 
             this._flags = Map.WeatherFlag.MSM.BAROMETRIC.ALL;
         }
-        common.inherit(MSMBarometricOverlay, MSMOverlay);
+        util.inherit(MSMBarometricOverlay, MSMOverlay);
 
         MSMBarometricOverlay.prototype._getName = function() {
             return 'barometric';
@@ -911,7 +910,7 @@ define([
             this._flags = Map.WeatherFlag.AMEDAS.ALL;
             this._clear();
         }
-        common.inherit(AMEDASOverlay, WeatherOverlay);
+        util.inherit(AMEDASOverlay, WeatherOverlay);
 
         AMEDASOverlay.prototype.setFlags = function(map, flags) {
             this._flags = flags;
@@ -1121,7 +1120,7 @@ define([
             this._flags = Map.WeatherFlag.WINDAS.ALL;
             this._clear();
         }
-        common.inherit(WINDASOverlay, WeatherOverlay);
+        util.inherit(WINDASOverlay, WeatherOverlay);
 
         WINDASOverlay.prototype.setFlags = function(map, flags) {
             this._flags = flags;
@@ -1244,7 +1243,7 @@ define([
         };
 
         return Map;
-    });
+    }]);
 
     return map;
 });
