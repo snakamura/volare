@@ -48,7 +48,7 @@ define([
                         if (files.length === 1)
                             $document[0].location.href = '/flights/' + flight.id;
                         else
-                            self.$parent.addFlight(flight);
+                            self.addFlight(flight);
                     });
                 });
                 reader.readAsText(file);

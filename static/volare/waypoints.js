@@ -39,7 +39,7 @@ define([
                         if (files.length === 1)
                             $document[0].location.href = '/waypoints/' + waypoint.id;
                         else
-                            self.$parent.addWaypoint(waypoint);
+                            self.addWaypoint(waypoint);
                     });
                 });
                 reader.readAsText(file);
