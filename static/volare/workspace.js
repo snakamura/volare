@@ -22,6 +22,7 @@ define([
     'volare/components/route',
     'volare/components/waypoint',
     'volare/components/weather',
+    'volare/model',
     'volare/util'
 ], function(require, _, $, angular, volare, css, workspaceAddFlightTemplate, workspaceRemoveFlightTemplate) {
     'use strict';
@@ -39,13 +40,14 @@ define([
         'volare.components.route',
         'volare.components.waypoint',
         'volare.components.weather',
+        'volare.model',
         'volare.util'
     ]);
 
-    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', 'util', function($scope, $http, $modal, util) {
+    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', 'model', 'util', function($scope, $http, $modal, model, util) {
         util.loadCssInline(css);
 
-        var flights = new volare.Flights();
+        var flights = new model.Flights();
         flights.setInterval(10);
 
         $scope.name = $name;
@@ -129,7 +131,7 @@ define([
         $http.get('/workspaces/' + $id).success(function(workspace) {
             if (workspace.route) {
                 $http.get('/routes/' + workspace.route).success(function(route) {
-                    $scope.map.setRoute(volare.Route.wrap(route));
+                    $scope.map.setRoute(model.Route.wrap(route));
                 });
             }
         });

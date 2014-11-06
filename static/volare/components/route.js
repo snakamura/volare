@@ -3,16 +3,17 @@ define([
     'underscore.string',
     'jquery',
     'angular',
-    'volare/volare',
     'text!./route.css',
     'text!./route.html',
     'text!./routeEditItems.html',
     'angular-ui-bootstrap',
+    'volare/model',
     'volare/util'
-], function(_, _s, $, angular, volare, css, template, routeEditItemsTemplate) {
+], function(_, _s, $, angular, css, template, routeEditItemsTemplate) {
     'use strict';
 
     var route = angular.module('volare.components.route', [
+        'volare.model',
         'volare.util'
     ]);
 
@@ -48,7 +49,7 @@ define([
         };
     }]);
 
-    route.controller('RouteEditItemsController', ['$scope', '$http', function($scope, $http) {
+    route.controller('RouteEditItemsController', ['$scope', '$http', 'model', function($scope, $http, model) {
         function addItem() {
             $scope.items.push({
                 waypointItem: null,
@@ -64,7 +65,7 @@ define([
                 addItem();
         };
         $scope.save = function() {
-            var route = new volare.Route();
+            var route = new model.Route();
             _.each(this.items, function(item) {
                 if (item.waypointItem) {
                     route.addItem(item.waypointItem, item.radius);
@@ -80,7 +81,7 @@ define([
             this.items = [];
             if (waypoint) {
                 $http.get('/waypoints/' + waypoint.id).success(function(waypoint) {
-                    $scope.waypointItems = volare.Waypoint.wrap(waypoint).getItems();
+                    $scope.waypointItems = model.Waypoint.wrap(waypoint).getItems();
                     addItem();
                 });
             }
@@ -91,7 +92,7 @@ define([
         });
     }]);
 
-    route.filter('route', function() {
+    route.filter('route', ['model', function(model) {
         function formatDistance(distance) {
             return _s.sprintf('%.1fkm', distance/1000);
         }
@@ -103,7 +104,7 @@ define([
                 s += items[0].getWaypointItem().getName();
                 for (var n = 1; n < items.length; ++n) {
                     var item = items[n];
-                    var distance = volare.WaypointItem.distance(items[n - 1].getWaypointItem(), item.getWaypointItem());
+                    var distance = model.WaypointItem.distance(items[n - 1].getWaypointItem(), item.getWaypointItem());
                     s += ' - (';
                     s += formatDistance(distance);
                     s += ') - ';
@@ -114,7 +115,7 @@ define([
             }
             return s;
         };
-    });
+    }]);
 
     return route;
 });

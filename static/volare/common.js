@@ -1,7 +1,6 @@
 define([
-    'lodash',
     'jquery'
-], function(_, $) {
+], function($) {
     'use strict';
 
     $.ajaxSetup({
@@ -31,14 +30,6 @@ define([
     };
 
     return {
-        wrap: function(proto, o) {
-            var w = Object.create(proto);
-            _.each(o, function(value, key) {
-                w['_' + key] = value;
-            });
-            return w;
-        },
-
         loadCss: function(url) {
             var link = $('<link>', {
                 type: 'text/css',

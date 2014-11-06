@@ -17,6 +17,7 @@ define([
     'volare/components/player',
     'volare/components/waypoint',
     'volare/components/weather',
+    'volare/model',
     'volare/util'
 ], function($, angular, volare, css) {
     'use strict';
@@ -33,13 +34,14 @@ define([
         'volare.components.waypoint',
         'volare.components.weather',
         'volare.filters',
+        'volare.model',
         'volare.util'
     ]);
 
-    flight.controller('FlightController', ['$scope', '$http', 'Map', 'util', function($scope, $http, Map, util) {
+    flight.controller('FlightController', ['$scope', '$http', 'Map', 'model', 'util', function($scope, $http, Map, model, util) {
         util.loadCssInline(css);
 
-        var flights = new volare.Flights();
+        var flights = new model.Flights();
 
         $scope.name = $name;
         $scope.flights = flights;

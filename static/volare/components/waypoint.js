@@ -2,18 +2,19 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/volare',
     'text!./waypoint.css',
     'text!./waypoint.html',
+    'volare/model',
     'volare/util'
-], function(_, $, angular, volare, css, template) {
+], function(_, $, angular, css, template) {
     'use strict';
 
     var waypoint = angular.module('volare.components.waypoint', [
+        'volare.model',
         'volare.util'
     ]);
 
-    waypoint.directive('volareWaypoint', ['$http', 'util', function($http, util) {
+    waypoint.directive('volareWaypoint', ['$http', 'model', 'util', function($http, model, util) {
         util.loadCssInline(css);
 
         return {
@@ -31,7 +32,7 @@ define([
                     $scope.$watch('waypoint', function(waypoint) {
                         if (waypoint) {
                             $http.get('/waypoints/' + waypoint.id).success(function(waypoint) {
-                                map.setWaypoint(volare.Waypoint.wrap(waypoint));
+                                map.setWaypoint(model.Waypoint.wrap(waypoint));
                             });
                         }
                         else {

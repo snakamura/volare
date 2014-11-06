@@ -3,16 +3,17 @@ define([
     'underscore.string',
     'jquery',
     'angular',
-    'volare/volare',
     'text!./chart.css',
     'text!./chart.html',
     'volare/filters',
+    'volare/model',
     'volare/util'
-], function(_, _s, $, angular, volare, css, template) {
+], function(_, _s, $, angular, css, template) {
     'use strict';
 
     var chart = angular.module('volare.components.chart', [
         'volare.filters',
+        'volare.model',
         'volare.util'
     ]);
 
@@ -90,21 +91,21 @@ define([
         };
     }]);
 
-    chart.filter('status', function() {
+    chart.filter('status', ['model', function(model) {
         return function(status) {
         switch (status) {
-        case volare.Flight.STATUS_UNKNOWN:
+        case model.Flight.STATUS_UNKNOWN:
             break;
-        case volare.Flight.STATUS_CIRCLING:
+        case model.Flight.STATUS_CIRCLING:
             return 'Circling';
-        case volare.Flight.STATUS_GLIDING:
+        case model.Flight.STATUS_GLIDING:
             return 'Gliding';
         default:
             break;
         }
         return '-';
         };
-    });
+    }]);
 
     chart.filter('ld', function() {
         return function(ld) {
