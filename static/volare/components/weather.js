@@ -3,14 +3,15 @@ define([
     'underscore.string',
     'jquery',
     'angular',
-    'volare/volare',
     'text!./weather.css',
     'text!./weather.html',
+    'volare/components/map',
     'volare/util'
-], function(_, _s, $, angular, volare, css, template) {
+], function(_, _s, $, angular, css, template) {
     'use strict';
 
     var weather = angular.module('volare.components.weather', [
+        'volare.components.map',
         'volare.util'
     ]);
 
@@ -24,10 +25,8 @@ define([
             scope: {
                 map: '='
             },
-            controller: ['$scope', function($scope) {
-                var map = $scope.map;
-
-                var WeatherFlag = volare.Map.WeatherFlag;
+            controller: ['$scope', 'weatherFlag', function($scope, weatherFlag) {
+                var WeatherFlag = weatherFlag;
 
                 $scope.WeatherFlag = WeatherFlag;
                 $scope.msmAltitudes = [1000, 975, 950, 925, 900, 850, 800, 700];
@@ -37,7 +36,7 @@ define([
                     return _.any(flags);
                 };
                 $scope.toggle = function(mask) {
-                    map.setWeatherFlags(map.getWeatherFlags() & mask ? 0 : mask, mask);
+                    this.map.setWeatherFlags(this.map.getWeatherFlags() & mask ? 0 : mask, mask);
                 };
 
                 function fromFlags(flags, flag) {
@@ -62,17 +61,19 @@ define([
                     }
                 }
 
-                $scope.$watch('flags', function(flags) {
-                    map.setWeatherFlags(fromFlags(flags, WeatherFlag), WeatherFlag.ALL);
-                }, true);
+                $scope.$watch('map', function(map) {
+                    $scope.$watch('flags', function(flags) {
+                        map.setWeatherFlags(fromFlags(flags, WeatherFlag), WeatherFlag.ALL);
+                    }, true);
 
-                function updateFlags() {
-                    $scope.flags = toFlags(map.getWeatherFlags(), WeatherFlag);
-                }
+                    function updateFlags() {
+                        $scope.flags = toFlags(map.getWeatherFlags(), WeatherFlag);
+                    }
 
-                $(map).on('weatherFlags_changed', updateFlags);
+                    $(map).on('weatherFlags_changed', updateFlags);
 
-                updateFlags();
+                    updateFlags();
+                });
             }]
         };
     }]);

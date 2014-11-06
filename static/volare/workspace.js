@@ -15,6 +15,7 @@ define([
     'volare/components/graph/altitude',
     'volare/components/graph/groundSpeed',
     'volare/components/graph/verticalSpeed',
+    'volare/components/map',
     'volare/components/name',
     'volare/components/options',
     'volare/components/player',
@@ -31,6 +32,7 @@ define([
         'volare.components.graph.altitude',
         'volare.components.graph.groundSpeed',
         'volare.components.graph.verticalSpeed',
+        'volare.components.map',
         'volare.components.name',
         'volare.components.options',
         'volare.components.player',
@@ -45,11 +47,9 @@ define([
 
         var flights = new volare.Flights();
         flights.setInterval(10);
-        var map = new volare.Map(flights, $('#map'));
 
         $scope.name = $name;
         $scope.flights = flights;
-        $scope.map = map;
         $scope.addFlight = function() {
             var modal = $modal.open({
                 template: workspaceAddFlightTemplate,
@@ -100,8 +100,8 @@ define([
             });
         };
 
-        $(map).on('route_changed', function() {
-            var route = map.getRoute();
+        $($scope.map).on('route_changed', function() {
+            var route = $scope.map.getRoute();
             if (route) {
                 if (!route.getId()) {
                     var r = _.map(route.getItems(), function(routeItem) {
@@ -129,7 +129,7 @@ define([
         $http.get('/workspaces/' + $id).success(function(workspace) {
             if (workspace.route) {
                 $http.get('/routes/' + workspace.route).success(function(route) {
-                    map.setRoute(volare.Route.wrap(route));
+                    $scope.map.setRoute(volare.Route.wrap(route));
                 });
             }
         });
@@ -139,7 +139,7 @@ define([
             });
         });
 
-        volare.setupLayout(flights, $('#map'), $('#sidebar'), $('.chart'));
+        volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);
 
     workspace.controller('WorkspaceNameController', ['$scope', '$http', function($scope, $http) {

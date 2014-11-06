@@ -27,22 +27,22 @@ define([
                 map: '='
             },
             controller: ['$scope', function($scope) {
-                var map = $scope.map;
-
-                $scope.route = map.getRoute();
-                $scope.editRoute = function() {
-                    var modal = $modal.open({
-                        template: routeEditItemsTemplate,
-                        controller: 'RouteEditItemsController',
-                        backdrop: 'static'
-                    });
-                    modal.result.then(function(route) {
-                        map.setRoute(route);
-                    });
-                };
-
-                $(map).on('route_changed', function() {
+                $scope.$watch('map', function(map) {
                     $scope.route = map.getRoute();
+                    $scope.editRoute = function() {
+                        var modal = $modal.open({
+                            template: routeEditItemsTemplate,
+                            controller: 'RouteEditItemsController',
+                            backdrop: 'static'
+                        });
+                        modal.result.then(function(route) {
+                            map.setRoute(route);
+                        });
+                    };
+
+                    $(map).on('route_changed', function() {
+                        $scope.route = map.getRoute();
+                    });
                 });
             }]
         };

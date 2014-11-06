@@ -2,14 +2,15 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/volare',
     'text!./options.css',
     'text!./options.html',
+    'volare/components/map',
     'volare/util'
-], function(_, $, angular, volare, css, template) {
+], function(_, $, angular, css, template) {
     'use strict';
 
     var options = angular.module('volare.components.options', [
+        'volare.components.map',
         'volare.util'
     ]);
 
@@ -21,34 +22,34 @@ define([
             replace: true,
             template: template,
             scope: {
-                modelFlights: '=flights',
+                flights: '=',
                 map: '='
             },
-            controller: ['$scope', function($scope) {
-                var modelFlights = $scope.modelFlights;
-                var map = $scope.map;
+            controller: ['$scope', 'trackType', function($scope, trackType) {
+                var flights = $scope.flights;
 
-                $scope.TrackType = volare.Map.TrackType;
+                $scope.TrackType = trackType;
+                $scope.$watch('map', function(map) {
+                    $scope.$watch('trackType', function(trackType) {
+                        map.setTrackType(_.parseInt(trackType));
+                    });
 
-                $scope.$watch('trackType', function(trackType) {
-                    map.setTrackType(_.parseInt(trackType));
+                    function updateTrackType() {
+                        $scope.trackType = map.getTrackType();
+                    }
+
+                    $(map).on('trackType_changed', updateTrackType);
+
+                    updateTrackType();
                 });
                 $scope.$watch('thinOut', function(thinOut) {
-                    modelFlights.setInterval(thinOut ? 10 : 0);
+                    flights.setInterval(thinOut ? 10 : 0);
                 });
 
-                function updateTrackType() {
-                    $scope.trackType = map.getTrackType();
-                }
-
                 function updateThinOut() {
-                    $scope.thinOut = modelFlights.getInterval() ? 1 : 0;
+                    $scope.thinOut = flights.getInterval() ? 1 : 0;
                 }
-
-                $(map).on('trackType_changed', updateTrackType);
-                $(modelFlights).on('interval_changed', updateThinOut);
-
-                updateTrackType();
+                $(flights).on('interval_changed', updateThinOut);
                 updateThinOut();
             }]
         };

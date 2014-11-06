@@ -11,6 +11,7 @@ define([
     'volare/components/graph/altitude',
     'volare/components/graph/groundSpeed',
     'volare/components/graph/verticalSpeed',
+    'volare/components/map',
     'volare/components/name',
     'volare/components/options',
     'volare/components/player',
@@ -25,6 +26,7 @@ define([
         'volare.components.graph.altitude',
         'volare.components.graph.groundSpeed',
         'volare.components.graph.verticalSpeed',
+        'volare.components.map',
         'volare.components.name',
         'volare.components.options',
         'volare.components.player',
@@ -34,16 +36,13 @@ define([
         'volare.util'
     ]);
 
-    flight.controller('FlightController', ['$scope', '$http', 'util', function($scope, $http, util) {
+    flight.controller('FlightController', ['$scope', '$http', 'trackType', 'util', function($scope, $http, trackType, util) {
         util.loadCssInline(css);
 
         var flights = new volare.Flights();
-        var map = new volare.Map(flights, $('#map'));
-        map.setTrackType(volare.Map.TrackType.ALTITUDE);
 
         $scope.name = $name;
         $scope.flights = flights;
-        $scope.map = map;
         $scope.newWorkspace = function() {
             $http.post('/workspaces', {
                 name: this.name
@@ -56,9 +55,14 @@ define([
             });
         };
 
+        $scope.$watch('map', function(map) {
+            if (map)
+                map.setTrackType(trackType.ALTITUDE);
+        });
+
         flights.addFlight($id, 'red');
 
-        volare.setupLayout(flights, $('#map'), $('#sidebar'), $('.chart'));
+        volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);
 
     flight.controller('FlightNameController', ['$scope', '$http', function($scope, $http) {

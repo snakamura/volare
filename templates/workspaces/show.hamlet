@@ -9,7 +9,7 @@
 
   <volare-player flights=flights>
 
-  <div #map>
+  <volare-map #map flights=flights map=map>
 
   <div #sidebar>
     <ul .nav .nav-tabs>
@@ -30,4 +30,4 @@
         <volare-route map=map>
         <volare-weather map=map>
 
-  <volare-chart .chart flights=flights>
+  <volare-chart #chart flights=flights>
