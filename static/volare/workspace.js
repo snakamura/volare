@@ -1,4 +1,4 @@
-/* global $id, $name */
+/* global workspaceId, workspaceName */
 
 define([
     'require',
@@ -51,7 +51,7 @@ define([
         var flights = new model.Flights();
         flights.setInterval(10);
 
-        $scope.name = $name;
+        $scope.name = workspaceName;
         $scope.flights = flights;
         $scope.addFlight = function() {
             var modal = $modal.open({
@@ -60,13 +60,13 @@ define([
                 backdrop: 'static',
                 resolve: {
                     $workspaceId: function() {
-                        return $id;
+                        return workspaceId;
                     }
                 }
             });
             modal.result.then(function(flightIds) {
                 if (flightIds.length !== 0) {
-                    $http.post('/workspaces/' + $id + '/flights', {
+                    $http.post('/workspaces/' + workspaceId + '/flights', {
                         flightIds: flightIds
                     }).success(function(fs) {
                         _.each(fs, function(flight) {
@@ -95,7 +95,7 @@ define([
             modal.result.then(function(flightIds) {
                 if (flightIds.length !== 0) {
                     _.each(flightIds, function(flightId) {
-                        $http.delete('/workspaces/' + $id + '/flights/' + flightId).success(function() {
+                        $http.delete('/workspaces/' + workspaceId + '/flights/' + flightId).success(function() {
                             flights.removeFlight(flightId);
                         });
                     });
@@ -129,14 +129,14 @@ define([
             }
         });
 
-        $http.get('/workspaces/' + $id).success(function(workspace) {
+        $http.get('/workspaces/' + workspaceId).success(function(workspace) {
             if (workspace.route) {
                 $http.get('/routes/' + workspace.route).success(function(route) {
                     $scope.map.setRoute(model.Route.wrap(route));
                 });
             }
         });
-        $http.get('/workspaces/' + $id + '/flights').success(function(fs) {
+        $http.get('/workspaces/' + workspaceId + '/flights').success(function(fs) {
             _.each(fs, function(flight) {
                 flights.addFlight(flight.id, flight.color);
             });

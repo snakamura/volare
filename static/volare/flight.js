@@ -1,4 +1,4 @@
-/* global $id, $name */
+/* global flightId, flightName */
 
 define([
     'jquery',
@@ -44,7 +44,7 @@ define([
 
         var flights = new model.Flights();
 
-        $scope.name = $name;
+        $scope.name = flightName;
         $scope.flights = flights;
         $scope.newWorkspace = function() {
             $http.post('/workspaces', {
@@ -63,7 +63,7 @@ define([
                 map.setTrackType(Map.TrackType.ALTITUDE);
         });
 
-        flights.addFlight($id, 'red');
+        flights.addFlight(flightId, 'red');
 
         layout.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);

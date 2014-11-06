@@ -1,2 +1,2 @@
-var $id = #{flightId};
-var $name = #{M.flightName flight};
+var flightId = #{flightId};
+var flightName = #{M.flightName flight};

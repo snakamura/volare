@@ -1,2 +1,2 @@
-var $id = #{workspaceId};
-var $name = #{M.workspaceName workspace};
+var workspaceId = #{workspaceId};
+var workspaceName = #{M.workspaceName workspace};
