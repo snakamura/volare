@@ -35,7 +35,7 @@ define([
         };
     }]);
 
-    map.factory('Map', ['util', function(util) {
+    map.factory('Map', ['$http', 'util', function($http, util) {
         var LatLng = google.maps.LatLng;
         var LatLngBounds = google.maps.LatLngBounds;
 
@@ -720,14 +720,14 @@ define([
                 if (!this._bounds || !this._bounds.equals(bounds) ||
                     !this._time || !WeatherOverlay.hoursEquals(this._time, time)) {
                     var self = this;
-                    $.getJSON('/msm/' + this._getName() + '/' + time.getUTCFullYear() +
+                    $http.get('/msm/' + this._getName() + '/' + time.getUTCFullYear() +
                               '/' + (time.getUTCMonth() + 1) +
                               '/' + time.getUTCDate() +
                               '/' + time.getUTCHours() +
                               '?nwlat=' + bounds.getNorthEast().lat() +
                               '&nwlng=' + bounds.getSouthWest().lng() +
                               '&selat=' + bounds.getSouthWest().lat() +
-                              '&selng=' + bounds.getNorthEast().lng(), function(items) {
+                              '&selng=' + bounds.getNorthEast().lng()).success(function(items) {
                         if (self._time && WeatherOverlay.hoursEquals(self._time, time)) {
                             var oldItems = self._items;
                             var newItems = {};
@@ -1003,14 +1003,14 @@ define([
                 if (!this._bounds || !this._bounds.equals(bounds) ||
                     !this._time || !WeatherOverlay.hoursEquals(this._time, time)) {
                     var self = this;
-                    $.getJSON('/amedas/' + time.getUTCFullYear() +
+                    $http.get('/amedas/' + time.getUTCFullYear() +
                               '/' + (time.getUTCMonth() + 1) +
                               '/' + time.getUTCDate() +
                               '/' + time.getUTCHours() +
                               '?nwlat=' + bounds.getNorthEast().lat() +
                               '&nwlng=' + bounds.getSouthWest().lng() +
                               '&selat=' + bounds.getSouthWest().lat() +
-                              '&selng=' + bounds.getNorthEast().lng(), function(items) {
+                              '&selng=' + bounds.getNorthEast().lng()).success(function(items) {
                         if (self._time && WeatherOverlay.hoursEquals(self._time, time)) {
                             var oldItems = self._items;
                             var newItems = {};
@@ -1189,14 +1189,14 @@ define([
                 if (!this._bounds || !this._bounds.equals(bounds) ||
                     !this._time || !WeatherOverlay.hoursEquals(this._time, time)) {
                     var self = this;
-                    $.getJSON('/windas/' + time.getUTCFullYear() +
+                    $http.get('/windas/' + time.getUTCFullYear() +
                               '/' + (time.getUTCMonth() + 1) +
                               '/' + time.getUTCDate() +
                               '/' + time.getUTCHours() +
                               '?nwlat=' + bounds.getNorthEast().lat() +
                               '&nwlng=' + bounds.getSouthWest().lng() +
                               '&selat=' + bounds.getSouthWest().lat() +
-                              '&selng=' + bounds.getNorthEast().lng(), function(stations) {
+                              '&selng=' + bounds.getNorthEast().lng()).success(function(stations) {
                         self._stations = stations;
                         self._time = time;
                         self._bounds = bounds;
