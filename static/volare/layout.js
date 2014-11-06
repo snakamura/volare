@@ -11,7 +11,7 @@ define([
         'volare.util'
     ]);
 
-    layout.factory('layout', ['util', function(util) {
+    layout.factory('layout', ['$window', 'util', function($window, util) {
         return {
             setupLayout: function(flights, map, sidebar, chart) {
                 util.loadCssInline(css);
@@ -27,7 +27,7 @@ define([
                 }
                 $(flights).on('flight_added', layout);
                 $(flights).on('flight_removed', layout);
-                $(window).on('resize', layout);
+                $($window).on('resize', layout);
                 layout();
             }
         };

@@ -6,7 +6,7 @@ define([
 
     var layout = angular.module('volare.util.layout', []);
 
-    layout.directive('volareFill', [function() {
+    layout.directive('volareFill', ['$window', function($window) {
         return {
             link: function(scope, element, attrs) {
                 function layout() {
@@ -14,7 +14,7 @@ define([
                     var mapPosition = element.position();
                     element.height($(document).height() - mapPosition.top);
                 }
-                $(window).on('resize', layout);
+                $($window).on('resize', layout);
                 layout();
             }
         };

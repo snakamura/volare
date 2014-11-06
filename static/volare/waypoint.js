@@ -27,7 +27,7 @@ define([
         });
     }]);
 
-    waypoint.controller('WaypointNameController', ['$scope', '$http', function($scope, $http) {
+    waypoint.controller('WaypointNameController', ['$scope', '$http', '$window', function($scope, $http, $window) {
         $scope.update = function(name) {
             var self = this;
             $http.put('', {
@@ -37,7 +37,7 @@ define([
             });
         };
         $scope.delete = function() {
-            if (window.confirm('Are you sure to delete these waypoints?')) {
+            if ($window.confirm('Are you sure to delete these waypoints?')) {
                 $http.delete('').success(function() {
                     document.location.href = '/waypoints';
                 });

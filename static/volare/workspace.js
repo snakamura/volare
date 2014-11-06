@@ -145,7 +145,7 @@ define([
         layout.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);
 
-    workspace.controller('WorkspaceNameController', ['$scope', '$http', function($scope, $http) {
+    workspace.controller('WorkspaceNameController', ['$scope', '$http', '$window', function($scope, $http, $window) {
         $scope.update = function(name) {
             var self = this;
             $http.put('', {
@@ -155,7 +155,7 @@ define([
             });
         };
         $scope.delete = function() {
-            if (window.confirm('Are you sure to delete this workspace?')) {
+            if ($window.confirm('Are you sure to delete this workspace?')) {
                 $http.delete('').success(function() {
                     document.location.href = '/workspaces';
                 });
