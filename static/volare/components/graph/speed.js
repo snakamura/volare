@@ -5,12 +5,12 @@ define([
 ], function(angular) {
     'use strict';
 
-    var speed = angular.module('volare.components.graph.speed', [
+    var module = angular.module('volare.components.graph.speed', [
         'volare.components.graph',
         'volare.util'
     ]);
 
-    speed.factory('SpeedGraphController', ['GraphController', 'util', function(GraphController, util) {
+    module.factory('SpeedGraphController', ['GraphController', 'util', function(GraphController, util) {
         function SpeedGraphController(scope, flights, name) {
             GraphController.call(this, scope, flights);
 
@@ -104,5 +104,5 @@ define([
     };
 
 
-    return speed;
+    return module;
 });

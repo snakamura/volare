@@ -7,11 +7,11 @@ define([
 ], function(_, $, angular, css) {
     'use strict';
 
-    var layout = angular.module('volare.layout', [
+    var module = angular.module('volare.layout', [
         'volare.util'
     ]);
 
-    layout.factory('layout', ['$window', '$document', 'util', function($window, $document, util) {
+    module.factory('layout', ['$window', '$document', 'util', function($window, $document, util) {
         return {
             setupLayout: function(flights, map, sidebar, chart) {
                 util.loadCssInline(css);
@@ -33,5 +33,5 @@ define([
         };
     }]);
 
-    return layout;
+    return module;
 });

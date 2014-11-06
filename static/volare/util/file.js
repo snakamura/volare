@@ -6,11 +6,11 @@ define([
 ], function(angular, css, template) {
     'use strict';
 
-    var file = angular.module('volare.util.file', [
+    var module = angular.module('volare.util.file', [
         'volare.util'
     ]);
 
-    file.directive('volareFile', ['$parse', 'util', function($parse, util) {
+    module.directive('volareFile', ['$parse', 'util', function($parse, util) {
         util.loadCssInline(css);
 
         return {
@@ -33,7 +33,7 @@ define([
         };
     }]);
 
-    file.directive('volareDrop', ['$parse', function($parse) {
+    module.directive('volareDrop', ['$parse', function($parse) {
         return {
             restrict: 'A',
             link: function(scope, element, attrs) {
@@ -59,5 +59,5 @@ define([
         };
     }]);
 
-    return file;
+    return module;
 });

@@ -7,11 +7,11 @@ define([
 ], function(_, $, angular, google) {
     'use strict';
 
-    var model = angular.module('volare.model', [
+    var module = angular.module('volare.model', [
         'volare.util'
     ]);
 
-    model.factory('model', ['$http', 'util', function($http, util) {
+    module.factory('model', ['$http', 'util', function($http, util) {
         var LatLng = google.maps.LatLng;
         var LatLngBounds = google.maps.LatLngBounds;
 
@@ -730,5 +730,5 @@ define([
         };
     }]);
 
-    return model;
+    return module;
 });

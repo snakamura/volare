@@ -11,13 +11,13 @@ define([
 ], function(require, _, angular, google, markerWithLabel, css) {
     'use strict';
 
-    var waypoint = angular.module('volare.waypoint', [
+    var module = angular.module('volare.waypoint', [
         'volare.components.name',
         'volare.util',
         'volare.util.layout'
     ]);
 
-    waypoint.controller('WaypointController', ['$scope', '$http', 'util', function($scope, $http, util) {
+    module.controller('WaypointController', ['$scope', '$http', 'util', function($scope, $http, util) {
         util.loadCssInline(css);
 
         $scope.items = [];
@@ -27,7 +27,7 @@ define([
         });
     }]);
 
-    waypoint.controller('WaypointNameController', ['$scope', '$http', '$window', '$document', function($scope, $http, $window, $document) {
+    module.controller('WaypointNameController', ['$scope', '$http', '$window', '$document', function($scope, $http, $window, $document) {
         $scope.update = function(name) {
             var self = this;
             $http.put('', {
@@ -45,7 +45,7 @@ define([
         };
     }]);
 
-    waypoint.directive('volareWaypoint', [function() {
+    module.directive('volareWaypoint', [function() {
         return {
             restrict: 'E',
             replace: true,
@@ -93,5 +93,5 @@ define([
         };
     }]);
 
-    return waypoint;
+    return module;
 });

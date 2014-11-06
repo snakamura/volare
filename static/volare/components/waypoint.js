@@ -9,12 +9,12 @@ define([
 ], function(_, $, angular, css, template) {
     'use strict';
 
-    var waypoint = angular.module('volare.components.waypoint', [
+    var module = angular.module('volare.components.waypoint', [
         'volare.model',
         'volare.util'
     ]);
 
-    waypoint.directive('volareWaypoint', ['$http', 'model', 'util', function($http, model, util) {
+    module.directive('volareWaypoint', ['$http', 'model', 'util', function($http, model, util) {
         util.loadCssInline(css);
 
         return {
@@ -53,5 +53,5 @@ define([
         };
     }]);
 
-    return waypoint;
+    return module;
 });

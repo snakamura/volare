@@ -10,12 +10,12 @@ define([
 ], function(_, _s, $, angular, css, template) {
     'use strict';
 
-    var weather = angular.module('volare.components.weather', [
+    var module = angular.module('volare.components.weather', [
         'volare.components.map',
         'volare.util'
     ]);
 
-    weather.directive('volareWeather', ['util', function(util) {
+    module.directive('volareWeather', ['util', function(util) {
         util.loadCssInline(css);
 
         return {
@@ -78,5 +78,5 @@ define([
         };
     }]);
 
-    return weather;
+    return module;
 });

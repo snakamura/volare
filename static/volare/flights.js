@@ -8,7 +8,7 @@ define([
 ], function(_, $, angular) {
     'use strict';
 
-    var flights = angular.module('volare.flights', [
+    var module = angular.module('volare.flights', [
         'volare.filters',
         'volare.util',
         'volare.util.file'
@@ -18,7 +18,7 @@ define([
         flight.time = new Date(flight.time);
     }
 
-    flights.controller('FlightsController', ['$scope', '$http', function($scope, $http) {
+    module.controller('FlightsController', ['$scope', '$http', function($scope, $http) {
         $scope.flights = [];
         $scope.addFlight = function(flight) {
             initFlight(flight);
@@ -35,7 +35,7 @@ define([
         });
     }]);
 
-    flights.controller('FlightsUploadController', ['$scope', '$http', '$document', 'util', function($scope, $http, $document, util) {
+    module.controller('FlightsUploadController', ['$scope', '$http', '$document', 'util', function($scope, $http, $document, util) {
         $scope.addFiles = function(files) {
             var self = this;
             _.each(files, function(file) {
@@ -56,5 +56,5 @@ define([
         };
     }]);
 
-    return flights;
+    return module;
 });

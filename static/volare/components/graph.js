@@ -9,11 +9,11 @@ define([
 ], function(_, _s, $, angular, css, template) {
     'use strict';
 
-    var graph = angular.module('volare.components.graph', [
+    var module = angular.module('volare.components.graph', [
         'volare.util'
     ]);
 
-    graph.directive('volareGraph', ['util', function(util) {
+    module.directive('volareGraph', ['util', function(util) {
         util.loadCssInline(css);
 
         return {
@@ -153,7 +153,7 @@ define([
         };
     }]);
 
-    graph.factory('GraphController', function() {
+    module.factory('GraphController', function() {
         function GraphController(scope, flights) {
             this._scope = scope;
             this._flights = flights;
@@ -216,5 +216,5 @@ define([
         return GraphController;
     });
 
-    return graph;
+    return module;
 });

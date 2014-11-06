@@ -9,12 +9,12 @@ define([
 ], function(_, $, angular, css, template) {
     'use strict';
 
-    var options = angular.module('volare.components.options', [
+    var module = angular.module('volare.components.options', [
         'volare.components.map',
         'volare.util'
     ]);
 
-    options.directive('volareOptions', ['util', function(util) {
+    module.directive('volareOptions', ['util', function(util) {
         util.loadCssInline(css);
 
         return {
@@ -55,5 +55,5 @@ define([
         };
     }]);
 
-    return options;
+    return module;
 });

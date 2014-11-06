@@ -9,13 +9,13 @@ define([
 ], function(_, _s, angular, template) {
     'use strict';
 
-    var groundSpeed = angular.module('volare.components.graph.groundSpeed', [
+    var module = angular.module('volare.components.graph.groundSpeed', [
         'volare.components.graph',
         'volare.components.graph.speed',
         'volare.util'
     ]);
 
-    groundSpeed.directive('volareGroundSpeedGraph', ['SpeedGraphController', 'util', function(SpeedGraphController, util) {
+    module.directive('volareGroundSpeedGraph', ['SpeedGraphController', 'util', function(SpeedGraphController, util) {
         function GroundSpeedGraphController($scope) {
             SpeedGraphController.call(this, $scope, $scope.flights, 'currentGroundSpeedGraphContext');
         }
@@ -53,5 +53,5 @@ define([
         };
     }]);
 
-    return groundSpeed;
+    return module;
 });

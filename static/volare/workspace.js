@@ -27,7 +27,7 @@ define([
 ], function(require, _, $, angular, css, workspaceAddFlightTemplate, workspaceRemoveFlightTemplate) {
     'use strict';
 
-    var workspace = angular.module('volare.workspace', [
+    var module = angular.module('volare.workspace', [
         'ui.bootstrap',
         'volare.components.chart',
         'volare.components.graph.altitude',
@@ -45,7 +45,7 @@ define([
         'volare.util'
     ]);
 
-    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', 'layout', 'model', 'util', function($scope, $http, $modal, layout, model, util) {
+    module.controller('WorkspaceController', ['$scope', '$http', '$modal', 'layout', 'model', 'util', function($scope, $http, $modal, layout, model, util) {
         util.loadCssInline(css);
 
         var flights = new model.Flights();
@@ -145,7 +145,7 @@ define([
         layout.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);
 
-    workspace.controller('WorkspaceNameController', ['$scope', '$http', '$window', '$document', function($scope, $http, $window, $document) {
+    module.controller('WorkspaceNameController', ['$scope', '$http', '$window', '$document', function($scope, $http, $window, $document) {
         $scope.update = function(name) {
             var self = this;
             $http.put('', {
@@ -163,7 +163,7 @@ define([
         };
     }]);
 
-    workspace.controller('WorkspaceAddFlightController', ['$scope', '$http', '$workspaceId', function($scope, $http, $workspaceId) {
+    module.controller('WorkspaceAddFlightController', ['$scope', '$http', '$workspaceId', function($scope, $http, $workspaceId) {
         $scope.flights = [];
         $scope.add = function() {
             var flightIds = _.pluck(_.filter(this.flights, function(flight) {
@@ -180,7 +180,7 @@ define([
         });
     }]);
 
-    workspace.controller('WorkspaceRemoveFlightController', ['$scope', '$flights', function($scope, $flights) {
+    module.controller('WorkspaceRemoveFlightController', ['$scope', '$flights', function($scope, $flights) {
         $scope.flights = $flights;
         $scope.remove = function() {
             var flightIds = _.pluck(_.filter(this.flights, function(flight) {
@@ -193,5 +193,5 @@ define([
         };
     }]);
 
-    return workspace;
+    return module;
 });

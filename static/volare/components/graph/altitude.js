@@ -8,12 +8,12 @@ define([
 ], function(_, _s, angular, template) {
     'use strict';
 
-    var altitude = angular.module('volare.components.graph.altitude', [
+    var module = angular.module('volare.components.graph.altitude', [
         'volare.components.graph',
         'volare.util'
     ]);
 
-    altitude.directive('volareAltitudeGraph', ['GraphController', 'util', function(GraphController, util) {
+    module.directive('volareAltitudeGraph', ['GraphController', 'util', function(GraphController, util) {
         function AltitudeGraphController($scope) {
             GraphController.call(this, $scope, $scope.flights);
         }
@@ -150,5 +150,5 @@ define([
     };
 
 
-    return altitude;
+    return module;
 });

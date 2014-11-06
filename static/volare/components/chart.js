@@ -11,13 +11,13 @@ define([
 ], function(_, _s, $, angular, css, template) {
     'use strict';
 
-    var chart = angular.module('volare.components.chart', [
+    var module = angular.module('volare.components.chart', [
         'volare.filters',
         'volare.model',
         'volare.util'
     ]);
 
-    chart.directive('volareChart', ['util', function(util) {
+    module.directive('volareChart', ['util', function(util) {
         util.loadCssInline(css);
 
         return {
@@ -88,7 +88,7 @@ define([
         };
     }]);
 
-    chart.filter('status', ['model', function(model) {
+    module.filter('status', ['model', function(model) {
         return function(status) {
         switch (status) {
         case model.Flight.STATUS_UNKNOWN:
@@ -104,17 +104,17 @@ define([
         };
     }]);
 
-    chart.filter('ld', function() {
+    module.filter('ld', function() {
         return function(ld) {
             return ld ? _s.sprintf('%.1f', ld) : '-';
         };
     });
 
-    chart.filter('averageClimb', function() {
+    module.filter('averageClimb', function() {
         return function(averageClimb) {
             return !averageClimb ? '-' : _s.sprintf('%.1fm/s', averageClimb);
         };
     });
 
-    return chart;
+    return module;
 });

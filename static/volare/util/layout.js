@@ -4,9 +4,9 @@ define([
 ], function($, angular) {
     'use strict';
 
-    var layout = angular.module('volare.util.layout', []);
+    var module = angular.module('volare.util.layout', []);
 
-    layout.directive('volareFill', ['$window', '$document', function($window, $document) {
+    module.directive('volareFill', ['$window', '$document', function($window, $document) {
         return {
             link: function(scope, element, attrs) {
                 function layout() {
@@ -20,5 +20,5 @@ define([
         };
     }]);
 
-    return layout;
+    return module;
 });

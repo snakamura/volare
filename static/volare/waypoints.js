@@ -7,12 +7,12 @@ define([
 ], function(_, $, angular) {
     'use strict';
 
-    var waypoints = angular.module('volare.waypoints', [
+    var module = angular.module('volare.waypoints', [
         'volare.util',
         'volare.util.file'
     ]);
 
-    waypoints.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
+    module.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
         $scope.waypoints = [];
         $scope.addWaypoint = function(waypoint) {
             var index = _.sortedIndex(this.waypoints, waypoint, function(waypoint) {
@@ -26,7 +26,7 @@ define([
         });
     }]);
 
-    waypoints.controller('WaypointsUploadController', ['$scope', '$http', '$document', 'util', function($scope, $http, $document, util) {
+    module.controller('WaypointsUploadController', ['$scope', '$http', '$document', 'util', function($scope, $http, $document, util) {
         $scope.addFiles = function(files) {
             var self = this;
             _.each(files, function(file) {
@@ -47,5 +47,5 @@ define([
         };
     }]);
 
-    return waypoints;
+    return module;
 });

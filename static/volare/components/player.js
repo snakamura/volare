@@ -10,12 +10,12 @@ define([
 ], function(_, $, angular, css, template) {
     'use strict';
 
-    var player = angular.module('volare.components.player', [
+    var module = angular.module('volare.components.player', [
         'volare.filters',
         'volare.util'
     ]);
 
-    player.directive('volarePlayer', ['$interval', 'util', function($interval, util) {
+    module.directive('volarePlayer', ['$interval', 'util', function($interval, util) {
         util.loadCssInline(css);
 
         return {
@@ -113,5 +113,5 @@ define([
         };
     }]);
 
-    return player;
+    return module;
 });

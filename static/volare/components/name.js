@@ -7,11 +7,11 @@ define([
 ], function(_, angular, css, template) {
     'use strict';
 
-    var name = angular.module('volare.components.name', [
+    var module = angular.module('volare.components.name', [
         'volare.util'
     ]);
 
-    name.directive('volareName', ['util', function(util) {
+    module.directive('volareName', ['util', function(util) {
         util.loadCssInline(css);
 
         return {
@@ -51,5 +51,5 @@ define([
         };
     }]);
 
-    return name;
+    return module;
 });

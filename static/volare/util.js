@@ -5,9 +5,9 @@ define([
 ], function(_, $, angular) {
     'use strict';
 
-    var util = angular.module('volare.util', []);
+    var module = angular.module('volare.util', []);
 
-    util.factory('util', function() {
+    module.factory('util', function() {
         return {
             inherit: (function() {
                 var Proxy = function() {
@@ -40,5 +40,5 @@ define([
         };
     });
 
-    return util;
+    return module;
 });

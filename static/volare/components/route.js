@@ -12,12 +12,12 @@ define([
 ], function(_, _s, $, angular, css, template, routeEditItemsTemplate) {
     'use strict';
 
-    var route = angular.module('volare.components.route', [
+    var module = angular.module('volare.components.route', [
         'volare.model',
         'volare.util'
     ]);
 
-    route.directive('volareRoute', ['$modal', 'util', function($modal, util) {
+    module.directive('volareRoute', ['$modal', 'util', function($modal, util) {
         util.loadCssInline(css);
 
         return {
@@ -49,7 +49,7 @@ define([
         };
     }]);
 
-    route.controller('RouteEditItemsController', ['$scope', '$http', 'model', function($scope, $http, model) {
+    module.controller('RouteEditItemsController', ['$scope', '$http', 'model', function($scope, $http, model) {
         function addItem() {
             $scope.items.push({
                 waypointItem: null,
@@ -92,7 +92,7 @@ define([
         });
     }]);
 
-    route.filter('route', ['model', function(model) {
+    module.filter('route', ['model', function(model) {
         function formatDistance(distance) {
             return _s.sprintf('%.1fkm', distance/1000);
         }
@@ -117,5 +117,5 @@ define([
         };
     }]);
 
-    return route;
+    return module;
 });

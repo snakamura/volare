@@ -10,11 +10,11 @@ define([
 ], function(require, _, $, angular, google, markerWithLabel, css) {
     'use strict';
 
-    var map = angular.module('volare.components.map', [
+    var module = angular.module('volare.components.map', [
         'volare.util'
     ]);
 
-    map.directive('volareMap', ['Map', 'util', function(Map, util) {
+    module.directive('volareMap', ['Map', 'util', function(Map, util) {
         util.loadCssInline(css);
 
         return {
@@ -35,7 +35,7 @@ define([
         };
     }]);
 
-    map.factory('Map', ['$http', 'util', function($http, util) {
+    module.factory('Map', ['$http', 'util', function($http, util) {
         var LatLng = google.maps.LatLng;
         var LatLngBounds = google.maps.LatLngBounds;
 
@@ -1245,5 +1245,5 @@ define([
         return Map;
     }]);
 
-    return map;
+    return module;
 });

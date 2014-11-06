@@ -22,7 +22,7 @@ define([
 ], function($, angular, css) {
     'use strict';
 
-    var flight = angular.module('volare.flight', [
+    var module = angular.module('volare.flight', [
         'volare.components.chart',
         'volare.components.graph.altitude',
         'volare.components.graph.groundSpeed',
@@ -39,7 +39,7 @@ define([
         'volare.util'
     ]);
 
-    flight.controller('FlightController', ['$scope', '$http', '$document', 'layout', 'Map', 'model', 'util', function($scope, $http, $document, layout, Map, model, util) {
+    module.controller('FlightController', ['$scope', '$http', '$document', 'layout', 'Map', 'model', 'util', function($scope, $http, $document, layout, Map, model, util) {
         util.loadCssInline(css);
 
         var flights = new model.Flights();
@@ -68,7 +68,7 @@ define([
         layout.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);
 
-    flight.controller('FlightNameController', ['$scope', '$http', '$window', '$document', function($scope, $http, $window, $document) {
+    module.controller('FlightNameController', ['$scope', '$http', '$window', '$document', function($scope, $http, $window, $document) {
         $scope.update = function(name) {
             var self = this;
             $http.put('', {
@@ -86,7 +86,7 @@ define([
         };
     }]);
 
-    flight.controller('FlightPropertiesController', ['$scope', function($scope) {
+    module.controller('FlightPropertiesController', ['$scope', function($scope) {
         $($scope.flights).on('flight_added', function(event, flight) {
             $scope.time = flight.getTime();
             $scope.duration = flight.getDuration();
@@ -94,5 +94,5 @@ define([
         });
     }]);
 
-    return flight;
+    return module;
 });

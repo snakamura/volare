@@ -9,13 +9,13 @@ define([
 ], function(_, _s, angular, template) {
     'use strict';
 
-    var verticalSpeed = angular.module('volare.components.graph.verticalSpeed', [
+    var module = angular.module('volare.components.graph.verticalSpeed', [
         'volare.components.graph',
         'volare.components.graph.speed',
         'volare.util'
     ]);
 
-    verticalSpeed.directive('volareVerticalSpeedGraph', ['SpeedGraphController', 'util', function(SpeedGraphController, util) {
+    module.directive('volareVerticalSpeedGraph', ['SpeedGraphController', 'util', function(SpeedGraphController, util) {
         function VerticalSpeedGraphController($scope) {
             SpeedGraphController.call(this, $scope, $scope.flights, 'currentVerticalSpeedGraphContext');
         }
@@ -53,5 +53,5 @@ define([
         };
     }]);
 
-    return verticalSpeed;
+    return module;
 });
