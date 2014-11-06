@@ -1,3 +1,11 @@
+body {
+    overflow: hidden;
+}
+
+h1 {
+    margin: 10px;
+}
+
 div#sidebar {
     width: 322px;
     float: right;

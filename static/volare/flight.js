@@ -3,7 +3,6 @@
 define([
     'jquery',
     'angular',
-    'volare/volare',
     'text!./flight.css',
     'bootstrap',
     'volare/filters',
@@ -17,9 +16,10 @@ define([
     'volare/components/player',
     'volare/components/waypoint',
     'volare/components/weather',
+    'volare/layout',
     'volare/model',
     'volare/util'
-], function($, angular, volare, css) {
+], function($, angular, css) {
     'use strict';
 
     var flight = angular.module('volare.flight', [
@@ -34,11 +34,12 @@ define([
         'volare.components.waypoint',
         'volare.components.weather',
         'volare.filters',
+        'volare.layout',
         'volare.model',
         'volare.util'
     ]);
 
-    flight.controller('FlightController', ['$scope', '$http', 'Map', 'model', 'util', function($scope, $http, Map, model, util) {
+    flight.controller('FlightController', ['$scope', '$http', 'layout', 'Map', 'model', 'util', function($scope, $http, layout, Map, model, util) {
         util.loadCssInline(css);
 
         var flights = new model.Flights();
@@ -64,7 +65,7 @@ define([
 
         flights.addFlight($id, 'red');
 
-        volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
+        layout.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);
 
     flight.controller('FlightNameController', ['$scope', '$http', function($scope, $http) {

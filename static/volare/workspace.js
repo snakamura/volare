@@ -5,7 +5,6 @@ define([
     'lodash',
     'jquery',
     'angular',
-    'volare/volare',
     'text!./workspace.css',
     'text!./workspaceAddFlight.html',
     'text!./workspaceRemoveFlight.html',
@@ -22,9 +21,10 @@ define([
     'volare/components/route',
     'volare/components/waypoint',
     'volare/components/weather',
+    'volare/layout',
     'volare/model',
     'volare/util'
-], function(require, _, $, angular, volare, css, workspaceAddFlightTemplate, workspaceRemoveFlightTemplate) {
+], function(require, _, $, angular, css, workspaceAddFlightTemplate, workspaceRemoveFlightTemplate) {
     'use strict';
 
     var workspace = angular.module('volare.workspace', [
@@ -40,11 +40,12 @@ define([
         'volare.components.route',
         'volare.components.waypoint',
         'volare.components.weather',
+        'volare.layout',
         'volare.model',
         'volare.util'
     ]);
 
-    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', 'model', 'util', function($scope, $http, $modal, model, util) {
+    workspace.controller('WorkspaceController', ['$scope', '$http', '$modal', 'layout', 'model', 'util', function($scope, $http, $modal, layout, model, util) {
         util.loadCssInline(css);
 
         var flights = new model.Flights();
@@ -141,7 +142,7 @@ define([
             });
         });
 
-        volare.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
+        layout.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);
 
     workspace.controller('WorkspaceNameController', ['$scope', '$http', function($scope, $http) {
