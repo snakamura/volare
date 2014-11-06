@@ -35,7 +35,7 @@ define([
         });
     }]);
 
-    flights.controller('FlightsUploadController', ['$scope', '$http', 'util', function($scope, $http, util) {
+    flights.controller('FlightsUploadController', ['$scope', '$http', '$document', 'util', function($scope, $http, $document, util) {
         $scope.addFiles = function(files) {
             var self = this;
             _.each(files, function(file) {
@@ -46,7 +46,7 @@ define([
                         igc: reader.result
                     }).success(function(flight) {
                         if (files.length === 1)
-                            document.location.href = '/flights/' + flight.id;
+                            $document[0].location.href = '/flights/' + flight.id;
                         else
                             self.$parent.addFlight(flight);
                     });

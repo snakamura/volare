@@ -11,14 +11,14 @@ define([
         'volare.util'
     ]);
 
-    layout.factory('layout', ['$window', 'util', function($window, util) {
+    layout.factory('layout', ['$window', '$document', 'util', function($window, $document, util) {
         return {
             setupLayout: function(flights, map, sidebar, chart) {
                 util.loadCssInline(css);
 
                 function layout() {
                     _.defer(function() {
-                        map.width($(document).width() - (sidebar.width() + 10));
+                        map.width($document.width() - (sidebar.width() + 10));
                         var mapPosition = map.position();
                         var chartPosition = chart.position();
                         map.height(chartPosition.top - mapPosition.top - 20);

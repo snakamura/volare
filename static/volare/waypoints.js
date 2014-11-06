@@ -26,7 +26,7 @@ define([
         });
     }]);
 
-    waypoints.controller('WaypointsUploadController', ['$scope', '$http', 'util', function($scope, $http, util) {
+    waypoints.controller('WaypointsUploadController', ['$scope', '$http', '$document', 'util', function($scope, $http, $document, util) {
         $scope.addFiles = function(files) {
             var self = this;
             _.each(files, function(file) {
@@ -37,7 +37,7 @@ define([
                         wpt: reader.result
                     }).success(function(waypoint) {
                         if (files.length === 1)
-                            document.location.href = '/waypoints/' + waypoint.id;
+                            $document[0].location.href = '/waypoints/' + waypoint.id;
                         else
                             self.$parent.addWaypoint(waypoint);
                     });

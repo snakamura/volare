@@ -39,7 +39,7 @@ define([
         'volare.util'
     ]);
 
-    flight.controller('FlightController', ['$scope', '$http', 'layout', 'Map', 'model', 'util', function($scope, $http, layout, Map, model, util) {
+    flight.controller('FlightController', ['$scope', '$http', '$document', 'layout', 'Map', 'model', 'util', function($scope, $http, $document, layout, Map, model, util) {
         util.loadCssInline(css);
 
         var flights = new model.Flights();
@@ -53,7 +53,7 @@ define([
                 $http.post('/workspaces/' + workspace.id + '/flights', {
                     flightIds: [flights.getPrimaryFlight().getId()]
                 }).success(function(flights) {
-                    document.location.href = '/workspaces/' + workspace.id;
+                    $document[0].location.href = '/workspaces/' + workspace.id;
                 });
             });
         };
@@ -68,7 +68,7 @@ define([
         layout.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);
 
-    flight.controller('FlightNameController', ['$scope', '$http', '$window', function($scope, $http, $window) {
+    flight.controller('FlightNameController', ['$scope', '$http', '$window', '$document', function($scope, $http, $window, $document) {
         $scope.update = function(name) {
             var self = this;
             $http.put('', {
@@ -80,7 +80,7 @@ define([
         $scope.delete = function() {
             if ($window.confirm('Are you sure to delete this flight?')) {
                 $http.delete('').success(function() {
-                    document.location.href = '/flights';
+                    $document[0].location.href = '/flights';
                 });
             }
         };
