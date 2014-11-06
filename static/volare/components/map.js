@@ -54,11 +54,12 @@ define([
             this._map = new google.maps.Map(element[0], {
                 mapTypeId: google.maps.MapTypeId.HYBRID
             });
-            this._msmSurfaceOverlay = new MSMSurfaceOverlay(this._flights);
-            this._msmBarometricOverlay = new MSMBarometricOverlay(this._flights);
-            this._amedasOverlay = new AMEDASOverlay(this._flights);
-            this._windasOverlay = new WINDASOverlay(this._flights);
             this._weatherFlags = 0;
+            this._weatherOverlays = {};
+            this._weatherOverlays[Map.WeatherFlag.MSM.SURFACE.ALL] = new MSMSurfaceOverlay();
+            this._weatherOverlays[Map.WeatherFlag.MSM.BAROMETRIC.ALL] = new MSMBarometricOverlay();
+            this._weatherOverlays[Map.WeatherFlag.AMEDAS.ALL] = new AMEDASOverlay();
+            this._weatherOverlays[Map.WeatherFlag.WINDAS.ALL] = new WINDASOverlay();
             this._trackType = Map.TrackType.SOLID;
             this._waypoint = null;
             this._waypointMakers = [];
@@ -78,12 +79,17 @@ define([
                 flight.updateTrack(track);
                 flight.__track = track;
 
+                self._updateCurrentTime();
+
                 $(flight).on('visible_changed', visibleChangedListener);
             });
             $(this._flights).on('flight_removed', function(event, flight) {
                 $(flight).off('visible_changed', visibleChangedListener);
+
                 flight.__track.clear();
                 flight.__track = null;
+
+                self._updateCurrentTime();
             });
             $(this._flights).on('properties_changed', function() {
                 self._flights.eachFlight(function(flight) {
@@ -104,6 +110,8 @@ define([
                                                   new LatLng(position.latitude + span.lat()/10, position.longitude + span.lng()/10));
                     self._map.panToBounds(bounds);
                 }
+
+                self._updateCurrentTime();
             });
         }
 
@@ -114,10 +122,9 @@ define([
         Map.prototype.setWeatherFlags = function(flags, mask) {
             this._weatherFlags = (this._weatherFlags & ~mask) | (flags & mask);
 
-            this._msmSurfaceOverlay.setFlags(this._map, this._weatherFlags & Map.WeatherFlag.MSM.SURFACE.ALL);
-            this._msmBarometricOverlay.setFlags(this._map, this._weatherFlags & Map.WeatherFlag.MSM.BAROMETRIC.ALL);
-            this._amedasOverlay.setFlags(this._map, this._weatherFlags & Map.WeatherFlag.AMEDAS.ALL);
-            this._windasOverlay.setFlags(this._map, this._weatherFlags & Map.WeatherFlag.WINDAS.ALL);
+            _.each(this._weatherOverlays, function(weatherOverlay, mask) {
+                weatherOverlay.setFlags(this._map, this._weatherFlags & mask);
+            }, this);
 
             $(this).trigger('weatherFlags_changed', this._weatherFlags);
         };
@@ -226,6 +233,13 @@ define([
             this._route = route;
 
             $(this).trigger('route_changed', route);
+        };
+
+        Map.prototype._updateCurrentTime = function() {
+            var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+            _.each(this._weatherOverlays, function(weatherOverlay) {
+                weatherOverlay.setCurrentTime(time);
+            });
         };
 
         Map.prototype._createTrack = function(flight) {
@@ -523,17 +537,25 @@ define([
         };
 
 
-        function WeatherOverlay(flights) {
+        function WeatherOverlay() {
             var self = this;
 
-            this._flights = flights;
+            this._currentTime = null;
             this._$div = null;
             this._idleListener = null;
-            this._listener = function() {
-                self._update();
-            };
         }
         common.inherit(WeatherOverlay, google.maps.OverlayView);
+
+        WeatherOverlay.prototype.getCurrentTime = function() {
+            return this._currentTime;
+        };
+
+        WeatherOverlay.prototype.setCurrentTime = function(time) {
+            this._currentTime = time;
+
+            if (this.getMap())
+                this._update();
+        };
 
         WeatherOverlay.prototype.onAdd = function() {
             var $div = $('<div class="weatherOverlay ' + this._getClassName() + '"></div>');
@@ -549,18 +571,10 @@ define([
                 self._update();
             });
 
-            $(this._flights).on('flight_added', this._listener);
-            $(this._flights).on('flight_removed', this._listener);
-            $(this._flights).on('currenttime_changed', this._listener);
-
             this._update();
         };
 
         WeatherOverlay.prototype.onRemove = function() {
-            $(this._flights).off('flight_added', this._listener);
-            $(this._flights).off('flight_removed', this._listener);
-            $(this._flights).off('currenttime_changed', this._listener);
-
             google.maps.event.removeListener(this._idleListener);
             this._idleListener = null;
 
@@ -628,8 +642,8 @@ define([
         };
 
 
-        function MSMOverlay(flights) {
-            WeatherOverlay.call(this, flights);
+        function MSMOverlay() {
+            WeatherOverlay.call(this);
 
             this._clear();
         }
@@ -709,7 +723,7 @@ define([
         };
 
         MSMOverlay.prototype._update = function() {
-            var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+            var time = this.getCurrentTime();
             if (time) {
                 var map = this.getMap();
                 var bounds = map.getBounds();
@@ -803,8 +817,8 @@ define([
         };
 
 
-        function MSMSurfaceOverlay(flights) {
-            MSMOverlay.call(this, flights);
+        function MSMSurfaceOverlay() {
+            MSMOverlay.call(this);
 
             this._flags = Map.WeatherFlag.MSM.SURFACE.ALL;
         }
@@ -850,8 +864,8 @@ define([
         MSMSurfaceOverlay.SURFACE_LONGITUDE_STEP = 0.0625;
 
 
-        function MSMBarometricOverlay(flights) {
-            MSMOverlay.call(this, flights);
+        function MSMBarometricOverlay() {
+            MSMOverlay.call(this);
 
             this._flags = Map.WeatherFlag.MSM.BAROMETRIC.ALL;
         }
@@ -900,8 +914,8 @@ define([
         MSMBarometricOverlay.BAROMETRIC_LONGITUDE_STEP = 0.125;
 
 
-        function AMEDASOverlay(flights) {
-            WeatherOverlay.call(this, flights);
+        function AMEDASOverlay() {
+            WeatherOverlay.call(this);
 
             this._flags = Map.WeatherFlag.AMEDAS.ALL;
             this._clear();
@@ -938,7 +952,7 @@ define([
 
             if (!_.isEmpty(this._items)) {
                 var self = this;
-                var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+                var time = this.getCurrentTime();
                 var amedasTime = new Date(time.getTime() + 10*60*1000);
                 var minute = Math.floor((amedasTime.getUTCHours()*60 + amedasTime.getUTCMinutes())/10)*10;
                 _.each(this._items, function(item) {
@@ -992,7 +1006,7 @@ define([
         };
 
         AMEDASOverlay.prototype._update = function() {
-            var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+            var time = this.getCurrentTime();
             if (time) {
                 var map = this.getMap();
                 var bounds = map.getBounds();
@@ -1110,8 +1124,8 @@ define([
         };
 
 
-        function WINDASOverlay(flights) {
-            WeatherOverlay.call(this, flights);
+        function WINDASOverlay() {
+            WeatherOverlay.call(this);
 
             this._flags = Map.WeatherFlag.WINDAS.ALL;
             this._clear();
@@ -1149,7 +1163,7 @@ define([
 
             if (!_.isEmpty(this._stations)) {
                 var self = this;
-                var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+                var time = this.getCurrentTime();
                 var windasTime = new Date(time.getTime() + 10*60*1000);
                 var hour = windasTime.getUTCHours();
                 var minute = Math.floor(windasTime.getUTCMinutes()/10)*10;
@@ -1178,7 +1192,7 @@ define([
         };
 
         WINDASOverlay.prototype._update = function() {
-            var time = this._flights.getCurrentTime() || this._flights.getStartTime();
+            var time = this.getCurrentTime();
             if (time) {
                 var map = this.getMap();
                 var bounds = map.getBounds();
