@@ -11,7 +11,7 @@ define([
         'volare.util'
     ]);
 
-    model.factory('model', ['util', function(util) {
+    model.factory('model', ['$http', 'util', function($http, util) {
         var LatLng = google.maps.LatLng;
         var LatLngBounds = google.maps.LatLngBounds;
 
@@ -133,7 +133,7 @@ define([
             var params = {};
             if (this._interval)
                 params.interval = this._interval;
-            $.getJSON('/flights/' + id, params, function(flight) {
+            $http.get('/flights/' + id, params).success(function(flight) {
                 if (!color)
                     color =  self._getNextAvailableColor();
 

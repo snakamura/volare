@@ -76,9 +76,6 @@ define([
 
                 $(modelFlights).on('flight_added', function(event, modelFlight, index) {
                     update(false);
-                    // TODO
-                    // Remove this when it uses $http to add a flight
-                    $scope.$apply();
                 });
                 $(modelFlights).on('flight_removed', function(event, modelFlight) {
                     update(false);
