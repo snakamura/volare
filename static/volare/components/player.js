@@ -23,22 +23,22 @@ define([
             replace: true,
             template: template,
             scope: {
-                modelFlights: '=flights'
+                flights: '='
             },
             controller: ['$scope', function($scope) {
-                var modelFlights = $scope.modelFlights;
+                var flights = $scope.flights;
                 var timer = null;
 
                 $scope.play = function() {
                     if (!timer) {
                         var self = this;
-                        modelFlights.setCurrentTime(modelFlights.getCurrentTime() || modelFlights.getStartTime());
+                        flights.setCurrentTime(flights.getCurrentTime() || flights.getStartTime());
                         timer = $interval(function() {
-                            var time = new Date(modelFlights.getCurrentTime().getTime() + 10*1000);
-                            if (time > modelFlights.getEndTime())
+                            var time = new Date(flights.getCurrentTime().getTime() + 10*1000);
+                            if (time > flights.getEndTime())
                                 self.stop();
                             else
-                                modelFlights.setCurrentTime(time, true);
+                                flights.setCurrentTime(time, true);
                         }, 100);
 
                         this.playing = true;
@@ -55,26 +55,26 @@ define([
                         $interval.cancel(timer);
                         timer = null;
                     }
-                    modelFlights.setCurrentTime(null);
+                    flights.setCurrentTime(null);
 
                     this.playing = false;
                 };
 
                 $scope.$watch('time', function(time) {
-                    modelFlights.setCurrentTime(time);
+                    flights.setCurrentTime(time);
                 });
 
                 function updateTime() {
-                    $scope.time = modelFlights.getCurrentTime();
+                    $scope.time = flights.getCurrentTime();
                 }
 
                 function updateProperties() {
-                    $scope.start = modelFlights.getStartTime();
-                    $scope.end = modelFlights.getEndTime();
+                    $scope.start = flights.getStartTime();
+                    $scope.end = flights.getEndTime();
                 }
 
-                $(modelFlights).on('currenttime_changed', updateTime);
-                $(modelFlights).on('properties_changed', updateProperties);
+                $(flights).on('currenttime_changed', updateTime);
+                $(flights).on('properties_changed', updateProperties);
 
                 updateProperties();
                 updateTime();

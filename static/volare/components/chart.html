@@ -18,22 +18,22 @@
       </tr>
     </thead>
     <tbody>
-      <tr data-ng-repeat="flight in flights">
+      <tr data-ng-repeat="row in rows">
         <td class="visible">
-          <input type="checkbox" data-ng-model="flight.visible">
+          <input type="checkbox" data-ng-model="row.visible">
         </td>
-        <td class="name">{{ flight.name }}</td>
+        <td class="name">{{ row.name }}</td>
         <td class="color">
-          <div style="background:{{ flight.color }}"></div>
+          <div style="background:{{ row.color }}"></div>
         </td>
-        <td class="latitude">{{ flight.position.latitude | position }}</td>
-        <td class="longitude">{{ flight.position.longitude | position }}</td>
-        <td class="altitude">{{ flight.position.altitude | altitude }}</td>
-        <td class="ground_speed">{{ flight.groundSpeed | speed }}</td>
-        <td class="vertical_speed">{{ flight.verticalSpeed | verticalSpeed }}</td>
-        <td class="status">{{ flight.status | status }}</td>
-        <td class="ld">{{ flight.ld | ld }}</td>
-        <td class="average_climb">{{ flight.averageClimb | averageClimb }}</td>
+        <td class="latitude">{{ row.position.latitude | position }}</td>
+        <td class="longitude">{{ row.position.longitude | position }}</td>
+        <td class="altitude">{{ row.position.altitude | altitude }}</td>
+        <td class="ground_speed">{{ row.groundSpeed | speed }}</td>
+        <td class="vertical_speed">{{ row.verticalSpeed | verticalSpeed }}</td>
+        <td class="status">{{ row.status | status }}</td>
+        <td class="ld">{{ row.ld | ld }}</td>
+        <td class="average_climb">{{ row.averageClimb | averageClimb }}</td>
       </tr>
     </tbody>
   </table>
