@@ -153,52 +153,67 @@ define([
         };
     }]);
 
-    graph.factory('graph', function() {
-        return {
-            init: function(scope, flights, getRange, getStrokes) {
-                function update() {
-                    scope.range = getRange();
-                    scope.range.start = flights.getStartTime();
-                    scope.range.end = flights.getEndTime();
+    graph.factory('GraphController', function() {
+        function GraphController(scope, flights) {
+            this._scope = scope;
+            this._flights = flights;
 
-                    scope.strokes = {
-                    };
-                    updateStrokes();
-                    updateCurrentStrokes();
-                }
+            var self = this;
+            var visibleChangedListener = _.bind(this.update, this);
+            $(this._flights).on('flight_added', function(event, flight) {
+                self.update();
+                $(flight).on('visible_changed', visibleChangedListener);
+            });
+            $(this._flights).on('flight_removed', function(event, flight) {
+                $(flight).off('visible_changed', visibleChangedListener);
+                self.update();
+            });
+            $(this._flights).on('currenttime_changed', function(event, time, play) {
+                if (play)
+                    self.updateDiffStrokes();
+                else
+                    self.updateCurrentStrokes();
+            });
+            this.update();
+        }
 
-                function updateStrokes() {
-                    scope.strokes.all = getStrokes();
-                }
-
-                function updateCurrentStrokes() {
-                    scope.strokes.current = getStrokes(flights.getCurrentTime(), true, false);
-                    scope.strokes.diff = [];
-                }
-
-                function updateDiffStrokes() {
-                    scope.strokes.diff = getStrokes(flights.getCurrentTime(), true, true);
-                }
-
-                update();
-
-                var visibleChangedListener = update;
-                $(flights).on('flight_added', function(event, flight) {
-                    update();
-                    $(flight).on('visible_changed', visibleChangedListener);
-                });
-                $(flights).on('flight_removed', function(event, flight) {
-                    $(flight).off('visible_changed', visibleChangedListener);
-                    update();
-                });
-                $(flights).on('currenttime_changed', function(event, time, play) {
-                    if (play)
-                        updateDiffStrokes();
-                    else
-                        updateCurrentStrokes();
-                });
-            }
+        GraphController.prototype.getFlights = function() {
+            return this._flights;
         };
+
+        GraphController.prototype.update = function() {
+            this._scope.range = this.getRange();
+            this._scope.range.start = this._flights.getStartTime();
+            this._scope.range.end = this._flights.getEndTime();
+
+            this._scope.strokes = {
+            };
+            this.updateStrokes();
+            this.updateCurrentStrokes();
+        };
+
+        GraphController.prototype.updateStrokes = function() {
+            this._scope.strokes.all = this.getStrokes(null, false, false);
+        };
+
+        GraphController.prototype.updateCurrentStrokes = function() {
+            this._scope.strokes.current = this.getStrokes(this._flights.getCurrentTime(), true, false);
+            this._scope.strokes.diff = [];
+        };
+
+        GraphController.prototype.updateDiffStrokes = function() {
+            this._scope.strokes.diff = this.getStrokes(this._flights.getCurrentTime(), true, true);
+        };
+
+        GraphController.prototype.getRange = function() {
+            throw 'This method must be overridden.';
+        };
+
+        GraphController.prototype.getStrokes = function(currentTime, withContext, partial) {
+            throw 'This method must be overridden.';
+        };
+
+        return GraphController;
     });
 
     return graph;

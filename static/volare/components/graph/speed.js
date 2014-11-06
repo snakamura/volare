@@ -1,76 +1,83 @@
 define([
     'angular',
-    'volare/components/graph'
+    'volare/components/graph',
+    'volare/util'
 ], function(angular) {
     'use strict';
 
     var speed = angular.module('volare.components.graph.speed', [
-        'volare.components.graph'
+        'volare.components.graph',
+        'volare.util'
     ]);
 
-    speed.factory('speedGraph', ['graph', function(graph) {
-        return {
-            init: function(scope, flights, contextName, getRange, getValue) {
-                function getStrokes(currentTime, withContext, partial) {
-                    var strokes = [];
-                    flights.eachFlight(function(flight) {
-                        if (flight.isVisible()) {
-                            var graphContext = null;
-                            if (withContext) {
-                                graphContext = flight.getExtra(contextName);
-                                if (!graphContext) {
-                                    graphContext = new SpeedGraphContext();
-                                    flight.setExtra(contextName, graphContext);
-                                }
-                                if (!partial)
-                                    graphContext.reset();
-                            }
+    speed.factory('SpeedGraphController', ['GraphController', 'util', function(GraphController, util) {
+        function SpeedGraphController(scope, flights, name) {
+            GraphController.call(this, scope, flights);
 
-                            var stroke = {
-                                color: flight.getColor(),
-                                points: []
-                            };
+            this._name = name;
+        }
+        util.inherit(SpeedGraphController, GraphController);
 
-                            var startTime = null;
-                            var endTime = null;
-                            var step = 20*1000;
-                            if (graphContext && graphContext.isSet()) {
-                                var lastDrawnTime = graphContext.getTime();
-                                if (currentTime.getTime() >= lastDrawnTime.getTime() + step) {
-                                    startTime = lastDrawnTime;
-                                    endTime = currentTime || flight.getEndTime();
-                                }
-                            }
-                            else {
-                                startTime = flight.getStartTime();
-                                endTime = currentTime || flight.getEndTime();
-                            }
-                            if (startTime) {
-                                stroke.points.push({
-                                    time: startTime,
-                                    value: getValue(flight, startTime)
-                                });
-                                for (var time = startTime.getTime() + step; time < endTime.getTime(); time += step) {
-                                    var t = new Date(time);
-                                    stroke.points.push({
-                                        time: t,
-                                        value: getValue(flight, t)
-                                    });
-                                }
+        SpeedGraphController.prototype.getStrokes = function(currentTime, withContext, partial) {
+            var flights = this.getFlights();
 
-                                if (graphContext)
-                                    graphContext.set(new Date(time - step));
-                            }
-
-                            strokes.push(stroke);
+            var strokes = [];
+            flights.eachFlight(function(flight) {
+                if (flight.isVisible()) {
+                    var graphContext = null;
+                    if (withContext) {
+                        graphContext = flight.getExtra(this._name);
+                        if (!graphContext) {
+                            graphContext = new SpeedGraphContext();
+                            flight.setExtra(this._name, graphContext);
                         }
-                    });
-                    return strokes;
+                        if (!partial)
+                            graphContext.reset();
+                    }
+                    var stroke = {
+                        color: flight.getColor(),
+                        points: []
+                    };
+                    var startTime = null;
+                    var endTime = null;
+                    var step = 20*1000;
+                    if (graphContext && graphContext.isSet()) {
+                        var lastDrawnTime = graphContext.getTime();
+                        if (currentTime.getTime() >= lastDrawnTime.getTime() + step) {
+                            startTime = lastDrawnTime;
+                            endTime = currentTime || flight.getEndTime();
+                        }
+                    }
+                    else {
+                        startTime = flight.getStartTime();
+                        endTime = currentTime || flight.getEndTime();
+                    }
+                    if (startTime) {
+                        stroke.points.push({
+                            time: startTime,
+                            value: this.getValue(flight, startTime)
+                        });
+                        for (var time = startTime.getTime() + step; time < endTime.getTime(); time += step) {
+                            var t = new Date(time);
+                            stroke.points.push({
+                                time: t,
+                                value: this.getValue(flight, t)
+                            });
+                        }
+                        if (graphContext)
+                            graphContext.set(new Date(time - step));
+                    }
+                    strokes.push(stroke);
                 }
-
-                graph.init(scope, flights, getRange, getStrokes);
-            }
+            }, this);
+            return strokes;
         };
+
+        SpeedGraphController.prototype.getValue = function(flight, time) {
+            throw 'This method must be overridden.';
+        };
+
+        return SpeedGraphController;
     }]);
 
 
