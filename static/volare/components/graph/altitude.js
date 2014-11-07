@@ -2,10 +2,9 @@ define([
     'lodash',
     'underscore.string',
     'angular',
-    'text!./altitude.html',
     'volare/components/graph',
     'volare/util'
-], function(_, _s, angular, template) {
+], function(_, _s, angular) {
     'use strict';
 
     var module = angular.module('volare.components.graph.altitude', [
@@ -110,7 +109,7 @@ define([
         return {
             restrict: 'E',
             replace: true,
-            template: template,
+            template: '<div><volare-graph range="range" strokes="strokes"></volare-graph></div>',
             scope: {
                 flights: '='
             },

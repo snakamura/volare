@@ -2,11 +2,10 @@ define([
     'lodash',
     'underscore.string',
     'angular',
-    'text!./groundSpeed.html',
     'volare/components/graph',
     'volare/components/graph/speed',
     'volare/util'
-], function(_, _s, angular, template) {
+], function(_, _s, angular) {
     'use strict';
 
     var module = angular.module('volare.components.graph.groundSpeed', [
@@ -49,7 +48,7 @@ define([
         return {
             restrict: 'E',
             replace: true,
-            template: template,
+            template: '<div><volare-graph range="range" strokes="strokes"></volare-graph></div>',
             scope: {
                 flights: '='
             },
