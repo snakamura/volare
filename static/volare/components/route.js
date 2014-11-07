@@ -25,30 +25,23 @@ define([
             replace: true,
             template: template,
             scope: {
-                map: '='
+                mapRoute: '=route'
             },
             controller: 'RouteController'
         };
     }]);
 
     module.controller('RouteController', ['$scope', '$modal', function($scope, $modal) {
-        $scope.$watch('map', function(map) {
-            $scope.route = map.getRoute();
-            $scope.editRoute = function() {
-                var modal = $modal.open({
-                    template: routeEditItemsTemplate,
-                    controller: 'RouteEditItemsController',
-                    backdrop: 'static'
-                });
-                modal.result.then(function(route) {
-                    map.setRoute(route);
-                });
-            };
-
-            $(map).on('route_changed', function() {
-                $scope.route = map.getRoute();
+        $scope.editRoute = function() {
+            var modal = $modal.open({
+                template: routeEditItemsTemplate,
+                controller: 'RouteEditItemsController',
+                backdrop: 'static'
             });
-        });
+            modal.result.then(function(route) {
+                $scope.route = route;
+            });
+        };
     }]);
 
     module.controller('RouteEditItemsController', ['$scope', '$http', 'model', function($scope, $http, model) {

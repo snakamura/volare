@@ -35,8 +35,8 @@
         <volare-vertical-speed-graph flights=flights>
 
       <div #tab_options .tab-pane>
-        <volare-options flights=flights map=map>
-        <volare-waypoint map=map>
-        <volare-weather map=map>
+        <volare-options flights=flights track-type=map.trackType>
+        <volare-waypoint waypoint=map.waypoint>
+        <volare-weather weather-flags=map.weatherFlags>
 
   <volare-chart #chart flights=flights>

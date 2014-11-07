@@ -23,7 +23,7 @@ define([
             template: template,
             scope: {
                 flights: '=',
-                map: '='
+                mapTrackType: '=trackType'
             },
             controller: 'OptionsController'
         };
@@ -34,30 +34,21 @@ define([
 
         $scope.TrackType = Map.TrackType;
 
-        $scope.$watch('map', function(map) {
-            $scope.$watch('trackType', function(trackType) {
-                map.setTrackType(_.parseInt(trackType));
-            });
-
-            function updateTrackType() {
-                $scope.trackType = map.getTrackType();
-            }
-
-            $(map).on('trackType_changed', updateTrackType);
-
-            updateTrackType();
+        $scope.$watch('trackType', function(trackType) {
+            $scope.mapTrackType = _.parseInt(trackType);
         });
+        $scope.$watch('mapTrackType', function(mapTrackType) {
+            $scope.trackType = mapTrackType;
+        });
+        $scope.trackType = $scope.mapTrackType;
 
         $scope.$watch('thinOut', function(thinOut) {
             flights.setInterval(thinOut ? 10 : 0);
         });
-
         function updateThinOut() {
             $scope.thinOut = flights.getInterval() ? 1 : 0;
         }
-
         $(flights).on('interval_changed', updateThinOut);
-
         updateThinOut();
     }]);
 

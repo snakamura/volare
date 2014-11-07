@@ -22,7 +22,7 @@ define([
             replace: true,
             template: template,
             scope: {
-                map: '='
+                mapWaypoint: '=waypoint'
             },
             controller: 'WaypointController'
         };
@@ -32,22 +32,20 @@ define([
         $scope.waypoints = [];
         $scope.waypoint = null;
 
-        $scope.$watch('map', function(map) {
-            $scope.$watch('waypoint', function(waypoint) {
-                if (waypoint) {
-                    $http.get('/waypoints/' + waypoint.id).success(function(waypoint) {
-                        map.setWaypoint(model.Waypoint.wrap(waypoint));
-                    });
-                }
-                else {
-                    map.setWaypoint(null);
-                }
-            });
-            $(map).on('waypoint_changed', function(event, waypoint) {
-                $scope.waypoint = waypoint ? _.find($scope.waypoints, function(w) {
-                    return w.id === waypoint.getId();
-                }) : null;
-            });
+        $scope.$watch('waypoint', function(waypoint) {
+            if (waypoint) {
+                $http.get('/waypoints/' + waypoint.id).success(function(waypoint) {
+                    $scope.mapWaypoint = model.Waypoint.wrap(waypoint);
+                });
+            }
+            else {
+                $scope.mapWaypoint = null;
+            }
+        });
+        $scope.$watch('mapWaypoint', function(mapWaypoint) {
+            $scope.waypoint = mapWaypoint ? _.find($scope.waypoints, function(waypoint) {
+                return waypoint.id === mapWaypoint.getId();
+            }) : null;
         });
 
         $http.get('/waypoints').success(function(waypoints) {

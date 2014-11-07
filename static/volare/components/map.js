@@ -27,7 +27,36 @@ define([
             },
             controller: 'MapController',
             link: function(scope, element, attrs) {
-                scope.map = new Map(scope.flights, element);
+                var map = new Map(scope.flights, element);
+
+                function bind(name, get, set) {
+                    if (_.isUndefined(scope.map[name]))
+                        scope.map[name] = get();
+                    else
+                        set(scope.map[name]);
+                    scope.$watch('map.' + name, set);
+                }
+
+                bind('trackType', function() {
+                    return map.getTrackType();
+                }, function(trackType) {
+                    map.setTrackType(trackType);
+                });
+                bind('weatherFlags', function() {
+                    return map.getWeatherFlags();
+                }, function(weatherFlags) {
+                    map.setWeatherFlags(weatherFlags, Map.WeatherFlag.ALL);
+                });
+                bind('waypoint', function() {
+                    return map.getWaypoint();
+                }, function(waypoint) {
+                    map.setWaypoint(waypoint);
+                });
+                bind('route', function() {
+                    return map.getRoute();
+                }, function(route) {
+                    map.setRoute(route);
+                });
             }
         };
     }]);

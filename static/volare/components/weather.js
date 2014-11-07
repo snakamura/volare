@@ -23,7 +23,7 @@ define([
             replace: true,
             template: template,
             scope: {
-                map: '='
+                mapWeatherFlags: '=weatherFlags'
             },
             controller: 'WeatherController'
         };
@@ -40,22 +40,20 @@ define([
             return _.any(flags);
         };
         $scope.toggle = function(mask) {
-            this.map.setWeatherFlags(this.map.getWeatherFlags() & mask ? 0 : mask, mask);
+            if (this.mapWeatherFlags & mask)
+                this.mapWeatherFlags &= ~mask;
+            else
+                this.mapWeatherFlags |= mask;
         };
 
-        $scope.$watch('map', function(map) {
-            $scope.$watch('flags', function(flags) {
-                map.setWeatherFlags(fromFlags(flags, WeatherFlag), WeatherFlag.ALL);
-            }, true);
-
-            function updateFlags() {
-                $scope.flags = toFlags(map.getWeatherFlags(), WeatherFlag);
-            }
-
-            $(map).on('weatherFlags_changed', updateFlags);
-
-            updateFlags();
-        });
+        $scope.$watch('flags', function(flags) {
+            $scope.mapWeatherFlags = fromFlags(flags, WeatherFlag);
+        }, true);
+        function updateFlags() {
+            $scope.flags = toFlags($scope.mapWeatherFlags, WeatherFlag);
+        }
+        $scope.$watch('mapWeatherFlags', updateFlags);
+        updateFlags();
     }]);
 
 

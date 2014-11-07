@@ -45,7 +45,7 @@ define([
         'volare.util'
     ]);
 
-    module.controller('WorkspaceController', ['$scope', '$http', '$modal', 'layout', 'model', 'util', function($scope, $http, $modal, layout, model, util) {
+    module.controller('WorkspaceController', ['$scope', '$http', '$modal', 'layout', 'Map', 'model', 'util', function($scope, $http, $modal, layout, Map, model, util) {
         util.loadCssInline(css);
 
         var flights = new model.Flights();
@@ -53,6 +53,7 @@ define([
 
         $scope.name = workspaceName;
         $scope.flights = flights;
+        $scope.map = {};
         $scope.addFlight = function() {
             var modal = $modal.open({
                 template: workspaceAddFlightTemplate,
@@ -132,7 +133,7 @@ define([
         $http.get('/workspaces/' + workspaceId).success(function(workspace) {
             if (workspace.route) {
                 $http.get('/routes/' + workspace.route).success(function(route) {
-                    $scope.map.setRoute(model.Route.wrap(route));
+                    $scope.map.route = model.Route.wrap(route);
                 });
             }
         });

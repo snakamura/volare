@@ -46,6 +46,9 @@ define([
 
         $scope.name = flightName;
         $scope.flights = flights;
+        $scope.map = {
+            trackType: Map.TrackType.ALTITUDE
+        };
         $scope.newWorkspace = function() {
             $http.post('/workspaces', {
                 name: this.name
@@ -57,11 +60,6 @@ define([
                 });
             });
         };
-
-        $scope.$watch('map', function(map) {
-            if (map)
-                map.setTrackType(Map.TrackType.ALTITUDE);
-        });
 
         flights.addFlight(flightId, 'red');
 
