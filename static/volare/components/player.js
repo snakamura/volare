@@ -108,7 +108,7 @@ define([
             $scope.end = flights.getEndTime();
         }
 
-        $(flights).on('currenttime_changed', updateTime);
+        $(flights).on('currentTime_changed', updateTime);
         $(flights).on('properties_changed', updateProperties);
 
         updateProperties();

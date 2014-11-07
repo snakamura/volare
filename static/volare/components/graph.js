@@ -168,7 +168,7 @@ define([
                 $(flight).off('visible_changed', visibleChangedListener);
                 self.update();
             });
-            $(this._flights).on('currenttime_changed', function(event, time, play) {
+            $(this._flights).on('currentTime_changed', function(event, time, play) {
                 if (play)
                     self.updateDiffStrokes();
                 else

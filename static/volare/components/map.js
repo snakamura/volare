@@ -89,7 +89,7 @@ define([
                     self.updateTrack(flight, false);
                 });
             });
-            $(this._flights).on('currenttime_changed', function(event, time) {
+            $(this._flights).on('currentTime_changed', function(event, time) {
                 self._flights.eachFlight(function(flight) {
                     self.updateTrack(flight, true);
                 });

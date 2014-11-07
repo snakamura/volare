@@ -168,7 +168,7 @@ define([
         Flights.prototype.setCurrentTime = function(time, play) {
             if (time !== this._currentTime) {
                 this._currentTime = time;
-                $(this).trigger('currenttime_changed', [time, play]);
+                $(this).trigger('currentTime_changed', [time, play]);
             }
         };
 

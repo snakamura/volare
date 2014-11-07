@@ -79,7 +79,7 @@ define([
 
         $(flights).on('flight_added', _.bind(update, null, false));
         $(flights).on('flight_removed', _.bind(update, null, false));
-        $(flights).on('currenttime_changed', _.bind(update, null, true));
+        $(flights).on('currentTime_changed', _.bind(update, null, true));
 
         update(false);
     }]);
