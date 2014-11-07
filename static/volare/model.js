@@ -133,7 +133,9 @@ define([
             var params = {};
             if (this._interval)
                 params.interval = this._interval;
-            $http.get('/flights/' + id, params).success(function(flight) {
+            $http.get('/flights/' + id, {
+                params: params
+            }).success(function(flight) {
                 if (!color)
                     color =  self._getNextAvailableColor();
 
