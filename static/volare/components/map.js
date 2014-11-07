@@ -1,13 +1,14 @@
 define([
     'require',
     'lodash',
+    'underscore.string',
     'jquery',
     'angular',
     'google',
     'markerwithlabel',
     'text!./map.css',
     'volare/util'
-], function(require, _, $, angular, google, markerWithLabel, css) {
+], function(require, _, _s, $, angular, google, markerWithLabel, css) {
     'use strict';
 
     var module = angular.module('volare.components.map', [
@@ -781,14 +782,16 @@ define([
                 if (!this._bounds || !this._bounds.equals(bounds) ||
                     !this._time || !WeatherOverlay.hoursEquals(this._time, time)) {
                     var self = this;
-                    $http.get('/msm/' + this._getName() + '/' + time.getUTCFullYear() +
-                              '/' + (time.getUTCMonth() + 1) +
-                              '/' + time.getUTCDate() +
-                              '/' + time.getUTCHours() +
-                              '?nwlat=' + bounds.getNorthEast().lat() +
-                              '&nwlng=' + bounds.getSouthWest().lng() +
-                              '&selat=' + bounds.getSouthWest().lat() +
-                              '&selng=' + bounds.getNorthEast().lng()).success(function(items) {
+                    var path = _s.sprintf('/msm/%s/%d/%d/%d/%d', this._getName(), time.getUTCFullYear(),
+                        time.getUTCMonth() + 1, time.getUTCDate(), time.getUTCHours());
+                    $http.get(path, {
+                        params: {
+                            nwlat: bounds.getNorthEast().lat(),
+                            nwlng: bounds.getSouthWest().lng(),
+                            selat: bounds.getSouthWest().lat(),
+                            selng: bounds.getNorthEast().lng()
+                        }
+                    }).success(function(items) {
                         if (self._time && WeatherOverlay.hoursEquals(self._time, time)) {
                             var oldItems = self._items;
                             var newItems = {};
@@ -1064,14 +1067,16 @@ define([
                 if (!this._bounds || !this._bounds.equals(bounds) ||
                     !this._time || !WeatherOverlay.hoursEquals(this._time, time)) {
                     var self = this;
-                    $http.get('/amedas/' + time.getUTCFullYear() +
-                              '/' + (time.getUTCMonth() + 1) +
-                              '/' + time.getUTCDate() +
-                              '/' + time.getUTCHours() +
-                              '?nwlat=' + bounds.getNorthEast().lat() +
-                              '&nwlng=' + bounds.getSouthWest().lng() +
-                              '&selat=' + bounds.getSouthWest().lat() +
-                              '&selng=' + bounds.getNorthEast().lng()).success(function(items) {
+                    var path = _s.sprintf('/amedas/%d/%d/%d/%d', time.getUTCFullYear(),
+                        time.getUTCMonth() + 1, time.getUTCDate(), time.getUTCHours());
+                    $http.get(path, {
+                        params: {
+                            nwlat: bounds.getNorthEast().lat(),
+                            nwlng: bounds.getSouthWest().lng(),
+                            selat: bounds.getSouthWest().lat(),
+                            selng: bounds.getNorthEast().lng()
+                        }
+                    }).success(function(items) {
                         if (self._time && WeatherOverlay.hoursEquals(self._time, time)) {
                             var oldItems = self._items;
                             var newItems = {};
@@ -1250,14 +1255,16 @@ define([
                 if (!this._bounds || !this._bounds.equals(bounds) ||
                     !this._time || !WeatherOverlay.hoursEquals(this._time, time)) {
                     var self = this;
-                    $http.get('/windas/' + time.getUTCFullYear() +
-                              '/' + (time.getUTCMonth() + 1) +
-                              '/' + time.getUTCDate() +
-                              '/' + time.getUTCHours() +
-                              '?nwlat=' + bounds.getNorthEast().lat() +
-                              '&nwlng=' + bounds.getSouthWest().lng() +
-                              '&selat=' + bounds.getSouthWest().lat() +
-                              '&selng=' + bounds.getNorthEast().lng()).success(function(stations) {
+                    var path = _s.sprintf('/windas/%d/%d/%d/%d', time.getUTCFullYear(),
+                        time.getUTCMonth() + 1, time.getUTCDate(), time.getUTCHours());
+                    $http.get(path, {
+                        params: {
+                            nwlat: bounds.getNorthEast().lat(),
+                            nwlng: bounds.getSouthWest().lng(),
+                            selat: bounds.getSouthWest().lat(),
+                            selng: bounds.getNorthEast().lng()
+                        }
+                    }).success(function(stations) {
                         self._stations = stations;
                         self._time = time;
                         self._bounds = bounds;
