@@ -3,22 +3,21 @@ define([
     'underscore.string',
     'angular',
     'text!./altitude.html',
-    'volare/components/graph'
+    'volare/components/graph',
+    'volare/util'
 ], function(_, _s, angular, template) {
     'use strict';
 
     var module = angular.module('volare.components.graph.altitude', [
-        'volare.components.graph'
+        'volare.components.graph',
+        'volare.util'
     ]);
 
-    module.controller('AltitudeGraphController', ['$scope', '$controller', function($scope, $controller) {
+    module.controller('AltitudeGraphController', ['$scope', 'GraphController', 'util', function($scope, GraphController, util) {
         function AltitudeGraphController(scope) {
-            this.init(scope.flights);
+            GraphController.call(this, scope, scope.flights);
         }
-
-        AltitudeGraphController.prototype = $controller('GraphController', {
-            $scope: $scope
-        });
+        util.inherit(AltitudeGraphController, GraphController);
 
         AltitudeGraphController.prototype.getRange = function() {
             var flights = this.getFlights();

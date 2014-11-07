@@ -4,23 +4,22 @@ define([
     'angular',
     'text!./verticalSpeed.html',
     'volare/components/graph',
-    'volare/components/graph/speed'
+    'volare/components/graph/speed',
+    'volare/util'
 ], function(_, _s, angular, template) {
     'use strict';
 
     var module = angular.module('volare.components.graph.verticalSpeed', [
         'volare.components.graph',
-        'volare.components.graph.speed'
+        'volare.components.graph.speed',
+        'volare.util'
     ]);
 
-    module.controller('VerticalSpeedGraphController', ['$scope', '$controller', function($scope, $controller) {
+    module.controller('VerticalSpeedGraphController', ['$scope', 'SpeedGraphController', 'util', function($scope, SpeedGraphController, util) {
         function VerticalSpeedGraphController(scope) {
-            this.init(scope.flights, 'currentVerticalSpeedGraphContext');
+            SpeedGraphController.call(this, scope, scope.flights, 'currentVerticalSpeedGraphContext');
         }
-
-        VerticalSpeedGraphController.prototype = $controller('SpeedGraphController', {
-            $scope: $scope
-        });
+        util.inherit(VerticalSpeedGraphController, SpeedGraphController);
 
         VerticalSpeedGraphController.prototype.getRange = function() {
             var min = -5;
