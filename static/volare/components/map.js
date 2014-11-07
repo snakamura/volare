@@ -61,7 +61,7 @@ define([
             var self = this;
             var visibleChangedListener = function(event) {
                 var flight = event.target;
-                flight.updateTrack(flight.__track, self._flights.getCurrentTime());
+                flight.updateTrack(flight.getExtra('track'), self._flights.getCurrentTime());
             };
 
             $(this._flights).on('flight_added', function(event, flight) {
@@ -69,7 +69,7 @@ define([
 
                 var track = self._createTrack(flight);
                 flight.updateTrack(track);
-                flight.__track = track;
+                flight.setExtra('track', track);
 
                 self._updateCurrentTime();
 
@@ -78,20 +78,23 @@ define([
             $(this._flights).on('flight_removed', function(event, flight) {
                 $(flight).off('visible_changed', visibleChangedListener);
 
-                flight.__track.clear();
-                flight.__track = null;
+                var track = flight.getExtra('track');
+                track.clear();
+                flight.setExtra('track', null);
 
                 self._updateCurrentTime();
             });
             $(this._flights).on('properties_changed', function() {
                 self._flights.eachFlight(function(flight) {
-                    if (flight.__track)
-                        flight.updateTrack(flight.__track, self._flights.getCurrentTime());
+                    var track = flight.getExtra('track');
+                    if (track)
+                        flight.updateTrack(track, self._flights.getCurrentTime());
                 });
             });
             $(this._flights).on('currenttime_changed', function(event, time) {
                 self._flights.eachFlight(function(flight) {
-                    flight.updateTrack(flight.__track, time, true);
+                    var track = flight.getExtra('track');
+                    flight.updateTrack(track, time, true);
                 });
 
                 var primaryFlight = self._flights.getPrimaryFlight();
@@ -130,11 +133,12 @@ define([
 
             var self = this;
             this._flights.eachFlight(function(flight) {
-                flight.__track.clear();
+                var oldTrack = flight.getExtra('track');
+                oldTrack.clear();
 
-                var track = self._createTrack(flight);
-                flight.updateTrack(track);
-                flight.__track = track;
+                var newTrack = self._createTrack(flight);
+                flight.updateTrack(newTrack);
+                flight.setExtra('track', newTrack);
             });
 
             $(this).trigger('trackType_changed', this._trackType);
