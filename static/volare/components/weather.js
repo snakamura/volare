@@ -40,10 +40,10 @@ define([
             return _.any(flags);
         };
         $scope.toggle = function(mask) {
-            if (this.mapWeatherFlags & mask)
-                this.mapWeatherFlags &= ~mask;
+            if ($scope.mapWeatherFlags & mask)
+                $scope.mapWeatherFlags &= ~mask;
             else
-                this.mapWeatherFlags |= mask;
+                $scope.mapWeatherFlags |= mask;
         };
 
         $scope.$watch('flags', function(flags) {
