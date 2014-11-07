@@ -24,22 +24,7 @@ define([
                 update: '&',
                 delete: '&'
             },
-            controller: ['$scope', function($scope) {
-                $scope.editing = false;
-                $scope.edit = function() {
-                    $scope.editing = true;
-                };
-                $scope.save = function() {
-                    $scope.editing = false;
-                    $scope.update({
-                        $name: $scope.name
-                    });
-                };
-                $scope.keydown = function(event) {
-                    if (event.keyCode === 0x0d)
-                        this.save();
-                };
-            }],
+            controller: 'NameController',
             link: function(scope, element, attrs) {
                 var inputName = element.find('input');
 
@@ -48,6 +33,23 @@ define([
                         _.defer(_.bind(inputName.focus, inputName));
                 });
             }
+        };
+    }]);
+
+    module.controller('NameController', ['$scope', function($scope) {
+        $scope.editing = false;
+        $scope.edit = function() {
+            $scope.editing = true;
+        };
+        $scope.save = function() {
+            $scope.editing = false;
+            $scope.update({
+                $name: $scope.name
+            });
+        };
+        $scope.keydown = function(event) {
+            if (event.keyCode === 0x0d)
+                this.save();
         };
     }]);
 

@@ -15,7 +15,7 @@ define([
         'volare.util'
     ]);
 
-    module.directive('volarePlayer', ['$interval', 'util', function($interval, util) {
+    module.directive('volarePlayer', ['util', function(util) {
         util.loadCssInline(css);
 
         return {
@@ -25,60 +25,7 @@ define([
             scope: {
                 flights: '='
             },
-            controller: ['$scope', function($scope) {
-                var flights = $scope.flights;
-                var timer = null;
-
-                $scope.play = function() {
-                    if (!timer) {
-                        var self = this;
-                        flights.setCurrentTime(flights.getCurrentTime() || flights.getStartTime());
-                        timer = $interval(function() {
-                            var time = new Date(flights.getCurrentTime().getTime() + 10*1000);
-                            if (time > flights.getEndTime())
-                                self.stop();
-                            else
-                                flights.setCurrentTime(time, true);
-                        }, 100);
-
-                        this.playing = true;
-                    }
-                    else {
-                        $interval.cancel(timer);
-                        timer = null;
-
-                        this.playing = false;
-                    }
-                };
-                $scope.stop = function() {
-                    if (timer) {
-                        $interval.cancel(timer);
-                        timer = null;
-                    }
-                    flights.setCurrentTime(null);
-
-                    this.playing = false;
-                };
-
-                $scope.$watch('time', function(time) {
-                    flights.setCurrentTime(time);
-                });
-
-                function updateTime() {
-                    $scope.time = flights.getCurrentTime();
-                }
-
-                function updateProperties() {
-                    $scope.start = flights.getStartTime();
-                    $scope.end = flights.getEndTime();
-                }
-
-                $(flights).on('currenttime_changed', updateTime);
-                $(flights).on('properties_changed', updateProperties);
-
-                updateProperties();
-                updateTime();
-            }],
+            controller: 'PlayerController',
             link: function(scope, element, attrs) {
                 var slider = element.find('.slider');
                 slider.slider({
@@ -111,6 +58,61 @@ define([
                 });
             }
         };
+    }]);
+
+    module.controller('PlayerController', ['$scope', '$interval', function($scope, $interval) {
+        var flights = $scope.flights;
+        var timer = null;
+
+        $scope.play = function() {
+            if (!timer) {
+                var self = this;
+                flights.setCurrentTime(flights.getCurrentTime() || flights.getStartTime());
+                timer = $interval(function() {
+                    var time = new Date(flights.getCurrentTime().getTime() + 10*1000);
+                    if (time > flights.getEndTime())
+                        self.stop();
+                    else
+                        flights.setCurrentTime(time, true);
+                }, 100);
+
+                this.playing = true;
+            }
+            else {
+                $interval.cancel(timer);
+                timer = null;
+
+                this.playing = false;
+            }
+        };
+        $scope.stop = function() {
+            if (timer) {
+                $interval.cancel(timer);
+                timer = null;
+            }
+            flights.setCurrentTime(null);
+
+            this.playing = false;
+        };
+
+        $scope.$watch('time', function(time) {
+            flights.setCurrentTime(time);
+        });
+
+        function updateTime() {
+            $scope.time = flights.getCurrentTime();
+        }
+
+        function updateProperties() {
+            $scope.start = flights.getStartTime();
+            $scope.end = flights.getEndTime();
+        }
+
+        $(flights).on('currenttime_changed', updateTime);
+        $(flights).on('properties_changed', updateProperties);
+
+        updateProperties();
+        updateTime();
     }]);
 
     return module;

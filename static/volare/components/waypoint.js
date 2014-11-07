@@ -14,7 +14,7 @@ define([
         'volare.util'
     ]);
 
-    module.directive('volareWaypoint', ['$http', 'model', 'util', function($http, model, util) {
+    module.directive('volareWaypoint', ['util', function(util) {
         util.loadCssInline(css);
 
         return {
@@ -24,33 +24,35 @@ define([
             scope: {
                 map: '='
             },
-            controller: ['$scope', function($scope) {
-                $scope.waypoints = [];
-                $scope.waypoint = null;
-
-                $scope.$watch('map', function(map) {
-                    $scope.$watch('waypoint', function(waypoint) {
-                        if (waypoint) {
-                            $http.get('/waypoints/' + waypoint.id).success(function(waypoint) {
-                                map.setWaypoint(model.Waypoint.wrap(waypoint));
-                            });
-                        }
-                        else {
-                            map.setWaypoint(null);
-                        }
-                    });
-                    $(map).on('waypoint_changed', function(event, waypoint) {
-                        $scope.waypoint = waypoint ? _.find($scope.waypoints, function(w) {
-                            return w.id === waypoint.getId();
-                        }) : null;
-                    });
-                });
-
-                $http.get('/waypoints').success(function(waypoints) {
-                    $scope.waypoints = waypoints;
-                });
-            }]
+            controller: 'WaypointController'
         };
+    }]);
+
+    module.controller('WaypointController', ['$scope', '$http', 'model', function($scope, $http, model) {
+        $scope.waypoints = [];
+        $scope.waypoint = null;
+
+        $scope.$watch('map', function(map) {
+            $scope.$watch('waypoint', function(waypoint) {
+                if (waypoint) {
+                    $http.get('/waypoints/' + waypoint.id).success(function(waypoint) {
+                        map.setWaypoint(model.Waypoint.wrap(waypoint));
+                    });
+                }
+                else {
+                    map.setWaypoint(null);
+                }
+            });
+            $(map).on('waypoint_changed', function(event, waypoint) {
+                $scope.waypoint = waypoint ? _.find($scope.waypoints, function(w) {
+                    return w.id === waypoint.getId();
+                }) : null;
+            });
+        });
+
+        $http.get('/waypoints').success(function(waypoints) {
+            $scope.waypoints = waypoints;
+        });
     }]);
 
     return module;

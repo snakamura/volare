@@ -25,34 +25,40 @@ define([
                 flights: '=',
                 map: '='
             },
-            controller: ['$scope', 'Map', function($scope, Map) {
-                var flights = $scope.flights;
-
-                $scope.TrackType = Map.TrackType;
-                $scope.$watch('map', function(map) {
-                    $scope.$watch('trackType', function(trackType) {
-                        map.setTrackType(_.parseInt(trackType));
-                    });
-
-                    function updateTrackType() {
-                        $scope.trackType = map.getTrackType();
-                    }
-
-                    $(map).on('trackType_changed', updateTrackType);
-
-                    updateTrackType();
-                });
-                $scope.$watch('thinOut', function(thinOut) {
-                    flights.setInterval(thinOut ? 10 : 0);
-                });
-
-                function updateThinOut() {
-                    $scope.thinOut = flights.getInterval() ? 1 : 0;
-                }
-                $(flights).on('interval_changed', updateThinOut);
-                updateThinOut();
-            }]
+            controller: 'OptionsController'
         };
+    }]);
+
+    module.controller('OptionsController', ['$scope', 'Map', function($scope, Map) {
+        var flights = $scope.flights;
+
+        $scope.TrackType = Map.TrackType;
+
+        $scope.$watch('map', function(map) {
+            $scope.$watch('trackType', function(trackType) {
+                map.setTrackType(_.parseInt(trackType));
+            });
+
+            function updateTrackType() {
+                $scope.trackType = map.getTrackType();
+            }
+
+            $(map).on('trackType_changed', updateTrackType);
+
+            updateTrackType();
+        });
+
+        $scope.$watch('thinOut', function(thinOut) {
+            flights.setInterval(thinOut ? 10 : 0);
+        });
+
+        function updateThinOut() {
+            $scope.thinOut = flights.getInterval() ? 1 : 0;
+        }
+
+        $(flights).on('interval_changed', updateThinOut);
+
+        updateThinOut();
     }]);
 
     return module;

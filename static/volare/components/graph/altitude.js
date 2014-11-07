@@ -12,6 +12,18 @@ define([
         'volare.util'
     ]);
 
+    module.directive('volareAltitudeGraph', ['$controller', function($controller) {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: '<div><volare-graph range="range" strokes="strokes"></volare-graph></div>',
+            scope: {
+                flights: '='
+            },
+            controller: 'AltitudeGraphController'
+        };
+    }]);
+
     module.controller('AltitudeGraphController', ['$scope', 'GraphController', 'util', function($scope, GraphController, util) {
         function AltitudeGraphController(scope) {
             GraphController.call(this, scope, scope.flights);
@@ -103,18 +115,6 @@ define([
         };
 
         return new AltitudeGraphController($scope);
-    }]);
-
-    module.directive('volareAltitudeGraph', ['$controller', function($controller) {
-        return {
-            restrict: 'E',
-            replace: true,
-            template: '<div><volare-graph range="range" strokes="strokes"></volare-graph></div>',
-            scope: {
-                flights: '='
-            },
-            controller: 'AltitudeGraphController'
-        };
     }]);
 
 

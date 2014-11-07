@@ -17,7 +17,7 @@ define([
         'volare.util'
     ]);
 
-    module.directive('volareRoute', ['$modal', 'util', function($modal, util) {
+    module.directive('volareRoute', ['util', function(util) {
         util.loadCssInline(css);
 
         return {
@@ -27,26 +27,28 @@ define([
             scope: {
                 map: '='
             },
-            controller: ['$scope', function($scope) {
-                $scope.$watch('map', function(map) {
-                    $scope.route = map.getRoute();
-                    $scope.editRoute = function() {
-                        var modal = $modal.open({
-                            template: routeEditItemsTemplate,
-                            controller: 'RouteEditItemsController',
-                            backdrop: 'static'
-                        });
-                        modal.result.then(function(route) {
-                            map.setRoute(route);
-                        });
-                    };
-
-                    $(map).on('route_changed', function() {
-                        $scope.route = map.getRoute();
-                    });
-                });
-            }]
+            controller: 'RouteController'
         };
+    }]);
+
+    module.controller('RouteController', ['$scope', '$modal', function($scope, $modal) {
+        $scope.$watch('map', function(map) {
+            $scope.route = map.getRoute();
+            $scope.editRoute = function() {
+                var modal = $modal.open({
+                    template: routeEditItemsTemplate,
+                    controller: 'RouteEditItemsController',
+                    backdrop: 'static'
+                });
+                modal.result.then(function(route) {
+                    map.setRoute(route);
+                });
+            };
+
+            $(map).on('route_changed', function() {
+                $scope.route = map.getRoute();
+            });
+        });
     }]);
 
     module.controller('RouteEditItemsController', ['$scope', '$http', 'model', function($scope, $http, model) {

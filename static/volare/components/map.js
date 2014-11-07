@@ -25,14 +25,16 @@ define([
                 flights: '=',
                 map: '='
             },
-            controller: ['$scope', function($scope) {
-                // TODO
-                // Unbound Map from flights and use this controller
-            }],
+            controller: 'MapController',
             link: function(scope, element, attrs) {
                 scope.map = new Map(scope.flights, element);
             }
         };
+    }]);
+
+    module.controller('MapController', ['$scope', function($scope) {
+        // TODO
+        // Unbound Map from flights and use this controller
     }]);
 
     module.factory('Map', ['$http', 'util', function($http, util) {

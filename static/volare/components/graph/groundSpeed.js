@@ -14,6 +14,18 @@ define([
         'volare.util'
     ]);
 
+    module.directive('volareGroundSpeedGraph', function() {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: '<div><volare-graph range="range" strokes="strokes"></volare-graph></div>',
+            scope: {
+                flights: '='
+            },
+            controller: 'GroundSpeedGraphController'
+        };
+    });
+
     module.controller('GroundSpeedGraphController', ['$scope', 'SpeedGraphController', 'util', function($scope, SpeedGraphController, util) {
         function GroundSpeedGraphController(scope) {
             SpeedGraphController.call(this, scope, scope.flights, 'currentGroundSpeedGraphContext');
@@ -43,18 +55,6 @@ define([
 
         return new GroundSpeedGraphController($scope);
     }]);
-
-    module.directive('volareGroundSpeedGraph', function() {
-        return {
-            restrict: 'E',
-            replace: true,
-            template: '<div><volare-graph range="range" strokes="strokes"></volare-graph></div>',
-            scope: {
-                flights: '='
-            },
-            controller: 'GroundSpeedGraphController'
-        };
-    });
 
     return module;
 });

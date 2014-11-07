@@ -27,59 +27,61 @@ define([
             scope: {
                 flights: '='
             },
-            controller: ['$scope', function($scope) {
-                var flights = $scope.flights;
-
-                $scope.rows = [];
-
-                $scope.visible = true;
-                $scope.changeVisible = function(visible) {
-                    _.each(this.rows, function(row) {
-                        row.visible = visible;
-                    });
-                };
-
-                $scope.$watch(function(scope) {
-                    return _.map(scope.rows, function(row) {
-                        return _.pick(row, ['id', 'visible']);
-                    });
-                }, function(rows) {
-                    _.each(rows, function(row) {
-                        var flight = flights.getFlight(row.id);
-                        flight.setVisible(row.visible);
-                    });
-                }, true);
-
-                function update(propertiesOnly) {
-                    if (!propertiesOnly) {
-                        $scope.rows = flights.mapFlight(function(flight) {
-                            return {
-                                id: flight.getId(),
-                                visible: flight.isVisible(),
-                                name: flight.getName(),
-                                color: flight.getColor()
-                            };
-                        });
-                    }
-
-                    var time = flights.getCurrentTime();
-                    flights.eachFlight(function(flight, index) {
-                        var row = $scope.rows[index];
-                        row.position = flight.getPositionAt(time);
-                        row.groundSpeed = flight.getGroundSpeedAt(time);
-                        row.verticalSpeed = flight.getVerticalSpeedAt(time);
-                        row.status = flight.getStatusAt(time);
-                        row.ld = flight.getLD(time);
-                        row.averageClimb = flight.getAverageClimb(time);
-                    });
-                }
-
-                $(flights).on('flight_added', _.bind(update, null, false));
-                $(flights).on('flight_removed', _.bind(update, null, false));
-                $(flights).on('currenttime_changed', _.bind(update, null, true));
-                update(false);
-            }]
+            controller: 'ChartController'
         };
+    }]);
+
+    module.controller('ChartController', ['$scope', function($scope) {
+        var flights = $scope.flights;
+
+        $scope.rows = [];
+        $scope.visible = true;
+        $scope.changeVisible = function(visible) {
+            _.each(this.rows, function(row) {
+                row.visible = visible;
+            });
+        };
+
+        $scope.$watch(function(scope) {
+            return _.map(scope.rows, function(row) {
+                return _.pick(row, ['id', 'visible']);
+            });
+        }, function(rows) {
+            _.each(rows, function(row) {
+                var flight = flights.getFlight(row.id);
+                flight.setVisible(row.visible);
+            });
+        }, true);
+
+        function update(propertiesOnly) {
+            if (!propertiesOnly) {
+                $scope.rows = flights.mapFlight(function(flight) {
+                    return {
+                        id: flight.getId(),
+                        visible: flight.isVisible(),
+                        name: flight.getName(),
+                        color: flight.getColor()
+                    };
+                });
+            }
+
+            var time = flights.getCurrentTime();
+            flights.eachFlight(function(flight, index) {
+                var row = $scope.rows[index];
+                row.position = flight.getPositionAt(time);
+                row.groundSpeed = flight.getGroundSpeedAt(time);
+                row.verticalSpeed = flight.getVerticalSpeedAt(time);
+                row.status = flight.getStatusAt(time);
+                row.ld = flight.getLD(time);
+                row.averageClimb = flight.getAverageClimb(time);
+            });
+        }
+
+        $(flights).on('flight_added', _.bind(update, null, false));
+        $(flights).on('flight_removed', _.bind(update, null, false));
+        $(flights).on('currenttime_changed', _.bind(update, null, true));
+
+        update(false);
     }]);
 
     module.filter('status', ['model', function(model) {
