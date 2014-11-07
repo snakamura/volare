@@ -310,6 +310,16 @@ define([
             return this._minAltitude;
         };
 
+        Flight.prototype.getRecords = function() {
+            return this._records;
+        };
+
+        Flight.prototype.getRecordsRange = function(startTime, endTime) {
+            var start = this._getRecordIndexAt(startTime);
+            var end = this._getRecordIndexAt(endTime);
+            return this._records.slice(start, end);
+        };
+
         Flight.prototype.getRecord = function(index) {
             return this._records[index];
         };
@@ -493,27 +503,6 @@ define([
                 delete this._extra[name];
         };
 
-        Flight.prototype.updateTrack = function(track, currentTime, currentOnly) {
-            if (this._visible) {
-                var records = this._records;
-                var currentRecords = records;
-                if (currentTime) {
-                    var start = this._getRecordIndexAt(new Date(currentTime.getTime() - Flight.TRACK_DURATION*1000));
-                    var end = this._getRecordIndexAt(currentTime);
-                    currentRecords = records.slice(start, end);
-                }
-
-                if (!currentOnly)
-                    track.setRecords(records);
-                track.setCurrentRecords(currentRecords);
-            }
-            else {
-                if (!currentOnly)
-                    track.setRecords([]);
-                track.setCurrentRecords([]);
-            }
-        };
-
         Flight.prototype._getRecordIndexAt = function(time) {
             return _.sortedIndex(this._records, { time: time }, function(record) {
                 return record.time;
@@ -576,7 +565,6 @@ define([
             return Util.direction(p1.latitude, p1.longitude, p2.latitude, p2.longitude);
         };
 
-        Flight.TRACK_DURATION = 10*60;
         Flight.GROUND_SPEED_SAMPLING_DURATION = 10;
         Flight.VERTICAL_SPEED_SAMPLING_DURATION = 5;
         Flight.STATUS_SAMPLING_DURATION = 30;

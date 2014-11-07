@@ -61,15 +61,15 @@ define([
             var self = this;
             var visibleChangedListener = function(event) {
                 var flight = event.target;
-                flight.updateTrack(flight.getExtra('track'), self._flights.getCurrentTime());
+                self.updateTrack(flight, false);
             };
 
             $(this._flights).on('flight_added', function(event, flight) {
                 self._map.fitBounds(self._flights.getBounds());
 
                 var track = self._createTrack(flight);
-                flight.updateTrack(track);
                 flight.setExtra('track', track);
+                self.updateTrack(flight, false);
 
                 self._updateCurrentTime();
 
@@ -86,15 +86,12 @@ define([
             });
             $(this._flights).on('properties_changed', function() {
                 self._flights.eachFlight(function(flight) {
-                    var track = flight.getExtra('track');
-                    if (track)
-                        flight.updateTrack(track, self._flights.getCurrentTime());
+                    self.updateTrack(flight, false);
                 });
             });
             $(this._flights).on('currenttime_changed', function(event, time) {
                 self._flights.eachFlight(function(flight) {
-                    var track = flight.getExtra('track');
-                    flight.updateTrack(track, time, true);
+                    self.updateTrack(flight, true);
                 });
 
                 var primaryFlight = self._flights.getPrimaryFlight();
@@ -137,8 +134,8 @@ define([
                 oldTrack.clear();
 
                 var newTrack = self._createTrack(flight);
-                flight.updateTrack(newTrack);
                 flight.setExtra('track', newTrack);
+                self.updateTrack(flight, false);
             });
 
             $(this).trigger('trackType_changed', this._trackType);
@@ -253,12 +250,41 @@ define([
             }
         };
 
+        Map.prototype.updateTrack = function(flight, currentOnly) {
+            var track = flight.getExtra('track');
+            if (!track)
+                return;
+
+            var records = [];
+            var currentRecords = [];
+
+            if (flight.isVisible()) {
+                records = flight.getRecords();
+
+                var currentTime = this._flights.getCurrentTime();
+                if (currentTime) {
+                    var startTime = new Date(currentTime.getTime() - Map.TRACK_DURATION*1000);
+                    var endTime = currentTime;
+                    currentRecords = flight.getRecordsRange(startTime, endTime);
+                }
+                else {
+                    currentRecords = records;
+                }
+            }
+
+            if (!currentOnly)
+                track.setRecords(records);
+            track.setCurrentRecords(currentRecords);
+        };
+
+
         Map.TrackType = {
             SOLID: 0,
             ALTITUDE: 1,
             GROUND_SPEED: 2,
             VERTICAL_SPEED: 3
         };
+        Map.TRACK_DURATION = 10*60;
 
         Map.WeatherFlag = {
             MSM: {
