@@ -487,7 +487,10 @@ define([
         Flight.prototype.setExtra = function(name, value) {
             if (!this._extra)
                 this._extra = {};
-            this._extra[name] = value;
+            if (value)
+                this._extra[name] = value;
+            else
+                delete this._extra[name];
         };
 
         Flight.prototype.updateTrack = function(track, currentTime, currentOnly) {
