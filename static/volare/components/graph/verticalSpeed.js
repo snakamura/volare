@@ -4,22 +4,23 @@ define([
     'angular',
     'text!./verticalSpeed.html',
     'volare/components/graph',
-    'volare/components/graph/speed',
-    'volare/util'
+    'volare/components/graph/speed'
 ], function(_, _s, angular, template) {
     'use strict';
 
     var module = angular.module('volare.components.graph.verticalSpeed', [
         'volare.components.graph',
-        'volare.components.graph.speed',
-        'volare.util'
+        'volare.components.graph.speed'
     ]);
 
-    module.directive('volareVerticalSpeedGraph', ['SpeedGraphController', 'util', function(SpeedGraphController, util) {
-        function VerticalSpeedGraphController($scope) {
-            SpeedGraphController.call(this, $scope, $scope.flights, 'currentVerticalSpeedGraphContext');
+    module.controller('VerticalSpeedGraphController', ['$scope', '$controller', function($scope, $controller) {
+        function VerticalSpeedGraphController(scope) {
+            this.init(scope.flights, 'currentVerticalSpeedGraphContext');
         }
-        util.inherit(VerticalSpeedGraphController, SpeedGraphController);
+
+        VerticalSpeedGraphController.prototype = $controller('SpeedGraphController', {
+            $scope: $scope
+        });
 
         VerticalSpeedGraphController.prototype.getRange = function() {
             var min = -5;
@@ -42,6 +43,10 @@ define([
             return flight.getVerticalSpeedAt(time);
         };
 
+        return new VerticalSpeedGraphController($scope);
+    }]);
+
+    module.directive('volareVerticalSpeedGraph', function() {
         return {
             restrict: 'E',
             replace: true,
@@ -49,9 +54,9 @@ define([
             scope: {
                 flights: '='
             },
-            controller: ['$scope', VerticalSpeedGraphController]
+            controller: 'VerticalSpeedGraphController'
         };
-    }]);
+    });
 
     return module;
 });

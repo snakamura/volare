@@ -153,9 +153,12 @@ define([
         };
     }]);
 
-    module.factory('GraphController', function() {
-        function GraphController(scope, flights) {
+    module.controller('GraphController', ['$scope', function($scope) {
+        function GraphController(scope) {
             this._scope = scope;
+        }
+
+        GraphController.prototype.init = function(flights) {
             this._flights = flights;
 
             var self = this;
@@ -175,7 +178,7 @@ define([
                     self.updateCurrentStrokes();
             });
             this.update();
-        }
+        };
 
         GraphController.prototype.getFlights = function() {
             return this._flights;
@@ -213,8 +216,8 @@ define([
             throw 'This method must be overridden.';
         };
 
-        return GraphController;
-    });
+        return new GraphController($scope);
+    }]);
 
     return module;
 });

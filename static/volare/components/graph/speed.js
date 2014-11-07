@@ -1,22 +1,25 @@
 define([
     'angular',
-    'volare/components/graph',
-    'volare/util'
+    'volare/components/graph'
 ], function(angular) {
     'use strict';
 
     var module = angular.module('volare.components.graph.speed', [
-        'volare.components.graph',
-        'volare.util'
+        'volare.components.graph'
     ]);
 
-    module.factory('SpeedGraphController', ['GraphController', 'util', function(GraphController, util) {
-        function SpeedGraphController(scope, flights, name) {
-            GraphController.call(this, scope, flights);
-
-            this._name = name;
+    module.controller('SpeedGraphController', ['$scope', '$controller', function($scope, $controller) {
+        function SpeedGraphController(scope) {
         }
-        util.inherit(SpeedGraphController, GraphController);
+
+        SpeedGraphController.prototype = $controller('GraphController', {
+            $scope: $scope
+        });
+
+        SpeedGraphController.prototype.init = function(flights, name) {
+            this.constructor.prototype.constructor.prototype.init.call(this, flights);
+            this._name = name;
+        };
 
         SpeedGraphController.prototype.getStrokes = function(currentTime, withContext, partial) {
             var flights = this.getFlights();
@@ -77,7 +80,7 @@ define([
             throw 'This method must be overridden.';
         };
 
-        return SpeedGraphController;
+        return new SpeedGraphController($scope);
     }]);
 
 

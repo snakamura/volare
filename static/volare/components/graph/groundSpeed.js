@@ -4,22 +4,23 @@ define([
     'angular',
     'text!./groundSpeed.html',
     'volare/components/graph',
-    'volare/components/graph/speed',
-    'volare/util'
+    'volare/components/graph/speed'
 ], function(_, _s, angular, template) {
     'use strict';
 
     var module = angular.module('volare.components.graph.groundSpeed', [
         'volare.components.graph',
-        'volare.components.graph.speed',
-        'volare.util'
+        'volare.components.graph.speed'
     ]);
 
-    module.directive('volareGroundSpeedGraph', ['SpeedGraphController', 'util', function(SpeedGraphController, util) {
-        function GroundSpeedGraphController($scope) {
-            SpeedGraphController.call(this, $scope, $scope.flights, 'currentGroundSpeedGraphContext');
+    module.controller('GroundSpeedGraphController', ['$scope', '$controller', function($scope, $controller) {
+        function GroundSpeedGraphController(scope) {
+            this.init(scope.flights, 'currentGroundSpeedGraphContext');
         }
-        util.inherit(GroundSpeedGraphController, SpeedGraphController);
+
+        GroundSpeedGraphController.prototype = $controller('SpeedGraphController', {
+            $scope: $scope
+        });
 
         GroundSpeedGraphController.prototype.getRange = function() {
             var min = 0;
@@ -42,6 +43,10 @@ define([
             return flight.getGroundSpeedAt(time)*3600/1000;
         };
 
+        return new GroundSpeedGraphController($scope);
+    }]);
+
+    module.directive('volareGroundSpeedGraph', function() {
         return {
             restrict: 'E',
             replace: true,
@@ -49,9 +54,9 @@ define([
             scope: {
                 flights: '='
             },
-            controller: ['$scope', GroundSpeedGraphController]
+            controller: 'GroundSpeedGraphController'
         };
-    }]);
+    });
 
     return module;
 });
