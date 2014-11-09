@@ -101,7 +101,7 @@ library
                    async == 2.0.*,
                    attoparsec == 0.12.*,
                    base == 4.*,
-                   bifunctors == 4.1.*,
+                   bifunctors == 4.2.*,
                    blaze-html == 0.7.*,
                    blaze-markup == 0.6.*,
                    bytestring == 0.10.*,
