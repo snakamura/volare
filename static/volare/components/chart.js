@@ -83,8 +83,15 @@ define([
             });
         }
 
-        $(flights).on('flight_added', _.bind(update, null, false));
-        $(flights).on('flight_removed', _.bind(update, null, false));
+        var visibleChangedListener = _.bind(update, null, false);
+        $(flights).on('flight_added', function(event, flight) {
+            $(flight).on('visible_changed', visibleChangedListener);
+            update(false);
+        });
+        $(flights).on('flight_removed', function(event, flight) {
+            $(flight).off('visible_changed', visibleChangedListener);
+            update(false);
+        });
         $(flights).on('currentTime_changed', _.bind(update, null, true));
         $(flights).on('primaryFlight_changed', _.bind(update, null, false));
 
