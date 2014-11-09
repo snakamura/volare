@@ -2,10 +2,10 @@
   <table>
     <thead>
       <tr>
-        <th class="visible">
+        <th class="visible" data-ng-if="rows.length > 1">
           <input type="checkbox" checked data-ng-model="visible" data-ng-change="changeVisible(visible)">
         </th>
-        <th class="primary"></th>
+        <th class="primary" data-ng-if="rows.length > 1"></th>
         <th class="name">Name</th>
         <th class="color">Color</th>
         <th class="latitude">Latitude</th>
@@ -20,10 +20,10 @@
     </thead>
     <tbody>
       <tr data-ng-repeat="row in rows">
-        <td class="visible">
+        <td class="visible" data-ng-if="rows.length > 1">
           <input type="checkbox" data-ng-model="row.visible">
         </td>
-        <td class="primary">
+        <td class="primary" data-ng-if="rows.length > 1">
           <input type="radio" name="primary" value="1" data-ng-model="row.primary">
         </td>
         <td class="name">{{ row.name }}</td>
