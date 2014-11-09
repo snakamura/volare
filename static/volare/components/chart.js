@@ -44,21 +44,27 @@ define([
 
         $scope.$watch(function(scope) {
             return _.map(scope.rows, function(row) {
-                return _.pick(row, ['id', 'visible']);
+                return _.pick(row, ['id', 'visible', 'primary']);
             });
         }, function(rows) {
+            var primaryFlight = null;
             _.each(rows, function(row) {
                 var flight = flights.getFlight(row.id);
                 flight.setVisible(row.visible);
+                if (row.primary)
+                    primaryFlight = flight;
             });
+            flights.setPrimaryFlight(primaryFlight);
         }, true);
 
         function update(propertiesOnly) {
             if (!propertiesOnly) {
+                var primaryFlight = flights.getPrimaryFlight();
                 $scope.rows = flights.mapFlight(function(flight) {
                     return {
                         id: flight.getId(),
                         visible: flight.isVisible(),
+                        primary: flight === primaryFlight ? 1 : 0,
                         name: flight.getName(),
                         color: flight.getColor()
                     };
@@ -80,6 +86,7 @@ define([
         $(flights).on('flight_added', _.bind(update, null, false));
         $(flights).on('flight_removed', _.bind(update, null, false));
         $(flights).on('currentTime_changed', _.bind(update, null, true));
+        $(flights).on('primaryFlight_changed', _.bind(update, null, false));
 
         update(false);
     }]);

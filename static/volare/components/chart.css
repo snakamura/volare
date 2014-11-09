@@ -21,11 +21,12 @@ div.component.chart table th, div.component.chart table td {
 }
 
 div.component.chart table th:not(.visible) {
-    width: 80px;
+    width: 100px;
     font-size: 60%;
+    text-align: center;
 }
 
-div.component.chart table th.visible {
+div.component.chart table th.visible, div.component.chart table th.primary {
     width: 20px;
 }
 

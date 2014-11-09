@@ -5,6 +5,7 @@
         <th class="visible">
           <input type="checkbox" checked data-ng-model="visible" data-ng-change="changeVisible(visible)">
         </th>
+        <th class="primary"></th>
         <th class="name">Name</th>
         <th class="color">Color</th>
         <th class="latitude">Latitude</th>
@@ -21,6 +22,9 @@
       <tr data-ng-repeat="row in rows">
         <td class="visible">
           <input type="checkbox" data-ng-model="row.visible">
+        </td>
+        <td class="primary">
+          <input type="radio" name="primary" value="1" data-ng-model="row.primary">
         </td>
         <td class="name">{{ row.name }}</td>
         <td class="color">

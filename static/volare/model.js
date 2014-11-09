@@ -17,6 +17,7 @@ define([
 
         function Flights() {
             this._flights = [];
+            this._primaryFlight = null;
             this._interval = null;
 
             this._start = null;
@@ -57,9 +58,14 @@ define([
         };
 
         Flights.prototype.getPrimaryFlight = function() {
-            return _.find(this._flights, function(flight) {
-                return flight.isVisible();
-            }) || null;
+            return this._primaryFlight;
+        };
+
+        Flights.prototype.setPrimaryFlight = function(flight) {
+            if (flight !== this._primaryFlight) {
+                this._primaryFlight = flight;
+                $(this).trigger('primaryFlight_changed', flight);
+            }
         };
 
         Flights.prototype.getStartTime = function() {
@@ -145,21 +151,27 @@ define([
                 });
                 self._flights.splice(n, 0, f);
                 $(f).on('visible_changed', self._visibleChangedListener);
+
+                if (!self._primaryFlight)
+                    self._primaryFlight = f;
+
                 self._clearProperties();
                 $(self).trigger('flight_added', [f, n]);
             });
         };
 
         Flights.prototype.removeFlight = function(id) {
-            var flight = _.find(this._flights, function(flight) {
-                return flight.getId() === id;
-            });
+            var flight = this.getFlight(id);
             if (!flight)
                 return;
 
             this._flights = _.without(this._flights, flight);
             $(flight).off('visible_changed', this._visibleChangedListener);
             this._clearProperties();
+
+            if (this._primaryFlight === flight)
+                this.setPrimaryFlight(this._flights.length > 0 ? this._flights[0] : null);
+
             $(this).trigger('flight_removed', flight);
         };
 
