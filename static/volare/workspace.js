@@ -71,7 +71,7 @@ define([
                         flightIds: flightIds
                     }).success(function(fs) {
                         _.each(fs, function(flight) {
-                            flights.addFlight(flight.id, flight.color);
+                            flights.loadFlight(flight.id, flight.color);
                         });
                     });
                 }
@@ -139,7 +139,7 @@ define([
         });
         $http.get('/workspaces/' + workspaceId + '/flights').success(function(fs) {
             _.each(fs, function(flight) {
-                flights.addFlight(flight.id, flight.color);
+                flights.loadFlight(flight.id, flight.color);
             });
         });
 

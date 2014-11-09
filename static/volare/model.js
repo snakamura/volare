@@ -134,7 +134,7 @@ define([
             }, null);
         };
 
-        Flights.prototype.addFlight = function(id, color) {
+        Flights.prototype.loadFlight = function(id, color) {
             var self = this;
             var params = {};
             if (this._interval)
@@ -143,21 +143,23 @@ define([
                 params: params
             }).success(function(flight) {
                 if (!color)
-                    color =  self._getNextAvailableColor();
-
-                var f = Flight.wrap(flight, color);
-                var n = _.sortedIndex(self._flights, f, function(flight) {
-                    return flight.getName();
-                });
-                self._flights.splice(n, 0, f);
-                $(f).on('visible_changed', self._visibleChangedListener);
-
-                if (!self._primaryFlight)
-                    self._primaryFlight = f;
-
-                self._clearProperties();
-                $(self).trigger('flight_added', [f, n]);
+                    color = self._getNextAvailableColor();
+                self.addFlight(Flight.wrap(flight, color));
             });
+        };
+
+        Flights.prototype.addFlight = function(flight) {
+            var index = _.sortedIndex(this._flights, flight, function(flight) {
+                return flight.getName();
+            });
+            this._flights.splice(index, 0, flight);
+            $(flight).on('visible_changed', this._visibleChangedListener);
+
+            if (!this._primaryFlight)
+                this._primaryFlight = flight;
+
+            this._clearProperties();
+            $(this).trigger('flight_added', [flight, index]);
         };
 
         Flights.prototype.removeFlight = function(id) {
@@ -203,7 +205,7 @@ define([
             var self = this;
             _.each(flights, function(flight) {
                 self.removeFlight(flight.getId());
-                self.addFlight(flight.getId(), flight.getColor());
+                self.loadFlight(flight.getId(), flight.getColor());
             });
         };
 
