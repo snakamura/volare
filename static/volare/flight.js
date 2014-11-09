@@ -54,7 +54,9 @@ define([
                 name: this.name
             }).success(function(workspace) {
                 $http.post('/workspaces/' + workspace.id + '/flights', {
-                    flightIds: [flights.getPrimaryFlight().getId()]
+                    flightIds: flights.mapFlight(function(flight) {
+                        return flight.getId();
+                    })
                 }).success(function(flights) {
                     $document[0].location.href = '/workspaces/' + workspace.id;
                 });
