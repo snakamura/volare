@@ -28,6 +28,7 @@ library
                      Service.MSM
                      Service.MSM.Barometric
                      Service.MSM.Surface
+                     Service.UAS
                      Service.WINDAS
                      Volare.Application
                      Volare.Config
@@ -41,6 +42,8 @@ library
                    Codec.IGC.Utils
                    Service.AMEDAS.Stations
                    Service.AMEDAS.Types
+                   Service.UAS.Stations
+                   Service.UAS.Types
                    Service.WINDAS.Parser
                    Service.WINDAS.Stations
                    Service.WINDAS.Types
