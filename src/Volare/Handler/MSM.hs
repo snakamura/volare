@@ -15,6 +15,10 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Formatting ((%))
 import qualified Formatting as F
+import Pipes
+    ( (>->)
+    , runEffect
+    )
 import qualified Pipes.ByteString as PB
 import qualified Service.MSM as MSM
 import System.Directory
@@ -82,7 +86,8 @@ dataFile surface year month day = do
     unless b $ do
         createDirectoryIfMissing True $ takeDirectory path
         withSystemTempFile "msm.nc" $ \tempPath handle -> do
-            MSM.download surface year month day $ PB.toHandle handle
+            MSM.download surface year month day $ \producer ->
+                runEffect $ producer >-> PB.toHandle handle
             hClose handle
             renameFile tempPath path `catch` \(_ :: IOException) -> return ()
     return path

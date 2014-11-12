@@ -26,11 +26,7 @@ import Foreign.Ptr
     )
 import Foreign.Storable (Storable)
 import qualified Network.HTTP.Client as Http
-import Pipes
-    ( Consumer
-    , (>->)
-    , runEffect
-    )
+import Pipes (Producer)
 import Pipes.HTTP (withHTTP)
 import Text.Printf (printf)
 
@@ -86,15 +82,14 @@ download :: Bool ->
             Int ->
             Int ->
             Int ->
-            Consumer B.ByteString IO () ->
-            IO ()
-download surface year month day consumer = do
+            (Producer B.ByteString IO () -> IO r) ->
+            IO r
+download surface year month day process = do
     let t = if surface then 'S' else 'P'
         url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" t year month day
     req <- Http.parseUrl url
     Http.withManager Http.defaultManagerSettings $ \manager -> do
-        withHTTP req manager $ \res -> do
-            runEffect $ Http.responseBody res >-> consumer
+        withHTTP req manager $ process . Http.responseBody
 
 
 foreign import ccall get_surface_items :: CString ->

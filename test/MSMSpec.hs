@@ -3,6 +3,10 @@ module MSMSpec (spec) where
 import Control.Applicative ((<$>))
 import Crypto.Hash.SHA1 (hashlazy)
 import qualified Data.ByteString.Lazy as BL
+import Pipes
+    ( (>->)
+    , runEffect
+    )
 import qualified Pipes.ByteString as PB
 import System.IO (hClose)
 import System.IO.Temp (withSystemTempFile)
@@ -21,7 +25,8 @@ spec = do
     describe "download" $ do
         it "downloads surface data" $ do
             withSystemTempFile "msmspec_s.nc" $ \path handle -> do
-                MSM.download True 2014 4 24 $ PB.toHandle handle
+                MSM.download True 2014 4 24 $ \producer ->
+                    runEffect $ producer >-> PB.toHandle handle
                 hClose handle
                 hash <- hashlazy <$> BL.readFile path
                 dumpRawBS hash @== "8027ea10a8d752a4308fc87fca3fb198d29eded5"
@@ -45,7 +50,8 @@ spec = do
 
         it "downloads barometric data" $ do
             withSystemTempFile "msmspec_p.nc" $ \path handle -> do
-                MSM.download False 2014 3 9 $ PB.toHandle handle
+                MSM.download False 2014 3 9 $ \producer ->
+                    runEffect $ producer >-> PB.toHandle handle
                 hClose handle
                 hash <- hashlazy <$> BL.readFile path
                 dumpRawBS hash @== "6202e74ef30fb541da50c8fbb13095c0f79e2383"
