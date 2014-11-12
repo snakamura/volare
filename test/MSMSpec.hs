@@ -1,17 +1,11 @@
 module MSMSpec (spec) where
 
-import Control.Applicative ((<$>))
-import Crypto.Hash.SHA1 (hashlazy)
-import qualified Data.ByteString.Lazy as BL
-import Pipes
-    ( (>->)
-    , runEffect
-    )
+import Pipes ((>->))
 import qualified Pipes.ByteString as PB
+import qualified Pipes.Prelude as P
 import System.IO (hClose)
 import System.IO.Temp (withSystemTempFile)
 import Test.Hspec
-import Text.Bytedump (dumpRawBS)
 
 import qualified Service.MSM as MSM
 import qualified Service.MSM.Surface as Surface
@@ -25,11 +19,10 @@ spec = do
     describe "download" $ do
         it "downloads surface data" $ do
             withSystemTempFile "msmspec_s.nc" $ \path handle -> do
-                MSM.download True 2014 4 24 $ \producer ->
-                    runEffect $ producer >-> PB.toHandle handle
+                hash <- MSM.download True 2014 4 24 $ \producer ->
+                    sha1 $ producer >-> P.tee (PB.toHandle handle)
                 hClose handle
-                hash <- hashlazy <$> BL.readFile path
-                dumpRawBS hash @== "8027ea10a8d752a4308fc87fca3fb198d29eded5"
+                hash @== "8027ea10a8d752a4308fc87fca3fb198d29eded5"
 
                 items <- MSM.getSurfaceItems path (37, 140) (36, 141) 3
                 length items @== 374
@@ -50,11 +43,10 @@ spec = do
 
         it "downloads barometric data" $ do
             withSystemTempFile "msmspec_p.nc" $ \path handle -> do
-                MSM.download False 2014 3 9 $ \producer ->
-                    runEffect $ producer >-> PB.toHandle handle
+                hash <- MSM.download False 2014 3 9 $ \producer ->
+                    sha1 $ producer >-> P.tee (PB.toHandle handle)
                 hClose handle
-                hash <- hashlazy <$> BL.readFile path
-                dumpRawBS hash @== "6202e74ef30fb541da50c8fbb13095c0f79e2383"
+                hash @== "6202e74ef30fb541da50c8fbb13095c0f79e2383"
 
                 items <- MSM.getBarometricItems path (37.5, 139.5) (36.3, 140.2) 5
                 length items @== 1568

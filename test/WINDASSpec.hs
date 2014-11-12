@@ -1,9 +1,6 @@
 module WINDASSpec (spec) where
 
 import Control.Monad.Trans.State.Strict (evalStateT)
-import Crypto.Hash.SHA1 (hashlazy)
-import qualified Data.ByteString.Lazy as BL
-import Data.Functor ((<$>))
 import Data.Maybe (catMaybes)
 import Pipes
     ( (>->)
@@ -14,12 +11,9 @@ import qualified Pipes.ByteString as PB
 import qualified Pipes.Prelude as P
 import System.IO
     ( IOMode(ReadMode)
-    , hClose
     , withFile
     )
-import System.IO.Temp (withSystemTempFile)
 import Test.Hspec
-import Text.Bytedump (dumpRawBS)
 
 import qualified Service.WINDAS as WINDAS
 
@@ -30,12 +24,8 @@ spec :: Spec
 spec = do
     describe "downloadArchive" $ do
         it "downloads an archive" $ do
-            withSystemTempFile "windas.tar.gz" $ \path handle -> do
-                WINDAS.downloadArchive 2014 9 14 3 $ \producer ->
-                    runEffect $ producer >-> PB.toHandle handle
-                hClose handle
-                hash <- hashlazy <$> BL.readFile path
-                dumpRawBS hash @== "ef2a8deb36b978fcf3e6973888c94ccbb627fb73"
+            hash <- WINDAS.downloadArchive 2014 9 14 3 sha1
+            hash @== "ef2a8deb36b978fcf3e6973888c94ccbb627fb73"
 
     describe "parseStation" $ do
         it "parses observations for a specified station" $ do

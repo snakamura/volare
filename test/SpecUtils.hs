@@ -2,9 +2,11 @@ module SpecUtils
     ( runDB
     , (@==)
     , (@??)
+    , sha1
     ) where
 
 import Control.Applicative ((<*))
+import qualified Control.Foldl as F
 import Control.Monad.IO.Class
     ( MonadIO
     , liftIO
@@ -17,6 +19,16 @@ import Control.Monad.Trans.Resource
     ( ResourceT
     , runResourceT
     )
+import Crypto.Hash
+    ( Digest
+    , HashAlgorithm
+    , SHA1
+    , digestToHexByteString
+    , hashFinalize
+    , hashInit
+    , hashUpdate
+    )
+import qualified Data.ByteString as B
 import Database.Persist.Class
     ( PersistConfigBackend
     , applyEnv
@@ -28,6 +40,8 @@ import Database.Persist.Sql
     ( runMigration
     , transactionUndo
     )
+import Pipes (Producer)
+import qualified Pipes.Prelude as P
 import Test.HUnit
     ( (@?=)
     , assertBool
@@ -65,3 +79,16 @@ infix 1 @==
          m ()
 value @?? predicate = liftIO $ assertBool "" $ predicate value
 infix 1 @??
+
+
+sha1 :: Monad m =>
+        Producer B.ByteString m () ->
+        m B.ByteString
+sha1 producer = do
+    digest <- F.purely P.fold hash producer
+    return $ digestToHexByteString (digest :: Digest SHA1)
+
+
+hash :: HashAlgorithm a =>
+        F.Fold B.ByteString (Digest a)
+hash = F.Fold hashUpdate hashInit hashFinalize
