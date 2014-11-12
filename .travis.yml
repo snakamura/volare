@@ -19,7 +19,7 @@ before_install:
   - travis_retry sudo apt-get install libnetcdf-dev netcdf-bin postgresql libpq-dev
 
 install:
-  - travis_retry cabal install --only-dependencies --enable-tests --reorder-goals
+  - travis_retry cabal install --jobs --only-dependencies --enable-tests --reorder-goals
 
 before_script:
   - createdb volare_test
