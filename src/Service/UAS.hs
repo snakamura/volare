@@ -2,12 +2,16 @@ module Service.UAS
     ( Types.Station(..)
     , Types.Observation(..)
     , Types.Item(..)
+    , Types.Plane(..)
+    , Types.Pressure(..)
     , Types.Entry(..)
     , download
+    , parser
     , Stations.station
     , Stations.stations
     ) where
 
+import Codec.Utils.Pipes (makeParser)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString as B
 import qualified Data.Text.Lazy as TL
@@ -16,7 +20,9 @@ import qualified Formatting as F
 import qualified Network.HTTP.Client as Http
 import Pipes (Producer)
 import Pipes.HTTP (withHTTP)
+import qualified Pipes.Parse as P
 
+import Service.UAS.Parser (observation)
 import qualified Service.UAS.Types as Types
 import qualified Service.UAS.Stations as Stations
 
@@ -40,3 +46,8 @@ download station year month day hour process = do
     liftIO $ Http.withManager Http.defaultManagerSettings $ \manager -> do
         withHTTP req manager $ \res -> do
             process $ Http.responseBody res
+
+
+parser :: (Functor m, Monad m) =>
+          P.Parser B.ByteString m (Maybe Types.Observation)
+parser = makeParser observation

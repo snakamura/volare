@@ -2,6 +2,8 @@ module Service.UAS.Types
     ( Station(..)
     , Observation(..)
     , Item(..)
+    , Plane(..)
+    , Pressure(..)
     , Entry(..)
     ) where
 
@@ -13,14 +15,23 @@ data Station = Station
     } deriving (Show, Eq)
 
 data Observation = Observation
-    { day   :: Int
-    , hour  :: Int
-    , items :: [Item]
+    { day       :: Int
+    , hour      :: Int
+    , stationId :: Int
+    , items     :: [Item]
     } deriving (Show, Eq)
 
-data Item = SurfaceItem Int Entry
-          | BarometricItem Int Entry
+data Item = Item
+    { plane    :: Plane
+    , pressure :: Pressure
+    , entry    :: Entry
+    } deriving (Show, Eq)
+
+data Plane = Surface
+           | Barometric (Maybe Int)
     deriving (Show, Eq)
+
+newtype Pressure = Pressure Int deriving (Show, Eq, Ord)
 
 data Entry = Entry
     { temperature   :: Maybe Float

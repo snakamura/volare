@@ -42,6 +42,7 @@ library
                    Codec.IGC.Utils
                    Service.AMEDAS.Stations
                    Service.AMEDAS.Types
+                   Service.UAS.Parser
                    Service.UAS.Stations
                    Service.UAS.Types
                    Service.WINDAS.Parser
