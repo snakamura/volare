@@ -1,7 +1,7 @@
 module Codec.Utils.Pipes (makeParser) where
 
 import qualified Data.Attoparsec.ByteString as A
-import qualified Data.ByteString as BL
+import qualified Data.ByteString as B
 import Data.Functor ((<$>))
 import Data.Maybe.HT (toMaybe)
 import Pipes.Attoparsec
@@ -13,7 +13,7 @@ import qualified Pipes.Parse as P
 
 makeParser :: (Functor m, Monad m) =>
               A.Parser a ->
-              P.Parser BL.ByteString m (Maybe a)
+              P.Parser B.ByteString m (Maybe a)
 makeParser parser = do
     p <- parse parser
     case p of

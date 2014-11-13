@@ -5,7 +5,7 @@ module Codec.IGC
     , module Codec.IGC.Utils
     ) where
 
-import qualified Data.ByteString as BL
+import qualified Data.ByteString as B
 import qualified Pipes.Parse as P
 
 import Codec.IGC.Parser
@@ -15,5 +15,5 @@ import Codec.Utils.Pipes (makeParser)
 
 
 parser :: (Functor m, Monad m) =>
-          P.Parser BL.ByteString m (Maybe IGC)
+          P.Parser B.ByteString m (Maybe IGC)
 parser = makeParser igc
