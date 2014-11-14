@@ -26,7 +26,7 @@ import Volare.Domain.Types
 import qualified Volare.Model as M
 
 
-data Route = Route M.RouteId [RouteItem]
+data Route = Route M.RouteId [RouteItem] deriving Show
 
 instance JSON.ToJSON Route where
     toJSON (Route routeId items) =
@@ -35,7 +35,7 @@ instance JSON.ToJSON Route where
                     ]
 
 
-data RouteItem = RouteItem M.RouteItemId (P.Entity M.WaypointItem) Int
+data RouteItem = RouteItem M.RouteItemId (P.Entity M.WaypointItem) Int deriving Show
 
 instance JSON.ToJSON RouteItem where
     toJSON (RouteItem routeItemId waypointItem radius) =
