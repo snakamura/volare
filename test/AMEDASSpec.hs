@@ -13,10 +13,13 @@ import System.IO
     )
 import System.IO.Temp (withSystemTempFile)
 import Test.Hspec
+    ( Spec
+    , describe
+    , it
+    , shouldBe
+    )
 
 import qualified Service.AMEDAS as AMEDAS
-
-import SpecUtils
 
 
 spec :: Spec
@@ -65,7 +68,7 @@ spec = do
                 hClose handle
                 expected <- readFile "test/amedas_36_0312_20140426.csv"
                 actual <- readFile path
-                actual @== expected
+                actual `shouldBe` expected
 
     describe "load" $ do
         it "loads all simple items" $ do

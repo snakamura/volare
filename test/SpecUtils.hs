@@ -1,7 +1,7 @@
 module SpecUtils
     ( runDB
-    , (@==)
-    , (@??)
+    , shouldBe'
+    , shouldSatisfy'
     , sha1
     ) where
 
@@ -42,9 +42,9 @@ import Database.Persist.Sql
     )
 import Pipes (Producer)
 import qualified Pipes.Prelude as P
-import Test.HUnit
-    ( (@?=)
-    , assertBool
+import Test.Hspec
+    ( shouldBe
+    , shouldSatisfy
     )
 import Yesod.Default.Config
     ( DefaultEnv(Testing)
@@ -65,20 +65,20 @@ runDB action = do
         runPool persistConfig actions pool
 
 
-(@==) :: (MonadIO m, Eq a, Show a) =>
-         a ->
-         a ->
-         m ()
-actual @== expected = liftIO $ actual @?= expected
-infix 1 @==
+shouldBe' :: (MonadIO m, Eq a, Show a) =>
+            a ->
+            a ->
+            m ()
+shouldBe' = (liftIO .) . shouldBe
+infix 1 `shouldBe'`
 
 
-(@??) :: (MonadIO m) =>
-         a ->
-         (a -> Bool) ->
-         m ()
-value @?? predicate = liftIO $ assertBool "" $ predicate value
-infix 1 @??
+shouldSatisfy' :: (MonadIO m, Show a) =>
+                  a ->
+                  (a -> Bool) ->
+                  m ()
+shouldSatisfy' = (liftIO .) . shouldSatisfy
+infix 1 `shouldSatisfy'`
 
 
 sha1 :: Monad m =>

@@ -18,6 +18,13 @@ import System.IO
     , withFile
     )
 import Test.Hspec
+    ( Spec
+    , context
+    , describe
+    , it
+    , shouldBe
+    , shouldSatisfy
+    )
 
 import qualified Codec.GeoWpt as GeoWpt
 import Codec.Utils.Attoparsec (line)

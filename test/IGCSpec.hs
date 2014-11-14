@@ -19,6 +19,13 @@ import System.IO
     , withFile
     )
 import Test.Hspec
+    ( Spec
+    , context
+    , describe
+    , it
+    , shouldBe
+    , shouldSatisfy
+    )
 
 import qualified Codec.IGC as IGC
 import Codec.Utils.Attoparsec (line)
