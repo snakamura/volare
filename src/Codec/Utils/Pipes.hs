@@ -11,6 +11,19 @@ import Pipes.Attoparsec
 import qualified Pipes.Parse as P
 
 
+-- $setup
+-- >>> import Control.Monad.State.Strict (evalStateT)
+-- >>> import Data.Attoparsec.ByteString.Char8 (string)
+-- >>> import Pipes (each)
+
+
+-- |
+-- >>> evalStateT (makeParser (string "abcdef")) (each ["ab", "cdef"])
+-- Just "abcdef"
+-- >>> evalStateT (makeParser (string "abcdef")) (each ["a", "bc"])
+-- Nothing
+-- >>> evalStateT (makeParser (string "abcdef")) (each ["abcdefg"])
+-- Nothing
 makeParser :: (Functor m, Monad m) =>
               A.Parser a ->
               P.Parser B.ByteString m (Maybe a)
