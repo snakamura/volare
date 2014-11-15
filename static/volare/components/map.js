@@ -1321,8 +1321,38 @@ define([
 
             this._flags = Map.WeatherFlag.UAS.ALL;
             this._clear();
+            this._$mouseTarget = null;
         }
         util.inherit(UASOverlay, WeatherOverlay);
+
+        UASOverlay.prototype.onAdd = function() {
+            UASOverlay.super_.onAdd.call(this);
+
+            var self = this;
+            var $mouseTarget = $('<div></div>');
+            $mouseTarget.on('click', function(event) {
+                _.each(self._$div.find('div.item'), function(elem) {
+                    var offset = $(elem).offset();
+                    var width = $(elem).width();
+                    var height = $(elem).height();
+                    if (offset.left <= event.pageX && event.pageX <= offset.left + width &&
+                        offset.top <= event.pageY && event.pageY <= offset.top + height) {
+                        $(elem).trigger(event);
+                    }
+                });
+            });
+            var panes = this.getPanes();
+            panes.overlayMouseTarget.appendChild($mouseTarget[0]);
+
+            this._$mouseTarget = $mouseTarget;
+        };
+
+        UASOverlay.prototype.onRemove = function() {
+            this._$mouseTarget.remove();
+            this._$mouseTarget = null;
+
+            UASOverlay.super_.onRemove.call(this);
+        };
 
         UASOverlay.prototype.setFlags = function(map, flags) {
             this._flags = flags;
@@ -1353,16 +1383,26 @@ define([
             $div.css('height', (sw.y - ne.y) + 'px');
 
             if (!_.isEmpty(this._stations)) {
-                var self = this;
                 _.each(this._stations, function(station) {
                     var pos = projection.fromLatLngToDivPixel(new LatLng(station.latitude, station.longitude));
                     var $elem = $('<div class="item"><div class="cell"></div></div>');
                     $elem.css('left', (pos.x - 14) + 'px');
                     $elem.css('top', (pos.y - 10) + 'px');
                     $elem.css('background', 'url(' + require.toUrl('./image/weather/uas.png') + ')');
+
+                    $elem.on('click', function() {
+                        this._open(station);
+                    });
+
                     $div.append($elem);
-                });
+                }, this);
             }
+
+            var $mouseTarget = this._$mouseTarget;
+            $mouseTarget.css('left', sw.x + 'px');
+            $mouseTarget.css('top', ne.y + 'px');
+            $mouseTarget.css('width', (ne.x - sw.x) + 'px');
+            $mouseTarget.css('height', (sw.y - ne.y) + 'px');
         };
 
         UASOverlay.prototype._update = function() {
@@ -1383,6 +1423,10 @@ define([
                     self._draw();
                 });
             }
+        };
+
+        UASOverlay.prototype._open = function(station) {
+
         };
 
 
