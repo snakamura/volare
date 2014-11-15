@@ -34,6 +34,11 @@ div.map div.weatherOverlay.amedas div.cell {
     padding: 3px;
 }
 
+div.map div.weatherOverlay.uas div.cell {
+    width: 16px;
+    height: 30px;
+}
+
 div.map div.label {
     width: auto;
     height: auto;

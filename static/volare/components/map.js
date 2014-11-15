@@ -82,6 +82,7 @@ define([
             this._weatherOverlays[Map.WeatherFlag.MSM.BAROMETRIC.ALL] = new MSMBarometricOverlay();
             this._weatherOverlays[Map.WeatherFlag.AMEDAS.ALL] = new AMEDASOverlay();
             this._weatherOverlays[Map.WeatherFlag.WINDAS.ALL] = new WINDASOverlay();
+            this._weatherOverlays[Map.WeatherFlag.UAS.ALL] = new UASOverlay();
             this._trackType = Map.TrackType.SOLID;
             this._waypoint = null;
             this._waypointMakers = [];
@@ -336,6 +337,9 @@ define([
             },
             WINDAS: {
                 ALL: 0x00000000
+            },
+            UAS: {
+                ALL: 0x80000000
             }
         };
         Map.WeatherFlag.MSM.SURFACE.ALL = Map.WeatherFlag.MSM.SURFACE.WIND |
@@ -371,7 +375,8 @@ define([
         Map.WeatherFlag.ALL = Map.WeatherFlag.MSM.SURFACE.ALL |
                               Map.WeatherFlag.MSM.BAROMETRIC.ALL |
                               Map.WeatherFlag.AMEDAS.ALL |
-                              Map.WeatherFlag.WINDAS.ALL;
+                              Map.WeatherFlag.WINDAS.ALL |
+                              Map.WeatherFlag.UAS.ALL;
 
 
         function Track() {
@@ -1309,6 +1314,77 @@ define([
                 return item !== null;
             });
         };
+
+
+        function UASOverlay() {
+            WeatherOverlay.call(this);
+
+            this._flags = Map.WeatherFlag.UAS.ALL;
+            this._clear();
+        }
+        util.inherit(UASOverlay, WeatherOverlay);
+
+        UASOverlay.prototype.setFlags = function(map, flags) {
+            this._flags = flags;
+            this.setMap(flags ? map : null);
+        };
+
+        UASOverlay.prototype._getClassName = function() {
+            return 'uas';
+        };
+
+        UASOverlay.prototype._clear = function() {
+            this._bounds = null;
+            this._stations = [];
+        };
+
+        UASOverlay.prototype._draw = function() {
+            var map = this.getMap();
+            var bounds = map.getBounds();
+            var projection = this.getProjection();
+            var sw = projection.fromLatLngToDivPixel(bounds.getSouthWest());
+            var ne = projection.fromLatLngToDivPixel(bounds.getNorthEast());
+
+            var $div = this._$div;
+            $div.empty();
+            $div.css('left', sw.x + 'px');
+            $div.css('top', ne.y + 'px');
+            $div.css('width', (ne.x - sw.x) + 'px');
+            $div.css('height', (sw.y - ne.y) + 'px');
+
+            if (!_.isEmpty(this._stations)) {
+                var self = this;
+                _.each(this._stations, function(station) {
+                    var pos = projection.fromLatLngToDivPixel(new LatLng(station.latitude, station.longitude));
+                    var $elem = $('<div class="item"><div class="cell"></div></div>');
+                    $elem.css('left', (pos.x - 14) + 'px');
+                    $elem.css('top', (pos.y - 10) + 'px');
+                    $elem.css('background', 'url(' + require.toUrl('./image/weather/uas.png') + ')');
+                    $div.append($elem);
+                });
+            }
+        };
+
+        UASOverlay.prototype._update = function() {
+            var map = this.getMap();
+            var bounds = map.getBounds();
+            if (!this._bounds || !this._bounds.equals(bounds)) {
+                var self = this;
+                $http.get('/uas/stations', {
+                    params: {
+                        nwlat: bounds.getNorthEast().lat(),
+                        nwlng: bounds.getSouthWest().lng(),
+                        selat: bounds.getSouthWest().lat(),
+                        selng: bounds.getNorthEast().lng()
+                    }
+                }).success(function(stations) {
+                    self._stations = stations;
+                    self._bounds = bounds;
+                    self._draw();
+                });
+            }
+        };
+
 
         return Map;
     }]);
