@@ -10,8 +10,10 @@ module Service.UAS.Types
 import qualified Data.Text as T
 
 data Station = Station
-    { id   :: Int
-    , name :: T.Text
+    { id        :: Int
+    , latitude  :: Float
+    , longitude :: Float
+    , name      :: T.Text
     } deriving (Show, Eq)
 
 data Observation = Observation

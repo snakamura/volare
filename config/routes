@@ -14,4 +14,6 @@
 /msm/barometric/#Int/#Int/#Int/#Int BarometricR GET
 /amedas/#Int/#Int/#Int/#Int AMEDASR GET
 /windas/#Int/#Int/#Int/#Int WINDASR GET
+/uas/stations UASStationsR GET
+/uas/observation/#Int/#Int/#Int/#Int/#Int UASR GET
 /static StaticR Static volareStatic

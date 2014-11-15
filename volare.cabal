@@ -60,6 +60,7 @@ library
                    Volare.Handler.MSM
                    Volare.Handler.Root
                    Volare.Handler.Route
+                   Volare.Handler.UAS
                    Volare.Handler.Utils
                    Volare.Handler.Waypoint
                    Volare.Handler.WINDAS
@@ -86,6 +87,7 @@ library
                         FlexibleInstances
                         GADTs
                         GeneralizedNewtypeDeriving
+                        LambdaCase
                         MultiParamTypeClasses
                         NoMonomorphismRestriction
                         OverlappingInstances
