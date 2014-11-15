@@ -9,7 +9,7 @@ h1 {
 div#sidebar {
     width: 322px;
     float: right;
-    overflow: hidden;
+    overflow: scroll;
 }
 
 div#sidebar ul.nav {
