@@ -224,6 +224,8 @@ test-suite spec
                    cryptohash == 0.11.*,
                    foldl == 1.0.*,
                    hspec == 2.0.*,
+                   HUnit == 1.2.*,
+                   ieee754 == 0.7.*,
                    monad-logger == 0.3.*,
                    persistent == 2.1.*,
                    pipes == 4.1.*,

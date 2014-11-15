@@ -2,11 +2,14 @@ module SpecUtils
     ( runDB
     , shouldBe'
     , shouldSatisfy'
+    , shouldApproximatelyBe
+    , shouldApproximatelyBe'
     , sha1
     ) where
 
 import Control.Applicative ((<*))
 import qualified Control.Foldl as F
+import Control.Monad (unless)
 import Control.Monad.IO.Class
     ( MonadIO
     , liftIO
@@ -28,6 +31,10 @@ import Crypto.Hash
     , hashInit
     , hashUpdate
     )
+import Data.AEq
+    ( AEq
+    , (~==)
+    )
 import qualified Data.ByteString as B
 import Database.Persist.Class
     ( PersistConfigBackend
@@ -43,9 +50,11 @@ import Database.Persist.Sql
 import Pipes (Producer)
 import qualified Pipes.Prelude as P
 import Test.Hspec
-    ( shouldBe
+    ( Expectation
+    , shouldBe
     , shouldSatisfy
     )
+import Test.HUnit (assertFailure)
 import Yesod.Default.Config
     ( DefaultEnv(Testing)
     , withYamlEnvironment
@@ -79,6 +88,24 @@ shouldSatisfy' :: (MonadIO m, Show a) =>
                   m ()
 shouldSatisfy' = (liftIO .) . shouldSatisfy
 infix 1 `shouldSatisfy'`
+
+
+shouldApproximatelyBe :: (AEq a, Show a) =>
+                         a ->
+                         a ->
+                         Expectation
+shouldApproximatelyBe actual expected =
+    unless (actual ~== expected) $
+        assertFailure $ "expected: " ++ show expected ++ "\n but got: " ++ show actual
+infix 1 `shouldApproximatelyBe`
+
+
+shouldApproximatelyBe' :: (MonadIO m, AEq a, Show a) =>
+                          a ->
+                          a ->
+                          m ()
+shouldApproximatelyBe' = (liftIO .) . shouldApproximatelyBe
+infix 1 `shouldApproximatelyBe'`
 
 
 sha1 :: Monad m =>
