@@ -1227,7 +1227,7 @@ define([
                     var pos = projection.fromLatLngToDivPixel(new LatLng(station.station.latitude, station.station.longitude));
                     _.each(station.observations, function(observation) {
                         if (observation.hour === hour && observation.minute === minute) {
-                            _.each(self.filterItems(station.station, observation.items), function(item) {
+                            _.each(self._filterItems(station.station, observation.items), function(item) {
                                 var $elem = $('<div class="item"><div class="cell"><img class="wind"></div></div>');
                                 $elem.css('left', (pos.x - 14) + 'px');
                                 $elem.css('top', (pos.y - 10) + 'px');
@@ -1284,7 +1284,7 @@ define([
             }
         };
 
-        WINDASOverlay.prototype.filterItems = function(station, items) {
+        WINDASOverlay.prototype._filterItems = function(station, items) {
             var self = this;
 
             var margin = 200;
