@@ -60,7 +60,7 @@ define([
                 controller: 'WorkspaceAddFlightController',
                 backdrop: 'static',
                 resolve: {
-                    $workspaceId: function() {
+                    workspaceId: function() {
                         return workspaceId;
                     }
                 }
@@ -83,7 +83,7 @@ define([
                 controller: 'WorkspaceRemoveFlightController',
                 backdrop: 'static',
                 resolve: {
-                    $flights: function() {
+                    flights: function() {
                         return flights.mapFlight(function(flight) {
                             return {
                                 id: flight.getId(),
@@ -164,7 +164,7 @@ define([
         };
     }]);
 
-    module.controller('WorkspaceAddFlightController', ['$scope', '$http', '$workspaceId', function($scope, $http, $workspaceId) {
+    module.controller('WorkspaceAddFlightController', ['$scope', '$http', 'workspaceId', function($scope, $http, workspaceId) {
         $scope.flights = [];
         $scope.add = function() {
             var flightIds = _.pluck(_.filter(this.flights, function(flight) {
@@ -176,13 +176,13 @@ define([
             this.$dismiss('cancel');
         };
 
-        $http.get('/workspaces/' + $workspaceId + '/candidates').success(function(flights) {
+        $http.get('/workspaces/' + workspaceId + '/candidates').success(function(flights) {
             $scope.flights = flights;
         });
     }]);
 
-    module.controller('WorkspaceRemoveFlightController', ['$scope', '$flights', function($scope, $flights) {
-        $scope.flights = $flights;
+    module.controller('WorkspaceRemoveFlightController', ['$scope', 'flights', function($scope, flights) {
+        $scope.flights = flights;
         $scope.remove = function() {
             var flightIds = _.pluck(_.filter(this.flights, function(flight) {
                 return flight.selected;
