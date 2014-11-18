@@ -7,11 +7,14 @@ define([
     'google',
     'markerwithlabel',
     'text!./map.css',
+    'text!./uasModal.html',
+    'angular-ui-bootstrap',
     'volare/util'
-], function(require, _, _s, $, angular, google, markerWithLabel, css) {
+], function(require, _, _s, $, angular, google, markerWithLabel, css, uasModalTemplate) {
     'use strict';
 
     var module = angular.module('volare.components.map', [
+        'ui.bootstrap',
         'volare.util'
     ]);
 
@@ -67,7 +70,7 @@ define([
         // Unbound Map from flights and use this controller
     }]);
 
-    module.factory('Map', ['$http', 'util', function($http, util) {
+    module.factory('Map', ['$http', '$modal', 'util', function($http, $modal, util) {
         var LatLng = google.maps.LatLng;
         var LatLngBounds = google.maps.LatLngBounds;
 
@@ -1390,8 +1393,9 @@ define([
                     $elem.css('top', (pos.y - 10) + 'px');
                     $elem.css('background', 'url(' + require.toUrl('./image/weather/uas.png') + ')');
 
+                    var self = this;
                     $elem.on('click', function() {
-                        this._open(station);
+                        self._open(station);
                     });
 
                     $div.append($elem);
@@ -1426,11 +1430,25 @@ define([
         };
 
         UASOverlay.prototype._open = function(station) {
-
+            var modal = $modal.open({
+                template: uasModalTemplate,
+                controller: 'UASModalController',
+                backdrop: 'static',
+                resolve: {
+                }
+            });
+            modal.result.then(function() {
+            });
         };
 
 
         return Map;
+    }]);
+
+    module.controller('UASModalController', ['$scope', function($scope) {
+        $scope.close = function() {
+            this.$dismiss('close');
+        };
     }]);
 
     return module;
