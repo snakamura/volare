@@ -47,3 +47,8 @@ div.map div.label {
     padding: 2px 5px;
     font-size: 120%;
 }
+
+div.modal-body div.uas {
+    width: 500px;
+    height: 500px;
+}

@@ -9,12 +9,14 @@ define([
     'text!./map.css',
     'text!./uasModal.html',
     'angular-ui-bootstrap',
+    'volare/components/uas',
     'volare/util'
 ], function(require, _, _s, $, angular, google, markerWithLabel, css, uasModalTemplate) {
     'use strict';
 
     var module = angular.module('volare.components.map', [
         'ui.bootstrap',
+        'volare.components.uas',
         'volare.util'
     ]);
 
@@ -1435,6 +1437,10 @@ define([
                 controller: 'UASModalController',
                 backdrop: 'static',
                 resolve: {
+                    station: function() {
+                        return station;
+                    },
+                    date: _.bind(this.getCurrentTime, this)
                 }
             });
             modal.result.then(function() {
@@ -1445,7 +1451,10 @@ define([
         return Map;
     }]);
 
-    module.controller('UASModalController', ['$scope', function($scope) {
+    module.controller('UASModalController', ['$scope', 'station', 'date', function($scope, station, date) {
+        $scope.station = station;
+        $scope.date = date;
+
         $scope.close = function() {
             this.$dismiss('close');
         };
