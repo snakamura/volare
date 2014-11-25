@@ -117,7 +117,6 @@ library
                    lifted-base == 0.2.*,
                    monad-control == 0.3.*,
                    monad-logger == 0.3.*,
-                   old-locale == 1.0.*,
                    path-pieces == 0.1.*,
                    persistent == 2.1.*,
                    persistent-postgresql == 2.1.*,
