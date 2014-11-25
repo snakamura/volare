@@ -1,9 +1,7 @@
 module Volare.Static where
 
 import Yesod.Static
-    ( Route(..)
-    , Static
-    , StaticRoute
+    ( Static
     , static
     , staticDevel
     , staticFiles
