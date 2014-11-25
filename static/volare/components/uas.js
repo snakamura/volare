@@ -23,10 +23,10 @@ define([
                 var height = element.height();
 
                 var margin = {
-                    top: 0,
+                    top: 10,
                     left: 50,
                     bottom: 15,
-                    right: 0
+                    right: 10
                 };
 
                 var canvas = element.children('canvas')[0];
@@ -41,20 +41,63 @@ define([
                 var maxPressure = 1050;
 
                 function getX(temperature) {
-                    return (temperature - minTemperature)/(maxTemperature - minTemperature)*width;
+                    return (temperature - minTemperature)/(maxTemperature - minTemperature)*(width - (margin.left + margin.right)) + margin.left;
                 }
 
                 function getY(pressure) {
-                    return (Math.log(pressure) - Math.log(minPressure))/(Math.log(maxPressure) - Math.log(minPressure))*height;
+                    return (Math.log(pressure) - Math.log(minPressure))/(Math.log(maxPressure) - Math.log(minPressure))*(height - (margin.top + margin.bottom)) + margin.top;
                 }
 
-                function drawObservation(observation) {
+                function drawGrid(context) {
+                    context.lineWidth = 0.1;
+                    context.strokeStyle = 'black';
+
+                    var minX = getX(minTemperature);
+                    var maxX = getX(maxTemperature);
+                    var minY = getY(maxPressure);
+                    var maxY = getY(minPressure);
+
+                    context.textAlign = 'end';
+                    context.textBaseline = 'middle';
+                    _.each([maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100], function(p) {
+                        context.strokeStyle = p === minPressure || p === maxPressure ? 'black' : 'gray';
+
+                        var y = getY(p);
+                        context.beginPath();
+                        context.moveTo(minX, y);
+                        context.lineTo(maxX, y);
+                        context.stroke();
+
+                        if (p !== maxPressure)
+                            context.fillText(p, minX - 5, y);
+                    });
+
+                    var stepTemperature = 5;
+                    context.textAlign = 'center';
+                    context.textBaseline = 'top';
+                    _.each(_.range(minTemperature, maxTemperature + 1, stepTemperature), function(t) {
+                        var primary = t % (stepTemperature * 2) === 0;
+                        context.strokeStyle = primary ? 'black' : 'gray';
+
+                        var x = getX(t);
+                        context.beginPath();
+                        context.moveTo(x, minY);
+                        context.lineTo(x, maxY);
+                        context.stroke();
+
+                        if (primary)
+                            context.fillText(t, x, minY + 5);
+                    });
+                }
+
+                function drawObservation(context, observation) {
                     if (!observation)
                         return;
 
                     var items = observation;
 
                     context.lineWidth = 2;
+
                     context.strokeStyle = 'red';
                     context.beginPath();
                     context.moveTo(getX(_.head(items).temperature), getY(_.head(items).pressure));
@@ -74,7 +117,15 @@ define([
                     context.stroke();
                 }
 
-                scope.$watch('observation', drawObservation);
+                function clear(context) {
+                    context.clearRect(0, 0, width, height);
+                }
+
+                scope.$watch('observation', function(observation) {
+                    clear(context);
+                    drawGrid(context);
+                    drawObservation(context, observation);
+                });
             }
         };
     }]);
