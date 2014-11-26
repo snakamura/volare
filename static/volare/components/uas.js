@@ -39,6 +39,7 @@ define([
                 var maxTemperature = 50;
                 var minPressure = 100;
                 var maxPressure = 1050;
+                var pressures = [maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100];
 
                 function getX(temperature) {
                     return (temperature - minTemperature)/(maxTemperature - minTemperature)*(width - (margin.left + margin.right)) + margin.left;
@@ -51,6 +52,7 @@ define([
                 function drawGrid(context) {
                     context.lineWidth = 0.1;
                     context.strokeStyle = 'black';
+                    context.fillStyle = 'black';
 
                     var minX = getX(minTemperature);
                     var maxX = getX(maxTemperature);
@@ -59,7 +61,7 @@ define([
 
                     context.textAlign = 'end';
                     context.textBaseline = 'middle';
-                    _.each([maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100], function(p) {
+                    _.each(pressures, function(p) {
                         context.strokeStyle = p === minPressure || p === maxPressure ? 'black' : 'gray';
 
                         var y = getY(p);
@@ -87,6 +89,40 @@ define([
 
                         if (primary)
                             context.fillText(t, x, minY + 5);
+                    });
+                }
+
+                var mixingRatio = {
+                    t0: 273.16,
+                    rv: 461.7,
+                    lv: 2500000,
+                    e0: 611.73,
+                    ep: 0.622,
+                    k: 273.15,
+                    temperature: function(ratio, pressure) {
+                        return 1 / (1 / this.t0 - this.rv / this.lv * Math.log(ratio / 1000 * pressure * 100 / (this.e0 * (this.ep + ratio / 1000)))) - this.k;
+                    }
+                };
+
+                function drawMixingRatio(context) {
+                    context.lineWidth = 0.5;
+                    context.strokeStyle = 'purple';
+                    context.fillStyle = 'purple';
+                    context.textAlign = 'center';
+                    context.textBaseline = 'bottom';
+
+                    var ratios = [0.1, 0.4, 1, 2, 4, 7, 10, 16, 24, 32];
+                    _.each(ratios, function(ratio) {
+                        context.beginPath();
+                        var x = getX(mixingRatio.temperature(ratio, pressures[0]));
+                        var y = getY(pressures[0]);
+                        context.lineTo(x, y);
+                        _.each(_.tail(pressures), function(p) {
+                            context.lineTo(getX(mixingRatio.temperature(ratio, p)), getY(p));
+                        });
+                        context.stroke();
+
+                        context.fillText(ratio, x, y - 2);
                     });
                 }
 
@@ -124,6 +160,7 @@ define([
                 scope.$watch('observation', function(observation) {
                     clear(context);
                     drawGrid(context);
+                    drawMixingRatio(context);
                     drawObservation(context, observation);
                 });
             }
