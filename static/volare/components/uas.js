@@ -17,7 +17,7 @@ define([
                 station: '=',
                 date: '='
             },
-            controller: 'UASController',
+            controller: 'UASChartController',
             link: function(scope, element, attrs) {
                 var width = element.width();
                 var height = element.height();
@@ -130,7 +130,7 @@ define([
         };
     }]);
 
-    module.controller('UASController', ['$scope', '$http', function($scope, $http) {
+    module.controller('UASChartController', ['$scope', '$http', function($scope, $http) {
         var station = $scope.station;
         var date = $scope.date;
 

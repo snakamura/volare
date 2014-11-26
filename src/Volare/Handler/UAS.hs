@@ -34,12 +34,27 @@ import System.IO
     )
 import System.IO.Temp (withSystemTempFile)
 import Text.Read (readMaybe)
+import Yesod.Core (defaultLayout)
 import Yesod.Core.Handler
     ( lookupGetParam
     , notFound
+    , provideRep
+    , selectRep
+    )
+import Yesod.Core.Types (TypedContent)
+import Yesod.Core.Widget
+    ( addStylesheet
+    , setTitle
     )
 
 import Volare.Foundation
+import Volare.Handler.Utils
+    ( addCommonLibraries
+    , addRequireJS
+    )
+import Volare.Settings (widgetFile)
+import qualified Volare.Static as S
+import qualified Volare.Widget as W
 
 
 getUASR :: Int ->
@@ -47,13 +62,20 @@ getUASR :: Int ->
            Int ->
            Int ->
            Int ->
-           Handler JSON.Value
+           Handler TypedContent
 getUASR stationId year month day hour = do
     case UAS.station stationId of
-        Just station -> do
-            liftIO (load station year month day hour) >>= \case
-                Just items -> return $ JSON.toJSON items
-                Nothing -> notFound
+        Just station -> selectRep $ do
+            provideRep $ defaultLayout $ do
+                setTitle "Upper Air Sounding - Volare"
+                addCommonLibraries
+                addRequireJS "uas"
+                addStylesheet $ StaticR S.css_common_css
+                $(widgetFile "uas/show")
+            provideRep $
+                liftIO (load station year month day hour) >>= \case
+                    Just items -> return $ JSON.toJSON items
+                    Nothing -> notFound
         Nothing -> notFound
 
 

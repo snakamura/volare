@@ -12,6 +12,7 @@ import Volare.Settings (widgetFile)
 data Page = FLIGHTS
           | WORKSPACES
           | WAYPOINTS
+          | UAS
     deriving (Show, Eq)
 
 

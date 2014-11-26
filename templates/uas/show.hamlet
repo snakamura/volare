@@ -1,0 +1,4 @@
+^{W.navigation W.UAS}
+
+<div data-ng-controller=UASController>
+  <volare-uas station=station date=date>

@@ -1,0 +1,2 @@
+var station = #{S station};
+var date = new Date(Date.UTC(#{year}, #{month - 1}, #{day}, #{hour}));
