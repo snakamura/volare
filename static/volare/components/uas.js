@@ -101,28 +101,36 @@ define([
                     k: 273.15,
                     temperature: function(ratio, pressure) {
                         return 1 / (1 / this.t0 - this.rv / this.lv * Math.log(ratio / 1000 * pressure * 100 / (this.e0 * (this.ep + ratio / 1000)))) - this.k;
+                    },
+                    ratio: function(temperature, pressure) {
+                        var v = Math.exp((((temperature + this.k) / this.t0) - 1) / ((temperature + this.k) * (this.rv / this.lv)));
+                        return 10 * v * this.e0 * this.ep / (pressure - v * this.e0 / 100);
                     }
                 };
 
-                function drawMixingRatio(context) {
-                    context.lineWidth = 0.5;
-                    context.strokeStyle = 'purple';
-                    context.fillStyle = 'purple';
+                function drawMixingRatio(context, ratio, bold) {
+                    context.lineWidth = bold ? 1 : 0.5;
+                    context.strokeStyle = bold ? 'purple' : 'violet';
+                    context.fillStyle = bold ? 'purple' : 'violet';
                     context.textAlign = 'center';
                     context.textBaseline = 'bottom';
 
+                    context.beginPath();
+                    var x = getX(mixingRatio.temperature(ratio, _.head(pressures)));
+                    var y = getY(_.head(pressures));
+                    context.lineTo(x, y);
+                    _.each(_.tail(pressures), function(p) {
+                        context.lineTo(getX(mixingRatio.temperature(ratio, p)), getY(p));
+                    });
+                    context.stroke();
+
+                    context.fillText(_s.sprintf('%.1f', ratio), x, y - 2);
+                }
+
+                function drawMixingRatios(context) {
                     var ratios = [0.1, 0.4, 1, 2, 4, 7, 10, 16, 24, 32];
                     _.each(ratios, function(ratio) {
-                        context.beginPath();
-                        var x = getX(mixingRatio.temperature(ratio, pressures[0]));
-                        var y = getY(pressures[0]);
-                        context.lineTo(x, y);
-                        _.each(_.tail(pressures), function(p) {
-                            context.lineTo(getX(mixingRatio.temperature(ratio, p)), getY(p));
-                        });
-                        context.stroke();
-
-                        context.fillText(ratio, x, y - 2);
+                        drawMixingRatio(context, ratio, false);
                     });
                 }
 
@@ -131,12 +139,13 @@ define([
                         return;
 
                     var items = observation;
+                    var surfaceItem = _.head(items);
 
                     context.lineWidth = 2;
 
                     context.strokeStyle = 'red';
                     context.beginPath();
-                    context.moveTo(getX(_.head(items).temperature), getY(_.head(items).pressure));
+                    context.moveTo(getX(surfaceItem.temperature), getY(surfaceItem.pressure));
                     _.each(_.tail(items), function(item) {
                         if (item.temperature)
                             context.lineTo(getX(item.temperature), getY(item.pressure));
@@ -145,12 +154,15 @@ define([
 
                     context.strokeStyle = 'blue';
                     context.beginPath();
-                    context.moveTo(getX(_.head(items).dewPoint), getY(_.head(items).pressure));
+                    context.moveTo(getX(surfaceItem.dewPoint), getY(surfaceItem.pressure));
                     _.each(_.tail(items), function(item) {
                         if (item.dewPoint)
                             context.lineTo(getX(item.dewPoint), getY(item.pressure));
                     });
                     context.stroke();
+
+                    var ratio = mixingRatio.ratio(surfaceItem.dewPoint, surfaceItem.pressure);
+                    drawMixingRatio(context, ratio, true);
                 }
 
                 function clear(context) {
@@ -160,7 +172,7 @@ define([
                 scope.$watch('observation', function(observation) {
                     clear(context);
                     drawGrid(context);
-                    drawMixingRatio(context);
+                    drawMixingRatios(context);
                     drawObservation(context, observation);
                 });
             }
