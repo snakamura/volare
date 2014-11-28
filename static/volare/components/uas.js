@@ -137,6 +137,9 @@ define([
                     r: 0.28571,
                     temperature: function(temperatureAt1000, pressure) {
                         return (temperatureAt1000 + this.k) * Math.pow(pressure / 1000, this.r) - this.k;
+                    },
+                    temperatureAt1000: function(temperature, pressure) {
+                        return (temperature + this.k) * Math.pow(1000 / pressure, this.r) - this.k;
                     }
                 };
 
@@ -187,6 +190,9 @@ define([
 
                     var ratio = mixingRatio.ratio(surfaceItem.dewPoint, surfaceItem.pressure);
                     drawMixingRatio(context, ratio, true);
+
+                    var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceItem.temperature, surfaceItem.pressure);
+                    drawDryAdiabat(context, temperatureAt1000, true);
                 }
 
                 scope.$watch('observation', function(observation) {
