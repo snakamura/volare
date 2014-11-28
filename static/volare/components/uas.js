@@ -25,7 +25,7 @@ define([
                 var margin = {
                     top: 10,
                     left: 50,
-                    bottom: 15,
+                    bottom: 25,
                     right: 10
                 };
 
@@ -47,10 +47,17 @@ define([
                     return (Math.log(pressure) - Math.log(minPressure))/(Math.log(maxPressure) - Math.log(minPressure))*(height - (margin.top + margin.bottom)) + margin.top;
                 }
 
+                function clip(context) {
+                    context.rect(margin.left, margin.top, width - (margin.left + margin.right), height - (margin.top + margin.bottom));
+                    context.clip();
+                }
+
                 function drawGrid(context) {
+                    context.save();
                     context.lineWidth = 0.1;
                     context.strokeStyle = 'black';
                     context.fillStyle = 'black';
+                    context.font = 'bold 12px sans-serif';
 
                     var minX = getX(minTemperature);
                     var maxX = getX(maxTemperature);
@@ -88,6 +95,8 @@ define([
                         if (primary)
                             context.fillText(t, x, minY + 5);
                     });
+
+                    context.restore();
                 }
 
                 var mixingRatio = {
@@ -107,6 +116,8 @@ define([
                 };
 
                 function drawMixingRatio(context, ratio, bold) {
+                    context.save();
+                    clip(context);
                     context.lineWidth = bold ? 1 : 0.5;
                     context.strokeStyle = bold ? 'purple' : 'violet';
                     context.fillStyle = bold ? 'purple' : 'violet';
@@ -123,6 +134,8 @@ define([
                     context.stroke();
 
                     context.fillText(_s.sprintf('%.1f', ratio), x, y - 2);
+
+                    context.restore();
                 }
 
                 function drawMixingRatios(context) {
@@ -144,6 +157,8 @@ define([
                 };
 
                 function drawDryAdiabat(context, temperature, bold) {
+                    context.save();
+                    clip(context);
                     context.lineWidth = bold ? 1 : 0.5;
                     context.strokeStyle = bold ? 'green' : 'lightgreen';
 
@@ -152,6 +167,8 @@ define([
                         context.lineTo(getX(dryAdiabat.temperature(temperature, p)), getY(p));
                     });
                     context.stroke();
+
+                    context.restore();
                 }
 
                 function drawDryAdiabats(context) {
@@ -188,6 +205,14 @@ define([
                     });
                     context.stroke();
 
+                    context.fillStyle = 'black';
+                    context.textAlign = 'left';
+                    context.textBaseline = 'middle';
+                    _.each(items, function(item) {
+                        if (item.height)
+                            context.fillText(_s.numberFormat(item.height) + 'm', getX(minTemperature) + 3, getY(item.pressure));
+                    });
+
                     var ratio = mixingRatio.ratio(surfaceItem.dewPoint, surfaceItem.pressure);
                     drawMixingRatio(context, ratio, true);
 
@@ -197,16 +222,15 @@ define([
 
                 scope.$watch('observation', function(observation) {
                     var context = canvas.getContext('2d');
+                    context.save();
                     context.clearRect(0, 0, width, height);
 
                     drawGrid(context);
-
-                    context.rect(margin.left, margin.top, width - (margin.left + margin.right), height - (margin.top + margin.bottom));
-                    context.clip();
-
                     drawMixingRatios(context);
                     drawDryAdiabats(context);
                     drawObservation(context, observation);
+
+                    context.restore();
                 });
             }
         };

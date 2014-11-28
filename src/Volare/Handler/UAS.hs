@@ -128,7 +128,11 @@ instance JSON.ToJSON Item where
     toJSON (Item item) =
         let entry = UAS.entry item
             UAS.Pressure pressure = UAS.pressure item
+            height = case UAS.plane item of
+                         UAS.Surface -> Nothing
+                         UAS.Barometric h -> h
         in JSON.object [ "pressure"      .= pressure
+                       , "height"        .= height
                        , "temperature"   .= UAS.temperature entry
                        , "dewPoint"      .= UAS.dewPoint entry
                        , "windDirection" .= UAS.windDirection entry
