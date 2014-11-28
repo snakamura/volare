@@ -33,8 +33,6 @@ define([
                 canvas.width = width;
                 canvas.height = height;
 
-                var context = canvas.getContext('2d');
-
                 var minTemperature = -90;
                 var maxTemperature = 50;
                 var minPressure = 100;
@@ -118,7 +116,7 @@ define([
                     context.beginPath();
                     var x = getX(mixingRatio.temperature(ratio, _.head(pressures)));
                     var y = getY(_.head(pressures));
-                    context.lineTo(x, y);
+                    context.moveTo(x, y);
                     _.each(_.tail(pressures), function(p) {
                         context.lineTo(getX(mixingRatio.temperature(ratio, p)), getY(p));
                     });
@@ -129,8 +127,34 @@ define([
 
                 function drawMixingRatios(context) {
                     var ratios = [0.1, 0.4, 1, 2, 4, 7, 10, 16, 24, 32];
-                    _.each(ratios, function(ratio) {
-                        drawMixingRatio(context, ratio, false);
+                    _.each(ratios, function(r) {
+                        drawMixingRatio(context, r, false);
+                    });
+                }
+
+                var dryAdiabat = {
+                    k: 273.15,
+                    r: 0.28571,
+                    temperature: function(temperatureAt1000, pressure) {
+                        return (temperatureAt1000 + this.k) * Math.pow(pressure / 1000, this.r) - this.k;
+                    }
+                };
+
+                function drawDryAdiabat(context, temperature, bold) {
+                    context.lineWidth = bold ? 1 : 0.5;
+                    context.strokeStyle = bold ? 'green' : 'lightgreen';
+
+                    context.beginPath();
+                    _.each(pressures, function(p) {
+                        context.lineTo(getX(dryAdiabat.temperature(temperature, p)), getY(p));
+                    });
+                    context.stroke();
+                }
+
+                function drawDryAdiabats(context) {
+                    var temperatures = [-60, -40, -20, 0, 20, 40, 60, 80, 100];
+                    _.each(temperatures, function(t) {
+                        drawDryAdiabat(context, t, false);
                     });
                 }
 
@@ -165,14 +189,17 @@ define([
                     drawMixingRatio(context, ratio, true);
                 }
 
-                function clear(context) {
-                    context.clearRect(0, 0, width, height);
-                }
-
                 scope.$watch('observation', function(observation) {
-                    clear(context);
+                    var context = canvas.getContext('2d');
+                    context.clearRect(0, 0, width, height);
+
                     drawGrid(context);
+
+                    context.rect(margin.left, margin.top, width - (margin.left + margin.right), height - (margin.top + margin.bottom));
+                    context.clip();
+
                     drawMixingRatios(context);
+                    drawDryAdiabats(context);
                     drawObservation(context, observation);
                 });
             }
