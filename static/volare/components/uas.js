@@ -37,7 +37,9 @@ define([
                 var maxTemperature = 50;
                 var minPressure = 100;
                 var maxPressure = 1050;
-                var pressures = [maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100];
+                var pressures = _.take([maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100], function(p) {
+                    return p >= minPressure;
+                });
 
                 function getX(temperature) {
                     return (temperature - minTemperature)/(maxTemperature - minTemperature)*(width - (margin.left + margin.right)) + margin.left;
@@ -182,8 +184,13 @@ define([
                     if (!observation)
                         return;
 
-                    var items = observation;
+                    var items = _.take(observation, function(items) {
+                        return items.pressure >= minPressure;
+                    });
                     var surfaceItem = _.head(items);
+
+                    context.save();
+                    clip(context);
 
                     context.lineWidth = 2;
 
@@ -205,6 +212,9 @@ define([
                     });
                     context.stroke();
 
+                    context.restore();
+
+                    context.save();
                     context.fillStyle = 'black';
                     context.textAlign = 'left';
                     context.textBaseline = 'middle';
@@ -212,6 +222,8 @@ define([
                         if (item.height)
                             context.fillText(_s.numberFormat(item.height) + 'm', getX(minTemperature) + 3, getY(item.pressure));
                     });
+
+                    context.restore();
 
                     var ratio = mixingRatio.ratio(surfaceItem.dewPoint, surfaceItem.pressure);
                     drawMixingRatio(context, ratio, true);
