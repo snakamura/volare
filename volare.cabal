@@ -215,7 +215,7 @@ test-suite spec
                    bytestring == 0.10.*,
                    cryptohash == 0.11.*,
                    foldl == 1.0.*,
-                   hspec == 2.0.*,
+                   hspec == 2.1.*,
                    HUnit == 1.2.*,
                    ieee754 == 0.7.*,
                    monad-logger == 0.3.*,
