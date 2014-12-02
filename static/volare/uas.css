@@ -2,3 +2,11 @@ div.uas {
     width: 600px;
     height: 600px;
 }
+
+div.properties {
+    margin: 10px;
+}
+
+div.properties select {
+    margin-left: 0.5em;
+}

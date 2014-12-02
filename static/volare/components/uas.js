@@ -15,7 +15,8 @@ define([
             template: uasTemplate,
             scope: {
                 station: '=',
-                date: '='
+                date: '=',
+                range: '=?'
             },
             controller: 'UASChartController',
             link: function(scope, element, attrs) {
@@ -33,13 +34,22 @@ define([
                 canvas.width = width;
                 canvas.height = height;
 
-                var minTemperature = -90;
-                var maxTemperature = 50;
-                var minPressure = 100;
-                var maxPressure = 1050;
-                var pressures = _.take([maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100], function(p) {
-                    return p >= minPressure;
-                });
+                var minTemperature = null;
+                var maxTemperature = null;
+                var minPressure = null;
+                var maxPressure = null;
+                var pressures = null;
+
+                function updateRange() {
+                    minTemperature = (scope.range && scope.range.temperature && scope.range.temperature.min) || -90;
+                    maxTemperature = (scope.range && scope.range.temperature && scope.range.temperature.max) || 50;
+                    minPressure = (scope.range && scope.range.pressure && scope.range.pressure.min) || 100;
+                    maxPressure = (scope.range && scope.range.pressure && scope.range.pressure.max) || 1050;
+                    pressures = _.take([maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100], function(p) {
+                        return p >= minPressure;
+                    });
+                }
+                updateRange();
 
                 function getX(temperature) {
                     return (temperature - minTemperature)/(maxTemperature - minTemperature)*(width - (margin.left + margin.right)) + margin.left;
@@ -232,7 +242,7 @@ define([
                     drawDryAdiabat(context, temperatureAt1000, true);
                 }
 
-                scope.$watch('observation', function(observation) {
+                function draw() {
                     var context = canvas.getContext('2d');
                     context.save();
                     context.clearRect(0, 0, width, height);
@@ -240,9 +250,15 @@ define([
                     drawGrid(context);
                     drawMixingRatios(context);
                     drawDryAdiabats(context);
-                    drawObservation(context, observation);
+                    drawObservation(context, scope.observation);
 
                     context.restore();
+                }
+
+                scope.$watch('observation', draw);
+                scope.$watch('range', function() {
+                    updateRange();
+                    draw();
                 });
             }
         };

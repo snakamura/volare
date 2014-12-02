@@ -1,4 +1,9 @@
 ^{W.navigation W.UAS}
 
-<div data-ng-controller=UASController>
-  <volare-uas station=station date=date>
+<div data-ng-controller=UASController data-ng-cloak>
+  <volare-uas station=station date=date range=range>
+  <div .properties>
+    <label>Min pressure
+      <select data-ng-model=pressure>
+        <option value=100>100hPa
+        <option value=700>700hPa
