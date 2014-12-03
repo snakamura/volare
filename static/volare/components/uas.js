@@ -60,6 +60,7 @@ define([
                 }
 
                 function clip(context) {
+                    context.beginPath();
                     context.rect(margin.left, margin.top, width - (margin.left + margin.right), height - (margin.top + margin.bottom));
                     context.clip();
                 }
