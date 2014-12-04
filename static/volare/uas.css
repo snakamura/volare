@@ -7,6 +7,10 @@ div.properties {
     margin: 10px;
 }
 
-div.properties select {
+div.properties select, div.properties input {
     margin-left: 0.5em;
+}
+
+div.properties input[name="surfaceTemperature"] {
+    width: 4em;
 }

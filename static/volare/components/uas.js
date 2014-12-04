@@ -3,7 +3,7 @@ define([
     'underscore.string',
     'angular',
     'text!./uas.html'
-], function(_, _s, angular, uasTemplate) {
+], function(_, _s, angular, template) {
     'use strict';
 
     var module = angular.module('volare.components.uas', []);
@@ -12,11 +12,12 @@ define([
         return {
             restrict: 'E',
             replace: true,
-            template: uasTemplate,
+            template: template,
             scope: {
                 station: '=',
                 date: '=',
-                range: '=?'
+                range: '=?',
+                params: '=?'
             },
             controller: 'UASChartController',
             link: function(scope, element, attrs) {
@@ -239,7 +240,8 @@ define([
                     var ratio = mixingRatio.ratio(surfaceItem.dewPoint, surfaceItem.pressure);
                     drawMixingRatio(context, ratio, true);
 
-                    var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceItem.temperature, surfaceItem.pressure);
+                    var surfaceTemperature = (scope.params && scope.params.surfaceTemperature) || surfaceItem.temperature;
+                    var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfaceItem.pressure);
                     drawDryAdiabat(context, temperatureAt1000, true);
                 }
 
@@ -257,6 +259,7 @@ define([
                 }
 
                 scope.$watch('observation', draw);
+                scope.$watch('params', draw, true);
                 scope.$watch('range', function() {
                     updateRange();
                     draw();
@@ -273,6 +276,9 @@ define([
             date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
         $http.get(path).success(function(observation) {
             $scope.observation = observation;
+            $scope.params = {
+                surfaceTemperature: _.head(observation).temperature
+            };
         });
     }]);
 

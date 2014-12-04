@@ -1,9 +1,13 @@
 ^{W.navigation W.UAS}
 
 <div data-ng-controller=UASController data-ng-cloak>
-  <volare-uas station=station date=date range=range>
+  <volare-uas station=station date=date range=range params=params>
   <div .properties>
-    <label>Min pressure
-      <select data-ng-model=pressure>
-        <option value=100>100hPa
-        <option value=700>700hPa
+    <div>
+      <label>Min Pressure
+        <select data-ng-model=pressure>
+          <option value=100>100hPa
+          <option value=700>700hPa
+    <div>
+      <label>Surface Temperature
+        <input type="number" name="surfaceTemperature" data-ng-model="params.surfaceTemperature">
