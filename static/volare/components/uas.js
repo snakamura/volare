@@ -237,7 +237,8 @@ define([
 
                     context.restore();
 
-                    var ratio = mixingRatio.ratio(surfaceItem.dewPoint, surfaceItem.pressure);
+                    var surfaceDewPoint = (scope.params && scope.params.surfaceDewPoint) || surfaceItem.dewPoint;
+                    var ratio = mixingRatio.ratio(surfaceDewPoint, surfaceItem.pressure);
                     drawMixingRatio(context, ratio, true);
 
                     var surfaceTemperature = (scope.params && scope.params.surfaceTemperature) || surfaceItem.temperature;
@@ -277,7 +278,8 @@ define([
         $http.get(path).success(function(observation) {
             $scope.observation = observation;
             $scope.params = {
-                surfaceTemperature: _.head(observation).temperature
+                surfaceTemperature: _.head(observation).temperature,
+                surfaceDewPoint: _.head(observation).dewPoint
             };
         });
     }]);

@@ -11,6 +11,7 @@ div.properties select, div.properties input {
     margin-left: 0.5em;
 }
 
-div.properties input[name="surfaceTemperature"] {
+div.properties input[name="surfaceTemperature"],
+div.properties input[name="surfaceDewPoint"] {
     width: 4em;
 }

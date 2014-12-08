@@ -11,3 +11,6 @@
     <div>
       <label>Surface Temperature
         <input type="number" name="surfaceTemperature" data-ng-model="params.surfaceTemperature">
+    <div>
+      <label>Surface Dew Point
+        <input type="number" name="surfaceDewPoint" data-ng-model="params.surfaceDewPoint">
