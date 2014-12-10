@@ -192,6 +192,46 @@ define([
                     });
                 }
 
+                function lcl(surfaceTemperature, surfaceDewPoint, surfacePressure) {
+                    var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
+                    var ratio = mixingRatio.ratio(surfaceDewPoint, surfacePressure);
+                    var lclPressure = null;
+                    _.each(_.take(_.zip(pressures, _.tail(pressures)), '1'), function(p) {
+                        var p1 = p[0];
+                        var p2 = p[1];
+                        var da1 = dryAdiabat.temperature(temperatureAt1000, p1);
+                        var da2 = dryAdiabat.temperature(temperatureAt1000, p2);
+                        var mr1 = mixingRatio.temperature(ratio, p1);
+                        var mr2 = mixingRatio.temperature(ratio, p2);
+                        var t = ((mr1 - mr2) * da1 - (da1 - da2) * mr1) / ((mr1 - mr2) - (da1 - da2));
+                        var pp = (p1 - p2) / (da1 - da2) * (t - da1) + p1;
+                        if (p2 <= pp && pp <= p1) {
+                            lclPressure = pp;
+                            return false;
+                        }
+                    });
+                    return lclPressure;
+                }
+
+                function drawPressure(context, pressure) {
+                    context.save();
+                    context.lineWidth = 1;
+                    context.strokeStyle = 'darkorange';
+                    context.fillStyle = 'darkorange';
+                    context.textAlign = 'start';
+                    context.textBaseline = 'bottom';
+
+                    var y = getY(pressure);
+                    context.beginPath();
+                    context.moveTo(getX(minTemperature), y);
+                    context.lineTo(getX(maxTemperature), y);
+                    context.stroke();
+
+                    context.fillText(_s.numberFormat(pressure) + 'hPa', getX(minTemperature) + 5, y);
+
+                    context.restore();
+                }
+
                 function drawObservation(context, observation) {
                     if (!observation)
                         return;
@@ -244,6 +284,10 @@ define([
                     var surfaceTemperature = (scope.params && scope.params.surfaceTemperature) || surfaceItem.temperature;
                     var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfaceItem.pressure);
                     drawDryAdiabat(context, temperatureAt1000, true);
+
+                    var lclPressure = lcl(surfaceTemperature, surfaceDewPoint, surfaceItem.pressure);
+                    if (lclPressure)
+                        drawPressure(context, lclPressure);
                 }
 
                 function draw() {
