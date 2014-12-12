@@ -192,6 +192,16 @@ define([
                     });
                 }
 
+                function getHeight(observation, pressure) {
+                    var items = _.filter(observation, 'height');
+                    var i = _.head(_.drop(_.take(_.zip(items, _.tail(items)), '1'), function(i) {
+                        return pressure < i[1].pressure || i[0].pressure < pressure;
+                    }));
+                    if (!i)
+                        return null;
+                    return i[0].height + (i[1].height - i[0].height)*(i[0].pressure - pressure)/(i[0].pressure - i[1].pressure);
+                }
+
                 function lcl(surfaceTemperature, surfaceDewPoint, surfacePressure) {
                     var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
                     var ratio = mixingRatio.ratio(surfaceDewPoint, surfacePressure);
@@ -203,17 +213,17 @@ define([
                         var da2 = dryAdiabat.temperature(temperatureAt1000, p2);
                         var mr1 = mixingRatio.temperature(ratio, p1);
                         var mr2 = mixingRatio.temperature(ratio, p2);
-                        var t = ((mr1 - mr2) * da1 - (da1 - da2) * mr1) / ((mr1 - mr2) - (da1 - da2));
-                        var pp = (p1 - p2) / (da1 - da2) * (t - da1) + p1;
-                        if (p2 <= pp && pp <= p1) {
-                            lclPressure = pp;
+                        var temperature = ((mr1 - mr2) * da1 - (da1 - da2) * mr1) / ((mr1 - mr2) - (da1 - da2));
+                        var pressure = (p1 - p2) / (da1 - da2) * (temperature - da1) + p1;
+                        if (p2 <= pressure && pressure <= p1) {
+                            lclPressure = pressure;
                             return false;
                         }
                     });
                     return lclPressure;
                 }
 
-                function drawPressure(context, pressure) {
+                function drawHeight(context, observation, pressure) {
                     context.save();
                     context.lineWidth = 1;
                     context.strokeStyle = 'darkorange';
@@ -227,7 +237,8 @@ define([
                     context.lineTo(getX(maxTemperature), y);
                     context.stroke();
 
-                    context.fillText(_s.numberFormat(pressure) + 'hPa', getX(minTemperature) + 5, y);
+                    var height = getHeight(observation, pressure);
+                    context.fillText(_s.numberFormat(height) + 'm', getX(minTemperature) + 5, y - 2);
 
                     context.restore();
                 }
@@ -236,8 +247,8 @@ define([
                     if (!observation)
                         return;
 
-                    var items = _.take(observation, function(items) {
-                        return items.pressure >= minPressure;
+                    var items = _.take(observation, function(item) {
+                        return item.pressure >= minPressure;
                     });
                     var surfaceItem = _.head(items);
 
@@ -287,7 +298,7 @@ define([
 
                     var lclPressure = lcl(surfaceTemperature, surfaceDewPoint, surfaceItem.pressure);
                     if (lclPressure)
-                        drawPressure(context, lclPressure);
+                        drawHeight(context, observation, lclPressure);
                 }
 
                 function draw() {
