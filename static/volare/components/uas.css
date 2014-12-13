@@ -1,18 +1,19 @@
-ul.uas-params {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
+table.uas-params {
+    width: auto;
+    border-collapse: collapse;
+    font-size: 90%;
 }
 
-ul.uas-params li {
-    margin: 0;
+table.uas-params th, table.uas-params td {
+    border: 1px solid gray;
+    padding: 2px 5px;
 }
 
-ul.uas-params select, div.properties input {
-    margin-left: 0.5em;
+table.uas-params th {
+    text-align: right;
 }
 
-ul.uas-params input[type="number"] {
+table.uas-params input[type="number"] {
     width: 4em;
     text-align: right;
 }

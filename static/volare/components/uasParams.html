@@ -1,30 +1,27 @@
-<ul class="uas-params">
-  <li>
-    <label>Min Pressure
+<table class="uas-params">
+  <tr>
+    <th>Min Pressure</th>
+    <td>
       <select data-ng-model="pressure">
         <option value="100">100</option>
         <option value="700">700</option>
       </select> hPa
-    </label>
-  </li>
-  <li>
-    <label>Surface Temperature
-      <input type="number" data-ng-model="params.surfaceTemperature"> &#x2103;
-    </label>
-  </li>
-  <li>
-    <label>Surface Dew Point
-      <input type="number" data-ng-model="params.surfaceDewPoint"> &#x2103;
-    </label>
-  </li>
-  <li>
-    <label>LCL
-      <input type="number" data-ng-model="params.lcl.height" readonly> m
-    </label>
-  </li>
-  <li>
-    <label>Thermal Top
-      <input type="number" data-ng-model="params.thermalTop.height" readonly> m
-    </label>
-  </li>
-</ul>
+    </td>
+  </tr>
+  <tr>
+    <th>Surface Temperature</th>
+    <td><input type="number" data-ng-model="params.surfaceTemperature"> &#x2103;</td>
+  </tr>
+  <tr>
+    <th>Surface Dew Point</th>
+    <td><input type="number" data-ng-model="params.surfaceDewPoint"> &#x2103;</td>
+  </tr>
+  <tr>
+    <th>LCL</th>
+    <td><input type="number" data-ng-model="params.lcl.height" readonly> m</td>
+  </tr>
+  <tr>
+    <th>Thermal Top</th>
+    <td><input type="number" data-ng-model="params.thermalTop.height" readonly> m</td>
+  </tr>
+</table>
