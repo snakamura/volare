@@ -8,7 +8,7 @@ define([
 
     var module = angular.module('volare.components.uas', []);
 
-    module.directive('volareUas', [function() {
+    module.directive('volareUas', ['dryAdiabat', 'mixingRatio', function(dryAdiabat, mixingRatio) {
         return {
             restrict: 'E',
             replace: true,
@@ -24,83 +24,94 @@ define([
                 var width = element.width();
                 var height = element.height();
 
-                var margin = {
-                    top: 10,
-                    left: 50,
-                    bottom: 25,
-                    right: 10
-                };
-
                 var canvas = element.children('canvas')[0];
                 canvas.width = width;
                 canvas.height = height;
 
-                var minTemperature = null;
-                var maxTemperature = null;
-                var minPressure = null;
-                var maxPressure = null;
-                var pressures = null;
+                function Range(width, height, range) {
+                    _.extend(this, range);
 
-                function updateRange() {
-                    minTemperature = (scope.range && scope.range.temperature && scope.range.temperature.min) || -90;
-                    maxTemperature = (scope.range && scope.range.temperature && scope.range.temperature.max) || 50;
-                    minPressure = (scope.range && scope.range.pressure && scope.range.pressure.min) || 100;
-                    maxPressure = (scope.range && scope.range.pressure && scope.range.pressure.max) || 1050;
-                    pressures = _.take([maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100], function(p) {
-                        return p >= minPressure;
-                    });
-                }
-                updateRange();
-
-                function getX(temperature) {
-                    return (temperature - minTemperature)/(maxTemperature - minTemperature)*(width - (margin.left + margin.right)) + margin.left;
+                    var margin = {
+                        top: 10,
+                        left: 50,
+                        bottom: 25,
+                        right: 10
+                    };
+                    this._width = width - (margin.left + margin.right);
+                    this._height = height - (margin.top + margin.bottom);
+                    this._margin = margin;
                 }
 
-                function getY(pressure) {
-                    return (Math.log(pressure) - Math.log(minPressure))/(Math.log(maxPressure) - Math.log(minPressure))*(height - (margin.top + margin.bottom)) + margin.top;
-                }
+                Range.prototype.x = function(temperature) {
+                    var min = this.temperature.min;
+                    var max = this.temperature.max;
+                    return (temperature - min)/(max - min)*this._width + this._margin.left;
+                };
 
-                function clip(context) {
+                Range.prototype.minX = function() {
+                    return this._margin.left;
+                };
+
+                Range.prototype.maxX = function() {
+                    return this._margin.left + this._width;
+                };
+
+                Range.prototype.y = function(pressure) {
+                    var min = this.pressure.min;
+                    var max = this.pressure.max;
+                    return (Math.log(pressure) - Math.log(min))/(Math.log(max) - Math.log(min))*this._height + this._margin.top;
+                };
+
+                Range.prototype.minY = function() {
+                    return this._margin.top + this._height;
+                };
+
+                Range.prototype.maxY = function() {
+                    return this._margin.top;
+                };
+
+
+                function clip(context, range) {
                     context.beginPath();
-                    context.rect(margin.left, margin.top, width - (margin.left + margin.right), height - (margin.top + margin.bottom));
+                    context.rect(range.minX(), range.maxY(), range.maxX() - range.minX(), range.minY() - range.maxY());
                     context.clip();
                 }
 
-                function drawGrid(context) {
+                function drawGrid(context, range) {
                     context.save();
                     context.lineWidth = 0.1;
                     context.strokeStyle = 'black';
                     context.fillStyle = 'black';
                     context.font = 'bold 12px sans-serif';
 
-                    var minX = getX(minTemperature);
-                    var maxX = getX(maxTemperature);
-                    var minY = getY(maxPressure);
-                    var maxY = getY(minPressure);
+                    var minX = range.minX();
+                    var maxX = range.maxX();
+                    var minY = range.minY();
+                    var maxY = range.maxY();
 
                     context.textAlign = 'end';
                     context.textBaseline = 'middle';
-                    _.each(pressures, function(p) {
-                        context.strokeStyle = p === minPressure || p === maxPressure ? 'black' : 'gray';
+                    _.each(range.pressures, function(p) {
+                        context.strokeStyle = p === range.pressure.min || p === range.pressure.max ? 'black' : 'gray';
 
-                        var y = getY(p);
+                        var y = range.y(p);
                         context.beginPath();
                         context.moveTo(minX, y);
                         context.lineTo(maxX, y);
                         context.stroke();
 
-                        if (p !== maxPressure)
+                        if (p !== range.pressure.max)
                             context.fillText(p, minX - 5, y);
                     });
 
                     var stepTemperature = 5;
                     context.textAlign = 'center';
                     context.textBaseline = 'top';
-                    _.each(_.range(minTemperature, maxTemperature + 1, stepTemperature), function(t) {
+                    _.each(_.range(range.temperature.min, range.temperature.max + 1, stepTemperature), function(t) {
                         var primary = t % (stepTemperature * 2) === 0;
                         context.strokeStyle = primary ? 'black' : 'gray';
 
-                        var x = getX(t);
+                        var x = range.x(t);
                         context.beginPath();
                         context.moveTo(x, minY);
                         context.lineTo(x, maxY);
@@ -113,25 +124,50 @@ define([
                     context.restore();
                 }
 
-                var mixingRatio = {
-                    t0: 273.16,
-                    rv: 461.7,
-                    lv: 2500000,
-                    e0: 611.73,
-                    ep: 0.622,
-                    k: 273.15,
-                    temperature: function(ratio, pressure) {
-                        return 1 / (1 / this.t0 - this.rv / this.lv * Math.log(ratio / 1000 * pressure * 100 / (this.e0 * (this.ep + ratio / 1000)))) - this.k;
-                    },
-                    ratio: function(temperature, pressure) {
-                        var v = Math.exp((((temperature + this.k) / this.t0) - 1) / ((temperature + this.k) * (this.rv / this.lv)));
-                        return 10 * v * this.e0 * this.ep / (pressure - v * this.e0 / 100);
-                    }
-                };
-
-                function drawMixingRatio(context, ratio, bold) {
+                function drawHeight(context, range, pressure, height, color) {
                     context.save();
-                    clip(context);
+                    context.lineWidth = 2;
+                    context.strokeStyle = color;
+                    context.fillStyle = color;
+                    context.textAlign = 'end';
+                    context.textBaseline = 'bottom';
+
+                    var y = range.y(pressure);
+                    context.beginPath();
+                    context.moveTo(range.minX(), y);
+                    context.lineTo(range.maxX(), y);
+                    context.stroke();
+
+                    context.fillText(_s.numberFormat(height) + 'm', range.maxX() - 5, y - 2);
+
+                    context.restore();
+                }
+
+                function drawDryAdiabat(context, range, temperature, bold) {
+                    context.save();
+                    clip(context, range);
+                    context.lineWidth = bold ? 1 : 0.5;
+                    context.strokeStyle = bold ? 'green' : 'lightgreen';
+
+                    context.beginPath();
+                    _.each(range.pressures, function(p) {
+                        context.lineTo(range.x(dryAdiabat.temperature(temperature, p)), range.y(p));
+                    });
+                    context.stroke();
+
+                    context.restore();
+                }
+
+                function drawDryAdiabats(context, range) {
+                    var temperatures = [-60, -40, -20, 0, 20, 40, 60, 80, 100];
+                    _.each(temperatures, function(t) {
+                        drawDryAdiabat(context, range, t, false);
+                    });
+                }
+
+                function drawMixingRatio(context, range, ratio, bold) {
+                    context.save();
+                    clip(context, range);
                     context.lineWidth = bold ? 1 : 0.5;
                     context.strokeStyle = bold ? 'purple' : 'violet';
                     context.fillStyle = bold ? 'purple' : 'violet';
@@ -139,11 +175,11 @@ define([
                     context.textBaseline = 'bottom';
 
                     context.beginPath();
-                    var x = getX(mixingRatio.temperature(ratio, _.head(pressures)));
-                    var y = getY(_.head(pressures));
+                    var x = range.x(mixingRatio.temperature(ratio, _.head(range.pressures)));
+                    var y = range.y(_.head(range.pressures));
                     context.moveTo(x, y);
-                    _.each(_.tail(pressures), function(p) {
-                        context.lineTo(getX(mixingRatio.temperature(ratio, p)), getY(p));
+                    _.each(_.tail(range.pressures), function(p) {
+                        context.lineTo(range.x(mixingRatio.temperature(ratio, p)), range.y(p));
                     });
                     context.stroke();
 
@@ -152,146 +188,42 @@ define([
                     context.restore();
                 }
 
-                function drawMixingRatios(context) {
+                function drawMixingRatios(context, range) {
                     var ratios = [0.1, 0.4, 1, 2, 4, 7, 10, 16, 24, 32];
                     _.each(ratios, function(r) {
-                        drawMixingRatio(context, r, false);
+                        drawMixingRatio(context, range, r, false);
                     });
                 }
 
-                var dryAdiabat = {
-                    k: 273.15,
-                    r: 0.28571,
-                    temperature: function(temperatureAt1000, pressure) {
-                        return (temperatureAt1000 + this.k) * Math.pow(pressure / 1000, this.r) - this.k;
-                    },
-                    temperatureAt1000: function(temperature, pressure) {
-                        return (temperature + this.k) * Math.pow(1000 / pressure, this.r) - this.k;
-                    }
-                };
-
-                function drawDryAdiabat(context, temperature, bold) {
-                    context.save();
-                    clip(context);
-                    context.lineWidth = bold ? 1 : 0.5;
-                    context.strokeStyle = bold ? 'green' : 'lightgreen';
-
-                    context.beginPath();
-                    _.each(pressures, function(p) {
-                        context.lineTo(getX(dryAdiabat.temperature(temperature, p)), getY(p));
-                    });
-                    context.stroke();
-
-                    context.restore();
-                }
-
-                function drawDryAdiabats(context) {
-                    var temperatures = [-60, -40, -20, 0, 20, 40, 60, 80, 100];
-                    _.each(temperatures, function(t) {
-                        drawDryAdiabat(context, t, false);
-                    });
-                }
-
-                function getHeight(observation, pressure) {
-                    var items = _.filter(observation, 'height');
-                    var i = _.head(_.drop(_.take(_.zip(items, _.tail(items)), '1'), function(i) {
-                        return pressure < i[1].pressure || i[0].pressure < pressure;
-                    }));
-                    if (!i)
-                        return null;
-                    return i[0].height + (i[1].height - i[0].height)*(i[0].pressure - pressure)/(i[0].pressure - i[1].pressure);
-                }
-
-                function lcl(surfaceTemperature, surfaceDewPoint, surfacePressure) {
-                    var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
-                    var ratio = mixingRatio.ratio(surfaceDewPoint, surfacePressure);
-                    var lclPressure = null;
-                    _.each(_.take(_.zip(pressures, _.tail(pressures)), '1'), function(p) {
-                        var p1 = p[0];
-                        var p2 = p[1];
-                        var da1 = dryAdiabat.temperature(temperatureAt1000, p1);
-                        var da2 = dryAdiabat.temperature(temperatureAt1000, p2);
-                        var mr1 = mixingRatio.temperature(ratio, p1);
-                        var mr2 = mixingRatio.temperature(ratio, p2);
-                        var temperature = ((mr1 - mr2) * da1 - (da1 - da2) * mr1) / ((mr1 - mr2) - (da1 - da2));
-                        var pressure = (p1 - p2) / (da1 - da2) * (temperature - da1) + p1;
-                        if (p2 <= pressure && pressure <= p1) {
-                            lclPressure = pressure;
-                            return false;
-                        }
-                    });
-                    return lclPressure;
-                }
-
-                function thermalTop(surfaceTemperature, surfacePressure, observation) {
-                    var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
-                    var thermalTopPressure = null;
-                    _.each(_.take(_.zip(observation, _.tail(observation)), '1'), function(items) {
-                        var p1 = items[0].pressure;
-                        var p2 = items[1].pressure;
-                        var t1 = items[0].temperature;
-                        var t2 = items[1].temperature;
-                        var da1 = dryAdiabat.temperature(temperatureAt1000, p1);
-                        var da2 = dryAdiabat.temperature(temperatureAt1000, p2);
-                        var temperature = ((t1 - t2) * da1 - (da1 - da2) * t1) / ((t1 - t2) - (da1 - da2));
-                        var pressure = (p1 - p2) / (da1 - da2) * (temperature - da1) + p1;
-                        if (p2 <= pressure && pressure <= p1) {
-                            thermalTopPressure = pressure;
-                            return false;
-                        }
-                    });
-                    return thermalTopPressure;
-                }
-
-                function drawHeight(context, observation, pressure, color) {
-                    context.save();
-                    context.lineWidth = 2;
-                    context.strokeStyle = color;
-                    context.fillStyle = color;
-                    context.textAlign = 'end';
-                    context.textBaseline = 'bottom';
-
-                    var y = getY(pressure);
-                    context.beginPath();
-                    context.moveTo(getX(minTemperature), y);
-                    context.lineTo(getX(maxTemperature), y);
-                    context.stroke();
-
-                    var height = getHeight(observation, pressure);
-                    context.fillText(_s.numberFormat(height) + 'm', getX(maxTemperature) - 5, y - 2);
-
-                    context.restore();
-                }
-
-                function drawObservation(context, observation) {
+                function drawObservation(context, range, observation) {
                     if (!observation)
                         return;
 
                     var items = _.take(observation, function(item) {
-                        return item.pressure >= minPressure;
+                        return item.pressure >= range.pressure.min;
                     });
                     var surfaceItem = _.head(items);
 
                     context.save();
-                    clip(context);
+                    clip(context, range);
 
                     context.lineWidth = 2;
 
                     context.strokeStyle = 'red';
                     context.beginPath();
-                    context.moveTo(getX(surfaceItem.temperature), getY(surfaceItem.pressure));
+                    context.moveTo(range.x(surfaceItem.temperature), range.y(surfaceItem.pressure));
                     _.each(_.tail(items), function(item) {
                         if (item.temperature)
-                            context.lineTo(getX(item.temperature), getY(item.pressure));
+                            context.lineTo(range.x(item.temperature), range.y(item.pressure));
                     });
                     context.stroke();
 
                     context.strokeStyle = 'blue';
                     context.beginPath();
-                    context.moveTo(getX(surfaceItem.dewPoint), getY(surfaceItem.pressure));
+                    context.moveTo(range.x(surfaceItem.dewPoint), range.y(surfaceItem.pressure));
                     _.each(_.tail(items), function(item) {
                         if (item.dewPoint)
-                            context.lineTo(getX(item.dewPoint), getY(item.pressure));
+                            context.lineTo(range.x(item.dewPoint), range.y(item.pressure));
                     });
                     context.stroke();
 
@@ -303,26 +235,18 @@ define([
                     context.textBaseline = 'middle';
                     _.each(items, function(item) {
                         if (item.height)
-                            context.fillText(_s.numberFormat(item.height) + 'm', getX(minTemperature) + 3, getY(item.pressure));
+                            context.fillText(_s.numberFormat(item.height) + 'm', range.minX() + 3, range.y(item.pressure));
                     });
 
                     context.restore();
 
                     var surfaceDewPoint = (scope.params && scope.params.surfaceDewPoint) || surfaceItem.dewPoint;
                     var ratio = mixingRatio.ratio(surfaceDewPoint, surfaceItem.pressure);
-                    drawMixingRatio(context, ratio, true);
+                    drawMixingRatio(context, range, ratio, true);
 
                     var surfaceTemperature = (scope.params && scope.params.surfaceTemperature) || surfaceItem.temperature;
                     var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfaceItem.pressure);
-                    drawDryAdiabat(context, temperatureAt1000, true);
-
-                    var lclPressure = lcl(surfaceTemperature, surfaceDewPoint, surfaceItem.pressure);
-                    if (lclPressure)
-                        drawHeight(context, observation, lclPressure, 'darkorange');
-
-                    var thermalTopPressure = thermalTop(surfaceTemperature, surfaceItem.pressure, observation);
-                    if (thermalTopPressure)
-                        drawHeight(context, observation, thermalTopPressure, 'firebrick');
+                    drawDryAdiabat(context, range, temperatureAt1000, true);
                 }
 
                 function draw() {
@@ -330,27 +254,112 @@ define([
                     context.save();
                     context.clearRect(0, 0, width, height);
 
-                    drawGrid(context);
-                    drawMixingRatios(context);
-                    drawDryAdiabats(context);
-                    drawObservation(context, scope.observation);
+                    var range = new Range(width, height, scope.internalRange);
+                    drawGrid(context, range);
+                    drawMixingRatios(context, range);
+                    drawDryAdiabats(context, range);
+                    drawObservation(context, range, scope.observation);
+
+                    if (scope.params && scope.params.lcl)
+                        drawHeight(context, range, scope.params.lcl.pressure, scope.params.lcl.height, 'darkorange');
+                    if (scope.params && scope.params.thermalTop)
+                        drawHeight(context, range, scope.params.thermalTop.pressure, scope.params.thermalTop.height, 'firebrick');
 
                     context.restore();
                 }
 
                 scope.$watch('observation', draw);
                 scope.$watch('params', draw, true);
-                scope.$watch('range', function() {
-                    updateRange();
-                    draw();
-                });
+                scope.$watch('internalRange', draw);
             }
         };
     }]);
 
-    module.controller('UASChartController', ['$scope', '$http', function($scope, $http) {
+    module.controller('UASChartController', ['$scope', '$http', 'dryAdiabat', 'mixingRatio', function($scope, $http, dryAdiabat, mixingRatio) {
         var station = $scope.station;
         var date = $scope.date;
+
+        function getHeight(observation, pressure) {
+            var items = _.filter(observation, 'height');
+            var i = _.head(_.drop(_.take(_.zip(items, _.tail(items)), '1'), function(i) {
+                return pressure < i[1].pressure || i[0].pressure < pressure;
+            }));
+            if (!i)
+                return null;
+            return i[0].height + (i[1].height - i[0].height)*(i[0].pressure - pressure)/(i[0].pressure - i[1].pressure);
+        }
+
+        function lcl(surfaceTemperature, surfaceDewPoint, surfacePressure, pressures) {
+            var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
+            var ratio = mixingRatio.ratio(surfaceDewPoint, surfacePressure);
+            return _.head(_.drop(_.map(_.take(_.zip(pressures, _.tail(pressures)), '1'), function(p) {
+                var p1 = p[0];
+                var p2 = p[1];
+                var da1 = dryAdiabat.temperature(temperatureAt1000, p1);
+                var da2 = dryAdiabat.temperature(temperatureAt1000, p2);
+                var mr1 = mixingRatio.temperature(ratio, p1);
+                var mr2 = mixingRatio.temperature(ratio, p2);
+                var temperature = ((mr1 - mr2) * da1 - (da1 - da2) * mr1) / ((mr1 - mr2) - (da1 - da2));
+                var pressure = (p1 - p2) / (da1 - da2) * (temperature - da1) + p1;
+                return p2 <= pressure && pressure <= p1 ? pressure : null;
+            }), _.isNull));
+        }
+
+        function thermalTop(surfaceTemperature, surfacePressure, observation) {
+            var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
+            return _.head(_.drop(_.map(_.take(_.zip(observation, _.tail(observation)), '1'), function(items) {
+                var p1 = items[0].pressure;
+                var p2 = items[1].pressure;
+                var t1 = items[0].temperature;
+                var t2 = items[1].temperature;
+                var da1 = dryAdiabat.temperature(temperatureAt1000, p1);
+                var da2 = dryAdiabat.temperature(temperatureAt1000, p2);
+                var temperature = ((t1 - t2) * da1 - (da1 - da2) * t1) / ((t1 - t2) - (da1 - da2));
+                var pressure = (p1 - p2) / (da1 - da2) * (temperature - da1) + p1;
+                return p2 <= pressure && pressure <= p1 ? pressure : null;
+            }), _.isNull));
+        }
+
+        function updateRange() {
+            var range = $scope.range || {};
+            var minPressure = (range.pressure && range.pressure.min) || 100;
+            var maxPressure = (range.pressure && range.pressure.max) || 1050;
+            $scope.internalRange = {
+                temperature: {
+                    min: (range.temperature && range.temperature.min) || -90,
+                    max: (range.temperature && range.temperature.max) || 50
+                },
+                pressure: {
+                    min: minPressure,
+                    max: maxPressure
+                },
+                pressures: _.take([maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100], function(p) {
+                    return p >= minPressure;
+                })
+            };
+        }
+        $scope.$watch('range', updateRange);
+        updateRange();
+
+        $scope.$watch('params', function() {
+            var observation = $scope.observation;
+            if (observation) {
+                var surfaceItem = _.head(observation);
+                var surfaceTemperature = ($scope.params && $scope.params.surfaceTemperature) || surfaceItem.temperature;
+                var surfaceDewPoint = ($scope.params && $scope.params.surfaceDewPoint) || surfaceItem.dewPoint;
+                var lclPressure = lcl(surfaceTemperature, surfaceDewPoint, surfaceItem.pressure, $scope.internalRange.pressures);
+                $scope.params.lcl = lclPressure ? {
+                    pressure: lclPressure,
+                    height: getHeight(observation, lclPressure)
+                } : null;
+
+                var thermalTopPressure = thermalTop(surfaceTemperature, surfaceItem.pressure, observation);
+                $scope.params.thermalTop = thermalTopPressure ? {
+                    pressure: thermalTopPressure,
+                    height: getHeight(observation, thermalTopPressure)
+                } : null;
+            }
+        }, true);
 
         var path = _s.sprintf('/uas/observation/%s/%04d/%02d/%02d/00', station.id,
             date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
@@ -362,6 +371,37 @@ define([
             };
         });
     }]);
+
+    module.factory('dryAdiabat', function() {
+        return {
+            k: 273.15,
+            r: 0.28571,
+            temperature: function(temperatureAt1000, pressure) {
+                return (temperatureAt1000 + this.k) * Math.pow(pressure / 1000, this.r) - this.k;
+            },
+            temperatureAt1000: function(temperature, pressure) {
+                return (temperature + this.k) * Math.pow(1000 / pressure, this.r) - this.k;
+            }
+        };
+    });
+
+    module.factory('mixingRatio', function() {
+        return {
+            t0: 273.16,
+            rv: 461.7,
+            lv: 2500000,
+            e0: 611.73,
+            ep: 0.622,
+            k: 273.15,
+            temperature: function(ratio, pressure) {
+                return 1 / (1 / this.t0 - this.rv / this.lv * Math.log(ratio / 1000 * pressure * 100 / (this.e0 * (this.ep + ratio / 1000)))) - this.k;
+            },
+            ratio: function(temperature, pressure) {
+                var v = Math.exp((((temperature + this.k) / this.t0) - 1) / ((temperature + this.k) * (this.rv / this.lv)));
+                return 10 * v * this.e0 * this.ep / (pressure - v * this.e0 / 100);
+            }
+        };
+    });
 
     return module;
 });
