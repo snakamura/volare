@@ -118,6 +118,7 @@ instance JSON.ToJSON S where
         JSON.object [ "id"        .= UAS.id s
                     , "latitude"  .= UAS.latitude s
                     , "longitude" .= UAS.longitude s
+                    , "elevation" .= UAS.elevation s
                     , "name"      .= UAS.name s
                     ]
 

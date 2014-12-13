@@ -13,6 +13,7 @@ data Station = Station
     { id        :: Int
     , latitude  :: Float
     , longitude :: Float
+    , elevation :: Int
     , name      :: T.Text
     } deriving (Show, Eq)
 
