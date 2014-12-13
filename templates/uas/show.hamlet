@@ -2,5 +2,4 @@
 
 <div data-ng-controller=UASController data-ng-cloak>
   <volare-uas station=station date=date range=range params=params>
-  <div .properties>
-    <volare-uas-params range=range params=params>
+  <volare-uas-params range=range params=params>
