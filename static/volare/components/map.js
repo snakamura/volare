@@ -1304,7 +1304,7 @@ define([
             });
             return _.filter(_.map(enabledAltitudes, function(altitude) {
                 var matchedItems = _.filter(items, function(item) {
-                    var a = item.altitude + station.height;
+                    var a = item.altitude + station.elevation;
                     return altitude - margin <= a && a < altitude + margin;
                 });
                 if (_.isEmpty(matchedItems)) {

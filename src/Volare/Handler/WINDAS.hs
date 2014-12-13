@@ -101,7 +101,7 @@ instance JSON.ToJSON Item where
         JSON.object [ "station" .= JSON.object [ "id"        .= WINDAS.id station
                                                , "latitude"  .= WINDAS.latitude station
                                                , "longitude" .= WINDAS.longitude station
-                                               , "height"    .= WINDAS.height station
+                                               , "elevation" .= WINDAS.elevation station
                                                , "name"      .= WINDAS.name station
                                                ]
                     , "observations" .= map O observations
