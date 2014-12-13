@@ -4,14 +4,5 @@ div.uas {
 }
 
 div.properties {
-    margin: 10px;
-}
-
-div.properties select, div.properties input {
-    margin-left: 0.5em;
-}
-
-div.properties input[type="number"] {
-    width: 4em;
-    text-align: right;
+    margin: 20px 50px;
 }

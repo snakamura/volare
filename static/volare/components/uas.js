@@ -2,13 +2,20 @@ define([
     'lodash',
     'underscore.string',
     'angular',
-    'text!./uas.html'
-], function(_, _s, angular, template) {
+    'text!./uas.css',
+    'text!./uas.html',
+    'text!./uasParams.html',
+    'volare/util'
+], function(_, _s, angular, css, template, paramsTemplate) {
     'use strict';
 
-    var module = angular.module('volare.components.uas', []);
+    var module = angular.module('volare.components.uas', [
+        'volare.util'
+    ]);
 
-    module.directive('volareUas', ['dryAdiabat', 'mixingRatio', function(dryAdiabat, mixingRatio) {
+    module.directive('volareUas', ['util', 'dryAdiabat', 'mixingRatio', function(util, dryAdiabat, mixingRatio) {
+        util.loadCssInline(css);
+
         return {
             restrict: 'E',
             replace: true,
@@ -402,6 +409,42 @@ define([
             }
         };
     });
+
+    module.directive('volareUasParams', [function() {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: paramsTemplate,
+            scope: {
+                range: '=',
+                params: '='
+            },
+            controller: 'UasParamsController',
+            link: function(scope, element, attrs) {
+            }
+        };
+    }]);
+
+    module.controller('UasParamsController', ['$scope', function($scope) {
+        $scope.pressure = '700';
+        function updateRange() {
+            if ($scope.pressure === '700') {
+                $scope.range = {
+                    pressure: {
+                        min: _.parseInt($scope.pressure)
+                    },
+                    temperature: {
+                        min: -20
+                    }
+                };
+            }
+            else {
+                $scope.range = {
+                };
+            }
+        }
+        $scope.$watch('pressure', updateRange);
+    }]);
 
     return module;
 });

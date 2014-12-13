@@ -3,21 +3,4 @@
 <div data-ng-controller=UASController data-ng-cloak>
   <volare-uas station=station date=date range=range params=params>
   <div .properties>
-    <div>
-      <label>Min Pressure
-        <select data-ng-model=pressure>
-          <option value=100>100
-          <option value=700>700
-        \ hPa
-    <div>
-      <label>Surface Temperature
-        <input type=number name=surfaceTemperature data-ng-model=params.surfaceTemperature> &#x2103;
-    <div>
-      <label>Surface Dew Point
-        <input type=number name=surfaceDewPoint data-ng-model=params.surfaceDewPoint> &#x2103;
-    <div>
-      <label>LCL
-        <input type=number data-ng-model=params.lcl.height readonly> m
-    <div>
-      <label>Thermal Top
-        <input type=number data-ng-model=params.thermalTop.height readonly> m
+    <volare-uas-params range=range params=params>

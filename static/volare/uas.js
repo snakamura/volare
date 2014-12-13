@@ -19,25 +19,6 @@ define([
 
         $scope.station = station;
         $scope.date = date;
-
-        $scope.pressure = '700';
-        function updateRange() {
-            if ($scope.pressure === '700') {
-                $scope.range = {
-                    pressure: {
-                        min: _.parseInt($scope.pressure)
-                    },
-                    temperature: {
-                        min: -20
-                    }
-                };
-            }
-            else {
-                delete $scope.range;
-            }
-        }
-        $scope.$watch('pressure', updateRange);
-        updateRange();
     }]);
 
     return module;
