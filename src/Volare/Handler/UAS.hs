@@ -108,7 +108,7 @@ load station year month day hour = do
                  hClose handle
                  renameFile tempPath path `catch` \(_ :: IOException) -> return ()
     observation <- withFile path ReadMode $ evalStateT UAS.parser . PB.fromHandle
-    return $ (map Item . UAS.items) <$> observation
+    return $ (map (Item station) . UAS.items) <$> observation
 
 
 newtype S = S UAS.Station
@@ -123,14 +123,14 @@ instance JSON.ToJSON S where
                     ]
 
 
-newtype Item = Item UAS.Item
+data Item = Item UAS.Station UAS.Item
 
 instance JSON.ToJSON Item where
-    toJSON (Item item) =
+    toJSON (Item station item) =
         let entry = UAS.entry item
             UAS.Pressure pressure = UAS.pressure item
             height = case UAS.plane item of
-                         UAS.Surface -> Nothing
+                         UAS.Surface -> Just $ UAS.elevation station
                          UAS.Barometric h -> h
         in JSON.object [ "pressure"      .= pressure
                        , "height"        .= height
