@@ -1416,7 +1416,7 @@ define([
             var bounds = map.getBounds();
             if (!this._bounds || !this._bounds.equals(bounds)) {
                 var self = this;
-                $http.get('/uas/stations', {
+                $http.get('/uas', {
                     params: {
                         nwlat: bounds.getNorthEast().lat(),
                         nwlng: bounds.getSouthWest().lng(),
