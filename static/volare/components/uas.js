@@ -286,7 +286,7 @@ define([
             }));
             if (!i)
                 return null;
-            return i[0].height + (i[1].height - i[0].height)*(i[0].pressure - pressure)/(i[0].pressure - i[1].pressure);
+            return Math.round(i[0].height + (i[1].height - i[0].height)*(i[0].pressure - pressure)/(i[0].pressure - i[1].pressure));
         }
 
         function lcl(surfaceTemperature, surfaceDewPoint, surfacePressure, pressures) {

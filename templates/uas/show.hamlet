@@ -11,7 +11,13 @@
         \ hPa
     <div>
       <label>Surface Temperature
-        <input type="number" name="surfaceTemperature" data-ng-model="params.surfaceTemperature"> &#x2103;
+        <input type=number name=surfaceTemperature data-ng-model=params.surfaceTemperature> &#x2103;
     <div>
       <label>Surface Dew Point
-        <input type="number" name="surfaceDewPoint" data-ng-model="params.surfaceDewPoint"> &#x2103;
+        <input type=number name=surfaceDewPoint data-ng-model=params.surfaceDewPoint> &#x2103;
+    <div>
+      <label>LCL
+        <input type=number data-ng-model=params.lcl.height readonly> m
+    <div>
+      <label>Thermal Top
+        <input type=number data-ng-model=params.thermalTop.height readonly> m
