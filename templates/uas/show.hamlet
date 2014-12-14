@@ -1,5 +1,10 @@
 ^{W.navigation W.UAS}
 
 <div data-ng-controller=UASController data-ng-cloak>
+  <div .container-fluid .actionbar>
+    <volare-uas-date date=selectedDate>
+    <span> #
+    <volare-uas-time time=selectedTime>
+
   <volare-uas station=station date=date range=range params=params>
   <volare-uas-params range=range params=params>
