@@ -1453,7 +1453,7 @@ define([
 
     module.controller('UASModalController', ['$scope', 'station', 'date', function($scope, station, date) {
         $scope.station = station;
-        $scope.date = date;
+        $scope.date = new Date(Date.parse(_s.sprintf('%04d-%02d-%02dT00:00:00Z', date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate())));
 
         $scope.close = function() {
             this.$dismiss('close');

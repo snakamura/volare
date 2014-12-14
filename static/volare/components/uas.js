@@ -370,8 +370,8 @@ define([
             }
         }, true);
 
-        var path = _s.sprintf('/uas/%s/%04d/%02d/%02d/00', station.id,
-            date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+        var path = _s.sprintf('/uas/%s/%04d/%02d/%02d/%02d', station.id,
+            date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate(), date.getUTCHours());
         $http.get(path).success(function(observation) {
             $scope.observation = observation;
             $scope.params = {
