@@ -3,7 +3,7 @@
 define([
     'jquery',
     'angular',
-    'text!./flight.css',
+    'text!./show.css',
     'bootstrap',
     'volare/filters',
     'volare/components/chart',

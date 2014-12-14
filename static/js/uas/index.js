@@ -1,4 +1,4 @@
 require(['../../config'], function(config) {
     'use strict';
-    require(['volare/uasstations'], config.bootstrap);
+    require(['volare/uas/index'], config.bootstrap);
 });

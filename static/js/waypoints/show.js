@@ -1,4 +1,4 @@
 require(['../../config'], function(config) {
     'use strict';
-    require(['volare/waypoint'], config.bootstrap);
+    require(['volare/waypoints/show'], config.bootstrap);
 });

@@ -4,7 +4,7 @@ define([
     'angular',
     'google',
     'markerwithlabel',
-    'text!./waypoint.css',
+    'text!./show.css',
     'volare/components/name',
     'volare/util',
     'volare/util/layout'

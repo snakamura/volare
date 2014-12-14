@@ -4,7 +4,7 @@ define([
     'lodash',
     'underscore.string',
     'angular',
-    'text!./uas.css',
+    'text!./show.css',
     'angular-ui-bootstrap',
     'volare/components/uas',
     'volare/filters',
