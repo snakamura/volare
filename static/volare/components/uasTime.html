@@ -1,0 +1,14 @@
+<div class="btn-group" dropdown data-is-open="opened">
+  <button class="btn btn-default dropdown-toggle" type="button" data-dropdown-toggle data-ng-click="toggle($event)">
+    {{ time | uasTime }}
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li>
+      <a href="#" data-ng-click="select(0)">{{ 0 | uasTime }}</a>
+    </li>
+    <li>
+      <a href="#" data-ng-click="select(12)">{{ 12 | uasTime }}</a>
+    </li>
+  </ul>
+</div>

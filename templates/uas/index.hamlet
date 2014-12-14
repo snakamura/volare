@@ -2,19 +2,9 @@
 
 <div data-ng-controller=UASStationsController data-ng-cloak>
   <div .container-fluid .actionbar>
-    <span data-ng-controller=UASStationsDateController>
-      <button .btn .btn-default type=button data-ng-model=$parent.date data-datepicker-popup data-datepicker-options=options data-is-open=opened data-ng-click=toggle($event)>{{ date | date:'yyyy-MM-dd' }}
+    <volare-uas-date date=date>
     <span> #
-    <span data-ng-controller=UASStationsTimeController>
-      <div .btn-group dropdown is-open=opened>
-        <button .btn .btn-primary .dropdown-toggle type=button dropdown-toggle data-ng-click=toggle($event)>
-          {{ time | uasTime }} #
-          <span .caret>
-        <ul .dropdown-menu role=menu>
-          <li>
-            <a href="#" data-ng-click=select(0)>{{ 0 | uasTime }}
-          <li>
-            <a href="#" data-ng-click=select(12)>{{ 12 | uasTime }}
+    <volare-uas-time time=time>
 
   <table .table .table-striped>
     <thead>
@@ -23,4 +13,4 @@
     <tbody>
       <tr data-ng-repeat="station in stations">
         <td>
-          <a data-ng-click=click(station)>{{ station.name }}
+          <a href="#" data-ng-click=click(station)>{{ station.name }}

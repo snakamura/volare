@@ -5,8 +5,10 @@ define([
     'text!./uas.css',
     'text!./uas.html',
     'text!./uasParams.html',
+    'text!./uasDate.html',
+    'text!./uasTime.html',
     'volare/util'
-], function(_, _s, angular, css, template, paramsTemplate) {
+], function(_, _s, angular, css, template, paramsTemplate, dateTemplate, timeTemplate) {
     'use strict';
 
     var module = angular.module('volare.components.uas', [
@@ -444,6 +446,57 @@ define([
             }
         }
         $scope.$watch('pressure', updateRange);
+    }]);
+
+    module.directive('volareUasDate', [function() {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: dateTemplate,
+            scope: {
+                date: '='
+            },
+            controller: 'UasDateController',
+            link: function(scope, element, attrs) {
+            }
+        };
+    }]);
+
+    module.controller('UasDateController', ['$scope', function($scope) {
+        $scope.options = {
+            showWeeks: false,
+            showButtonBar: false
+        };
+        $scope.toggle = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.opened = !$scope.opened;
+        };
+    }]);
+
+    module.directive('volareUasTime', [function() {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: timeTemplate,
+            scope: {
+                time: '='
+            },
+            controller: 'UasTimeController',
+            link: function(scope, element, attrs) {
+            }
+        };
+    }]);
+
+    module.controller('UasTimeController', ['$scope', function($scope) {
+        $scope.toggle = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.opened = !$scope.opened;
+        };
+        $scope.select = function(time) {
+            $scope.time = time;
+        }
     }]);
 
     return module;

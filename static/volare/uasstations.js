@@ -3,12 +3,14 @@ define([
     'underscore.string',
     'angular',
     'angular-ui-bootstrap',
+    'volare/components/uas',
     'volare/filters'
 ], function(_, _s, angular) {
     'use strict';
 
     var module = angular.module('volare.uasstations', [
         'ui.bootstrap',
+        'volare.components.uas',
         'volare.filters'
     ]);
 
@@ -23,28 +25,6 @@ define([
         $http.get('').success(function(stations) {
             $scope.stations = stations;
         });
-    }]);
-
-    module.controller('UASStationsDateController', ['$scope', function($scope) {
-        $scope.options = {
-            showWeeks: false
-        };
-        $scope.toggle = function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            $scope.opened = !$scope.opened;
-        };
-    }]);
-
-    module.controller('UASStationsTimeController', ['$scope', function($scope) {
-        $scope.toggle = function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            $scope.opened = !$scope.opened;
-        };
-        $scope.select = function(time) {
-            $scope.$parent.time = time;
-        }
     }]);
 
     return module;
