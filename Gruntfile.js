@@ -1,12 +1,12 @@
 module.exports = function(grunt) {
     var fs = require('fs');
+    var glob = require('glob');
     var _ = require('lodash');
 
-    var mainJavascriptFiles = fs.readdirSync('static/js');
-    var mainModules = _.map(mainJavascriptFiles, function(file) {
-        var name = file.replace(/\..*$/, '');
+    var mainModules = _.map(glob.sync('static/js/**/*.js'), function(file) {
+        var name = file.replace(/static\//, '').replace(/\..*$/, '');
         return {
-            'name': 'js/' + name
+            'name': name
         }
     });
 
@@ -65,7 +65,7 @@ module.exports = function(grunt) {
                 src: [
                     'static/*.js',
                     'static/ext/**/*.js',
-                    'static/js/*.js',
+                    'static/js/**/*.js',
                     'static/volare/**/*.js'
                 ],
                 options: {

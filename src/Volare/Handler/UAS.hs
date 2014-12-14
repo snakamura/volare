@@ -69,7 +69,7 @@ getUASR stationId year month day hour = do
             provideRep $ defaultLayout $ do
                 setTitle "Upper Air Sounding - Volare"
                 addCommonLibraries
-                addRequireJS "uas"
+                addRequireJS "uas/show"
                 addStylesheet $ StaticR S.css_common_css
                 $(widgetFile "uas/show")
             provideRep $
@@ -92,7 +92,7 @@ getUASStationsR = do
         provideRep $ defaultLayout $ do
             setTitle "Upper Air Sounding - Volare"
             addCommonLibraries
-            addRequireJS "uasstations"
+            addRequireJS "uas/index"
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "uas/index")
         provideRep $ return $ JSON.toJSON $ map S stations

@@ -70,7 +70,7 @@ getWorkspacesR =
         provideRep $ defaultLayout $ do
             setTitle "Workspaces - Volare"
             addCommonLibraries
-            addRequireJS "workspaces"
+            addRequireJS "workspaces/index"
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "workspaces/index")
         provideRep $ runDB $ JSON.toJSON <$> D.getWorkspaces
@@ -96,7 +96,7 @@ getWorkspaceR workspaceId =
                 addCommonLibraries
                 addGoogleApiKey
                 addJQueryUI
-                addRequireJS "workspace"
+                addRequireJS "workspaces/show"
                 addStylesheet $ StaticR S.css_common_css
                 $(widgetFile "workspaces/show")
             provideRep $ return $ JSON.toJSON workspaceEntity

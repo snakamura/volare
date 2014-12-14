@@ -63,7 +63,7 @@ getWaypointsR =
         provideRep $ defaultLayout $ do
             setTitle "Waypoints - Volare"
             addCommonLibraries
-            addRequireJS "waypoints"
+            addRequireJS "waypoints/index"
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "waypoints/index")
         provideRep $ runDB $ JSON.toJSON <$> D.getWaypoints
@@ -110,7 +110,7 @@ getWaypointR waypointId =
                 setTitle $ toHtml $ M.waypointName waypoint <> " - Waypoints - Volare"
                 addCommonLibraries
                 addGoogleApiKey
-                addRequireJS "waypoint"
+                addRequireJS "waypoints/show"
                 addStylesheet $ StaticR S.css_common_css
                 $(widgetFile "waypoints/show")
             provideRep $ do

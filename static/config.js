@@ -40,7 +40,7 @@
         }
     });
 
-    define('../config', {
+    define('../../config', {
         bootstrap: function(module) {
             require(['angular', 'domReady'], function(angular, domReady) {
                 domReady(function() {

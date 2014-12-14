@@ -75,7 +75,7 @@ getFlightsR =
         provideRep $ defaultLayout $ do
             setTitle "Flights - Volare"
             addCommonLibraries
-            addRequireJS "flights"
+            addRequireJS "flights/index"
             addStylesheet $ StaticR S.css_common_css
             $(widgetFile "flights/index")
         provideRep $ runDB $ JSON.toJSON <$> D.getFlights
@@ -131,7 +131,7 @@ getFlightR flightId =
                 addCommonLibraries
                 addGoogleApiKey
                 addJQueryUI
-                addRequireJS "flight"
+                addRequireJS "flights/show"
                 addStylesheet $ StaticR S.css_common_css
                 $(widgetFile "flights/show")
             provideRep $ do
