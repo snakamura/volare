@@ -79,16 +79,23 @@ getUASR stationId year month day hour = do
         Nothing -> notFound
 
 
-getUASStationsR :: Handler JSON.Value
+getUASStationsR :: Handler TypedContent
 getUASStationsR = do
     nwLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlat"
     nwLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlng"
     seLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selat"
     seLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selng"
-    case (nwLatitude, nwLongitude, seLatitude, seLongitude) of
-        (Just nwLat, Just nwLng, Just seLat, Just seLng) -> do
-            return $ JSON.toJSON $ map S $ UAS.stations (nwLat, nwLng) (seLat, seLng)
-        _ -> notFound
+    let stations = case (nwLatitude, nwLongitude, seLatitude, seLongitude) of
+                       (Just nwLat, Just nwLng, Just seLat, Just seLng) -> UAS.stations (nwLat, nwLng) (seLat, seLng)
+                       _ -> UAS.allStations
+    selectRep $ do
+        provideRep $ defaultLayout $ do
+            setTitle "Upper Air Sounding - Volare"
+            addCommonLibraries
+            addRequireJS "uasstations"
+            addStylesheet $ StaticR S.css_common_css
+            $(widgetFile "uas/index")
+        provideRep $ return $ JSON.toJSON $ map S stations
 
 
 load :: UAS.Station ->

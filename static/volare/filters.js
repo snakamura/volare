@@ -43,5 +43,11 @@ define([
         };
     });
 
+    module.filter('uasTime', function() {
+        return function(time) {
+            return _s.sprintf('%02dZ', time);
+        };
+    });
+
     return module;
 });

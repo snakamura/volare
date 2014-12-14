@@ -9,6 +9,7 @@ module Service.UAS
     , parser
     , Stations.station
     , Stations.stations
+    , Stations.allStations
     ) where
 
 import Codec.Utils.Pipes (makeParser)

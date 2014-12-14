@@ -10,3 +10,5 @@
           <a href=@{WorkspacesR}>Workspaces
         <li class="#{classes WAYPOINTS}">
           <a href=@{WaypointsR}>Waypoints
+        <li class="#{classes UAS}">
+          <a href=@{UASStationsR}>Upper Air Sounding
