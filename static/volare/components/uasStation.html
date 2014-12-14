@@ -1,0 +1,11 @@
+<div class="btn-group" dropdown data-is-open="opened">
+  <button class="btn btn-default dropdown-toggle" type="button" data-dropdown-toggle data-ng-click="toggle($event)">
+    {{ station.name }}
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li data-ng-repeat="station in stations">
+      <a href="#" data-ng-click="select(station)">{{ station.name }}</a>
+    </li>
+  </ul>
+</div>

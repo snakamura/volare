@@ -5,10 +5,11 @@ define([
     'text!./uas.css',
     'text!./uas.html',
     'text!./uasParams.html',
+    'text!./uasStation.html',
     'text!./uasDate.html',
     'text!./uasTime.html',
     'volare/util'
-], function(_, _s, angular, css, template, paramsTemplate, dateTemplate, timeTemplate) {
+], function(_, _s, angular, css, template, paramsTemplate, stationTemplate, dateTemplate, timeTemplate) {
     'use strict';
 
     var module = angular.module('volare.components.uas', [
@@ -448,6 +449,35 @@ define([
         $scope.$watch('pressure', updateRange);
     }]);
 
+    module.directive('volareUasStation', [function() {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: stationTemplate,
+            scope: {
+                station: '='
+            },
+            controller: 'UasStationController',
+            link: function(scope, element, attrs) {
+            }
+        };
+    }]);
+
+    module.controller('UasStationController', ['$scope', '$http', function($scope, $http) {
+        $scope.toggle = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.opened = !$scope.opened;
+        };
+        $scope.select = function(station) {
+            $scope.station = station;
+        };
+
+        $http.get('/uas').success(function(stations) {
+            $scope.stations = stations;
+        });
+    }]);
+
     module.directive('volareUasDate', [function() {
         return {
             restrict: 'E',
@@ -496,7 +526,7 @@ define([
         };
         $scope.select = function(time) {
             $scope.time = time;
-        }
+        };
     }]);
 
     return module;

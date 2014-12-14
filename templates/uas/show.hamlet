@@ -2,6 +2,8 @@
 
 <div data-ng-controller=UASController data-ng-cloak>
   <div .container-fluid .actionbar>
+    <volare-uas-station station=selectedStation>
+    <span> #
     <volare-uas-date date=selectedDate>
     <span> #
     <volare-uas-time time=selectedTime>
