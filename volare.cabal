@@ -120,8 +120,6 @@ library
                    http-client == 0.4.*,
                    http-types == 0.8.*,
                    lens-family == 1.2.*,
-                   lifted-base == 0.2.*,
-                   monad-control == 0.3.*,
                    monad-logger == 0.3.*,
                    path-pieces == 0.1.*,
                    persistent == 2.1.*,
