@@ -25,7 +25,7 @@ define([
             replace: true,
             template: template,
             scope: {
-                mapRoute: '=route'
+                route: '=route'
             },
             controller: 'RouteController'
         };

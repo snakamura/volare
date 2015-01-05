@@ -104,11 +104,10 @@ define([
             });
         };
 
-        $($scope.map).on('route_changed', function() {
-            var route = $scope.map.getRoute();
-            if (route) {
-                if (!route.getId()) {
-                    var r = _.map(route.getItems(), function(routeItem) {
+        $scope.$watch('map.route', function(newRoute, oldRoute) {
+            if (newRoute) {
+                if (!newRoute.getId()) {
+                    var r = _.map(newRoute.getItems(), function(routeItem) {
                         return {
                             waypointItemId: routeItem.getWaypointItem().getId(),
                             radius: routeItem.getRadius()
@@ -122,7 +121,7 @@ define([
                     });
                 }
             }
-            else {
+            else if (oldRoute) {
                 $http.put('', {
                     routeId: null
                 }).success(function(workspace) {
