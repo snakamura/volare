@@ -9,6 +9,7 @@ import Data.Aeson ((.:))
 import qualified Data.Aeson as JSON
 import Data.Functor ((<$>))
 import Data.Monoid (mempty)
+import Yesod.Core.Handler (notFound)
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Persist (runDB)
 
@@ -43,7 +44,11 @@ postRoutesR = do
 
 getRouteR :: M.RouteId ->
              Handler JSON.Value
-getRouteR routeId = runDB $ JSON.toJSON <$> D.getRouteWithWaypoints routeId
+getRouteR routeId = do
+    route <- runDB $ D.getRouteWithWaypoints routeId
+    case route of
+        Just r -> return $ JSON.toJSON r
+        Nothing -> notFound
 
 
 deleteRouteR :: M.RouteId ->
