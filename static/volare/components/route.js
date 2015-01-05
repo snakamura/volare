@@ -9,7 +9,7 @@ define([
     'angular-ui-bootstrap',
     'volare/model',
     'volare/util'
-], function(_, _s, $, angular, css, template, routeEditItemsTemplate) {
+], function(_, _s, $, angular, css, template, editItemsTemplate) {
     'use strict';
 
     var module = angular.module('volare.components.route', [
@@ -34,7 +34,7 @@ define([
     module.controller('RouteController', ['$scope', '$modal', function($scope, $modal) {
         $scope.editRoute = function() {
             var modal = $modal.open({
-                template: routeEditItemsTemplate,
+                template: editItemsTemplate,
                 controller: 'RouteEditItemsController',
                 backdrop: 'static'
             });
