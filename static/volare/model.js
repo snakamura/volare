@@ -466,7 +466,10 @@ define([
             if (distance === 0)
                 return null;
 
-            return distance/(this._records[startIndex].altitude - this._records[endIndex - 1].altitude);
+            return {
+                distance: distance,
+                ld: distance/(this._records[startIndex].altitude - this._records[endIndex - 1].altitude)
+            };
         };
 
         Flight.prototype.getAverageClimb = function(time) {

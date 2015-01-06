@@ -116,7 +116,7 @@ define([
 
     module.filter('ld', function() {
         return function(ld) {
-            return ld ? _s.sprintf('%.1f', ld) : '-';
+            return ld ? _s.sprintf('%.1f (%.1fkm)', ld.ld, ld.distance/1000) : '-';
         };
     });
 
