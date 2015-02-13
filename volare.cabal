@@ -114,7 +114,7 @@ library
                    containers == 0.5.*,
                    data-default == 0.5.*,
                    directory == 1.2.*,
-                   exceptions == 0.6.*,
+                   exceptions == 0.7.*,
                    filepath == 1.3.*,
                    formatting == 6.2.*,
                    http-client == 0.4.*,
