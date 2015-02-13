@@ -24,7 +24,7 @@
           <input type="checkbox" data-ng-model="row.visible">
         </td>
         <td class="primary" data-ng-if="rows.length > 1">
-          <input type="radio" name="primary" value="1" data-ng-model="row.primary">
+          <input type="radio" name="primary" data-ng-model="primary.id" data-ng-value="row.id">
         </td>
         <td class="name">{{ row.name }}</td>
         <td class="color">

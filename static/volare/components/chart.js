@@ -44,31 +44,36 @@ define([
 
         $scope.$watch(function(scope) {
             return _.map(scope.rows, function(row) {
-                return _.pick(row, ['id', 'visible', 'primary']);
+                return _.pick(row, ['id', 'visible']);
             });
         }, function(rows) {
-            var primaryFlight = null;
             _.each(rows, function(row) {
                 var flight = flights.getFlight(row.id);
                 flight.setVisible(row.visible);
-                if (row.primary)
-                    primaryFlight = flight;
             });
-            flights.setPrimaryFlight(primaryFlight);
         }, true);
+        $scope.$watch('primary.id', function(primary) {
+            if (primary) {
+                var flight = flights.getFlight(primary);
+                flights.setPrimaryFlight(flight);
+            }
+        });
 
         function update(propertiesOnly) {
             if (!propertiesOnly) {
-                var primaryFlight = flights.getPrimaryFlight();
                 $scope.rows = flights.mapFlight(function(flight) {
                     return {
                         id: flight.getId(),
                         visible: flight.isVisible(),
-                        primary: flight === primaryFlight ? 1 : 0,
                         name: flight.getName(),
                         color: flight.getColor()
                     };
                 });
+
+                var primaryFlight = flights.getPrimaryFlight();
+                $scope.primary = primaryFlight ? {
+                    id: primaryFlight.getId()
+                } : {};
             }
 
             var time = flights.getCurrentTime();
