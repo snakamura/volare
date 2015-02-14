@@ -16,7 +16,7 @@ define([
         'volare.util'
     ]);
 
-    module.directive('volareUas', ['util', 'dryAdiabat', 'mixingRatio', function(util, dryAdiabat, mixingRatio) {
+    module.directive('volareUas', ['util', 'dryAdiabat', 'moistAdiabat', 'mixingRatio', function(util, dryAdiabat, moistAdiabat, mixingRatio) {
         util.loadCssInline(css);
 
         return {
@@ -169,9 +169,50 @@ define([
                 }
 
                 function drawDryAdiabats(context, range) {
-                    var temperatures = [-60, -40, -20, 0, 20, 40, 60, 80, 100];
+                    var temperatures = _.range(-60, 101, 20);
                     _.each(temperatures, function(t) {
                         drawDryAdiabat(context, range, t, false);
+                    });
+                }
+
+                function drawMoistAdiabat(context, range, basePressure, baseTemperature, bold) {
+                    context.save();
+                    clip(context, range);
+                    context.lineWidth = bold ? 1 : 0.5;
+                    context.strokeStyle = bold ? 'chocolate' : 'tan';
+
+                    function draw(pressures) {
+                        context.beginPath();
+                        var previousPressure = basePressure;
+                        var previousTemperature = baseTemperature;
+                        context.lineTo(range.x(baseTemperature), range.y(basePressure));
+                        _.each(pressures, function(p) {
+                            var t = moistAdiabat.temperature(previousPressure, previousTemperature, p);
+                            context.lineTo(range.x(t), range.y(p));
+                            previousPressure = p;
+                            previousTemperature = t;
+                        });
+                        context.stroke();
+
+                    }
+
+                    var higherPressures = _.take(range.pressures, function(p) {
+                        return p > basePressure;
+                    }).reverse();
+                    draw(higherPressures);
+
+                    var lowerPressures = _.drop(range.pressures, function(p) {
+                        return p >= basePressure;
+                    });
+                    draw(lowerPressures);
+
+                    context.restore();
+                }
+
+                function drawMoistAdiabats(context, range) {
+                    var temperatures = _.range(-60, 101, 20);
+                    _.each(temperatures, function(t) {
+                        drawMoistAdiabat(context, range, 1000, t, false);
                     });
                 }
 
@@ -268,6 +309,7 @@ define([
                     drawGrid(context, range);
                     drawMixingRatios(context, range);
                     drawDryAdiabats(context, range);
+                    drawMoistAdiabats(context, range);
                     drawObservation(context, range, scope.observation);
 
                     if (scope.params && scope.params.lcl)
@@ -391,6 +433,24 @@ define([
             },
             temperatureAt1000: function(temperature, pressure) {
                 return (temperature + this.k) * Math.pow(1000 / pressure, this.r) - this.k;
+            }
+        };
+    });
+
+    module.factory('moistAdiabat', function() {
+        return {
+            t0: 273.16,
+            e0: 6.1173,
+            ep: 0.622,
+            a: 0.28571,
+            b: 13500000,
+            c: 2488.4,
+            k: 273.15,
+            temperature: function(basePressure, baseTemperature, pressure) {
+                var es = this.e0 * Math.exp(5414.8 * (1 / this.t0 - 1 / (baseTemperature + this.k)));
+                var rs = this.ep * es / (basePressure - es);
+                var dt = (this.a * (baseTemperature + this.k) + (this.c * rs)) / (basePressure * (1 + (this.b * rs / Math.pow(baseTemperature + this.k, 2))));
+                return baseTemperature - dt * (basePressure - pressure);
             }
         };
     });
