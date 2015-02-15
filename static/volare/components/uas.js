@@ -134,9 +134,9 @@ define([
                     context.restore();
                 }
 
-                function drawHeight(context, range, pressure, height, color) {
+                function drawHeight(context, range, pressure, height, color, bold) {
                     context.save();
-                    context.lineWidth = 2;
+                    context.lineWidth = bold ? 2 : 0.5;
                     context.strokeStyle = color;
                     context.fillStyle = color;
                     context.textAlign = 'end';
@@ -313,11 +313,12 @@ define([
                     drawObservation(context, range, scope.observation);
 
                     if (scope.params && scope.params.lcl) {
-                        drawHeight(context, range, scope.params.lcl.pressure, scope.params.lcl.height, 'darkorange');
+                        var bold = !scope.params.thermalTop || scope.params.thermalTop.pressure < scope.params.lcl.pressure;
+                        drawHeight(context, range, scope.params.lcl.pressure, scope.params.lcl.height, 'darkorange', bold);
                         drawMoistAdiabat(context, range, scope.params.lcl.pressure, scope.params.lcl.temperature, true);
                     }
                     if (scope.params && scope.params.thermalTop)
-                        drawHeight(context, range, scope.params.thermalTop.pressure, scope.params.thermalTop.height, 'firebrick');
+                        drawHeight(context, range, scope.params.thermalTop.pressure, scope.params.thermalTop.height, 'firebrick', true);
 
                     context.restore();
                 }
