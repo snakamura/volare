@@ -312,8 +312,10 @@ define([
                     drawMoistAdiabats(context, range);
                     drawObservation(context, range, scope.observation);
 
-                    if (scope.params && scope.params.lcl)
+                    if (scope.params && scope.params.lcl) {
                         drawHeight(context, range, scope.params.lcl.pressure, scope.params.lcl.height, 'darkorange');
+                        drawMoistAdiabat(context, range, scope.params.lcl.pressure, scope.params.lcl.temperature, true);
+                    }
                     if (scope.params && scope.params.thermalTop)
                         drawHeight(context, range, scope.params.thermalTop.pressure, scope.params.thermalTop.height, 'firebrick');
 
@@ -344,7 +346,7 @@ define([
         function lcl(surfaceTemperature, surfaceDewPoint, surfacePressure, pressures) {
             var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
             var ratio = mixingRatio.ratio(surfaceDewPoint, surfacePressure);
-            return _.head(_.drop(_.map(_.take(_.zip(pressures, _.tail(pressures)), '1'), function(p) {
+            var pressure = _.head(_.drop(_.map(_.take(_.zip(pressures, _.tail(pressures)), '1'), function(p) {
                 var p1 = p[0];
                 var p2 = p[1];
                 var da1 = dryAdiabat.temperature(temperatureAt1000, p1);
@@ -355,6 +357,10 @@ define([
                 var pressure = (p1 - p2) / (da1 - da2) * (temperature - da1) + p1;
                 return p2 <= pressure && pressure <= p1 ? pressure : null;
             }), _.isNull));
+            return {
+                pressure: pressure,
+                temperature: dryAdiabat.temperature(temperatureAt1000, pressure)
+            };
         }
 
         function thermalTop(surfaceTemperature, surfacePressure, observation) {
@@ -399,10 +405,11 @@ define([
                 var surfaceItem = _.head(observation);
                 var surfaceTemperature = ($scope.params && $scope.params.surfaceTemperature) || surfaceItem.temperature;
                 var surfaceDewPoint = ($scope.params && $scope.params.surfaceDewPoint) || surfaceItem.dewPoint;
-                var lclPressure = lcl(surfaceTemperature, surfaceDewPoint, surfaceItem.pressure, $scope.internalRange.pressures);
-                $scope.params.lcl = lclPressure ? {
-                    pressure: lclPressure,
-                    height: getHeight(observation, lclPressure)
+                var lclValue = lcl(surfaceTemperature, surfaceDewPoint, surfaceItem.pressure, $scope.internalRange.pressures);
+                $scope.params.lcl = lclValue ? {
+                    pressure: lclValue.pressure,
+                    height: getHeight(observation, lclValue.pressure),
+                    temperature: lclValue.temperature
                 } : null;
 
                 var thermalTopPressure = thermalTop(surfaceTemperature, surfaceItem.pressure, observation);
