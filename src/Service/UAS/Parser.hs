@@ -97,6 +97,8 @@ ttbbItem = uncurry Item <$> (cclll <* space) <*> (uncurry Entry  <$> (tttdd <* s
 -- Right (Barometric (Just 9350),Pressure 300)
 -- >>> parseOnly plane "25054"
 -- Right (Barometric (Just 10540),Pressure 250)
+-- >>> parseOnly plane "25986"
+-- Right (Barometric (Just 9860),Pressure 250)
 -- >>> parseOnly plane "20193"
 -- Right (Barometric (Just 11930),Pressure 200)
 -- >>> parseOnly plane "15371"
@@ -121,7 +123,7 @@ plane = s <|> b "00" <|> b "92" <|> b "85" <|> b "70" <|> b "50" <|> b "40" <|> 
                          "50" -> (500, height * 10)
                          "40" -> (400, height * 10)
                          "30" -> (300, height * 10)
-                         "25" -> (250, height * 10 + 10000)
+                         "25" -> (250, height * 10 + if height > 500 then 0 else 10000)
                          "20" -> (200, height * 10 + 10000)
                          "15" -> (150, height * 10 + 10000)
                          "10" -> (100, height * 10 + 10000)
