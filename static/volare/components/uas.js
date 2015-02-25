@@ -183,25 +183,29 @@ define([
 
                     function draw(pressures) {
                         context.beginPath();
-                        var previousPressure = basePressure;
-                        var previousTemperature = baseTemperature;
                         context.lineTo(range.x(baseTemperature), range.y(basePressure));
-                        _.each(pressures, function(p) {
-                            var t = moistAdiabat.temperature(previousPressure, previousTemperature, p);
+                        _.reduce(pressures, function(previous, p) {
+                            var t = moistAdiabat.temperature(previous.pressure, previous.temperature, p);
                             context.lineTo(range.x(t), range.y(p));
-                            previousPressure = p;
-                            previousTemperature = t;
-                        });
+                            return {
+                                pressure: p,
+                                temperature: t
+                            };
+                        }, {
+                            pressure: basePressure,
+                            temperature: baseTemperature
+                        })
                         context.stroke();
 
                     }
 
-                    var higherPressures = _.take(range.pressures, function(p) {
+                    var pressures = _.range(_.head(range.pressures), _.last(range.pressures) - 1, -10);
+                    var higherPressures = _.take(pressures, function(p) {
                         return p > basePressure;
                     }).reverse();
                     draw(higherPressures);
 
-                    var lowerPressures = _.drop(range.pressures, function(p) {
+                    var lowerPressures = _.drop(pressures, function(p) {
                         return p >= basePressure;
                     });
                     draw(lowerPressures);
