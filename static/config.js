@@ -12,7 +12,7 @@
             'google': 'ext/google',
             'jquery': '//code.jquery.com/jquery-2.1.1.min',
             'jquery-ui': '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min',
-            'lodash': '//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min',
+            'lodash': '//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.3.1/lodash.min',
             'markerwithlabel': 'lib/easy-markerwithlabel/markerwithlabel',
             'text': '//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min',
             'underscore.string': '//cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.3/underscore.string.min'

@@ -200,12 +200,12 @@ define([
                     }
 
                     var pressures = _.range(_.head(range.pressures), _.last(range.pressures) - 1, -10);
-                    var higherPressures = _.take(pressures, function(p) {
+                    var higherPressures = _.takeWhile(pressures, function(p) {
                         return p > basePressure;
                     }).reverse();
                     draw(higherPressures);
 
-                    var lowerPressures = _.drop(pressures, function(p) {
+                    var lowerPressures = _.dropWhile(pressures, function(p) {
                         return p >= basePressure;
                     });
                     draw(lowerPressures);
@@ -254,7 +254,7 @@ define([
                     if (!observation)
                         return;
 
-                    var items = _.take(observation, function(item) {
+                    var items = _.takeWhile(observation, function(item) {
                         return item.pressure >= range.pressure.min;
                     });
                     var surfaceItem = _.head(items);
@@ -340,7 +340,7 @@ define([
 
         function getHeight(observation, pressure) {
             var items = _.filter(observation, 'height');
-            var i = _.head(_.drop(_.take(_.zip(items, _.tail(items)), '1'), function(i) {
+            var i = _.head(_.dropWhile(_.takeWhile(_.zip(items, _.tail(items)), '1'), function(i) {
                 return pressure < i[1].pressure || i[0].pressure < pressure;
             }));
             if (!i)
@@ -351,7 +351,7 @@ define([
         function lcl(surfaceTemperature, surfaceDewPoint, surfacePressure, pressures) {
             var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
             var ratio = mixingRatio.ratio(surfaceDewPoint, surfacePressure);
-            var pressure = _.head(_.drop(_.map(_.take(_.zip(pressures, _.tail(pressures)), '1'), function(p) {
+            var pressure = _.head(_.dropWhile(_.map(_.takeWhile(_.zip(pressures, _.tail(pressures)), '1'), function(p) {
                 var p1 = p[0];
                 var p2 = p[1];
                 var da1 = dryAdiabat.temperature(temperatureAt1000, p1);
@@ -370,7 +370,7 @@ define([
 
         function thermalTop(surfaceTemperature, surfacePressure, observation) {
             var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
-            return _.head(_.drop(_.map(_.take(_.zip(observation, _.tail(observation)), '1'), function(items) {
+            return _.head(_.dropWhile(_.map(_.takeWhile(_.zip(observation, _.tail(observation)), '1'), function(items) {
                 var p1 = items[0].pressure;
                 var p2 = items[1].pressure;
                 var t1 = items[0].temperature;
@@ -396,7 +396,7 @@ define([
                     min: minPressure,
                     max: maxPressure
                 },
-                pressures: _.take([maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100], function(p) {
+                pressures: _.takeWhile([maxPressure, 1000, 925, 850, 700, 500, 400, 300, 250, 200, 150, 100], function(p) {
                     return p >= minPressure;
                 })
             };
