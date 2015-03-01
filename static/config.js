@@ -4,18 +4,18 @@
     require.config({
         baseUrl: '/static',
         paths: {
-            'angular': '//ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min',
-            'angular-ui-bootstrap': '//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.11.2/ui-bootstrap-tpls.min',
+            'angular': '//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min',
+            'angular-ui-bootstrap': '//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min',
             'async': '//cdnjs.cloudflare.com/ajax/libs/requirejs-plugins/1.0.3/async.min',
-            'bootstrap': '//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min',
+            'bootstrap': '//netdna.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min',
             'domReady': '//cdnjs.cloudflare.com/ajax/libs/require-domReady/2.0.1/domReady.min',
             'google': 'ext/google',
-            'jquery': '//code.jquery.com/jquery-2.1.1.min',
-            'jquery-ui': '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min',
+            'jquery': '//code.jquery.com/jquery-2.1.3.min',
+            'jquery-ui': '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min',
             'lodash': '//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.3.1/lodash.min',
             'markerwithlabel': 'lib/easy-markerwithlabel/markerwithlabel',
             'text': '//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text.min',
-            'underscore.string': '//cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.3/underscore.string.min'
+            'underscore.string': '//cdnjs.cloudflare.com/ajax/libs/underscore.string/3.0.3/underscore.string.min'
         },
         shim: {
             'angular': {
