@@ -320,9 +320,9 @@ define([
 
         function getHeight(observation, pressure) {
             var items = _.filter(observation, 'height');
-            var i = _.head(_.dropWhile(_.takeWhile(_.zip(items, _.tail(items)), '1'), function(i) {
+            var i = _.chain(items).zip(_.tail(items)).takeWhile('1').dropWhile(function(i) {
                 return pressure < i[1].pressure || i[0].pressure < pressure;
-            }));
+            }).head().value();
             if (!i)
                 return null;
             return Math.round(i[0].height + (i[1].height - i[0].height)*(i[0].pressure - pressure)/(i[0].pressure - i[1].pressure));
@@ -330,9 +330,9 @@ define([
 
         function getTemperature(observation, pressure) {
             var items = observation;
-            var i = _.head(_.dropWhile(_.takeWhile(_.zip(items, _.tail(items)), '1'), function(i) {
+            var i = _.chain(items).zip(_.tail(items)).takeWhile('1').dropWhile(function(i) {
                 return pressure < i[1].pressure || i[0].pressure < pressure;
-            }));
+            }).head().value();
             if (!i)
                 return null;
             return i[0].temperature + (i[1].temperature - i[0].temperature)*(i[0].pressure - pressure)/(i[0].pressure - i[1].pressure);
@@ -341,7 +341,7 @@ define([
         function lcl(surfaceTemperature, surfaceDewPoint, surfacePressure, pressures) {
             var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
             var ratio = mixingRatio.ratio(surfaceDewPoint, surfacePressure);
-            var pressure = _.head(_.dropWhile(_.map(_.takeWhile(_.zip(pressures, _.tail(pressures)), '1'), function(p) {
+            var pressure = _.chain(pressures).zip(_.tail(pressures)).takeWhile('1').map(function(p) {
                 var p1 = p[0];
                 var p2 = p[1];
                 var da1 = dryAdiabat.temperature(temperatureAt1000, p1);
@@ -351,7 +351,7 @@ define([
                 var temperature = ((mr1 - mr2) * da1 - (da1 - da2) * mr1) / ((mr1 - mr2) - (da1 - da2));
                 var pressure = (p1 - p2) / (da1 - da2) * (temperature - da1) + p1;
                 return p2 <= pressure && pressure <= p1 ? pressure : null;
-            }), _.isNull));
+            }).dropWhile(_.isNull).head().value();
             return {
                 pressure: pressure,
                 temperature: dryAdiabat.temperature(temperatureAt1000, pressure)
@@ -360,7 +360,7 @@ define([
 
         function dryThermalTop(surfaceTemperature, surfacePressure, observation) {
             var temperatureAt1000 = dryAdiabat.temperatureAt1000(surfaceTemperature, surfacePressure);
-            return _.head(_.dropWhile(_.map(_.takeWhile(_.zip(observation, _.tail(observation)), '1'), function(items) {
+            return _.chain(observation).zip(_.tail(observation)).takeWhile('1').map(function(items) {
                 var p1 = items[0].pressure;
                 var p2 = items[1].pressure;
                 var t1 = items[0].temperature;
@@ -370,13 +370,13 @@ define([
                 var temperature = ((t1 - t2) * da1 - (da1 - da2) * t1) / ((t1 - t2) - (da1 - da2));
                 var pressure = (p1 - p2) / (da1 - da2) * (temperature - da1) + p1;
                 return p2 <= pressure && pressure <= p1 ? pressure : null;
-            }), _.isNull));
+            }).dropWhile(_.isNull).head().value();
         }
 
         function moistThermalTop(basePressure, baseTemperature, observation) {
-            var items = _.dropWhile(_.takeWhile(_.zip(observation, _.tail(observation)), '1'), function(items) {
+            var items = _.chain(observation).zip(_.tail(observation)).takeWhile('1').dropWhile(function(items) {
                 return items[1].pressure >= basePressure;
-            });
+            }).value();
 
             function getPressures(high, low) {
                 var step = 10;
@@ -395,21 +395,21 @@ define([
             });
 
             function getMoistAdiabats(highPressure, lowPressure) {
-                return _.takeWhile(_.dropWhile(_.takeWhile(_.zip(moistAdiabats, _.tail(moistAdiabats)), '1'), function(items) {
+                return _.chain(moistAdiabats).zip(_.tail(moistAdiabats)).takeWhile('1').dropWhile(function(items) {
                     return items[1].pressure > highPressure;
-                }), function(items) {
+                }).takeWhile(function(items) {
                     return items[0].pressure > lowPressure;
-                });
+                }).value();
             }
 
-            return _.head(_.dropWhile(_.map(items, function(items) {
+            return _.chain(items).map(function(items) {
                 var p1 = items[0].pressure;
                 var p2 = items[1].pressure;
                 var t1 = items[0].temperature;
                 var t2 = items[1].temperature;
 
                 var moistAdiabats = getMoistAdiabats(p1, p2);
-                return _.head(_.dropWhile(_.map(moistAdiabats, function(mas) {
+                return _.chain(moistAdiabats).map(function(mas) {
                     var q1 = mas[0].pressure;
                     var q2 = mas[1].pressure;
                     var k1 = mas[0].temperature;
@@ -417,8 +417,8 @@ define([
                     var temperature = ((q1 - p1) - (q2 - q1) / (k2 - k1) * k1 + (p2 - p1) / (t2 - t1) * t1) / ((p2 - p1) / (t2 - t1) - (q2 - q1) / (k2 - k1));
                     var pressure = (p2 - p1) / (t2 - t1) * (temperature - t1) + p1;
                     return Math.max(p2, q2) <= pressure && pressure <= Math.min(p1, q1) ? pressure : null;
-                }), _.isNull)) || null;
-            }), _.isNull)) || null;
+                }).dropWhile(_.isNull).head().value() || null;
+            }).dropWhile(_.isNull).head().value() || null;
         }
 
         function updateRange() {
