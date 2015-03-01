@@ -610,11 +610,6 @@ define([
     }]);
 
     module.controller('UasStationController', ['$scope', '$http', function($scope, $http) {
-        $scope.toggle = function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            $scope.opened = !$scope.opened;
-        };
         $scope.select = function(station) {
             $scope.station = station;
         };
@@ -665,11 +660,6 @@ define([
     }]);
 
     module.controller('UasTimeController', ['$scope', function($scope) {
-        $scope.toggle = function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            $scope.opened = !$scope.opened;
-        };
         $scope.select = function(time) {
             $scope.time = time;
         };
