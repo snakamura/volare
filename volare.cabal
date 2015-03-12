@@ -108,7 +108,7 @@ library
                    attoparsec == 0.12.*,
                    base == 4.*,
                    bifunctors == 4.2.*,
-                   blaze-html == 0.7.*,
+                   blaze-html == 0.8.*,
                    bytestring == 0.10.*,
                    clientsession == 0.9.*,
                    containers == 0.5.*,
