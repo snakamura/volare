@@ -89,7 +89,7 @@ addFlight name igc = do
     flying record next = let duration = abs $ IGC.time next - IGC.time record
                              dist = IGC.distance (IGC.position next) (IGC.position record)
                              speed = dist / realToFrac duration
-                         in speed > 5 && speed < 10
+                         in speed > 5 && speed < 20
     valid record = do
         previousRecord <- get
         let altitude = IGC.altitude $ IGC.position record
