@@ -22,7 +22,7 @@
         <table .properties data-ng-controller=FlightPropertiesController>
           <tr>
             <th>Time
-            <td>{{ time | date:'yyyy/MM/dd hh:mm:ss' }}
+            <td>{{ time | date:'yyyy-MM-dd HH:mm:ss' }}
           <tr>
             <th>Duration
             <td>{{ duration | duration }}
