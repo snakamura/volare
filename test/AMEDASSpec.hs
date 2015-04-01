@@ -1,6 +1,5 @@
 module AMEDASSpec (spec) where
 
-import Control.Applicative ((<$>))
 import Data.Maybe (fromJust)
 import Pipes ((>->))
 import qualified Pipes as P

@@ -7,7 +7,6 @@ module SpecUtils
     , sha1
     ) where
 
-import Control.Applicative ((<*))
 import qualified Control.Foldl as F
 import Control.Monad (unless)
 import Control.Monad.IO.Class

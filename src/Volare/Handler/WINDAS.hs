@@ -12,7 +12,6 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import Data.Function (on)
-import Data.Functor ((<$>))
 import Data.List (groupBy)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL

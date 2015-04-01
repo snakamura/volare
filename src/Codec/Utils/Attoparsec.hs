@@ -6,11 +6,6 @@ module Codec.Utils.Attoparsec
     , digits
     ) where
 
-import Control.Applicative
-    ( (<*>)
-    , (*>)
-    , pure
-    )
 import Data.Attoparsec.ByteString
     ( Parser
     , inClass
@@ -19,7 +14,6 @@ import Data.Attoparsec.ByteString
     , skipWhile
     , word8
     )
-import Data.Functor ((<$>))
 
 
 line :: Parser ()

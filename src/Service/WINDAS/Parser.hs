@@ -2,10 +2,6 @@ module Service.WINDAS.Parser
     ( parser
     ) where
 
-import Control.Applicative
-    ( (*>)
-    , (<*)
-    )
 import Control.Exception (Exception)
 import Control.Monad
     ( forever
@@ -31,7 +27,6 @@ import Data.Bits
     , zeroBits
     )
 import qualified Data.ByteString as B
-import Data.Functor ((<$>))
 import Data.List (foldl')
 import Data.Maybe (catMaybes)
 import qualified Data.Text as T

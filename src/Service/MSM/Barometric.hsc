@@ -2,9 +2,6 @@ module Service.MSM.Barometric
    ( Item(..)
    ) where
 
-import Control.Applicative
-    ( (<$>)
-    , (<*>))
 import Data.Aeson.TH
     ( defaultOptions
     , deriveJSON)

@@ -33,7 +33,6 @@ import Control.Monad.Trans.State.Strict (evalStateT)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Foldable (forM_)
-import Data.Functor ((<$>))
 import Data.List
     ( isInfixOf
     , nub

@@ -20,7 +20,6 @@ import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
 import Data.Bifunctor (first)
 import Data.Foldable (forM_)
-import Data.Functor ((<$>))
 import Data.List
     ( minimumBy
     , sortBy

@@ -5,7 +5,6 @@ module Volare.Foundation where
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Data.Functor ((<$>))
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy.Builder as T
 import Database.Persist.Class

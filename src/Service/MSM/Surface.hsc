@@ -2,10 +2,6 @@ module Service.MSM.Surface
     ( Item(..)
     ) where
 
-import Control.Applicative
-    ( (<$>)
-    , (<*>)
-    )
 import Data.Aeson.TH
     ( defaultOptions
     , deriveJSON

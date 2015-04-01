@@ -4,12 +4,8 @@ module Service.UAS.Parser
 
 import Codec.Utils.Attoparsec (digits)
 import Control.Applicative
-    ( (<*>)
-    , (<*)
-    , (*>)
-    , (<|>)
+    ( (<|>)
     , many
-    , pure
     )
 import Control.Monad (void)
 import Data.Attoparsec.ByteString
@@ -23,7 +19,6 @@ import Data.Attoparsec.ByteString.Char8
     , space
     )
 import Data.Attoparsec.Combinator (count)
-import Data.Functor ((<$>))
 import Data.Monoid
     ( First(First)
     , (<>)

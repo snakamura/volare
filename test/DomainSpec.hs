@@ -2,7 +2,6 @@ module DomainSpec (spec) where
 
 import qualified Codec.GeoWpt as GeoWpt
 import qualified Codec.IGC as IGC
-import Control.Applicative ((<$>))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Maybe

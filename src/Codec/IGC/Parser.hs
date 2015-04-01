@@ -3,10 +3,7 @@ module Codec.IGC.Parser
     ) where
 
 import Control.Applicative
-    ( (<*>)
-    , (*>)
-    , (<*)
-    , (<|>)
+    ( (<|>)
     , many
     )
 import Data.Maybe (catMaybes)
@@ -22,7 +19,6 @@ import Data.Attoparsec.ByteString
     , satisfy
     , string
     )
-import Data.Functor ((<$>))
 
 import Codec.IGC.Types
     ( IGC(IGC)

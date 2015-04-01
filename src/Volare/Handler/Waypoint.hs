@@ -7,7 +7,6 @@ module Volare.Handler.Waypoint
     ) where
 
 import qualified Codec.GeoWpt as GeoWpt
-import Control.Applicative ((<*>))
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Aeson
     ( (.=)
@@ -16,11 +15,7 @@ import Data.Aeson
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Data.Functor ((<$>))
-import Data.Monoid
-    ( (<>)
-    , mempty
-    )
+import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Database.Persist

@@ -7,7 +7,6 @@ module Volare.Handler.Flight
     ) where
 
 import qualified Codec.IGC as IGC
-import Control.Applicative ((<*>))
 import Control.Monad
     ( filterM
     , when
@@ -25,11 +24,7 @@ import Data.Aeson
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Data.Functor ((<$>))
-import Data.Monoid
-    ( (<>)
-    , mempty
-    )
+import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Data.Time (diffUTCTime)

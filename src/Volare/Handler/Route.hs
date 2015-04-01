@@ -4,11 +4,8 @@ module Volare.Handler.Route
     , deleteRouteR
     ) where
 
-import Control.Applicative ((<*>))
 import Data.Aeson ((.:))
 import qualified Data.Aeson as JSON
-import Data.Functor ((<$>))
-import Data.Monoid (mempty)
 import Yesod.Core.Handler (notFound)
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Persist (runDB)

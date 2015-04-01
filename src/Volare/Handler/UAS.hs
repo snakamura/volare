@@ -12,7 +12,6 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
-import Data.Functor ((<$>))
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Formatting ((%))

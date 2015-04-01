@@ -10,7 +10,6 @@ import Control.Exception
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import qualified Data.Aeson as JSON
-import Data.Functor ((<$>))
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Data.Time

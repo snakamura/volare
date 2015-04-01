@@ -2,7 +2,6 @@ module Codec.Utils.Pipes (makeParser) where
 
 import qualified Data.Attoparsec.ByteString as A
 import qualified Data.ByteString as B
-import Data.Functor ((<$>))
 import Data.Maybe.HT (toMaybe)
 import Pipes.Attoparsec
     ( isEndOfParserInput

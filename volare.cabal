@@ -6,7 +6,7 @@ author: snak
 maintainer: snak
 category: Web
 stability: Experimental
-cabal-version: >= 1.16
+cabal-version: >= 1.22
 build-type: Custom
 homepage: http://github.com/snakamura/volare
 
@@ -90,7 +90,6 @@ library
                         LambdaCase
                         MultiParamTypeClasses
                         NoMonomorphismRestriction
-                        OverlappingInstances
                         OverloadedStrings
                         PatternGuards
                         QuasiQuotes
@@ -106,7 +105,7 @@ library
     build-depends: aeson == 0.8.*,
                    async == 2.0.*,
                    attoparsec == 0.12.*,
-                   base == 4.*,
+                   base == 4.8.*,
                    bifunctors == 4.2.*,
                    blaze-html == 0.8.*,
                    bytestring == 0.10.*,
@@ -115,7 +114,7 @@ library
                    data-default == 0.5.*,
                    directory == 1.2.*,
                    exceptions == 0.8.*,
-                   filepath == 1.3.*,
+                   filepath == 1.4.*,
                    formatting == 6.2.*,
                    http-client == 0.4.*,
                    http-types == 0.8.*,
@@ -136,11 +135,11 @@ library
                    split == 0.2.*,
                    tagsoup == 0.13.*,
                    tar == 0.4.*,
-                   template-haskell == 2.9.*,
+                   template-haskell == 2.10.*,
                    temporary == 1.2.*,
                    text == 1.2.*,
-                   time == 1.4.*,
-                   transformers == 0.3.*,
+                   time == 1.5.*,
+                   transformers == 0.4.*,
                    unordered-containers == 0.2.*,
                    utf8-string == 1.*,
                    utility-ht == 0.0.*,
@@ -168,7 +167,7 @@ executable volare
 
     default-language: Haskell2010
 
-    build-depends: base == 4.*,
+    build-depends: base == 4.8.*,
                    yesod == 1.4.*,
                    volare
 
@@ -182,8 +181,8 @@ test-suite doctest
 
     default-language: Haskell2010
 
-    build-depends: base == 4.*,
-                   doctest >= 0.9.11
+    build-depends: base == 4.8.*,
+                   doctest == 0.9.*
 
     ghc-options: -Wall -Werror -threaded -O0
 
@@ -204,7 +203,6 @@ test-suite spec
                         GADTs
                         MultiParamTypeClasses
                         NoMonomorphismRestriction
-                        OverlappingInstances
                         OverloadedStrings
                         QuasiQuotes
                         ScopedTypeVariables
@@ -215,7 +213,7 @@ test-suite spec
                         UndecidableInstances
 
     build-depends: attoparsec == 0.12.*,
-                   base == 4.*,
+                   base == 4.8.*,
                    bytestring == 0.10.*,
                    cryptohash == 0.11.*,
                    foldl == 1.0.*,
@@ -229,8 +227,8 @@ test-suite spec
                    pipes-bytestring == 2.1.*,
                    resourcet == 1.1.*,
                    temporary == 1.2.*,
-                   time == 1.4.*,
-                   transformers == 0.3.*,
+                   time == 1.5.*,
+                   transformers == 0.4.*,
                    volare,
                    yesod == 1.4.*
 
