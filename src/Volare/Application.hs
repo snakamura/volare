@@ -34,6 +34,7 @@ import Volare.Config
 import Volare.Foundation
 import Volare.Handler.AMEDAS
 import Volare.Handler.Flight
+import Volare.Handler.Forcast
 import Volare.Handler.MSM
 import Volare.Handler.Root
 import Volare.Handler.Route

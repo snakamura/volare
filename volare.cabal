@@ -57,6 +57,7 @@ library
                    Volare.Model.Settings
                    Volare.Handler.AMEDAS
                    Volare.Handler.Flight
+                   Volare.Handler.Forcast
                    Volare.Handler.MSM
                    Volare.Handler.Root
                    Volare.Handler.Route

@@ -13,6 +13,7 @@ data Page = FLIGHTS
           | WORKSPACES
           | WAYPOINTS
           | UAS
+          | FORCAST
     deriving (Show, Eq)
 
 

@@ -16,4 +16,5 @@
 /windas/#Int/#Int/#Int/#Int WINDASR GET
 /uas UASStationsR GET
 /uas/#Int/#Int/#Int/#Int/#Int UASR GET
+/forcast ForcastR GET
 /static StaticR Static volareStatic

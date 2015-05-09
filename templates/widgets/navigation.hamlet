@@ -12,3 +12,5 @@
           <a href=@{WaypointsR}>Waypoints
         <li class="#{classes UAS}">
           <a href=@{UASStationsR}>Upper Air Sounding
+        <li class="#{classes FORCAST}">
+          <a href=@{ForcastR}>Forcast
