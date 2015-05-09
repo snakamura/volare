@@ -134,7 +134,7 @@ size_t get_barometric_items(const char* path,
         }
     }
 
-    const array<size_t, 4> start = { size_t(time), 0, nwLatitudeIndex, nwLongitudeIndex };
+    const array<size_t, 4> start = { size_t(time/3), 0, nwLatitudeIndex, nwLongitudeIndex };
     const array<size_t, 4> count = { 1, pressureCount, latitudeCount, longitudeCount };
     try {
         File file(path);

@@ -53,7 +53,7 @@ spec = do
                 hClose handle
                 hash `shouldBe` "6202e74ef30fb541da50c8fbb13095c0f79e2383"
 
-                items <- MSM.getBarometricItems path (37.5, 139.5) (36.3, 140.2) 5
+                items <- MSM.getBarometricItems path (37.5, 139.5) (36.3, 140.2) 15
                 length items `shouldBe` 1568
                 let item = head items
                 Barometric.latitude item `shouldBe` 37.6
