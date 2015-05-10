@@ -44,7 +44,7 @@ define([
         $scope.save = function() {
             $scope.editing = false;
             $scope.update({
-                $name: $scope.name
+                name: $scope.name
             });
         };
         $scope.keydown = function(event) {

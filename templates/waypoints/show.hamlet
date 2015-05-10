@@ -2,6 +2,6 @@
 
 <div data-ng-controller=WaypointController data-ng-cloak>
   <h1 data-ng-controller=WaypointNameController>
-    <volare-name name="{{ name }}" update=update($name) delete=delete()>
+    <volare-name name="{{ name }}" update=update(name) delete=delete()>
 
   <volare-waypoint data-volare-fill items=items>
