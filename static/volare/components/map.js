@@ -600,8 +600,6 @@ define([
 
 
         function WeatherOverlay() {
-            var self = this;
-
             this._currentTime = null;
             this._$div = null;
             this._idleListener = null;
