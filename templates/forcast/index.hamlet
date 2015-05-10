@@ -1,4 +1,4 @@
 ^{W.navigation W.FORCAST}
 
 <div data-ng-controller=ForcastController data-ng-cloak>
-  <volare-forcast data-volare-fill>
+  <volare-forcast data-volare-fill items=items update=update(bounds)>
