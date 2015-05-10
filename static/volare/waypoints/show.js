@@ -50,6 +50,9 @@ define([
             restrict: 'E',
             replace: true,
             template: '<div></div>',
+            scope: {
+                items: '='
+            },
             link: function(scope, element, attrs) {
                 var map = new google.maps.Map(element[0], {
                     mapTypeId: google.maps.MapTypeId.HYBRID
