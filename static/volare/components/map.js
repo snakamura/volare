@@ -774,6 +774,8 @@ define([
 
                     $elem.css('left', nw.x + 'px');
                     $elem.css('top', nw.y + 'px');
+                    $elem.css('width', width + 'px');
+                    $elem.css('height', height + 'px');
 
                     var $cell = $elem.find('.cell');
                     $cell.css('width', width + 'px');
