@@ -15,8 +15,6 @@ import Data.Aeson
     , (.:?)
     )
 import qualified Data.Aeson as JSON
-import qualified Data.Aeson.Types as JSON
-import qualified Data.HashMap.Strict as HashMap
 import Data.Monoid ((<>))
 import qualified Data.Text as T
 import Database.Persist (entityVal)
@@ -98,17 +96,8 @@ data EditWorkspace = EditWorkspace (Maybe T.Text) (Maybe (Maybe M.RouteId))
 
 instance JSON.FromJSON EditWorkspace where
     parseJSON (JSON.Object o) = EditWorkspace <$> o .:? "name"
-                                              <*> o .:?? "routeId"
+                                              <*> o .:? "routeId"
     parseJSON _ = mempty
-
-
-(.:??) :: JSON.FromJSON a =>
-          JSON.Object ->
-          T.Text ->
-          JSON.Parser (Maybe (Maybe a))
-obj .:?? key = case HashMap.lookup key obj of
-                 Nothing -> pure Nothing
-                 Just v -> Just <$> JSON.parseJSON v
 
 
 putWorkspaceR :: M.WorkspaceId ->
