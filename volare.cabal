@@ -104,9 +104,9 @@ library
 
     build-depends: aeson == 0.8.*,
                    async == 2.0.*,
-                   attoparsec == 0.12.*,
+                   attoparsec == 0.13.*,
                    base == 4.8.*,
-                   bifunctors == 4.2.*,
+                   bifunctors == 5.*,
                    blaze-html == 0.8.*,
                    bytestring == 0.10.*,
                    clientsession == 0.9.*,
@@ -212,7 +212,7 @@ test-suite spec
                         TypeSynonymInstances
                         UndecidableInstances
 
-    build-depends: attoparsec == 0.12.*,
+    build-depends: attoparsec == 0.13.*,
                    base == 4.8.*,
                    bytestring == 0.10.*,
                    cryptohash == 0.11.*,
