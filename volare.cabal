@@ -150,7 +150,7 @@ library
                    yesod-core == 1.4.*,
                    yesod-form == 1.4.*,
                    yesod-persistent == 1.4.*,
-                   yesod-static == 1.4.*
+                   yesod-static == 1.5.*
 
     if flag(dev) || flag(library-only)
         cpp-options: -DDEVELOPMENT
