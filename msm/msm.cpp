@@ -88,7 +88,12 @@ size_t get_surface_items(const char* path,
         readDoubleInShort(file, "ncld_upper", start, count, items, &surface_item::upper_cloudiness, [](double v) { return round(v); });
         readDoubleInShort(file, "ncld_mid", start, count, items, &surface_item::mid_cloudiness, [](double v) { return round(v); });
         readDoubleInShort(file, "ncld_low", start, count, items, &surface_item::low_cloudiness, [](double v) { return round(v); });
-        readDoubleInShort(file, "ncld", start, count, items, &surface_item::cloud_amount, [](double v) { return round(v); });
+        try {
+          readDoubleInShort(file, "ncld", start, count, items, &surface_item::cloud_amount, [](double v) { return round(v); });
+        }
+        catch (const Exception& e) {
+          readDoubleInShort(file, "clda", start, count, items, &surface_item::cloud_amount, [](double v) { return round(v); });
+        }
     }
     catch (Exception e) {
         cerr << e.message() << endl;
