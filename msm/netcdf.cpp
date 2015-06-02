@@ -18,7 +18,7 @@ netcdf::File::~File() {
 
 Var netcdf::File::var(const string& name) const {
     int varId = -1;
-    handleError(nc_inq_varid(ncId_, name.c_str(), &varId), "nc_inq_varid failed");
+    handleError(nc_inq_varid(ncId_, name.c_str(), &varId), "nc_inq_varid failed: " + name);
     return Var(ncId_, varId);
 }
 
@@ -30,7 +30,7 @@ netcdf::Var::Var(int ncId, int varId) :
 
 double netcdf::Var::attDouble(const string& name) const {
     double d = 0.0;
-    handleError(nc_get_att_double(ncId_, varId_, name.c_str(), &d), "nc_var_att_double failed");
+    handleError(nc_get_att_double(ncId_, varId_, name.c_str(), &d), "nc_var_att_double failed: " + name);
     return d;
 }
 

@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 #include <functional>
+#include <iostream>
 #include <numeric>
 #include <vector>
 #include "msm.h"
@@ -90,6 +91,7 @@ size_t get_surface_items(const char* path,
         readDoubleInShort(file, "ncld", start, count, items, &surface_item::cloud_amount, [](double v) { return round(v); });
     }
     catch (Exception e) {
+        cerr << e.message() << endl;
         return -1;
     }
 
@@ -147,6 +149,7 @@ size_t get_barometric_items(const char* path,
         readDoubleInShort(file, "rh", start, count, items, &barometric_item::relative_humidity, [](double v) { return round(v); });
     }
     catch (Exception e) {
+        cerr << e.message() << endl;
         return -1;
     }
 
