@@ -12,6 +12,8 @@
 /routes/#M.RouteId RouteR GET DELETE
 /msm/surface/#Int/#Int/#Int/#Int SurfaceR GET
 /msm/barometric/#Int/#Int/#Int/#Int BarometricR GET
+/msm/surface/latest/#Int LatestSurfaceR GET
+/msm/barometric/latest/#Int LatestBarometricR GET
 /amedas/#Int/#Int/#Int/#Int AMEDASR GET
 /windas/#Int/#Int/#Int/#Int WINDASR GET
 /uas UASStationsR GET

@@ -20,9 +20,8 @@ define([
         util.loadCssInline(css);
 
         $scope.update = function(bounds) {
-            var time = new Date('2015-05-09T03:00:00Z');
-            var path = _s.sprintf('/msm/surface/%d/%d/%d/%d', time.getUTCFullYear(),
-                time.getUTCMonth() + 1, time.getUTCDate(), time.getUTCHours());
+            var hour = 0;
+            var path = _s.sprintf('/msm/surface/latest/%d', hour);
             $http.get(path, {
                 params: {
                     nwlat: bounds.getNorthEast().lat(),
