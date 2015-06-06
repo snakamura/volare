@@ -182,7 +182,7 @@ test-suite doctest
     default-language: Haskell2010
 
     build-depends: base == 4.8.*,
-                   doctest == 0.9.*
+                   doctest == 0.10.*
 
     ghc-options: -Wall -Werror -threaded -O0
 
