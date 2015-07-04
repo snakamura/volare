@@ -70,7 +70,7 @@ getBarometricR year month day = getData (dataFile False year month day) MSM.getB
 
 getLatestSurfaceR :: Int ->
                      Handler JSON.Value
-getLatestSurfaceR =  getData (latestDataFile True) MSM.getSurfaceItems
+getLatestSurfaceR = getData (latestDataFile True) MSM.getSurfaceItems
 
 
 getLatestBarometricR :: Int ->

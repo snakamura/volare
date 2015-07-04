@@ -6,9 +6,11 @@ define([
     'angular',
     'google',
     'text!./index.css',
+    'text!./time.html',
+    'jquery-ui',
     'volare/util',
     'volare/util/layout'
-], function(require, _, _s, $, angular, google, css) {
+], function(require, _, _s, $, angular, google, css, timeTemplate) {
     'use strict';
 
     var module = angular.module('volare.forcast', [
@@ -19,9 +21,13 @@ define([
     module.controller('ForcastController', ['$scope', '$http', 'util', function($scope, $http, util) {
         util.loadCssInline(css);
 
-        $scope.update = function(bounds) {
-            var hour = 0;
-            var path = _s.sprintf('/msm/surface/latest/%d', hour);
+        function update() {
+            var bounds = $scope.bounds;
+            if (!bounds) {
+                return;
+            }
+
+            var path = _s.sprintf('/msm/surface/latest/%d', $scope.hour);
             $http.get(path, {
                 params: {
                     nwlat: bounds.getNorthEast().lat(),
@@ -32,6 +38,36 @@ define([
             }).success(function(items) {
                 $scope.items = items;
             });
+        }
+
+        $scope.bounds = null;
+        $scope.hour = 0;
+        $scope.$watch('bounds', update);
+        $scope.$watch('hour', function() {
+            $scope.items = [];
+            update();
+        });
+    }]);
+
+    module.directive('volareForcastTime', [function() {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: timeTemplate,
+            scope: {
+                hour: '='
+            },
+            link: function(scope, element, attrs) {
+                var slider = element.find('.slider');
+                slider.slider({
+                    range: 'min',
+                    min: 0,
+                    max: 33
+                }).on('slide', function(event, ui) {
+                    scope.hour = ui.value;
+                    scope.$apply();
+                });
+            }
         };
     }]);
 
@@ -185,7 +221,7 @@ define([
             template: '<div class="map"></div>',
             scope: {
                 items: '=',
-                update: '&'
+                bounds: '='
             },
             link: function(scope, element, attrs) {
                 var map = new google.maps.Map(element[0], {
@@ -198,9 +234,8 @@ define([
                 msmOverlay.setMap(map);
 
                 map.addListener('idle', function() {
-                    scope.update({
-                        bounds: map.getBounds()
-                    });
+                    scope.bounds = map.getBounds();
+                    scope.$apply();
                 });
 
                 scope.$watch('items', function(items) {

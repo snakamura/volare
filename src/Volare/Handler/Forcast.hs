@@ -13,6 +13,7 @@ import Volare.Foundation
 import Volare.Handler.Utils
     ( addCommonLibraries
     , addGoogleApiKey
+    , addJQueryUI
     , addRequireJS
     )
 import Volare.Settings (widgetFile)
@@ -25,6 +26,7 @@ getForcastR = defaultLayout $ do
     setTitle "Forcast - Volare"
     addCommonLibraries
     addGoogleApiKey
+    addJQueryUI
     addRequireJS "forcast/index"
     addStylesheet $ StaticR S.css_common_css
     $(widgetFile "forcast/index")
