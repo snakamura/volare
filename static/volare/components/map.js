@@ -801,7 +801,8 @@ define([
                             selat: bounds.getSouthWest().lat(),
                             selng: bounds.getNorthEast().lng()
                         }
-                    }).success(function(items) {
+                    }).success(function(data) {
+                        var items = data.items;
                         if (self._time && WeatherOverlay.hoursEquals(self._time, time)) {
                             var oldItems = self._items;
                             var newItems = {};

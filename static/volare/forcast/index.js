@@ -35,8 +35,8 @@ define([
                     selat: bounds.getSouthWest().lat(),
                     selng: bounds.getNorthEast().lng()
                 }
-            }).success(function(items) {
-                $scope.items = items;
+            }).success(function(data) {
+                $scope.items = data.items;
             });
         }
 

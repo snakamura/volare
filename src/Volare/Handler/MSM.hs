@@ -16,6 +16,7 @@ import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
+import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Data.Time
@@ -50,6 +51,7 @@ import Yesod.Core.Handler
     )
 
 import Volare.Foundation
+import Volare.Handler.MSM.Timestamp (Timestamp(Timestamp))
 
 
 getSurfaceR :: Int ->
@@ -79,19 +81,20 @@ getLatestBarometricR = getData (latestDataFile False) MSM.getBarometricItems
 
 
 getData :: JSON.ToJSON a =>
-           IO FilePath ->
+           IO (Timestamp, FilePath) ->
            (FilePath -> (Float, Float) -> (Float, Float) -> Int -> IO a) ->
            Int ->
            Handler JSON.Value
-getData prepareDataFile loadData hour = do
+getData prepareDataFile getItems hour = do
     nwLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlat"
     nwLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "nwlng"
     seLatitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selat"
     seLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selng"
     case (nwLatitude, nwLongitude, seLatitude, seLongitude) of
         (Just nwLat, Just nwLng, Just seLat, Just seLng) -> liftIO $ do
-            path <- prepareDataFile
-            JSON.toJSON <$> loadData path (nwLat, nwLng) (seLat, seLng) hour
+            (timestamp, path) <- prepareDataFile
+            items <- getItems path (nwLat, nwLng) (seLat, seLng) hour
+            return $ JSON.Object $ HashMap.fromList [("timestamp", JSON.toJSON timestamp), ("items", JSON.toJSON items)]
         _ -> notFound
 
 
@@ -99,17 +102,17 @@ dataFile :: Bool ->
             Int ->
             Int ->
             Int ->
-            IO FilePath
+            IO (Timestamp, FilePath)
 dataFile surface year month day = do
     let t = if surface then 's' else 'p'
         path = TL.unpack $ F.format ("./data/msm/" % F.char % "/" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % ".nc") t year month day
     b <- doesFileExist path
     unless b $ download path $ MSM.download surface year month day
-    return path
+    return (Timestamp year month day 0, path)
 
 
 latestDataFile :: Bool ->
-                  IO FilePath
+                  IO (Timestamp, FilePath)
 latestDataFile surface = do
     currentTime <- getCurrentTime
     path <- whileM (candidates currentTime) $ \time ->
@@ -125,7 +128,7 @@ latestDataFile surface = do
             path = TL.unpack $ F.format ("./data/msm.latest/" % F.char % "/" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % F.left 2 '0' % ".nc") t year month day hour
         b <- doesFileExist path
         unless b $ download path $ MSM.downloadLatest surface (fromInteger year) month day hour
-        return path
+        return (Timestamp (fromInteger year) month day hour, path)
     candidates time = let hour = floor (utctDayTime time) `div` (60 * 60) `div` 3 * 3
                           startTime = UTCTime (utctDay time) (secondsToDiffTime (hour * 60 * 60))
                       in iterate (addUTCTime (-3 * 60 * 60)) startTime

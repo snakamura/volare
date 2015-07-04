@@ -59,6 +59,7 @@ library
                    Volare.Handler.Flight
                    Volare.Handler.Forcast
                    Volare.Handler.MSM
+                   Volare.Handler.MSM.Timestamp
                    Volare.Handler.Root
                    Volare.Handler.Route
                    Volare.Handler.UAS
