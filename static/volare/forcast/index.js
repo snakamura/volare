@@ -36,12 +36,15 @@ define([
                     selng: bounds.getNorthEast().lng()
                 }
             }).success(function(data) {
+                var timestamp = data.timestamp;
+                $scope.time = Date.UTC(timestamp.year, timestamp.month - 1, timestamp.day, timestamp.hour + $scope.hour);
                 $scope.items = data.items;
             });
         }
 
         $scope.bounds = null;
         $scope.hour = 0;
+        $scope.time = null;
         $scope.$watch('bounds', update);
         $scope.$watch('hour', function() {
             $scope.items = [];
@@ -55,6 +58,7 @@ define([
             replace: true,
             template: timeTemplate,
             scope: {
+                time: '=',
                 hour: '='
             },
             link: function(scope, element, attrs) {

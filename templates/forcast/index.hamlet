@@ -1,5 +1,5 @@
 ^{W.navigation W.FORCAST}
 
 <div data-ng-controller=ForcastController data-ng-cloak>
-  <volare-forcast-time hour=hour>
+  <volare-forcast-time time=time hour=hour>
   <volare-forcast data-volare-fill items=items bounds=bounds>
