@@ -2,4 +2,4 @@
 
 <div data-ng-controller=ForcastController data-ng-cloak>
   <volare-forcast-time time=time hour=hour>
-  <volare-forcast data-volare-fill items=items bounds=bounds>
+  <volare-forcast data-volare-fill items=items time=time bounds=bounds>

@@ -37,7 +37,7 @@ define([
                 }
             }).success(function(data) {
                 var timestamp = data.timestamp;
-                $scope.time = Date.UTC(timestamp.year, timestamp.month - 1, timestamp.day, timestamp.hour + $scope.hour);
+                $scope.time = new Date(Date.UTC(timestamp.year, timestamp.month - 1, timestamp.day, timestamp.hour + $scope.hour));
                 $scope.items = data.items;
             });
         }
@@ -46,10 +46,7 @@ define([
         $scope.hour = 0;
         $scope.time = null;
         $scope.$watch('bounds', update);
-        $scope.$watch('hour', function() {
-            $scope.items = [];
-            update();
-        });
+        $scope.$watch('hour', update);
     }]);
 
     module.directive('volareForcastTime', [function() {
@@ -155,13 +152,13 @@ define([
             }
         };
 
-        MSMOverlay.prototype.setItems = function(items) {
+        MSMOverlay.prototype.setItems = function(items, time) {
             var self = this;
 
             var oldItems = self._items;
             var newItems = {};
             _.each(items, function(item) {
-                var key = self._getItemKey(item);
+                var key = self._getItemKey(item, time);
                 var oldItem = oldItems[key];
                 if (!_.isUndefined(oldItem)) {
                     item.elem = oldItem.elem;
@@ -204,8 +201,8 @@ define([
                 return 'rgba(204, 0, 0, ' + alpha + ')';
         };
 
-        MSMOverlay.prototype._getItemKey = function(item) {
-            return item.latitude + ' ' + item.longitude;
+        MSMOverlay.prototype._getItemKey = function(item, time) {
+            return time.toISOString() + ' ' + item.latitude + ' ' + item.longitude;
         };
 
         MSMOverlay.prototype._getLatitudeStep = function() {
@@ -225,6 +222,7 @@ define([
             template: '<div class="map"></div>',
             scope: {
                 items: '=',
+                time: '=',
                 bounds: '='
             },
             link: function(scope, element, attrs) {
@@ -243,7 +241,7 @@ define([
                 });
 
                 scope.$watch('items', function(items) {
-                    msmOverlay.setItems(items);
+                    msmOverlay.setItems(items, scope.time);
                 });
             }
         };
