@@ -21,6 +21,10 @@ define([
     module.controller('ForcastController', ['$scope', '$http', 'util', function($scope, $http, util) {
         util.loadCssInline(css);
 
+        $scope.bounds = null;
+        $scope.hour = 0;
+        $scope.time = null;
+
         function update() {
             var bounds = $scope.bounds;
             if (!bounds) {
@@ -42,9 +46,6 @@ define([
             });
         }
 
-        $scope.bounds = null;
-        $scope.hour = 0;
-        $scope.time = null;
         $scope.$watch('bounds', update);
         $scope.$watch('hour', update);
     }]);
@@ -59,14 +60,30 @@ define([
                 hour: '='
             },
             link: function(scope, element, attrs) {
+                var min = 0;
+                var max = 33;
+
                 var slider = element.find('.slider');
                 slider.slider({
                     range: 'min',
-                    min: 0,
-                    max: 33
+                    min: min,
+                    max: max
                 }).on('slide', function(event, ui) {
                     scope.hour = ui.value;
                     scope.$apply();
+                });
+
+                scope.forward = function(fast) {
+                    var step = fast ? 3 : 1;
+                    scope.hour = Math.min(Math.floor((scope.hour + step) / step) * step, max);
+                };
+                scope.backward = function(fast) {
+                    var step = fast ? 3 : 1;
+                    scope.hour = Math.max(Math.ceil((scope.hour - step) / step) * step, min);
+                };
+
+                scope.$watch('hour', function() {
+                    slider.slider('value', scope.hour);
                 });
             }
         };

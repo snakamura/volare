@@ -6,7 +6,7 @@ div.time table {
     width: 100%;
 }
 
-div.time td.current {
+div.time td.control {
     width: 1px;
     white-space: nowrap;
     padding: 10px;

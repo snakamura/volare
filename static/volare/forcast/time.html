@@ -1,7 +1,21 @@
 <div class="time">
   <table>
     <tr>
-      <td class="current">{{ time | date:'yyyy-MM-dd HH:00' }}</td>
+      <td class="control">
+        <button class="btn btn-default stop" data-ng-click="backward(true)">
+          <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button class="btn btn-default stop" data-ng-click="backward(false)">
+          <span class="glyphicon glyphicon-step-backward"></span>
+        </button>
+        <span>{{ time | date:'yyyy-MM-dd HH:00' }}</span>
+        <button class="btn btn-default play" data-ng-click="forward(false)">
+          <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button class="btn btn-default play" data-ng-click="forward(true)">
+          <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+      </td>
       <td><div class="slider"></div></td>
     </tr>
   </table>
