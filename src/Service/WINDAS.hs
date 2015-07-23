@@ -62,7 +62,8 @@ import System.IO.Error
 import Text.HTML.TagSoup
     ( fromAttrib
     , isTagOpenName
-    , parseTags)
+    , parseTags
+    )
 
 import Service.WINDAS.Parser (parser)
 import qualified Service.WINDAS.Types as Types
@@ -74,10 +75,11 @@ downloadStation :: Types.Station ->
                    Int ->
                    Int ->
                    Int ->
+                   Http.Manager ->
                    Consumer Types.Observation IO () ->
                    IO ()
-downloadStation station year month day hour consumer =
-    downloadStations [station] year month day hour $ P.map snd >-> consumer
+downloadStation station year month day hour manager consumer =
+    downloadStations [station] year month day hour manager $ P.map snd >-> consumer
 
 
 parseStation :: (Functor m, Monad m, MonadIO m, MonadThrow m) =>
@@ -92,10 +94,11 @@ downloadStations :: [Types.Station] ->
                     Int ->
                     Int ->
                     Int ->
+                    Http.Manager ->
                     Consumer (Types.Station, Types.Observation) IO () ->
                     IO ()
-downloadStations stations year month day hour consumer =
-    downloadArchive year month day hour $ \producer -> do
+downloadStations stations year month day hour manager consumer =
+    downloadArchive year month day hour manager $ \producer -> do
         runEffect $ parseStations stations producer >-> consumer
 
 
@@ -122,6 +125,7 @@ downloadAll :: Int ->
                Int ->
                Int ->
                Int ->
+               Http.Manager ->
                Consumer (Types.Station, Types.Observation) IO () ->
                IO ()
 downloadAll = downloadStations Stations.allStations
@@ -137,15 +141,15 @@ downloadArchive :: Int ->
                    Int ->
                    Int ->
                    Int ->
+                   Http.Manager ->
                    (Producer B.ByteString IO () -> IO r) ->
                    IO r
-downloadArchive year month day hour process = do
-    file <- P.find isHour $ listFiles year month day
+downloadArchive year month day hour manager process = do
+    file <- P.find isHour $ listFiles year month day manager
     case file of
         Just name -> do
             let url = baseURL year month day <> TL.fromStrict name
             req <- Http.parseUrl $ TL.unpack url
-            manager <- Http.newManager Http.defaultManagerSettings
             withHTTP req manager $ process . Http.responseBody
         Nothing -> throwIO $ mkIOError doesNotExistErrorType "File not found" Nothing Nothing
   where
@@ -157,11 +161,12 @@ listFiles :: (MonadIO m, MonadThrow m) =>
              Int ->
              Int ->
              Int ->
+             Http.Manager ->
              Producer T.Text m ()
-listFiles year month day = do
+listFiles year month day manager = do
     req <- lift $ Http.parseUrl $ TL.unpack $ baseURL year month day
-    res <- liftIO $ Http.newManager Http.defaultManagerSettings >>= Http.httpLbs req
-    each $ parseDirectory $ Http.responseBody res
+    files <- liftIO $ (parseDirectory . Http.responseBody) <$> Http.httpLbs req manager
+    each files
 
 
 parseDirectory :: BL.ByteString ->

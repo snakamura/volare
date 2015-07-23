@@ -12,6 +12,7 @@ import Database.Persist.Class
     , runPool
     )
 import Database.Persist.Sql (SqlBackend)
+import qualified Network.HTTP.Client as Http
 import Text.Blaze.Html (Html)
 import Text.Julius
     ( Javascript(..)
@@ -58,6 +59,7 @@ data Volare = Volare
     { volareConfig         :: AppConfig DefaultEnv Config
     , volarePersistConfig  :: PersistConfig
     , volareConnectionPool :: PersistConfigPool PersistConfig
+    , volareHttpManager    :: Http.Manager
     , volareStatic         :: Static
     }
 
@@ -96,3 +98,8 @@ instance JSON.ToJSON a => ToJavascript a where
 getConfig :: (MonadHandler m, HandlerSite m ~ Volare) =>
              m Config
 getConfig = (appExtra . volareConfig) <$> getYesod
+
+
+getHttpManager :: (MonadHandler m, HandlerSite m ~ Volare) =>
+                  m Http.Manager
+getHttpManager = volareHttpManager <$> getYesod

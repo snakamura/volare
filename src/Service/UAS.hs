@@ -32,9 +32,10 @@ download :: Types.Station ->
             Int ->
             Int ->
             Int ->
+            Http.Manager ->
             (Producer B.ByteString IO () -> IO r) ->
             IO r
-download station year month day hour process = do
+download station year month day hour manager process = do
     let baseURL = "http://weather.uwyo.edu/cgi-bin/sounding?TYPE=TEXT%3ARAW"
         url = F.format (F.stext % "&YEAR=" % F.left 4 '0'
                                 % "&MONTH=" % F.left 2 '0'
@@ -43,7 +44,6 @@ download station year month day hour process = do
                                 % "&STNM=" % F.int)
                        baseURL year month day hour day hour (Types.id station)
     req <- Http.parseUrl $ TL.unpack url
-    manager <- Http.newManager Http.defaultManagerSettings
     withHTTP req manager $ process . Http.responseBody
 
 

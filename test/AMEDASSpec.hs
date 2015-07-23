@@ -1,6 +1,7 @@
 module AMEDASSpec (spec) where
 
 import Data.Maybe (fromJust)
+import qualified Network.HTTP.Client as Http
 import Pipes ((>->))
 import qualified Pipes as P
 import qualified Pipes.ByteString as PB
@@ -15,6 +16,7 @@ import Test.Hspec
     ( Spec
     , describe
     , it
+    , runIO
     , shouldBe
     )
 
@@ -27,11 +29,13 @@ spec = do
         it "returns stations in a specified range" $ do
             length (AMEDAS.stations (37, 140) (36, 141)) `shouldBe` 16
 
+    manager <- runIO $ Http.newManager Http.defaultManagerSettings
+
     let downloadSimple = let station = fromJust $ AMEDAS.station "Higashishirakawa"
-                         in AMEDAS.download station 2014 4 26
+                         in AMEDAS.download station 2014 4 26 manager
 
     let downloadComplex = let station = fromJust $ AMEDAS.station "Tsukuba"
-                          in AMEDAS.download station 2014 4 26
+                          in AMEDAS.download station 2014 4 26 manager
 
     describe "download" $ do
         it "downloads all simple items" $ do

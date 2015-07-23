@@ -25,6 +25,7 @@ import Data.Time
     )
 import Formatting ((%))
 import qualified Formatting as F
+import qualified Network.HTTP.Client as Http
 import Pipes ((>->))
 import qualified Pipes as P
 import qualified Pipes.ByteString as PB
@@ -64,7 +65,8 @@ getWINDASR year month day hour = do
     case (nwLatitude, nwLongitude, seLatitude, seLongitude) of
         (Just nwLat, Just nwLng, Just seLat, Just seLng) -> do
             let stations = WINDAS.stations (nwLat, nwLng) (seLat, seLng)
-            liftIO $ JSON.toJSON <$> loadItems stations year month day hour
+            manager <- getHttpManager
+            liftIO $ JSON.toJSON <$> loadItems stations year month day hour manager
         _ -> notFound
 
 
@@ -73,8 +75,9 @@ loadItems :: [WINDAS.Station] ->
              Int ->
              Int ->
              Int ->
+             Http.Manager ->
              IO [Item]
-loadItems stations year month day hour = do
+loadItems stations year month day hour manager = do
     let time = UTCTime (fromGregorian (fromIntegral year) month day) (fromIntegral $ hour * 60 * 60)
         baseTime = addUTCTime (60 * 60) time
         (y, m, d) = toGregorian $ utctDay baseTime
@@ -83,7 +86,7 @@ loadItems stations year month day hour = do
     b <- doesFileExist path
     unless b $ do
         createDirectoryIfMissing True $ takeDirectory path
-        WINDAS.downloadArchive (fromIntegral y) m d h $ \producer ->
+        WINDAS.downloadArchive (fromIntegral y) m d h manager $ \producer ->
              withSystemTempFile "windas.tar.gz" $ \tempPath handle -> do
                  P.runEffect $ producer >-> PB.toHandle handle
                  hClose handle

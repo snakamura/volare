@@ -2,6 +2,7 @@ module UASSpec (spec) where
 
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Maybe (isJust)
+import qualified Network.HTTP.Client as Http
 import qualified Pipes.ByteString as PB
 import System.IO
     ( IOMode(ReadMode)
@@ -11,6 +12,7 @@ import Test.Hspec
     ( Spec
     , describe
     , it
+    , runIO
     , shouldBe
     , shouldSatisfy
     )
@@ -22,10 +24,12 @@ import SpecUtils
 
 spec :: Spec
 spec = do
+    manager <- runIO $ Http.newManager Http.defaultManagerSettings
+
     describe "download" $ do
         it "downloads raw data" $ do
             let Just station = UAS.station 47646
-            hash <- UAS.download station 2014 04 26 0 sha1
+            hash <- UAS.download station 2014 04 26 0 manager sha1
             hash `shouldBe` "c54fc17de4f436c0742f8ffa25af7d23d11842d7"
 
     describe "parse" $ do

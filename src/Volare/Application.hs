@@ -13,6 +13,7 @@ import Database.Persist.Class
     , runPool
     )
 import Database.Persist.Sql (runMigration)
+import qualified Network.HTTP.Client as Http
 import Network.Wai (Application)
 import Network.Wai.Middleware.RequestLogger (logStdout)
 import Yesod.Core.Dispatch
@@ -55,8 +56,9 @@ makeVolare config = do
     persistConfig <- withYamlEnvironment "config/persist.yml" (appEnv config) loadConfig >>= applyEnv
     pool <- createPoolConfig persistConfig
     runStderrLoggingT $ runPool persistConfig (runMigration migrateAll) pool
-    s <- staticSite
-    toWaiApp $ Volare config persistConfig pool s
+    manager <- Http.newManager Http.defaultManagerSettings
+    static <- staticSite
+    toWaiApp $ Volare config persistConfig pool manager static
 
 
 withVolare :: (Application -> IO ()) -> IO ()

@@ -220,6 +220,7 @@ test-suite spec
                    cryptohash == 0.11.*,
                    foldl == 1.1.*,
                    hspec == 2.1.*,
+                   http-client == 0.4.*,
                    HUnit == 1.2.*,
                    ieee754 == 0.7.*,
                    monad-logger == 0.3.*,

@@ -2,6 +2,7 @@ module WINDASSpec (spec) where
 
 import Control.Monad.Trans.State.Strict (evalStateT)
 import Data.Maybe (catMaybes)
+import qualified Network.HTTP.Client as Http
 import Pipes
     ( (>->)
     , await
@@ -17,6 +18,7 @@ import Test.Hspec
     ( Spec
     , describe
     , it
+    , runIO
     , shouldBe)
 
 import qualified Service.WINDAS as WINDAS
@@ -26,9 +28,11 @@ import SpecUtils
 
 spec :: Spec
 spec = do
+    manager <- runIO $ Http.newManager Http.defaultManagerSettings
+
     describe "downloadArchive" $ do
         it "downloads an archive" $ do
-            hash <- WINDAS.downloadArchive 2014 9 14 3 sha1
+            hash <- WINDAS.downloadArchive 2014 9 14 3 manager sha1
             hash `shouldBe` "ef2a8deb36b978fcf3e6973888c94ccbb627fb73"
 
     describe "parseStation" $ do

@@ -16,6 +16,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Formatting ((%))
 import qualified Formatting as F
+import qualified Network.HTTP.Client as Http
 import Pipes ((>->))
 import qualified Pipes as P
 import qualified Pipes.ByteString as PB
@@ -71,8 +72,9 @@ getUASR stationId year month day hour = do
                 addRequireJS "uas/show"
                 addStylesheet $ StaticR S.css_common_css
                 $(widgetFile "uas/show")
-            provideRep $
-                liftIO (load station year month day hour) >>= \case
+            provideRep $ do
+                manager <- getHttpManager
+                liftIO (load station year month day hour manager) >>= \case
                     Just items -> return $ JSON.toJSON items
                     Nothing -> notFound
         Nothing -> notFound
@@ -102,13 +104,14 @@ load :: UAS.Station ->
         Int ->
         Int ->
         Int ->
+        Http.Manager ->
         IO (Maybe [Item])
-load station year month day hour = do
+load station year month day hour manager = do
     let path = TL.unpack $ F.format ("./data/uas/" % F.int % "/" % F.left 4 '0' % "/" % F.left 2 '0' % "/" % F.left 2 '0' % "/" % F.left 2 '0') (UAS.id station) year month day hour
     b <- doesFileExist path
     unless b $ do
         createDirectoryIfMissing True $ takeDirectory path
-        UAS.download station year month day hour $ \producer ->
+        UAS.download station year month day hour manager $ \producer ->
              withSystemTempFile "uas" $ \tempPath handle -> do
                  P.runEffect $ producer >-> PB.toHandle handle
                  hClose handle

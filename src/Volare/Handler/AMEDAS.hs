@@ -24,6 +24,7 @@ import Data.Time
     )
 import Formatting ((%))
 import qualified Formatting as F
+import qualified Network.HTTP.Client as Http
 import Pipes ((>->))
 import qualified Pipes as P
 import qualified Pipes.ByteString as PB
@@ -62,6 +63,7 @@ getAMEDASR year month day hour = do
     seLongitude <- (>>= readMaybe . T.unpack) <$> lookupGetParam "selng"
     case (nwLatitude, nwLongitude, seLatitude, seLongitude) of
         (Just nwLat, Just nwLng, Just seLat, Just seLng) -> do
+            manager <- getHttpManager
             let utcTime = UTCTime (fromGregorian (fromIntegral year) month day) (fromIntegral $ hour * 60 * 60)
                 jst = hoursToTimeZone 9
                 jstTime = utcToLocalTime jst utcTime
@@ -69,7 +71,7 @@ getAMEDASR year month day hour = do
                 h = todHour $ localTimeOfDay jstTime
                 f (Item _ _ item) = let t = AMEDAS.time item
                                     in h * 60 < t && t <= (h + 1) * 60
-                load station = filter f <$> loadItems station (fromIntegral y) m d
+                load station = filter f <$> loadItems station (fromIntegral y) m d manager
             liftIO $ JSON.toJSON . concat <$> mapConcurrently load (AMEDAS.stations (nwLat, nwLng) (seLat, seLng))
         _ -> notFound
 
@@ -78,15 +80,16 @@ loadItems :: AMEDAS.Station ->
              Int ->
              Int ->
              Int ->
+             Http.Manager ->
              IO [Item]
-loadItems station year month day = do
+loadItems station year month day manager = do
     let path = TL.unpack $ F.format ("./data/amedas/" % F.int % "/" % F.left 4 '0' % "/" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % ".csv") (AMEDAS.prec station) (AMEDAS.block station) year month day
     b <- doesFileExist path
     items <- if b then
                  withFile path ReadMode $ P.toListM . AMEDAS.load . PB.fromHandle
              else do
                  createDirectoryIfMissing True $ takeDirectory path
-                 items <- P.toListM $ AMEDAS.download station year month day
+                 items <- P.toListM $ AMEDAS.download station year month day manager
                  withSystemTempFile "amedas.csv" $ \tempPath handle -> do
                      P.runEffect $ P.each items >-> AMEDAS.save (PB.toHandle handle)
                      hClose handle
