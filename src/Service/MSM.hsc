@@ -89,8 +89,8 @@ download surface year month day process = do
     let t = if surface then 'S' else 'P'
         url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" t year month day
     req <- Http.parseUrl url
-    Http.withManager Http.defaultManagerSettings $ \manager -> do
-        withHTTP req manager $ process . Http.responseBody
+    manager <- Http.newManager Http.defaultManagerSettings
+    withHTTP req manager $ process . Http.responseBody
 
 
 downloadLatest :: Bool ->
@@ -104,8 +104,8 @@ downloadLatest surface year month day hour process = do
     let t = if surface then 'S' else 'P'
         url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/latest/%04d%02d%02d/MSM%04d%02d%02d%02d%c.nc" year month day year month day hour t
     req <- Http.parseUrl url
-    Http.withManager Http.defaultManagerSettings $ \manager -> do
-        withHTTP req manager $ process . Http.responseBody
+    manager <- Http.newManager Http.defaultManagerSettings
+    withHTTP req manager $ process . Http.responseBody
 
 
 foreign import ccall get_surface_items :: CString ->

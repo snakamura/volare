@@ -13,7 +13,6 @@ module Service.UAS
     ) where
 
 import Codec.Utils.Pipes (makeParser)
-import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString as B
 import qualified Data.Text.Lazy as TL
 import Formatting ((%))
@@ -44,9 +43,8 @@ download station year month day hour process = do
                                 % "&STNM=" % F.int)
                        baseURL year month day hour day hour (Types.id station)
     req <- Http.parseUrl $ TL.unpack url
-    liftIO $ Http.withManager Http.defaultManagerSettings $ \manager -> do
-        withHTTP req manager $ \res -> do
-            process $ Http.responseBody res
+    manager <- Http.newManager Http.defaultManagerSettings
+    withHTTP req manager $ process . Http.responseBody
 
 
 parser :: (Functor m, Monad m) =>

@@ -145,9 +145,8 @@ downloadArchive year month day hour process = do
         Just name -> do
             let url = baseURL year month day <> TL.fromStrict name
             req <- Http.parseUrl $ TL.unpack url
-            liftIO $ Http.withManager Http.defaultManagerSettings $ \manager -> do
-                withHTTP req manager $ \res -> do
-                    process $ Http.responseBody res
+            manager <- Http.newManager Http.defaultManagerSettings
+            withHTTP req manager $ process . Http.responseBody
         Nothing -> throwIO $ mkIOError doesNotExistErrorType "File not found" Nothing Nothing
   where
     isHour file = let s = F.sformat ("IUPC00_COMP_" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % F.left 2 '0') year month day hour
@@ -161,7 +160,7 @@ listFiles :: (MonadIO m, MonadThrow m) =>
              Producer T.Text m ()
 listFiles year month day = do
     req <- lift $ Http.parseUrl $ TL.unpack $ baseURL year month day
-    res <- liftIO $ Http.withManager Http.defaultManagerSettings $ Http.httpLbs req
+    res <- liftIO $ Http.newManager Http.defaultManagerSettings >>= Http.httpLbs req
     each $ parseDirectory $ Http.responseBody res
 
 
