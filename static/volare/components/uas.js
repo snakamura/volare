@@ -156,7 +156,7 @@ define([
                 function drawDryAdiabat(context, range, temperature, bold) {
                     context.save();
                     clip(context, range);
-                    context.lineWidth = bold ? 1 : 0.5;
+                    context.lineWidth = bold ? 2 : 0.5;
                     context.strokeStyle = bold ? 'green' : 'lightgreen';
 
                     context.beginPath();
@@ -178,7 +178,7 @@ define([
                 function drawMoistAdiabat(context, range, basePressure, baseTemperature, bold) {
                     context.save();
                     clip(context, range);
-                    context.lineWidth = bold ? 1 : 0.5;
+                    context.lineWidth = bold ? 2 : 0.5;
                     context.strokeStyle = bold ? 'chocolate' : 'tan';
 
                     var pressures = _.range(_.head(range.pressures), _.last(range.pressures) - 1, -10);
@@ -203,7 +203,7 @@ define([
                 function drawMixingRatio(context, range, ratio, bold) {
                     context.save();
                     clip(context, range);
-                    context.lineWidth = bold ? 1 : 0.5;
+                    context.lineWidth = bold ? 2 : 0.5;
                     context.strokeStyle = bold ? 'purple' : 'violet';
                     context.fillStyle = bold ? 'purple' : 'violet';
                     context.textAlign = 'center';
@@ -242,7 +242,7 @@ define([
                     context.save();
                     clip(context, range);
 
-                    context.lineWidth = 2;
+                    context.lineWidth = 3;
 
                     context.strokeStyle = 'red';
                     context.beginPath();
