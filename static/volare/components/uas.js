@@ -378,6 +378,17 @@ define([
                 return items[1].pressure >= basePressure;
             }).value();
 
+            if (items.length > 0 && items[0][0].pressure > basePressure) {
+                var t1 = items[0][0].temperature;
+                var t2 = items[0][1].temperature;
+                var p1 = items[0][0].pressure;
+                var p2 = items[0][1].pressure;
+                items[0][0] = {
+                    pressure: basePressure,
+                    temperature: t1 + (t2 - t1) * (basePressure - p1) / (p2 - p1)
+                };
+            }
+
             function getPressures(high, low) {
                 var step = 10;
                 var start = Math.ceil(high/step) * step;
