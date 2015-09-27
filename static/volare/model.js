@@ -134,7 +134,7 @@ define([
             }, null);
         };
 
-        Flights.prototype.loadFlight = function(id, color, visible) {
+        Flights.prototype.loadFlight = function(id, color, visible, primary) {
             var self = this;
             var params = {};
             if (this._interval)
@@ -144,22 +144,22 @@ define([
             }).success(function(flight) {
                 if (!color)
                     color = self._getNextAvailableColor();
-                self.addFlight(Flight.wrap(flight, color, visible));
+                self.addFlight(Flight.wrap(flight, color, visible), primary);
             });
         };
 
-        Flights.prototype.addFlight = function(flight) {
+        Flights.prototype.addFlight = function(flight, primary) {
             var index = _.sortedIndex(this._flights, flight, function(flight) {
                 return flight.getName();
             });
             this._flights.splice(index, 0, flight);
             $(flight).on('visible_changed', this._visibleChangedListener);
 
-            if (!this._primaryFlight)
-                this._primaryFlight = flight;
-
             this._clearProperties();
             $(this).trigger('flight_added', [flight, index]);
+
+            if ((_.isUndefined(primary) && !this._primaryFlight) || primary)
+                this.setPrimaryFlight(flight);
         };
 
         Flights.prototype.removeFlight = function(id) {
@@ -203,9 +203,10 @@ define([
         Flights.prototype._reload = function() {
             var flights = this._flights.slice(0);
             var self = this;
+            var primaryFlight = self.getPrimaryFlight();
             _.each(flights, function(flight) {
                 self.removeFlight(flight.getId());
-                self.loadFlight(flight.getId(), flight.getColor(), flight.isVisible());
+                self.loadFlight(flight.getId(), flight.getColor(), flight.isVisible(), flight === primaryFlight);
             });
         };
 
