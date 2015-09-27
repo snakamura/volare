@@ -63,7 +63,7 @@ define([
             });
         };
 
-        flights.loadFlight(flightId, 'red');
+        flights.loadFlight(flightId, 'red', true);
 
         layout.setupLayout(flights, $('#map'), $('#sidebar'), $('#chart'));
     }]);

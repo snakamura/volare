@@ -134,7 +134,7 @@ define([
             }, null);
         };
 
-        Flights.prototype.loadFlight = function(id, color) {
+        Flights.prototype.loadFlight = function(id, color, visible) {
             var self = this;
             var params = {};
             if (this._interval)
@@ -144,7 +144,7 @@ define([
             }).success(function(flight) {
                 if (!color)
                     color = self._getNextAvailableColor();
-                self.addFlight(Flight.wrap(flight, color));
+                self.addFlight(Flight.wrap(flight, color, visible));
             });
         };
 
@@ -205,7 +205,7 @@ define([
             var self = this;
             _.each(flights, function(flight) {
                 self.removeFlight(flight.getId());
-                self.loadFlight(flight.getId(), flight.getColor());
+                self.loadFlight(flight.getId(), flight.getColor(), flight.isVisible());
             });
         };
 
@@ -256,7 +256,7 @@ define([
         function Flight() {
         }
 
-        Flight.wrap = function(flight, color) {
+        Flight.wrap = function(flight, color, visible) {
             var f = util.wrap(Flight.prototype, flight);
             f._time = new Date(flight.time);
             _.each(f._records, function(record) {
@@ -264,7 +264,7 @@ define([
             });
 
             f._color = color;
-            f._visible = true;
+            f._visible = visible;
             f._statuses = {};
 
             return f;
