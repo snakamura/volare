@@ -72,7 +72,7 @@ define([
         // Unbound Map from flights and use this controller
     }]);
 
-    module.factory('Map', ['$http', '$modal', 'util', function($http, $modal, util) {
+    module.factory('Map', ['$http', '$uibModal', 'util', function($http, $uibModal, util) {
         var LatLng = google.maps.LatLng;
         var LatLngBounds = google.maps.LatLngBounds;
 
@@ -1433,7 +1433,7 @@ define([
         };
 
         UASOverlay.prototype._open = function(station) {
-            var modal = $modal.open({
+            var modal = $uibModal.open({
                 template: uasModalTemplate,
                 controller: 'UASModalController',
                 backdrop: 'static',

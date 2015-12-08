@@ -45,7 +45,7 @@ define([
         'volare.util'
     ]);
 
-    module.controller('WorkspaceController', ['$scope', '$http', '$modal', 'layout', 'Map', 'model', 'util', function($scope, $http, $modal, layout, Map, model, util) {
+    module.controller('WorkspaceController', ['$scope', '$http', '$uibModal', 'layout', 'Map', 'model', 'util', function($scope, $http, $uibModal, layout, Map, model, util) {
         util.loadCssInline(css);
 
         var flights = new model.Flights();
@@ -55,7 +55,7 @@ define([
         $scope.flights = flights;
         $scope.map = {};
         $scope.addFlight = function() {
-            var modal = $modal.open({
+            var modal = $uibModal.open({
                 template: workspaceAddFlightTemplate,
                 controller: 'WorkspaceAddFlightController',
                 backdrop: 'static',
@@ -78,7 +78,7 @@ define([
             });
         };
         $scope.removeFlight = function() {
-            var modal = $modal.open({
+            var modal = $uibModal.open({
                 template: workspaceRemoveFlightTemplate,
                 controller: 'WorkspaceRemoveFlightController',
                 backdrop: 'static',

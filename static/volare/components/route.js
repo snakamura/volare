@@ -31,9 +31,9 @@ define([
         };
     }]);
 
-    module.controller('RouteController', ['$scope', '$modal', function($scope, $modal) {
+    module.controller('RouteController', ['$scope', '$uibModal', function($scope, $uibModal) {
         $scope.editRoute = function() {
-            var modal = $modal.open({
+            var modal = $uibModal.open({
                 template: editItemsTemplate,
                 controller: 'RouteEditItemsController',
                 backdrop: 'static'
