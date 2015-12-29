@@ -10,7 +10,7 @@ import Foreign.C
     , CInt)
 import Foreign.Storable (Storable(..))
 
-#include "../../../msm/msm.h"
+#include "msm.h"
 
 
 data Item = Item

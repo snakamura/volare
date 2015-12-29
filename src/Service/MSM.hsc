@@ -34,7 +34,7 @@ import Text.Printf (printf)
 import qualified Service.MSM.Barometric as Barometric
 import qualified Service.MSM.Surface as Surface
 
-#include "../../../msm/msm.h"
+#include "msm.h"
 
 data MSMException = MSMException deriving (Show, Typeable)
 
