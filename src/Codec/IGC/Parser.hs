@@ -101,7 +101,7 @@ altitude :: Parser Float
 altitude = ((fromIntegral .) . select) <$> ((char 'A' <|> char 'V') *> pressure) <*> gnss
   where
     pressure = digits 5 <|> (char '-' *> (negate <$> digits 4))
-    gnss = digits 5
+    gnss = digits 5 <|> (char '-' *> (negate <$> digits 4))
     select :: Int -> Int -> Int
     select p 0 = p
     select _ g = g
