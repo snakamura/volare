@@ -42,15 +42,15 @@ headers = hfdte <* many recordH
 
 
 record :: Parser (Maybe Record)
-record = recordB <|> other
+record = (Just <$> recordB) <|> (other *> pure Nothing)
 
 
 recordA :: Parser ()
 recordA = char 'A' *> line
 
 
-recordB :: Parser (Maybe Record)
-recordB = Just <$> (char 'B' *> (Record <$> time <*> position) <* line)
+recordB :: Parser Record
+recordB = char 'B' *> (Record <$> time <*> position) <* line
 
 
 recordG :: Parser ()
@@ -107,8 +107,8 @@ altitude = ((fromIntegral .) . select) <$> ((char 'A' <|> char 'V') *> pressure)
     select _ g = g
 
 
-other :: Parser (Maybe Record)
-other = const Nothing <$> (satisfy (inClass "CDEFHIJLMNOPQR") *> line)
+other :: Parser ()
+other = satisfy (inClass "CDEFHIJLMNOPQR") *> line
 
 
 toDegree :: Int ->
