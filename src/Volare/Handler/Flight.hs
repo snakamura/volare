@@ -80,7 +80,10 @@ data NewFlight = NewFlight T.Text B.ByteString
 
 instance JSON.FromJSON NewFlight where
     parseJSON (JSON.Object o) = NewFlight <$> o .: "name"
-                                          <*> (T.encodeUtf8 <$> (o .: "igc"))
+                                          <*> ((T.encodeUtf8 . fixMissingNewLine) <$> (o .: "igc"))
+      where
+        fixMissingNewLine text | T.last text /= '\n' = text <> "\r\n"
+                               | otherwise           = text
     parseJSON _ = mempty
 
 
