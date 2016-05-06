@@ -194,6 +194,15 @@ test-suite spec
     hs-source-dirs: test
     main-is: spec.hs
 
+    other-modules: AMEDASSpec
+                   DomainSpec
+                   GeoWptSpec
+                   IGCSpec
+                   MSMSpec
+                   SpecUtils
+                   UASSpec
+                   WINDASSpec
+
     default-language: Haskell2010
     default-extensions: CPP
                         DeriveDataTypeable
