@@ -27,7 +27,7 @@ spec = do
                 hash <- MSM.download True 2014 4 24 $ \producer ->
                     sha1 $ producer >-> P.tee (PB.toHandle handle)
                 hClose handle
-                hash `shouldBe` "8027ea10a8d752a4308fc87fca3fb198d29eded5"
+                hash `shouldBe` "4144d0fac9e3ae2dbaef7017d6b832b56d49e12f"
 
                 items <- MSM.getSurfaceItems path (37, 140) (36, 141) 3
                 length items `shouldBe` 374
