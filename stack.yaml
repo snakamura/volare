@@ -1,8 +1,8 @@
-resolver: lts-5.7
+resolver: lts-5.15
 packages:
 - '.'
 extra-deps:
 - pipes-http-1.0.2
-- pipes-zlib-0.4.3
+- pipes-zlib-0.4.4
 flags: {}
 extra-package-dbs: []
