@@ -1,19 +1,28 @@
 sudo: false
 language: c
 
+cache:
+  directories:
+    - $HOME/.stack
+
+env:
+  global:
+    - NODEVER=4
+
 addons:
   apt:
     packages: &packages
       - libnetcdf-dev
       - netcdf-bin
       - libpq-dev
+  postgresql: &postgresql "9.4"
 
 services:
 - postgresql
 
 matrix:
   include:
-    - env: CABALVER=1.22 GHCVER=7.10.3 ALEXVER=3.1.7 HAPPYVER=1.19.5 NODEVER=4
+    - env: BUILD=cabal CABALVER=1.22 GHCVER=7.10.3 ALEXVER=3.1.7 HAPPYVER=1.19.5
       addons:
         apt:
           sources:
@@ -24,12 +33,21 @@ matrix:
             - ghc-7.10.3
             - alex-3.1.7
             - happy-1.19.5
-        postgresql: "9.4"
+        postgresql: *postgresql
+    - env: BUILD=stack
+      addons:
+        apt:
+          packages:
+            - *packages
+            - libgmp
+            - libgmp-dev
+        postgresql: *postgresql
 
 before_install:
-  - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:/opt/alex/$ALEXVER/bin:/opt/happy/$HAPPYVER/bin:$PATH
-  - travis_retry cabal update
-  - travis_retry cabal install Cabal-1.22.4.0
+  - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:/opt/alex/$ALEXVER/bin:/opt/happy/$HAPPYVER/bin:$HOME/.cabal/bin:$PATH
+
+  - mkdir -p $HOME/.local/bin
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C $HOME/.local/bin '*/stack'
 
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
   - export NVM_DIR="$HOME/.nvm"
@@ -39,11 +57,33 @@ before_install:
   - travis_retry npm install -g bower grunt-cli
 
 install:
-  - travis_retry cabal install --jobs --only-dependencies --enable-tests --reorder-goals
+  - |
+    set -ex
+    case "$BUILD" in
+      cabal)
+        travis_retry cabal update
+        travis_retry cabal install Cabal-1.22.4.0
+        travis_retry cabal install --jobs --only-dependencies --enable-tests --reorder-goals
+        ;;
+      stack)
+        stack --no-terminal --install-ghc test --only-dependencies
+        ;;
+    esac
+    set +ex
 
 before_script:
   - createdb volare_test
   - echo "CREATE USER volare WITH ENCRYPTED PASSWORD 'password'" | psql -U postgres
 
 script:
-  - cabal configure --enable-tests -fglibcxx && cabal build && cabal test
+  - |
+    set -ex
+    case "$BUILD" in
+      cabal)
+        cabal configure --enable-tests -fglibcxx && cabal build && cabal test
+        ;;
+      stack)
+        stack --no-terminal test --flag volare:glibcxx
+        ;;
+    esac
+    set +ex
