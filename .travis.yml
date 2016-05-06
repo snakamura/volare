@@ -3,42 +3,47 @@ language: c
 
 addons:
   apt:
-    sources:
-    - hvr-ghc
-    packages:
-    - libnetcdf-dev
-    - netcdf-bin
-    - libpq-dev
-    - cabal-install-1.22
-    - ghc-7.10.3
-    - alex-3.1.7
-    - happy-1.19.5
-  postgresql: "9.4"
+    packages: &packages
+      - libnetcdf-dev
+      - netcdf-bin
+      - libpq-dev
 
 services:
 - postgresql
 
-env:
-- CABALVER=1.22 GHCVER=7.10.3 ALEXVER=3.1.7 HAPPYVER=1.19.5 NODEVER=4
+matrix:
+  include:
+    - env: CABALVER=1.22 GHCVER=7.10.3 ALEXVER=3.1.7 HAPPYVER=1.19.5 NODEVER=4
+      addons:
+        apt:
+          sources:
+            - hvr-ghc
+          packages:
+            - *packages
+            - cabal-install-1.22
+            - ghc-7.10.3
+            - alex-3.1.7
+            - happy-1.19.5
+        postgresql: "9.4"
 
 before_install:
-- export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:/opt/alex/$ALEXVER/bin:/opt/happy/$HAPPYVER/bin:$PATH
-- travis_retry cabal update
-- travis_retry cabal install Cabal-1.22.4.0
+  - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:/opt/alex/$ALEXVER/bin:/opt/happy/$HAPPYVER/bin:$PATH
+  - travis_retry cabal update
+  - travis_retry cabal install Cabal-1.22.4.0
 
-- curl -o- https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-- export NVM_DIR="$HOME/.nvm"
-- . $NVM_DIR/nvm.sh
-- nvm install $NODEVER
-- nvm use $NODEVER
-- travis_retry npm install -g bower grunt-cli
+  - curl -o- https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+  - export NVM_DIR="$HOME/.nvm"
+  - . $NVM_DIR/nvm.sh
+  - nvm install $NODEVER
+  - nvm use $NODEVER
+  - travis_retry npm install -g bower grunt-cli
 
 install:
-- travis_retry cabal install --jobs --only-dependencies --enable-tests --reorder-goals
+  - travis_retry cabal install --jobs --only-dependencies --enable-tests --reorder-goals
 
 before_script:
-- createdb volare_test
-- echo "CREATE USER volare WITH ENCRYPTED PASSWORD 'password'" | psql -U postgres
+  - createdb volare_test
+  - echo "CREATE USER volare WITH ENCRYPTED PASSWORD 'password'" | psql -U postgres
 
 script:
-- cabal configure --enable-tests -fglibcxx && cabal build && cabal test
+  - cabal configure --enable-tests -fglibcxx && cabal build && cabal test
