@@ -23,6 +23,7 @@ services:
 matrix:
   include:
     - env: BUILD=cabal CABALVER=1.22 GHCVER=7.10.3 ALEXVER=3.1.7 HAPPYVER=1.19.5
+      compiler: ": #cabal"
       addons:
         apt:
           sources:
@@ -35,6 +36,7 @@ matrix:
             - happy-1.19.5
         postgresql: *postgresql
     - env: BUILD=stack
+      compiler: ": #stack"
       addons:
         apt:
           packages:
@@ -44,6 +46,7 @@ matrix:
         postgresql: *postgresql
 
 before_install:
+  - unset CC
   - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:/opt/alex/$ALEXVER/bin:/opt/happy/$HAPPYVER/bin:$HOME/.cabal/bin:$PATH
 
   - mkdir -p $HOME/.local/bin
