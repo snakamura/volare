@@ -95,7 +95,7 @@ size_t get_surface_items(const char* path,
           readDoubleInShort(file, "clda", start, count, items, &surface_item::cloud_amount, [](double v) { return round(v); });
         }
     }
-    catch (Exception e) {
+    catch (const Exception& e) {
         cerr << e.message() << endl;
         return -1;
     }
@@ -153,7 +153,7 @@ size_t get_barometric_items(const char* path,
         readDoubleInShort(file, "temp", start, count, items, &barometric_item::air_temperature, [](double v) { return round((v - 273.15)*10)/10.0; });
         readDoubleInShort(file, "rh", start, count, items, &barometric_item::relative_humidity, [](double v) { return round(v); });
     }
-    catch (Exception e) {
+    catch (const Exception& e) {
         cerr << e.message() << endl;
         return -1;
     }
