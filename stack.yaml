@@ -4,5 +4,7 @@ packages:
 extra-deps:
 - pipes-http-1.0.2
 - pipes-zlib-0.4.4
-flags: {}
+flags:
+  volare:
+    stack: true
 extra-package-dbs: []

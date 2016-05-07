@@ -19,6 +19,9 @@ Flag library-only
 Flag glibcxx
     Default: False
 
+Flag stack
+    Default: False
+
 library
     exposed-modules: Codec.GeoWpt
                      Codec.IGC
@@ -73,11 +76,6 @@ library
     hs-source-dirs: src
     includes: msm.h
     include-dirs: msm
-    if flag(glibcxx)
-        extra-libraries: msm, netcdf, stdc++
-    else
-        extra-libraries: msm, netcdf, c++
-    extra-lib-dirs: /usr/lib, /usr/local/lib
 
     default-language: Haskell2010
     default-extensions: CPP
@@ -166,14 +164,24 @@ executable volare
 
     main-is: src/main.hs
     hs-source-dirs: .
+    extra-libraries: msm
+    extra-lib-dirs: /usr/lib, /usr/local/lib
 
     default-language: Haskell2010
 
     build-depends: base == 4.8.*,
                    yesod == 1.4.*,
                    volare
-
-    ghc-options: -Wall -Werror -threaded -O2
+    if flag(stack)
+        if os(darwin)
+            ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,@executable_path/../../../../../../msm/lib
+        else
+            ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,$ORIGIN/../../../../../../msm/lib
+    else
+        if os(darwin)
+            ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,@executable_path/../../../msm/lib
+        else
+            ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,$ORIGIN/../../../msm/lib
 
 test-suite doctest
     type: exitcode-stdio-1.0
@@ -193,6 +201,8 @@ test-suite spec
 
     hs-source-dirs: test
     main-is: spec.hs
+    extra-libraries: msm
+    extra-lib-dirs: /usr/lib, /usr/local/lib
 
     other-modules: AMEDASSpec
                    DomainSpec
@@ -244,4 +254,13 @@ test-suite spec
                    volare,
                    yesod == 1.4.*
 
-    ghc-options: -Wall -Werror -threaded -O0
+    if flag(stack)
+        if os(darwin)
+            ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,@executable_path/../../../../../../msm/lib
+        else
+            ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,$ORIGIN/../../../../../../msm/lib
+    else
+        if os(darwin)
+            ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,@executable_path/../../../msm/lib
+        else
+            ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,$ORIGIN/../../../msm/lib

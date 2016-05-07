@@ -4,24 +4,44 @@ else
 	STDLIB=c++
 endif
 
+UNAME:=$(shell uname -s)
+ifeq ($(UNAME),Linux)
+	SO=so
+	INSTALL_NAME=
+	ORIGIN=$ORIGIN
+endif
+ifeq ($(UNAME),Darwin)
+	SO=dylib
+	INSTALL_NAME=-install_name @rpath/$(notdir $@)
+	ORIGIN=@executable_path
+endif
+
 CC=clang
 CXX=clang++
 CXXFLAGS=-fPIC -std=c++11 -stdlib=lib$(STDLIB) $(shell nc-config --cflags)
+LINKMSM=-Llib -lmsm -Wl,-rpath,$(ORIGIN)/../lib
 
 all: lib sample
 
-lib: libmsm.a
+lib: lib/libmsm.a lib/libmsm.$(SO)
 
-libmsm.a: msm.o netcdf.o
+lib/libmsm.a: msm.o netcdf.o
+	mkdir -p lib
 	$(AR) cr $@ $^
 
-sample: surface barometric
+lib/libmsm.$(SO): msm.o netcdf.o
+	mkdir -p lib
+	$(CXX) -shared $(INSTALL_NAME) $(shell nc-config --libs) -o $@ $^
 
-surface: surface.o libmsm.a
-	$(CC) -o $@ $< -L. -lmsm -l$(STDLIB) $(shell nc-config --libs)
+sample: bin/surface bin/barometric
 
-barometric: barometric.o libmsm.a
-	$(CC) -o $@ $< -L. -lmsm -l$(STDLIB) $(shell nc-config --libs)
+bin/surface: surface.o lib/libmsm.$(SO)
+	mkdir -p bin
+	$(CC) -o $@ $< $(LINKMSM)
+
+bin/barometric: barometric.o lib/libmsm.$(SO)
+	mkdir -p bin
+	$(CC) -o $@ $< $(LINKMSM)
 
 clean:
-	rm -f *.o *.a surface barometric
+	rm -rf *.o lib bin

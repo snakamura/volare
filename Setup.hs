@@ -81,7 +81,7 @@ volareConfHook (description, buildInfo) flags = do
             PD.library = Just $ library {
                 PD.libBuildInfo = libraryBuildInfo {
                     PD.includeDirs = (dir ++ "/msm"):PD.includeDirs libraryBuildInfo,
-                    PD.extraLibDirs = (dir ++ "/msm"):PD.extraLibDirs libraryBuildInfo
+                    PD.extraLibDirs = (dir ++ "/msm/lib"):PD.extraLibDirs libraryBuildInfo
                 }
             }
         }
