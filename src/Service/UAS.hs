@@ -43,7 +43,7 @@ download station year month day hour manager process = do
                                 % "&TO=" % F.left 2 '0' % F.left 2 '0'
                                 % "&STNM=" % F.int)
                        baseURL year month day hour day hour (Types.id station)
-    req <- Http.parseUrl $ TL.unpack url
+    req <- Http.parseRequest $ TL.unpack url
     withHTTP req manager $ process . Http.responseBody
 
 
