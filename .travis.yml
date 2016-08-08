@@ -52,6 +52,7 @@ before_install:
   - mkdir -p $HOME/.local/bin
   - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C $HOME/.local/bin '*/stack'
 
+  - rm -rf $HOME/.nvm
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
   - export NVM_DIR="$HOME/.nvm"
   - . $NVM_DIR/nvm.sh
