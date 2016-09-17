@@ -6,7 +6,7 @@ author: snak
 maintainer: snak
 category: Web
 stability: Experimental
-cabal-version: >= 1.22
+cabal-version: >= 1.24
 build-type: Custom
 homepage: http://github.com/snakamura/volare
 
@@ -21,6 +21,10 @@ Flag glibcxx
 
 Flag stack
     Default: False
+
+custom-setup
+    setup-depends: base == 4.9.*,
+                   Cabal == 1.24.*
 
 library
     exposed-modules: Codec.GeoWpt
@@ -105,13 +109,13 @@ library
     build-depends: aeson == 0.11.*,
                    async == 2.1.*,
                    attoparsec == 0.13.*,
-                   base == 4.8.*,
+                   base == 4.9.*,
                    bifunctors == 5.*,
                    blaze-html == 0.8.*,
                    bytestring == 0.10.*,
                    clientsession == 0.9.*,
                    containers == 0.5.*,
-                   data-default == 0.5.*,
+                   data-default == 0.7.*,
                    directory == 1.2.*,
                    exceptions == 0.8.*,
                    filepath == 1.4.*,
@@ -121,9 +125,9 @@ library
                    lens-family == 1.2.*,
                    monad-logger == 0.3.*,
                    path-pieces == 0.2.*,
-                   persistent == 2.2.*,
-                   persistent-postgresql == 2.2.*,
-                   persistent-template == 2.1.*,
+                   persistent == 2.6.*,
+                   persistent-postgresql == 2.6.*,
+                   persistent-template == 2.5.*,
                    pipes == 4.1.*,
                    pipes-attoparsec == 0.5.*,
                    pipes-bytestring == 2.1.*,
@@ -133,13 +137,13 @@ library
                    safe == 0.3.*,
                    shakespeare == 2.0.*,
                    split == 0.2.*,
-                   tagsoup == 0.13.*,
+                   tagsoup == 0.14.*,
                    tar == 0.5.*,
-                   template-haskell == 2.10.*,
+                   template-haskell == 2.11.*,
                    temporary == 1.2.*,
                    text == 1.2.*,
-                   time == 1.5.*,
-                   transformers == 0.4.*,
+                   time == 1.6.*,
+                   transformers == 0.5.*,
                    unordered-containers == 0.2.*,
                    utf8-string == 1.*,
                    utility-ht == 0.0.*,
@@ -154,9 +158,9 @@ library
 
     if flag(dev) || flag(library-only)
         cpp-options: -DDEVELOPMENT
-        ghc-options: -Wall -Werror -O0
+        ghc-options: -Wall -Werror -O0 -Wno-redundant-constraints
     else
-        ghc-options: -Wall -Werror -O2
+        ghc-options: -Wall -Werror -O2 -Wno-redundant-constraints
 
 executable volare
     if flag(library-only)
@@ -169,7 +173,7 @@ executable volare
 
     default-language: Haskell2010
 
-    build-depends: base == 4.8.*,
+    build-depends: base == 4.9.*,
                    yesod == 1.4.*,
                    volare
     if flag(stack)
@@ -191,7 +195,7 @@ test-suite doctest
 
     default-language: Haskell2010
 
-    build-depends: base == 4.8.*,
+    build-depends: base == 4.9.*,
                    doctest == 0.11.*
 
     ghc-options: -Wall -Werror -threaded -O0
@@ -234,7 +238,7 @@ test-suite spec
                         UndecidableInstances
 
     build-depends: attoparsec == 0.13.*,
-                   base == 4.8.*,
+                   base == 4.9.*,
                    bytestring == 0.10.*,
                    cryptohash == 0.11.*,
                    foldl == 1.2.*,
@@ -243,14 +247,14 @@ test-suite spec
                    HUnit == 1.3.*,
                    ieee754 == 0.7.*,
                    monad-logger == 0.3.*,
-                   persistent == 2.2.*,
+                   persistent == 2.6.*,
                    pipes == 4.1.*,
                    pipes-attoparsec == 0.5.*,
                    pipes-bytestring == 2.1.*,
                    resourcet == 1.1.*,
                    temporary == 1.2.*,
-                   time == 1.5.*,
-                   transformers == 0.4.*,
+                   time == 1.6.*,
+                   transformers == 0.5.*,
                    volare,
                    yesod == 1.4.*
 
