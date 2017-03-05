@@ -31,7 +31,7 @@ lib/libmsm.a: msm.o netcdf.o
 
 lib/libmsm.$(SO): msm.o netcdf.o
 	mkdir -p lib
-	$(CXX) -shared $(INSTALL_NAME) $(shell nc-config --libs) -o $@ $^
+	$(CXX) -shared $(INSTALL_NAME) -L/usr/local/lib $(shell nc-config --libs) -o $@ $^
 
 sample: bin/surface bin/barometric
 
