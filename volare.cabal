@@ -24,7 +24,8 @@ Flag stack
 
 custom-setup
     setup-depends: base == 4.9.*,
-                   Cabal == 1.24.*
+                   Cabal == 1.24.*,
+                   directory == 1.2.*
 
 library
     exposed-modules: Codec.GeoWpt
