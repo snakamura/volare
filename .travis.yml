@@ -41,7 +41,7 @@ matrix:
         apt:
           packages:
             - *packages
-            - libgmp
+            - libgmp10
             - libgmp-dev
         postgresql: *postgresql
 
