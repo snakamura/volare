@@ -1,10 +1,11 @@
-resolver: lts-7.0
+resolver: lts-9.3
 packages:
 - '.'
 extra-deps:
-- pipes-http-1.0.2
-- pipes-zlib-0.4.4
+- pipes-http-1.0.5
+- pipes-zlib-0.4.4.1
 flags:
   volare:
     stack: true
 extra-package-dbs: []
+allow-newer: true
