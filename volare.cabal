@@ -107,7 +107,7 @@ library
                         UndecidableInstances
                         ViewPatterns
 
-    build-depends: aeson == 1.0.*,
+    build-depends: aeson == 1.1.*,
                    async == 2.1.*,
                    attoparsec == 0.13.*,
                    base == 4.9.*,
@@ -126,7 +126,7 @@ library
                    lens-family == 1.2.*,
                    monad-logger == 0.3.*,
                    path-pieces == 0.2.*,
-                   persistent == 2.6.*,
+                   persistent == 2.7.*,
                    persistent-postgresql == 2.6.*,
                    persistent-template == 2.5.*,
                    pipes == 4.3.*,
