@@ -23,8 +23,8 @@ Flag stack
     Default: False
 
 custom-setup
-    setup-depends: base == 4.9.*,
-                   Cabal == 1.24.*,
+    setup-depends: base == 4.10.*,
+                   Cabal == 2.0.*,
                    directory == 1.3.*
 
 library
@@ -107,10 +107,10 @@ library
                         UndecidableInstances
                         ViewPatterns
 
-    build-depends: aeson == 1.1.*,
+    build-depends: aeson == 1.2.*,
                    async == 2.1.*,
                    attoparsec == 0.13.*,
-                   base == 4.9.*,
+                   base == 4.10.*,
                    bifunctors == 5.*,
                    blaze-html == 0.9.*,
                    bytestring == 0.10.*,
@@ -140,10 +140,10 @@ library
                    split == 0.2.*,
                    tagsoup == 0.14.*,
                    tar == 0.5.*,
-                   template-haskell == 2.11.*,
+                   template-haskell == 2.12.*,
                    temporary == 1.2.*,
                    text == 1.2.*,
-                   time == 1.6.*,
+                   time == 1.8.*,
                    transformers == 0.5.*,
                    unordered-containers == 0.2.*,
                    utf8-string == 1.*,
@@ -174,7 +174,7 @@ executable volare
 
     default-language: Haskell2010
 
-    build-depends: base == 4.9.*,
+    build-depends: base == 4.10.*,
                    yesod == 1.4.*,
                    volare
     if flag(stack)
@@ -196,8 +196,8 @@ test-suite doctest
 
     default-language: Haskell2010
 
-    build-depends: base == 4.9.*,
-                   doctest == 0.11.*
+    build-depends: base == 4.10.*,
+                   doctest == 0.13.*
 
     ghc-options: -Wall -Werror -threaded -O0
 
@@ -239,22 +239,22 @@ test-suite spec
                         UndecidableInstances
 
     build-depends: attoparsec == 0.13.*,
-                   base == 4.9.*,
+                   base == 4.10.*,
                    bytestring == 0.10.*,
                    cryptohash == 0.11.*,
-                   foldl == 1.2.*,
-                   hspec == 2.2.*,
+                   foldl == 1.3.*,
+                   hspec == 2.4.*,
                    http-client == 0.5.*,
-                   HUnit == 1.3.*,
-                   ieee754 == 0.7.*,
+                   HUnit == 1.6.*,
+                   ieee754 == 0.8.*,
                    monad-logger == 0.3.*,
-                   persistent == 2.6.*,
+                   persistent == 2.7.*,
                    pipes == 4.3.*,
                    pipes-attoparsec == 0.5.*,
                    pipes-bytestring == 2.1.*,
                    resourcet == 1.1.*,
                    temporary == 1.2.*,
-                   time == 1.6.*,
+                   time == 1.8.*,
                    transformers == 0.5.*,
                    volare,
                    yesod == 1.4.*

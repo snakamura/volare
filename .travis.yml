@@ -22,7 +22,7 @@ services:
 
 matrix:
   include:
-    - env: BUILD=cabal CABALVER=1.24 GHCVER=8.0.2 ALEXVER=3.1.7 HAPPYVER=1.19.5
+    - env: BUILD=cabal CABALVER=2.0 GHCVER=8.2.2 ALEXVER=3.1.7 HAPPYVER=1.19.5
       compiler: ": #cabal"
       addons:
         apt:
@@ -30,8 +30,8 @@ matrix:
             - hvr-ghc
           packages:
             - *packages
-            - cabal-install-1.24
-            - ghc-8.0.2
+            - cabal-install-2.0
+            - ghc-8.2.2
             - alex-3.1.7
             - happy-1.19.5
         postgresql: *postgresql
@@ -66,7 +66,7 @@ install:
     case "$BUILD" in
       cabal)
         travis_retry cabal update
-        travis_retry cabal install Cabal-1.24.0.0
+        travis_retry cabal install Cabal-2.0.1.1
         travis_retry cabal install --jobs --only-dependencies --enable-tests --reorder-goals
         ;;
       stack)

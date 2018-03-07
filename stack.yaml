@@ -1,4 +1,4 @@
-resolver: lts-9.10
+resolver: lts-10.8
 packages:
 - '.'
 extra-deps:
@@ -8,4 +8,4 @@ flags:
   volare:
     stack: true
 extra-package-dbs: []
-allow-newer: true
+allow-newer: false
