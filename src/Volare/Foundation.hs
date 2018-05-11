@@ -22,13 +22,11 @@ import Text.Shakespeare.I18N
     ( RenderMessage
     , renderMessage
     )
-import Web.ClientSession (getKey)
 import Yesod.Core
     ( HandlerSite
     , MonadHandler
     , Yesod(..)
-    , clientSessionBackend
-    , clientSessionDateCacher
+    , defaultClientSessionBackend
     , renderRoute
     )
 import Yesod.Core.Dispatch
@@ -68,10 +66,7 @@ mkYesodData "Volare" $(parseRoutesFile "config/routes")
 
 
 instance Yesod Volare where
-    makeSessionBackend _ = do
-        key <- getKey "config/client_session_key.aes"
-        (getCachedDate, _) <- clientSessionDateCacher $ 120 * 60
-        return $ Just $ clientSessionBackend key getCachedDate
+    makeSessionBackend _ = Just <$> defaultClientSessionBackend 120 "config/client_session_key.aes"
 
 
 instance YesodPersist Volare where
