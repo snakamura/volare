@@ -37,9 +37,7 @@ import Data.AEq
 import qualified Data.ByteString as B
 import Database.Persist.Class
     ( PersistConfigBackend
-    , applyEnv
     , createPoolConfig
-    , loadConfig
     , runPool
     )
 import Database.Persist.Sql
@@ -54,19 +52,22 @@ import Test.Hspec
     , shouldSatisfy
     )
 import Test.HUnit (assertFailure)
-import Yesod.Default.Config
-    ( DefaultEnv(Testing)
-    , withYamlEnvironment
+import Yesod.Default.Config2
+    ( configSettingsYml
+    , loadYamlSettings
+    , useEnv
     )
 
 import qualified Volare.Model as M
 import Volare.Settings (PersistConfig)
+import qualified Volare.Settings as Settings
 
 
 runDB :: PersistConfigBackend PersistConfig (NoLoggingT (ResourceT IO)) a ->
          IO a
 runDB action = do
-    persistConfig :: PersistConfig <- withYamlEnvironment "config/persist.yml" Testing loadConfig >>= applyEnv
+    settings <- loadYamlSettings ["config/settings_test.yml", configSettingsYml] [] useEnv
+    let persistConfig = Settings.persistConfig settings
     pool <- createPoolConfig persistConfig
     runResourceT $ runNoLoggingT $ do
         let actions = runMigration M.migrateAll >> action <* transactionUndo

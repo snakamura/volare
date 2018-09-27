@@ -24,8 +24,8 @@ import Yesod.Core.Widget
     , toWidget
     )
 
-import qualified Volare.Config as Config
 import Volare.Foundation
+import qualified Volare.Settings as Settings
 
 
 addRequireJS :: T.Text ->
@@ -49,7 +49,7 @@ addBootstrap = do
 
 addGoogleApiKey :: Widget
 addGoogleApiKey = do
-    googleApiKey <- Config.googleApiKey <$> getConfig
+    googleApiKey <- Settings.googleApiKey <$> getSettings
     toWidget [julius|var googleApiKey = #{googleApiKey};|]
 
 

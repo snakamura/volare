@@ -1,16 +1,25 @@
 module Volare.Settings
     ( PersistConfig
+    , Settings(..)
     , development
     , staticDir
     , widgetFile
     ) where
 
+import Data.Aeson
+    ( FromJSON(..)
+    , (.:)
+    , withObject
+    )
 import Data.Default (def)
+import Data.String (fromString)
+import qualified Data.Text as T
 import Database.Persist.Postgresql (PostgresConf)
 import Language.Haskell.TH.Syntax
     ( Exp
     , Q
     )
+import Network.Wai.Handler.Warp (HostPreference)
 import Text.Hamlet
     ( NewlineStyle(NoNewlines)
     , defaultHamletSettings
@@ -25,6 +34,21 @@ import Yesod.Default.Util
 
 
 type PersistConfig = PostgresConf
+
+
+data Settings = Settings
+    { host :: HostPreference
+    , port :: Int
+    , persistConfig :: PersistConfig
+    , googleApiKey :: T.Text
+    } deriving Show
+
+instance FromJSON Settings where
+    parseJSON = withObject "Settings" $ \o ->
+        Settings <$> (fromString <$> o .: "host")
+                 <*> o .: "port"
+                 <*> o .: "database"
+                 <*> o .: "google-api-key"
 
 
 development :: Bool

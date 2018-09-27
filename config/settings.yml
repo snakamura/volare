@@ -1,15 +1,12 @@
-Default: &defaults
-  port: 3000
-  googleApiKey: AIzaSyCg2nRFdQ0BpuO_ep7h9b2sCA108wv-DhE
+host: "_env:HOST:*4"
+port: "_env:PORT:3000"
 
-Development:
-  <<: *defaults
+database:
+  user: "_env:PGUSER:volare"
+  password: "_env:PGPASS:password"
+  host: "_env:PGHOST:localhost"
+  port: "_env:PGPORT:5432"
+  database: "_env:PGDATABASE:volare"
+  poolsize: "_env:PGPOOLSIZE:10"
 
-Testing:
-  <<: *defaults
-
-Staging:
-  <<: *defaults
-
-Production:
-  <<: *defaults
+google-api-key: "_env:GOOGLE_API_KEY:<specify your google api key>"

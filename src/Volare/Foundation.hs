@@ -34,11 +34,6 @@ import Yesod.Core.Dispatch
     , parseRoutesFile
     )
 import Yesod.Core.Handler (getYesod)
-import Yesod.Default.Config
-    ( AppConfig
-    , DefaultEnv
-    , appExtra
-    )
 import Yesod.Form
     ( FormMessage
     , FormResult
@@ -48,14 +43,16 @@ import Yesod.Form
 import Yesod.Persist (YesodPersist(..))
 import Yesod.Static (Static)
 
-import Volare.Config (Config)
 import qualified Volare.Model as M
-import Volare.Settings (PersistConfig)
+import Volare.Settings
+    ( PersistConfig
+    , Settings
+    )
+import qualified Volare.Settings as Settings
 
 
 data Volare = Volare
-    { volareConfig         :: AppConfig DefaultEnv Config
-    , volarePersistConfig  :: PersistConfig
+    { volareSettings       :: Settings
     , volareConnectionPool :: PersistConfigPool PersistConfig
     , volareHttpManager    :: Http.Manager
     , volareStatic         :: Static
@@ -73,7 +70,7 @@ instance YesodPersist Volare where
     type YesodPersistBackend Volare = SqlBackend
 
     runDB action = do
-        persistConfig <- volarePersistConfig <$> getYesod
+        persistConfig <- (Settings.persistConfig . volareSettings) <$> getYesod
         pool <- volareConnectionPool <$> getYesod
         runPool persistConfig action pool
 
@@ -90,9 +87,9 @@ instance JSON.ToJSON a => ToJavascript a where
     toJavascript = Javascript . T.fromText . T.decodeUtf8 . B.concat . BL.toChunks . JSON.encode
 
 
-getConfig :: (MonadHandler m, HandlerSite m ~ Volare) =>
-             m Config
-getConfig = (appExtra . volareConfig) <$> getYesod
+getSettings :: (MonadHandler m, HandlerSite m ~ Volare) =>
+               m Settings
+getSettings = volareSettings <$> getYesod
 
 
 getHttpManager :: (MonadHandler m, HandlerSite m ~ Volare) =>
