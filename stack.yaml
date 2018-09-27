@@ -1,9 +1,9 @@
-resolver: lts-11.9
+resolver: lts-12.10
 packages:
 - '.'
 extra-deps:
 - pipes-http-1.0.5
-- pipes-zlib-0.4.4.1
+- pipes-zlib-0.4.4.2
 flags:
   volare:
     stack: true

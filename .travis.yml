@@ -22,7 +22,7 @@ services:
 
 matrix:
   include:
-    - env: BUILD=cabal CABALVER=2.0 GHCVER=8.2.2 ALEXVER=3.1.7 HAPPYVER=1.19.5
+    - env: BUILD=cabal CABALVER=2.0 GHCVER=8.4.3 ALEXVER=3.1.7 HAPPYVER=1.19.5
       compiler: ": #cabal"
       addons:
         apt:
@@ -31,7 +31,7 @@ matrix:
           packages:
             - *packages
             - cabal-install-2.0
-            - ghc-8.2.2
+            - ghc-8.4.3
             - alex-3.1.7
             - happy-1.19.5
         postgresql: *postgresql

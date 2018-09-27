@@ -58,7 +58,7 @@ volarePreConf :: Args ->
                  IO PD.HookedBuildInfo
 volarePreConf args flags = do
     buildInfo <- preConf simpleUserHooks args flags
-    let glibcxx = fromMaybe False $ lookup (PD.mkFlagName "glibcxx") $ configConfigurationsFlags flags
+    let glibcxx = fromMaybe False $ PD.lookupFlagAssignment (PD.mkFlagName "glibcxx") $ configConfigurationsFlags flags
         macros = if glibcxx then
                      " GLIBCXX=1"
                  else
@@ -106,7 +106,7 @@ volareBuildHook :: PD.PackageDescription ->
                    IO ()
 volareBuildHook description localBuildInfo hooks flags = do
     let f = configConfigurationsFlags $ configFlags localBuildInfo
-        dev = fromMaybe False (lookup (PD.mkFlagName "dev") f) || fromMaybe False (lookup (PD.mkFlagName "library-only") f)
+        dev = fromMaybe False (PD.lookupFlagAssignment (PD.mkFlagName "dev") f) || fromMaybe False (PD.lookupFlagAssignment (PD.mkFlagName "library-only") f)
     unless dev $
         rawSystemExit (fromFlag $ buildVerbosity flags) "grunt" ["build"]
     buildHook simpleUserHooks description localBuildInfo hooks flags
