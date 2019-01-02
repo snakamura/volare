@@ -83,7 +83,7 @@ type Form a = Html ->
               MForm IO (FormResult a, Widget)
 
 
-instance JSON.ToJSON a => ToJavascript a where
+instance {-# OVERLAPPABLE #-} JSON.ToJSON a => ToJavascript a where
     toJavascript = Javascript . T.fromText . T.decodeUtf8 . B.concat . BL.toChunks . JSON.encode
 
 
