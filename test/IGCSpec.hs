@@ -33,23 +33,23 @@ import Codec.Utils.Attoparsec (line)
 
 spec :: Spec
 spec = do
-    let withTestFile action = withFile "test/test.igc" ReadMode $ action . PB.fromHandle
-    let load = withTestFile $ \producer -> do
+    let withTestFile file action = withFile ("test/" ++ file ++ ".igc") ReadMode $ action . PB.fromHandle
+    let load file = withTestFile file $ \producer -> do
                    igc <- evalStateT IGC.parser producer
                    igc `shouldSatisfy` isJust
                    return $ fromJust igc
 
     describe "parse" $ do
         it "succeeds in pasing an igc" $ do
-            void load
+            void $ load "test"
 
         it "fails with extra inputs" $ do
-            withTestFile $ \producer -> do
+            withTestFile "test" $ \producer -> do
                 igc <- evalStateT IGC.parser $ producer >> P.yield "\n"
                 igc `shouldSatisfy` isNothing
 
         it "fails without the first line" $ do
-            withTestFile $ \producer -> do
+            withTestFile "test" $ \producer -> do
                 rest <- execStateT (P.parse line) producer
                 igc <- evalStateT IGC.parser rest
                 igc `shouldSatisfy` isNothing
@@ -57,17 +57,20 @@ spec = do
     context "when load from a file" $ do
         describe "date" $ do
             it "returns HFDTE" $ do
-                igc <- load
+                igc <- load "test"
                 IGC.date igc `shouldBe` fromGregorian 2014 3 15
+            it "returns HFDTEDATE" $ do
+                igc <- load "test_hfdtedate"
+                IGC.date igc `shouldBe` fromGregorian 2019 1 15
 
         describe "records" $ do
             it "returns all Bs" $ do
-                igc <- load
+                igc <- load "test"
                 length (IGC.records igc) `shouldBe` 5175
 
         describe "the first record" $ do
             it "returns the first B" $ do
-                igc <- load
+                igc <- load "test"
                 let record = head $ IGC.records igc
                 IGC.time record `shouldBe` 7475
                 let position = IGC.position record

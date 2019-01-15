@@ -62,8 +62,10 @@ recordH = char 'H' *> line
 
 
 hfdte :: Parser Day
-hfdte = string "HFDTE" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* newline
+hfdte = hfdteNew <|> hfdteOld
     where
+      hfdteNew = string "HFDTEDATE:" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* char ',' <* digits 2 <* newline
+      hfdteOld = string "HFDTE" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* newline
       toDay d m y = fromGregorian (fromIntegral (2000 + y)) m d
 
 
