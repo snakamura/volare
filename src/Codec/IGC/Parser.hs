@@ -16,6 +16,7 @@ import Data.Time
 import Data.Attoparsec.ByteString
     ( Parser
     , inClass
+    , option
     , satisfy
     , string
     )
@@ -64,7 +65,7 @@ recordH = char 'H' *> line
 hfdte :: Parser Day
 hfdte = hfdteNew <|> hfdteOld
     where
-      hfdteNew = string "HFDTEDATE:" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* char ',' <* digits 2 <* newline
+      hfdteNew = string "HFDTEDATE:" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* option ' ' (char ',' <* digits 2) <* newline
       hfdteOld = string "HFDTE" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* newline
       toDay d m y = fromGregorian (fromIntegral (2000 + y)) m d
 
