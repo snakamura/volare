@@ -59,7 +59,7 @@ getSurfaceR :: Int ->
                Int ->
                Int ->
                Handler JSON.Value
-getSurfaceR year month day = getData (dataFile True year month day) MSM.getSurfaceItems
+getSurfaceR year month day = getData (dataFile MSM.Surface year month day) MSM.getSurfaceItems
 
 
 getBarometricR :: Int ->
@@ -67,17 +67,17 @@ getBarometricR :: Int ->
                   Int ->
                   Int ->
                   Handler JSON.Value
-getBarometricR year month day = getData (dataFile False year month day) MSM.getBarometricItems
+getBarometricR year month day = getData (dataFile MSM.Barometric year month day) MSM.getBarometricItems
 
 
 getLatestSurfaceR :: Int ->
                      Handler JSON.Value
-getLatestSurfaceR = getData (latestDataFile True) MSM.getSurfaceItems
+getLatestSurfaceR = getData (latestDataFile MSM.Surface) MSM.getSurfaceItems
 
 
 getLatestBarometricR :: Int ->
                         Handler JSON.Value
-getLatestBarometricR = getData (latestDataFile False) MSM.getBarometricItems
+getLatestBarometricR = getData (latestDataFile MSM.Barometric) MSM.getBarometricItems
 
 
 getData :: JSON.ToJSON a =>
@@ -98,22 +98,21 @@ getData prepareDataFile getItems hour = do
         _ -> notFound
 
 
-dataFile :: Bool ->
+dataFile :: MSM.Family ->
             Int ->
             Int ->
             Int ->
             IO (Timestamp, FilePath)
-dataFile surface year month day = do
-    let t = if surface then 's' else 'p'
-        path = TL.unpack $ F.format ("./data/msm/" % F.char % "/" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % ".nc") t year month day
+dataFile family year month day = do
+    let path = TL.unpack $ F.format ("./data/msm/" % F.char % "/" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % ".nc") (symbol family) year month day
     b <- doesFileExist path
-    unless b $ download path $ MSM.download surface year month day
+    unless b $ download path $ MSM.download family year month day
     return (Timestamp year month day 0, path)
 
 
-latestDataFile :: Bool ->
+latestDataFile :: MSM.Family ->
                   IO (Timestamp, FilePath)
-latestDataFile surface = do
+latestDataFile family = do
     currentTime <- getCurrentTime
     path <- whileM (candidates currentTime) $ \time ->
         let handlers = [E.Handler $ \(_ :: IOException) -> return Nothing,
@@ -122,16 +121,21 @@ latestDataFile surface = do
     maybe (throwIO $ userError "Latest data not found.") return path
   where
     prepare time = do
-        let t = if surface then 's' else 'p'
-            (year, month, day) = toGregorian $ utctDay time
+        let (year, month, day) = toGregorian $ utctDay time
             hour = floor (utctDayTime time) `div` (60 * 60) :: Int
-            path = TL.unpack $ F.format ("./data/msm.latest/" % F.char % "/" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % F.left 2 '0' % ".nc") t year month day hour
+            path = TL.unpack $ F.format ("./data/msm.latest/" % F.char % "/" % F.left 4 '0' % F.left 2 '0' % F.left 2 '0' % F.left 2 '0' % ".nc") (symbol family) year month day hour
         b <- doesFileExist path
-        unless b $ download path $ MSM.downloadLatest surface (fromInteger year) month day hour
+        unless b $ download path $ MSM.downloadLatest family (fromInteger year) month day hour
         return (Timestamp (fromInteger year) month day hour, path)
     candidates time = let hour = floor (utctDayTime time) `div` (60 * 60) `div` 3 * 3
                           startTime = UTCTime (utctDay time) (secondsToDiffTime (hour * 60 * 60))
                       in iterate (addUTCTime (-3 * 60 * 60)) startTime
+
+
+symbol :: MSM.Family ->
+          Char
+symbol MSM.Surface = 's'
+symbol MSM.Barometric = 'p'
 
 
 download :: FilePath ->

@@ -24,7 +24,7 @@ spec = do
     describe "download" $ do
         it "downloads surface data" $ do
             withSystemTempFile "msmspec_s.nc" $ \path handle -> do
-                hash <- MSM.download True 2014 4 24 $ \producer ->
+                hash <- MSM.download MSM.Surface 2014 4 24 $ \producer ->
                     sha1 $ producer >-> P.tee (PB.toHandle handle)
                 hClose handle
                 hash `shouldBe` "4144d0fac9e3ae2dbaef7017d6b832b56d49e12f"
@@ -48,7 +48,7 @@ spec = do
 
         it "downloads barometric data" $ do
             withSystemTempFile "msmspec_p.nc" $ \path handle -> do
-                hash <- MSM.download False 2014 3 9 $ \producer ->
+                hash <- MSM.download MSM.Barometric 2014 3 9 $ \producer ->
                     sha1 $ producer >-> P.tee (PB.toHandle handle)
                 hClose handle
                 hash `shouldBe` "6202e74ef30fb541da50c8fbb13095c0f79e2383"

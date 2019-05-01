@@ -1,5 +1,6 @@
 module Service.MSM
-    ( getSurfaceItems
+    ( Family(..)
+    , getSurfaceItems
     , getBarometricItems
     , download
     , downloadLatest
@@ -35,6 +36,9 @@ import qualified Service.MSM.Barometric as Barometric
 import qualified Service.MSM.Surface as Surface
 
 #include "msm.h"
+
+data Family = Surface
+            | Barometric
 
 data MSMException = MSMException deriving (Show, Typeable)
 
@@ -79,30 +83,28 @@ getItems f path (nwLatitude, nwLongitude) (seLatitude, seLongitude) time =
                     _ -> peekArray (fromIntegral readCount) values
 
 
-download :: Bool ->
+download :: Family ->
             Int ->
             Int ->
             Int ->
             (Producer B.ByteString IO () -> IO r) ->
             IO r
-download surface year month day process = do
-    let t = if surface then 'S' else 'P'
-        url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" t year month day
+download family year month day process = do
+    let url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" (symbol family) year month day
     req <- Http.parseRequest url
     manager <- Http.newManager Http.defaultManagerSettings
     withHTTP req manager $ process . Http.responseBody
 
 
-downloadLatest :: Bool ->
+downloadLatest :: Family ->
                   Int ->
                   Int ->
                   Int ->
                   Int ->
                   (Producer B.ByteString IO () -> IO r) ->
                   IO r
-downloadLatest surface year month day hour process = do
-    let t = if surface then 'S' else 'P'
-        url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/latest/%04d%02d%02d/MSM%04d%02d%02d%02d%c.nc" year month day year month day hour t
+downloadLatest family year month day hour process = do
+    let url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/latest/%04d%02d%02d/MSM%04d%02d%02d%02d%c.nc" year month day year month day hour (symbol family)
     req <- Http.parseRequest url
     manager <- Http.newManager Http.defaultManagerSettings
     withHTTP req manager $ process . Http.responseBody
@@ -127,3 +129,9 @@ foreign import ccall get_barometric_items :: CString ->
                                              Ptr Barometric.Item ->
                                              CSize ->
                                              IO CSize
+
+
+symbol :: Family ->
+          Char
+symbol Surface = 'S'
+symbol Barometric = 'P'
