@@ -51,6 +51,7 @@ import Volare.Foundation
 import Volare.Handler.Utils
     ( addCommonLibraries
     , addRequireJS
+    , maybeNotFound
     )
 import Volare.Settings (widgetFile)
 import qualified Volare.Static as S
@@ -63,9 +64,9 @@ getUASR :: Int ->
            Int ->
            Int ->
            Handler TypedContent
-getUASR stationId year month day hour = do
-    case UAS.station stationId of
-        Just station -> selectRep $ do
+getUASR stationId year month day hour =
+    maybeNotFound (pure $ UAS.station stationId) $ \station ->
+        selectRep $ do
             provideRep $ defaultLayout $ do
                 setTitle "Upper Air Sounding - Volare"
                 addCommonLibraries
@@ -77,7 +78,6 @@ getUASR stationId year month day hour = do
                 liftIO (load station year month day hour manager) >>= \case
                     Just items -> return $ JSON.toJSON items
                     Nothing -> notFound
-        Nothing -> notFound
 
 
 getUASStationsR :: Handler TypedContent

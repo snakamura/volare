@@ -6,12 +6,12 @@ module Volare.Handler.Route
 
 import Data.Aeson ((.:))
 import qualified Data.Aeson as JSON
-import Yesod.Core.Handler (notFound)
 import Yesod.Core.Json (requireJsonBody)
 import Yesod.Persist (runDB)
 
 import qualified Volare.Domain as D
 import Volare.Foundation
+import Volare.Handler.Utils (maybeNotFound)
 import qualified Volare.Model as M
 
 
@@ -41,11 +41,9 @@ postRoutesR = do
 
 getRouteR :: M.RouteId ->
              Handler JSON.Value
-getRouteR routeId = do
-    route <- runDB $ D.getRouteWithWaypoints routeId
-    case route of
-        Just r -> return $ JSON.toJSON r
-        Nothing -> notFound
+getRouteR routeId =
+    maybeNotFound (runDB $ D.getRouteWithWaypoints routeId) $ \route ->
+        return $ JSON.toJSON route
 
 
 deleteRouteR :: M.RouteId ->
