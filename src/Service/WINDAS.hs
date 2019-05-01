@@ -149,7 +149,7 @@ downloadArchive year month day hour manager process = do
     case file of
         Just name -> do
             let url = baseURL year month day <> TL.fromStrict name
-            req <- Http.parseRequest $ TL.unpack url
+            req <- Http.parseUrlThrow $ TL.unpack url
             withHTTP req manager $ process . Http.responseBody
         Nothing -> throwIO $ mkIOError doesNotExistErrorType "File not found" Nothing Nothing
   where
@@ -164,7 +164,7 @@ listFiles :: (MonadIO m, MonadThrow m) =>
              Http.Manager ->
              Producer T.Text m ()
 listFiles year month day manager = do
-    req <- lift $ Http.parseRequest $ TL.unpack $ baseURL year month day
+    req <- lift $ Http.parseUrlThrow $ TL.unpack $ baseURL year month day
     files <- liftIO $ (parseDirectory . Http.responseBody) <$> Http.httpLbs req manager
     each files
 

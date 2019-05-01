@@ -68,7 +68,7 @@ download :: (MonadIO m, MonadThrow m) =>
 download station year month day manager = do
     let c = if Types.block station >= 10000 then 's' else 'a'
         url = F.format ("http://www.data.jma.go.jp/obd/stats/etrn/view/10min_" % F.char % "1.php?prec_no=" % F.int % "&block_no=" % F.left 4 '0' % "&year=" % F.int % "&month=" % F.int % "&day=" % F.int % "&view=p1") c (Types.prec station) (Types.block station) year month day
-    req <- lift $ Http.parseRequest $ TL.unpack url
+    req <- lift $ Http.parseUrlThrow $ TL.unpack url
     items <- liftIO $ (parseHtml . Http.responseBody) <$> Http.httpLbs req manager
     P.each items
 
