@@ -717,16 +717,17 @@ define([
 
         Util.distance = function(latitude1, longitude1, latitude2, longitude2) {
             var r = 6378137;
-            var dx = (longitude1 - longitude2)/180*Math.PI;
+            var dx = (longitude2 - longitude1)/180*Math.PI;
             var y1 = latitude1/180*Math.PI;
             var y2 = latitude2/180*Math.PI;
             return r*Math.acos(Math.sin(y1)*Math.sin(y2) + Math.cos(y1)*Math.cos(y2)*Math.cos(dx));
         };
 
         Util.direction = function(latitude1, longitude1, latitude2, longitude2) {
-            var y = Math.cos(latitude2)*Math.sin(longitude2 - longitude1);
-            var x = Math.cos(latitude1)*Math.sin(latitude2) - Math.sin(latitude1)*Math.cos(latitude2)*Math.cos(longitude2 - longitude1);
-            var t = Math.atan2(y, x);
+            var dx = (longitude1 - longitude2)/180*Math.PI;
+            var x = Math.sin(dx);
+            var y = Math.cos(latitude1/180*Math.PI)*Math.tan(latitude2/180*Math.PI) - Math.sin(latitude1/180*Math.PI)*Math.cos(dx);
+            var t = Math.PI/2 - Math.atan2(y, x);
             return t < 0 ? t + 2*Math.PI : t;
         };
 
