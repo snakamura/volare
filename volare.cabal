@@ -182,12 +182,12 @@ executable volare
         if os(darwin)
             ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,@executable_path/../../../../../../msm/lib
         else
-            ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,$ORIGIN/../../../../../../msm/lib
+            ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,'$ORIGIN/../../../../../../msm/lib'
     else
         if os(darwin)
             ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,@executable_path/../../../msm/lib
         else
-            ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,$ORIGIN/../../../msm/lib
+            ghc-options: -Wall -Werror -threaded -O2 -optl-Wl,-rpath,'$ORIGIN/../../../msm/lib'
 
 test-suite doctest
     type: exitcode-stdio-1.0
@@ -266,9 +266,9 @@ test-suite spec
         if os(darwin)
             ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,@executable_path/../../../../../../msm/lib
         else
-            ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,$ORIGIN/../../../../../../msm/lib
+            ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,'$ORIGIN/../../../../../../msm/lib'
     else
         if os(darwin)
             ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,@executable_path/../../../msm/lib
         else
-            ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,$ORIGIN/../../../msm/lib
+            ghc-options: -Wall -Werror -threaded -O0 -optl-Wl,-rpath,'$ORIGIN/../../../msm/lib'

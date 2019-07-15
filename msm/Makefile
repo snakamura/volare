@@ -8,7 +8,7 @@ UNAME:=$(shell uname -s)
 ifeq ($(UNAME),Linux)
 	SO=so
 	INSTALL_NAME=
-	ORIGIN=$ORIGIN
+	ORIGIN=$$ORIGIN
 endif
 ifeq ($(UNAME),Darwin)
 	SO=dylib
