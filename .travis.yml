@@ -72,6 +72,7 @@ install:
         travis_retry cabal install --jobs --only-dependencies --enable-tests --reorder-goals
         ;;
       stack)
+        stack --version
         stack --no-terminal build -j 1 haskell-src-exts
         stack --no-terminal --install-ghc test --only-dependencies
         ;;
