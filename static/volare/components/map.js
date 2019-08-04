@@ -150,9 +150,10 @@ define([
         Map.prototype.setWeatherFlags = function(flags, mask) {
             this._weatherFlags = (this._weatherFlags & ~mask) | (flags & mask);
 
+            var self = this;
             _.each(this._weatherOverlays, function(weatherOverlay, mask) {
-                weatherOverlay.setFlags(this._map, this._weatherFlags & mask);
-            }, this);
+                weatherOverlay.setFlags(self._map, self._weatherFlags & mask);
+            });
 
             $(this).trigger('weatherFlags_changed', this._weatherFlags);
         };
@@ -1389,6 +1390,7 @@ define([
             $div.css('height', (sw.y - ne.y) + 'px');
 
             if (!_.isEmpty(this._stations)) {
+                var self = this;
                 _.each(this._stations, function(station) {
                     var pos = projection.fromLatLngToDivPixel(new LatLng(station.latitude, station.longitude));
                     var $elem = $('<div class="item"><div class="cell"></div></div>');
@@ -1396,13 +1398,12 @@ define([
                     $elem.css('top', (pos.y - 10) + 'px');
                     $elem.css('background', 'url(' + require.toUrl('./image/weather/uas.png') + ')');
 
-                    var self = this;
                     $elem.on('click', function() {
                         self._open(station);
                     });
 
                     $div.append($elem);
-                }, this);
+                });
             }
 
             var $mouseTarget = this._$mouseTarget;

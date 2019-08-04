@@ -15,7 +15,7 @@ define([
     module.controller('WaypointsController', ['$scope', '$http', function($scope, $http) {
         $scope.waypoints = [];
         $scope.addWaypoint = function(waypoint) {
-            var index = _.sortedIndex(this.waypoints, waypoint, function(waypoint) {
+            var index = _.sortedIndexBy(this.waypoints, waypoint, function(waypoint) {
                 return waypoint.name;
             });
             this.waypoints.splice(index, 0, waypoint);

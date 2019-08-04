@@ -539,13 +539,13 @@ define([
                     ]);
                 }
 
-                var higherTemperatures = _.pluck(_.tail(temperatures(_.takeWhile(pressures, function(p) {
+                var higherTemperatures = _.map(_.tail(temperatures(_.takeWhile(pressures, function(p) {
                     return p > basePressure;
                 }).reverse())), 't').reverse();
-                var lowerTemperatures = _.pluck(_.tail(temperatures(_.dropWhile(pressures, function(p) {
+                var lowerTemperatures = _.map(_.tail(temperatures(_.dropWhile(pressures, function(p) {
                     return p >= basePressure;
                 }))), 't');
-                var baseTemperatures = _.contains(pressures, basePressure) ? [baseTemperature] : [];
+                var baseTemperatures = _.includes(pressures, basePressure) ? [baseTemperature] : [];
 
                 return higherTemperatures.concat(baseTemperatures).concat(lowerTemperatures);
             }

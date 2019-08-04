@@ -94,26 +94,28 @@ define([
                             context.fillText(formatTime(t), x, height - margin.bottom + 12);
                     }
 
+                    var self = this;
                     context.textAlign = 'end';
                     _.each(scope.range.steps, function(step) {
                         context.strokeStyle = step.primary ? 'black' : 'gray';
 
-                        var y = this.getY(step.value);
+                        var y = self.getY(step.value);
                         context.beginPath();
                         context.moveTo(startX, y);
                         context.lineTo(endX, y);
                         context.stroke();
 
                         context.fillText(step.label, margin.left - 4, y + 5);
-                    }, this);
+                    });
 
                     context.stroke();
                 };
 
                 scope.drawStrokes = function(context, strokes) {
+                    var self = this;
                     _.each(strokes, function(stroke) {
-                        this.drawStroke(context, stroke);
-                    }, this);
+                        self.drawStroke(context, stroke);
+                    });
                 };
 
                 scope.drawStroke = function(context, stroke) {

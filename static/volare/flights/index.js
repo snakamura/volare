@@ -23,7 +23,7 @@ define([
         $scope.addFlight = function(flight) {
             initFlight(flight);
 
-            var index = _.sortedIndex(this.flights, flight, function(flight) {
+            var index = _.sortedIndexBy(this.flights, flight, function(flight) {
                 return -flight.time.getTime();
             });
             this.flights.splice(index, 0, flight);

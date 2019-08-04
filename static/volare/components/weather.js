@@ -37,7 +37,7 @@ define([
         $scope.windasAltitudes = [1000, 1500, 2000, 2500, 3000];
 
         $scope.check = function(flags) {
-            return _.any(flags);
+            return _.some(flags);
         };
         $scope.toggle = function(mask) {
             if ($scope.mapWeatherFlags & mask)

@@ -21,15 +21,16 @@ define([
         SpeedGraphController.prototype.getStrokes = function(currentTime, withContext, partial) {
             var flights = this.getFlights();
 
+            var self = this;
             var strokes = [];
             flights.eachFlight(function(flight) {
                 if (flight.isVisible()) {
                     var graphContext = null;
                     if (withContext) {
-                        graphContext = flight.getExtra(this._name);
+                        graphContext = flight.getExtra(self._name);
                         if (!graphContext) {
                             graphContext = new SpeedGraphContext();
-                            flight.setExtra(this._name, graphContext);
+                            flight.setExtra(self._name, graphContext);
                         }
                         if (!partial)
                             graphContext.reset();
@@ -55,13 +56,13 @@ define([
                     if (startTime) {
                         stroke.points.push({
                             time: startTime,
-                            value: this.getValue(flight, startTime)
+                            value: self.getValue(flight, startTime)
                         });
                         for (var time = startTime.getTime() + step; time < endTime.getTime(); time += step) {
                             var t = new Date(time);
                             stroke.points.push({
                                 time: t,
-                                value: this.getValue(flight, t)
+                                value: self.getValue(flight, t)
                             });
                         }
                         if (graphContext)
@@ -69,7 +70,7 @@ define([
                     }
                     strokes.push(stroke);
                 }
-            }, this);
+            });
             return strokes;
         };
 

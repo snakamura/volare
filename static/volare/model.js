@@ -43,12 +43,12 @@ define([
             }, 0);
         };
 
-        Flights.prototype.eachFlight = function(iterator, context) {
-            _.each(this._flights, iterator, context);
+        Flights.prototype.eachFlight = function(iterator) {
+            _.each(this._flights, iterator);
         };
 
-        Flights.prototype.mapFlight = function(iterator, context) {
-            return _.map(this._flights, iterator, context);
+        Flights.prototype.mapFlight = function(iterator) {
+            return _.map(this._flights, iterator);
         };
 
         Flights.prototype.getFlight = function(id) {
@@ -149,7 +149,7 @@ define([
         };
 
         Flights.prototype.addFlight = function(flight, primary) {
-            var index = _.sortedIndex(this._flights, flight, function(flight) {
+            var index = _.sortedIndexBy(this._flights, flight, function(flight) {
                 return flight.getName();
             });
             this._flights.splice(index, 0, flight);
@@ -524,7 +524,7 @@ define([
         };
 
         Flight.prototype._getRecordIndexAt = function(time) {
-            return _.sortedIndex(this._records, { time: time }, function(record) {
+            return _.sortedIndexBy(this._records, { time: time }, function(record) {
                 return record.time;
             });
         };

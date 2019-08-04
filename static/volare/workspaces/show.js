@@ -166,7 +166,7 @@ define([
     module.controller('WorkspaceAddFlightController', ['$scope', '$http', 'workspaceId', function($scope, $http, workspaceId) {
         $scope.flights = [];
         $scope.add = function() {
-            var flightIds = _.pluck(_.filter(this.flights, function(flight) {
+            var flightIds = _.map(_.filter(this.flights, function(flight) {
                 return flight.selected;
             }), 'id');
             this.$close(flightIds);
@@ -183,7 +183,7 @@ define([
     module.controller('WorkspaceRemoveFlightController', ['$scope', 'flights', function($scope, flights) {
         $scope.flights = flights;
         $scope.remove = function() {
-            var flightIds = _.pluck(_.filter(this.flights, function(flight) {
+            var flightIds = _.map(_.filter(this.flights, function(flight) {
                 return flight.selected;
             }), 'id');
             this.$close(flightIds);
