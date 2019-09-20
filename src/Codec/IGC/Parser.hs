@@ -39,7 +39,9 @@ igc = recordA *> (IGC <$> headers <*> (catMaybes <$> many record)) <* many recor
 
 
 headers :: Parser Day
-headers = hfdte <* many recordH
+headers = date <* many recordH
+  where
+    date = hfdte <|> (recordH *> date)
 
 
 record :: Parser (Maybe Record)
@@ -64,10 +66,10 @@ recordH = char 'H' *> line
 
 hfdte :: Parser Day
 hfdte = hfdteNew <|> hfdteOld
-    where
-      hfdteNew = string "HFDTEDATE:" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* option ' ' (char ',' <* digits 2) <* newline
-      hfdteOld = string "HFDTE" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* newline
-      toDay d m y = fromGregorian (fromIntegral (2000 + y)) m d
+  where
+    hfdteNew = string "HFDTEDATE:" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* option ' ' (char ',' <* digits 2) <* newline
+    hfdteOld = string "HFDTE" *> (toDay <$> digits 2 <*> digits 2 <*> digits 2) <* newline
+    toDay d m y = fromGregorian (fromIntegral (2000 + y)) m d
 
 
 position :: Parser Position
