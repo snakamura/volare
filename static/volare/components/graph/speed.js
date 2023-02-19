@@ -1,3 +1,4 @@
+/* jshint -W003 */
 define([
     'angular',
     'volare/components/graph',

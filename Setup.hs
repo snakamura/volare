@@ -95,7 +95,7 @@ volarePostConf :: Args ->
                   IO ()
 volarePostConf args flags description localBuildInfo = do
     rawSystemExit (fromFlag $ configVerbosity flags) "npm" ["install"]
-    rawSystemExit (fromFlag $ configVerbosity flags) "grunt" ["bower:install"]
+    rawSystemExit (fromFlag $ configVerbosity flags) "npx" ["grunt", "bower:install"]
     postConf simpleUserHooks args flags description localBuildInfo
 
 
@@ -108,7 +108,7 @@ volareBuildHook description localBuildInfo hooks flags = do
     let f = configConfigurationsFlags $ configFlags localBuildInfo
         dev = fromMaybe False (PD.lookupFlagAssignment (PD.mkFlagName "dev") f) || fromMaybe False (PD.lookupFlagAssignment (PD.mkFlagName "library-only") f)
     unless dev $
-        rawSystemExit (fromFlag $ buildVerbosity flags) "grunt" ["build"]
+        rawSystemExit (fromFlag $ buildVerbosity flags) "npx" ["grunt", "build"]
     buildHook simpleUserHooks description localBuildInfo hooks flags
 
 
@@ -121,7 +121,7 @@ volarePostClean args flags description _ = do
     rawSystemExit (fromFlag $ cleanVerbosity flags) "/bin/sh" ["-c", "cd msm && make clean"]
     b <- doesDirectoryExist "node_modules"
     when b $
-        rawSystemExit (fromFlag $ cleanVerbosity flags) "grunt" ["clean"]
+        rawSystemExit (fromFlag $ cleanVerbosity flags) "npx" ["grunt", "clean"]
     safeRemoveDirectory "node_modules"
     postClean simpleUserHooks args flags description ()
 

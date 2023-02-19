@@ -5,6 +5,7 @@
     "fallback-colors": false,
     "ids": false,
     "important": false,
+    "order-alphabetical": false,
     "overqualified-elements": false,
     "unqualified-attributes": false
 }

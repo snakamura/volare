@@ -21,6 +21,7 @@ module.exports = function(grunt) {
                     targetDir: '<%= bowerTargetDir %>',
                     layout: 'byType',
                     install: true,
+                    copy: true,
                     verbose: false,
                     cleanTargetDir: true,
                     cleanBowerDir: false
