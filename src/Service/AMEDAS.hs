@@ -67,7 +67,7 @@ download :: (MonadIO m, MonadThrow m) =>
             P.Producer Types.Item m ()
 download station year month day manager = do
     let c = if Types.block station >= 10000 then 's' else 'a'
-        url = F.format ("http://www.data.jma.go.jp/obd/stats/etrn/view/10min_" % F.char % "1.php?prec_no=" % F.int % "&block_no=" % F.left 4 '0' % "&year=" % F.int % "&month=" % F.int % "&day=" % F.int % "&view=p1") c (Types.prec station) (Types.block station) year month day
+        url = F.format ("https://www.data.jma.go.jp/obd/stats/etrn/view/10min_" % F.char % "1.php?prec_no=" % F.int % "&block_no=" % F.left 4 '0' % "&year=" % F.int % "&month=" % F.int % "&day=" % F.int % "&view=p1") c (Types.prec station) (Types.block station) year month day
     req <- lift $ Http.parseUrlThrow $ TL.unpack url
     items <- liftIO $ (parseHtml . Http.responseBody) <$> Http.httpLbs req manager
     P.each items
@@ -128,7 +128,7 @@ parseHtml = mapMaybe parseItem
 
 makeItem :: [BL.ByteString] ->
             Maybe Types.Item
-makeItem [time, precipitation, temperature, windSpeed, windDirection, maxWindSpeed, maxWindDirection, sunshine] =
+makeItem [time, precipitation, temperature, _, windSpeed, windDirection, maxWindSpeed, maxWindDirection, sunshine] =
     makeItem [time, "", "", precipitation, temperature, "", windSpeed, windDirection, maxWindSpeed, maxWindDirection, sunshine]
 makeItem [time, _, _, precipitation, temperature, _, windSpeed, windDirection, _, _, sunshine] = do
     time' <- parseTime $ BLU.toString time

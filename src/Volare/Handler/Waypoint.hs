@@ -15,7 +15,6 @@ import Data.Aeson
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Database.Persist
@@ -30,7 +29,7 @@ import Yesod.Core.Handler
     , provideRep
     , selectRep
     )
-import Yesod.Core.Json (requireJsonBody)
+import Yesod.Core.Json (requireCheckJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget
     ( addStylesheet
@@ -74,7 +73,7 @@ instance JSON.FromJSON NewWaypoint where
 
 postWaypointsR :: Handler JSON.Value
 postWaypointsR = do
-    NewWaypoint name wptBytes <- requireJsonBody
+    NewWaypoint name wptBytes <- requireCheckJsonBody
     w <- evalStateT GeoWpt.parser $ PB.fromLazy $ BL.fromStrict wptBytes
     case w of
         Just wpt -> do
@@ -123,7 +122,7 @@ instance JSON.FromJSON EditWaypoint where
 putWaypointR :: M.WaypointId ->
                 Handler JSON.Value
 putWaypointR waypointId = do
-    EditWaypoint name <- requireJsonBody
+    EditWaypoint name <- requireCheckJsonBody
     waypoint <- runDB $ do
         D.updateWaypoint waypointId (Just name)
         D.getWaypoint waypointId

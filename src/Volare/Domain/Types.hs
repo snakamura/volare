@@ -31,7 +31,6 @@ type Delete model r = forall m backend. ( Functor m
                                         , Monad m
                                         , MonadIO m
                                         , P.PersistStore backend
-                                        , P.DeleteCascade model backend
                                         , backend ~ P.PersistEntityBackend model
                                         ) =>
                       ReaderT backend m r

@@ -15,7 +15,6 @@ import Data.Aeson
     , (.:?)
     )
 import qualified Data.Aeson as JSON
-import Data.Monoid ((<>))
 import qualified Data.Text as T
 import Database.Persist (entityVal)
 import Text.Blaze.Html (toHtml)
@@ -24,7 +23,7 @@ import Yesod.Core.Handler
     ( provideRep
     , selectRep
     )
-import Yesod.Core.Json (requireJsonBody)
+import Yesod.Core.Json (requireCheckJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget
     ( addStylesheet
@@ -68,7 +67,7 @@ getWorkspacesR =
 
 postWorkspacesR :: Handler JSON.Value
 postWorkspacesR = do
-    NewWorkspace name <- requireJsonBody
+    NewWorkspace name <- requireCheckJsonBody
     workspace <- runDB $ do
         workspaceId <- D.addWorkspace name
         D.getWorkspace workspaceId
@@ -103,7 +102,7 @@ instance JSON.FromJSON EditWorkspace where
 putWorkspaceR :: M.WorkspaceId ->
                  Handler JSON.Value
 putWorkspaceR workspaceId = do
-    EditWorkspace name routeId <- requireJsonBody
+    EditWorkspace name routeId <- requireCheckJsonBody
     workspace <- runDB $ do
         D.updateWorkspace workspaceId name routeId
         D.getWorkspace workspaceId
@@ -133,7 +132,7 @@ instance JSON.FromJSON NewWorkspaceFlight where
 postWorkspaceFlightsR :: M.WorkspaceId ->
                          Handler JSON.Value
 postWorkspaceFlightsR workspaceId = do
-    NewWorkspaceFlight flightIds <- requireJsonBody
+    NewWorkspaceFlight flightIds <- requireCheckJsonBody
     runDB $ JSON.toJSON <$> D.addWorkspaceFlight workspaceId flightIds
 
 

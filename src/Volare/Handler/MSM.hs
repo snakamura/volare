@@ -15,8 +15,8 @@ import qualified Control.Exception as E
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as JSON
+import qualified Data.Aeson.KeyMap as JSONKeyMap
 import qualified Data.ByteString as B
-import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Data.Time
@@ -94,7 +94,7 @@ getData prepareDataFile getItems hour = do
         (Just nwLat, Just nwLng, Just seLat, Just seLng) -> liftIO $ do
             (timestamp, path) <- prepareDataFile
             items <- getItems path (nwLat, nwLng) (seLat, seLng) hour
-            return $ JSON.Object $ HashMap.fromList [("timestamp", JSON.toJSON timestamp), ("items", JSON.toJSON items)]
+            return $ JSON.Object $ JSONKeyMap.fromList [("timestamp", JSON.toJSON timestamp), ("items", JSON.toJSON items)]
         _ -> notFound
 
 

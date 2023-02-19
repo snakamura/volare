@@ -2,6 +2,7 @@ module AMEDASSpec (spec) where
 
 import Data.Maybe (fromJust)
 import qualified Network.HTTP.Client as Http
+import qualified Network.HTTP.Client.TLS as Http
 import Pipes ((>->))
 import qualified Pipes as P
 import qualified Pipes.ByteString as PB
@@ -29,7 +30,7 @@ spec = do
         it "returns stations in a specified range" $ do
             length (AMEDAS.stations (37, 140) (36, 141)) `shouldBe` 16
 
-    manager <- runIO $ Http.newManager Http.defaultManagerSettings
+    manager <- runIO $ Http.newManager Http.tlsManagerSettings
 
     let downloadSimple = let station = fromJust $ AMEDAS.station "Higashishirakawa"
                          in AMEDAS.download station 2014 4 26 manager

@@ -110,4 +110,4 @@ updateFlight flightId name =
 
 deleteFlight :: P.Key M.Flight ->
                 Delete M.Flight ()
-deleteFlight = P.deleteCascade
+deleteFlight = P.delete

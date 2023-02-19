@@ -12,6 +12,7 @@ import Database.Persist.Class
     )
 import Database.Persist.Sql (runMigration)
 import qualified Network.HTTP.Client as Http
+import qualified Network.HTTP.Client.TLS as Http
 import Network.Wai (Application)
 import Yesod.Core.Dispatch
     ( mkYesodDispatch
@@ -44,7 +45,7 @@ makeVolare settings = do
     let persistConfig = Settings.persistConfig settings
     pool <- createPoolConfig persistConfig
     runStderrLoggingT $ runPool persistConfig (runMigration migrateAll) pool
-    manager <- Http.newManager Http.defaultManagerSettings
+    manager <- Http.newManager Http.tlsManagerSettings
     static <- staticSite
     return $ Volare settings pool manager static
 

@@ -76,4 +76,4 @@ addRoute items = do
 
 deleteRoute :: P.Key M.Route ->
                Delete M.Route ()
-deleteRoute = P.deleteCascade
+deleteRoute = P.delete

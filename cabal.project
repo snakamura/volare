@@ -1,0 +1,2 @@
+packages: volare.cabal
+write-ghc-environment-files: always

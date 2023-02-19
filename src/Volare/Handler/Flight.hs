@@ -24,7 +24,6 @@ import Data.Aeson
 import qualified Data.Aeson as JSON
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
-import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Data.Time (diffUTCTime)
@@ -40,7 +39,7 @@ import Yesod.Core.Handler
     , provideRep
     , selectRep
     )
-import Yesod.Core.Json (requireJsonBody)
+import Yesod.Core.Json (requireCheckJsonBody)
 import Yesod.Core.Types (TypedContent)
 import Yesod.Core.Widget
     ( addStylesheet
@@ -89,7 +88,7 @@ instance JSON.FromJSON NewFlight where
 
 postFlightsR :: Handler JSON.Value
 postFlightsR = do
-    NewFlight name igcBytes <- requireJsonBody
+    NewFlight name igcBytes <- requireCheckJsonBody
     i <- evalStateT IGC.parser $ PB.fromLazy $ BL.fromStrict igcBytes
     case i of
       Just igc -> do
@@ -159,7 +158,7 @@ instance JSON.FromJSON EditFlight where
 putFlightR :: M.FlightId ->
               Handler JSON.Value
 putFlightR flightId = do
-    EditFlight name <- requireJsonBody
+    EditFlight name <- requireCheckJsonBody
     flight <- runDB $ do
         D.updateFlight flightId (Just name)
         D.getFlight flightId

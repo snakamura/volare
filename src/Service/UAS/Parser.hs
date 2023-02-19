@@ -21,7 +21,6 @@ import Data.Attoparsec.ByteString.Char8
 import Data.Attoparsec.Combinator (count)
 import Data.Monoid
     ( First(First)
-    , (<>)
     , getFirst
     )
 

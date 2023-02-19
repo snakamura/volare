@@ -28,6 +28,7 @@ import Foreign.Ptr
     )
 import Foreign.Storable (Storable)
 import qualified Network.HTTP.Client as Http
+import qualified Network.HTTP.Client.TLS as Http
 import Pipes (Producer)
 import Pipes.HTTP (withHTTP)
 import Text.Printf (printf)
@@ -92,7 +93,7 @@ download :: Family ->
 download family year month day process = do
     let url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/netcdf/MSM-%c/%04d/%02d%02d.nc" (symbol family) year month day
     req <- Http.parseUrlThrow url
-    manager <- Http.newManager Http.defaultManagerSettings
+    manager <- Http.newManager Http.tlsManagerSettings
     withHTTP req manager $ process . Http.responseBody
 
 
@@ -106,7 +107,7 @@ downloadLatest :: Family ->
 downloadLatest family year month day hour process = do
     let url = printf "http://database.rish.kyoto-u.ac.jp/arch/jmadata/data/gpv/latest/%04d%02d%02d/MSM%04d%02d%02d%02d%c.nc" year month day year month day hour (symbol family)
     req <- Http.parseUrlThrow url
-    manager <- Http.newManager Http.defaultManagerSettings
+    manager <- Http.newManager Http.tlsManagerSettings
     withHTTP req manager $ process . Http.responseBody
 
 

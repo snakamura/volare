@@ -1,8 +1,12 @@
 module UASSpec (spec) where
 
 import Control.Monad.Trans.State.Strict (evalStateT)
-import Data.Maybe (isJust)
+import Data.Maybe
+    ( fromJust
+    , isJust
+    )
 import qualified Network.HTTP.Client as Http
+import qualified Network.HTTP.Client.TLS as Http
 import qualified Pipes.ByteString as PB
 import System.IO
     ( IOMode(ReadMode)
@@ -24,20 +28,20 @@ import SpecUtils
 
 spec :: Spec
 spec = do
-    manager <- runIO $ Http.newManager Http.defaultManagerSettings
+    manager <- runIO $ Http.newManager Http.tlsManagerSettings
 
     describe "download" $ do
         it "downloads raw data" $ do
-            let Just station = UAS.station 47646
+            let station = fromJust $ UAS.station 47646
             hash <- UAS.download station 2014 04 26 0 manager sha1
-            hash `shouldBe` "c54fc17de4f436c0742f8ffa25af7d23d11842d7"
+            hash `shouldBe` "0b423e77d92acaef2a3245c12041721f6c0681ce"
 
     describe "parse" $ do
         it "succeeds in parsing a file" $ do
             withFile "test/uas_2014042600.txt" ReadMode $ \handle -> do
                 observation <- evalStateT UAS.parser $ PB.fromHandle handle
                 observation `shouldSatisfy` isJust
-                let Just o = observation
+                let o = fromJust observation
                 UAS.day o `shouldBe` 26
                 UAS.hour o `shouldBe` 0
                 UAS.stationId o `shouldBe` 47646

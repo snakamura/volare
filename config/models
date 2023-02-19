@@ -10,7 +10,7 @@ Flight json
   maxAltitude Double
   deriving Show
 Record json
-  flightId FlightId
+  flightId FlightId OnDeleteCascade
   index Int
   time UTCTime
   latitude Double
@@ -20,11 +20,11 @@ Record json
 Workspace json
   name T.Text
   created UTCTime "default=timezone('UTC'::text, now())"
-  route RouteId Maybe
+  route RouteId Maybe OnDeleteCascade
   deriving Show
 WorkspaceFlight json
-  workspaceId WorkspaceId
-  flightId FlightId
+  workspaceId WorkspaceId OnDeleteCascade
+  flightId FlightId OnDeleteCascade
   color T.Text
   UniqueWorkspaceFlight workspaceId flightId
   deriving Show
@@ -32,7 +32,7 @@ Waypoint json
   name T.Text
   deriving Show
 WaypointItem json
-  waypointId WaypointId
+  waypointId WaypointId OnDeleteCascade
   name T.Text
   latitude Double
   longitude Double
@@ -42,7 +42,7 @@ WaypointItem json
 Route json
   deriving Show
 RouteItem json
-  routeId RouteId
+  routeId RouteId OnDeleteCascade
   index Int
   waypointItemId WaypointItemId
   radius Int

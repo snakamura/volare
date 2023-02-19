@@ -1,4 +1,5 @@
 dist
+dist-newstyle
 yesod-devel
 cabal.sandbox.config
 .cabal-sandbox
@@ -6,3 +7,5 @@ node_modules
 bower_components
 static_build
 .stack-work
+.ghc.environment.*
+cabal.project.local*

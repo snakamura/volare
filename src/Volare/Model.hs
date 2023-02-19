@@ -6,8 +6,7 @@ import qualified Data.Text as T
 import Data.Time (UTCTime)
 import Database.Persist.Quasi (lowerCaseSettings)
 import Database.Persist.TH
-    ( mkDeleteCascade
-    , mkMigrate
+    ( mkMigrate
     , mkPersist
     , persistFileWith
     , share
@@ -15,4 +14,4 @@ import Database.Persist.TH
 
 import Volare.Model.Settings (settings)
 
-share [mkPersist settings, mkMigrate "migrateAll", mkDeleteCascade settings] $(persistFileWith lowerCaseSettings "config/models")
+share [mkPersist settings, mkMigrate "migrateAll"] $(persistFileWith lowerCaseSettings "config/models")

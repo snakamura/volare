@@ -1,8 +1,12 @@
 module WINDASSpec (spec) where
 
 import Control.Monad.Trans.State.Strict (evalStateT)
-import Data.Maybe (catMaybes)
+import Data.Maybe
+    ( catMaybes
+    , fromJust
+    )
 import qualified Network.HTTP.Client as Http
+import qualified Network.HTTP.Client.TLS as Http
 import Pipes
     ( (>->)
     , await
@@ -28,7 +32,7 @@ import SpecUtils
 
 spec :: Spec
 spec = do
-    manager <- runIO $ Http.newManager Http.defaultManagerSettings
+    manager <- runIO $ Http.newManager Http.tlsManagerSettings
 
     describe "downloadArchive" $ do
         it "downloads an archive" $ do
@@ -38,7 +42,7 @@ spec = do
     describe "parseStation" $ do
         it "parses observations for a specified station" $ do
             let path = "test/IUPC00_COMP_201409140326300_010_37112.send.tar.gz"
-                Just station = WINDAS.station 47629
+                station = fromJust $ WINDAS.station 47629
             withFile path ReadMode $ \handle ->
                 runEffect $ WINDAS.parseStation station (PB.fromHandle handle) >-> P.drop 2 >-> do
                     observation <- await

@@ -62,4 +62,4 @@ updateWaypoint waypointId name =
 
 deleteWaypoint :: P.Key M.Waypoint ->
                   Delete M.Waypoint ()
-deleteWaypoint = P.deleteCascade
+deleteWaypoint = P.delete

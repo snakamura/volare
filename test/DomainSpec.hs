@@ -83,12 +83,12 @@ spec = do
             M.flightName flightVal `shouldBe'` name
             M.flightTime flightVal `shouldBe'` UTCTime (fromGregorian 2014 3 15) (2*60*60 + 8*60 + 35)
             M.flightDuration flightVal `shouldBe'` 10344
-            M.flightMinLatitude flightVal `shouldBe'` 36.313835144043
-            M.flightMaxLatitude flightVal `shouldBe'` 36.826000213623
-            M.flightMinLongitude flightVal `shouldBe'` 140.117538452148
-            M.flightMaxLongitude flightVal `shouldBe'` 140.188369750977
-            M.flightMinAltitude flightVal `shouldBe'` 148.0
-            M.flightMaxAltitude flightVal `shouldBe'` 1966.0
+            M.flightMinLatitude flightVal `shouldApproximatelyBe'` 36.313835144043
+            M.flightMaxLatitude flightVal `shouldApproximatelyBe'` 36.826000213623
+            M.flightMinLongitude flightVal `shouldApproximatelyBe'` 140.117538452148
+            M.flightMaxLongitude flightVal `shouldApproximatelyBe'` 140.188369750977
+            M.flightMinAltitude flightVal `shouldApproximatelyBe'` 148.0
+            M.flightMaxAltitude flightVal `shouldApproximatelyBe'` 1966.0
 
     describe "getFlightRecords" $ do
         it "returns records" $ runDB $ do
@@ -100,9 +100,9 @@ spec = do
             M.recordFlightId record `shouldBe'` flightId
             M.recordIndex record `shouldBe'` 101
             M.recordTime record `shouldBe'` UTCTime (fromGregorian 2014 3 15) (2*60*60 + 12*60 + 25)
-            M.recordLatitude record `shouldBe'` 36.3156318664551
-            M.recordLongitude record `shouldBe'` 140.179046630859
-            M.recordAltitude record `shouldBe'` 264.0
+            M.recordLatitude record `shouldApproximatelyBe'` 36.3156318664551
+            M.recordLongitude record `shouldApproximatelyBe'` 140.179046630859
+            M.recordAltitude record `shouldApproximatelyBe'` 264.0
 
     describe "addFlight" $ do
         it "adds a flight" $ runDB $ do
@@ -364,9 +364,9 @@ spec = do
             let item = P.entityVal $ items !! 43
             M.waypointItemWaypointId item `shouldBe'` waypointId
             M.waypointItemName item `shouldBe'` "B44002"
-            M.waypointItemLatitude item `shouldBe'` 36.1041641235352
-            M.waypointItemLongitude item `shouldBe'` 140.08723449707
-            M.waypointItemAltitude item `shouldBe'` 21.0
+            M.waypointItemLatitude item `shouldApproximatelyBe'` 36.1041641235352
+            M.waypointItemLongitude item `shouldApproximatelyBe'` 140.08723449707
+            M.waypointItemAltitude item `shouldApproximatelyBe'` 21.0
             M.waypointItemDescription item `shouldBe'` "KOK"
 
     describe "addWaypoint" $ do
@@ -435,9 +435,9 @@ spec = do
             length items `shouldBe'` 6
             let D.RouteItem _ (P.Entity _ item) radius = items !! 1
             M.waypointItemName item `shouldBe'` "B09012"
-            M.waypointItemLatitude item `shouldBe'` 36.3802833557129
-            M.waypointItemLongitude item `shouldBe'` 140.035491943359
-            M.waypointItemAltitude item `shouldBe'` 124.0
+            M.waypointItemLatitude item `shouldApproximatelyBe'` 36.3802833557129
+            M.waypointItemLongitude item `shouldApproximatelyBe'` 140.035491943359
+            M.waypointItemAltitude item `shouldApproximatelyBe'` 124.0
             M.waypointItemDescription item `shouldBe'` "GOL"
             radius `shouldBe'` 400
 

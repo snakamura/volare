@@ -37,7 +37,6 @@ import Data.List
     ( isInfixOf
     , nub
     , sort)
-import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy as TL

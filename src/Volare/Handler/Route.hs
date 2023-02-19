@@ -6,7 +6,7 @@ module Volare.Handler.Route
 
 import Data.Aeson ((.:))
 import qualified Data.Aeson as JSON
-import Yesod.Core.Json (requireJsonBody)
+import Yesod.Core.Json (requireCheckJsonBody)
 import Yesod.Persist (runDB)
 
 import qualified Volare.Domain as D
@@ -32,7 +32,7 @@ instance JSON.FromJSON NewRouteItem where
 
 postRoutesR :: Handler JSON.Value
 postRoutesR = do
-    NewRoute items <- requireJsonBody
+    NewRoute items <- requireCheckJsonBody
     route <- runDB $ do
         routeId <- D.addRoute $ map (\(NewRouteItem waypointItemId radius) -> (waypointItemId, radius)) items
         D.getRoute routeId
