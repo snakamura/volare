@@ -36,6 +36,7 @@ import Distribution.Simple.Setup
     , fromFlag
     )
 import Distribution.Simple.Utils (rawSystemExit)
+import Distribution.Utils.Path (makeSymbolicPath)
 import System.Directory
     ( doesDirectoryExist
     , getCurrentDirectory
@@ -63,7 +64,7 @@ volarePreConf args flags = do
                      " GLIBCXX=1"
                  else
                      ""
-    rawSystemExit (fromFlag $ configVerbosity flags) "/bin/sh" ["-c", "cd msm && make" ++ macros]
+    rawSystemExit (fromFlag $ configVerbosity flags) Nothing "/bin/sh" ["-c", "cd msm && make" ++ macros]
     return buildInfo
 
 
@@ -80,8 +81,8 @@ volareConfHook (description, buildInfo) flags = do
         localPkgDescr = packageDescription {
             PD.library = Just $ library {
                 PD.libBuildInfo = libraryBuildInfo {
-                    PD.includeDirs = (dir ++ "/msm"):PD.includeDirs libraryBuildInfo,
-                    PD.extraLibDirs = (dir ++ "/msm/lib"):PD.extraLibDirs libraryBuildInfo
+                    PD.includeDirs = makeSymbolicPath (dir ++ "/msm"):PD.includeDirs libraryBuildInfo,
+                    PD.extraLibDirs = makeSymbolicPath (dir ++ "/msm/lib"):PD.extraLibDirs libraryBuildInfo
                 }
             }
         }
@@ -94,8 +95,8 @@ volarePostConf :: Args ->
                   LocalBuildInfo ->
                   IO ()
 volarePostConf args flags description localBuildInfo = do
-    rawSystemExit (fromFlag $ configVerbosity flags) "npm" ["install"]
-    rawSystemExit (fromFlag $ configVerbosity flags) "npx" ["grunt", "bower:install"]
+    rawSystemExit (fromFlag $ configVerbosity flags) Nothing "npm" ["install"]
+    rawSystemExit (fromFlag $ configVerbosity flags) Nothing "npx" ["grunt", "bower:install"]
     postConf simpleUserHooks args flags description localBuildInfo
 
 
@@ -108,7 +109,7 @@ volareBuildHook description localBuildInfo hooks flags = do
     let f = configConfigurationsFlags $ configFlags localBuildInfo
         dev = fromMaybe False (PD.lookupFlagAssignment (PD.mkFlagName "dev") f) || fromMaybe False (PD.lookupFlagAssignment (PD.mkFlagName "library-only") f)
     unless dev $
-        rawSystemExit (fromFlag $ buildVerbosity flags) "npx" ["grunt", "build"]
+        rawSystemExit (fromFlag $ buildVerbosity flags) Nothing "npx" ["grunt", "build"]
     buildHook simpleUserHooks description localBuildInfo hooks flags
 
 
@@ -118,10 +119,10 @@ volarePostClean :: Args ->
                    () ->
                    IO ()
 volarePostClean args flags description _ = do
-    rawSystemExit (fromFlag $ cleanVerbosity flags) "/bin/sh" ["-c", "cd msm && make clean"]
+    rawSystemExit (fromFlag $ cleanVerbosity flags) Nothing "/bin/sh" ["-c", "cd msm && make clean"]
     b <- doesDirectoryExist "node_modules"
     when b $
-        rawSystemExit (fromFlag $ cleanVerbosity flags) "npx" ["grunt", "clean"]
+        rawSystemExit (fromFlag $ cleanVerbosity flags) Nothing "npx" ["grunt", "clean"]
     safeRemoveDirectory "node_modules"
     postClean simpleUserHooks args flags description ()
 

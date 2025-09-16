@@ -10,7 +10,6 @@ import Control.Exception
     ( Exception
     , throwIO)
 import qualified Data.ByteString as B
-import Data.Typeable (Typeable)
 import Foreign.C
     ( CFloat(..)
     , CInt(..)
@@ -41,7 +40,7 @@ import qualified Service.MSM.Surface as Surface
 data Family = Surface
             | Barometric
 
-data MSMException = MSMException deriving (Show, Typeable)
+data MSMException = MSMException deriving (Show)
 
 instance Exception MSMException
 

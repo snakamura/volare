@@ -27,11 +27,9 @@ import Data.Bits
     , zeroBits
     )
 import qualified Data.ByteString as B
-import Data.List (foldl')
 import Data.Maybe (catMaybes)
 import qualified Data.Text as T
 import Data.Word (Word8)
-import Data.Typeable (Typeable)
 import Lens.Family2.State.Strict (zoom)
 import Pipes ((>->))
 import qualified Pipes as P
@@ -61,7 +59,7 @@ data Bit = Zero
     deriving (Show, Eq, Enum)
 
 
-data ParseException = ParseException T.Text deriving (Show, Eq, Typeable)
+data ParseException = ParseException T.Text deriving (Show, Eq)
 
 instance Exception ParseException
 
